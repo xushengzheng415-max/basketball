@@ -1,16 +1,62 @@
 <view class="page-wrap">
   <text class="title">创建赛事</text>
-  <text class="desc">记录赛事名称、地点、日期，先把赛事建起来。</text>
+  <text class="desc">记录赛事信息，设置主客队，并从球员库选择参赛球员。</text>
+
   <view class="form-card">
     <input value="{{name}}" placeholder="赛事名称，例如：暑期篮球联赛" bindinput="onNameInput" />
     <input value="{{location}}" placeholder="比赛地点，例如：蜂巢 1 号场" bindinput="onLocationInput" />
     <input value="{{date}}" placeholder="比赛日期，例如：2026-07-20" bindinput="onDateInput" />
+
+    <view class="team-grid">
+      <view>
+        <text class="field-label">主队名称</text>
+        <input value="{{homeTeamName}}" placeholder="主队" bindinput="onHomeTeamInput" />
+      </view>
+      <view>
+        <text class="field-label">客队名称</text>
+        <input value="{{awayTeamName}}" placeholder="客队" bindinput="onAwayTeamInput" />
+      </view>
+    </view>
+
+    <view class="roster-grid">
+      <view class="roster-card">
+        <text class="roster-title">{{homeTeamName || '主队'}}球员</text>
+        <view wx:if="{{homePlayers.length === 0}}" class="mini-empty">未选择</view>
+        <view wx:for="{{homePlayers}}" wx:key="id" class="selected-player" data-id="{{item.id}}" bindtap="removeHomePlayer">
+          <text>#{{item.number || '--'}} {{item.name}}</text>
+          <text class="remove">移除</text>
+        </view>
+      </view>
+      <view class="roster-card">
+        <text class="roster-title">{{awayTeamName || '客队'}}球员</text>
+        <view wx:if="{{awayPlayers.length === 0}}" class="mini-empty">未选择</view>
+        <view wx:for="{{awayPlayers}}" wx:key="id" class="selected-player" data-id="{{item.id}}" bindtap="removeAwayPlayer">
+          <text>#{{item.number || '--'}} {{item.name}}</text>
+          <text class="remove">移除</text>
+        </view>
+      </view>
+    </view>
+
     <view class="primary" bindtap="saveTournament">保存赛事</view>
   </view>
+
+  <text class="section">球员库</text>
+  <view wx:if="{{players.length === 0}}" class="empty">暂无球员，请先到“球员”页面添加。</view>
+  <view wx:for="{{players}}" wx:key="id" class="player-row">
+    <view>
+      <text class="player-name">#{{item.number || '--'}} {{item.name}}</text>
+    </view>
+    <view class="player-actions">
+      <view data-id="{{item.id}}" bindtap="addPlayerToHome">加主队</view>
+      <view data-id="{{item.id}}" bindtap="addPlayerToAway">加客队</view>
+    </view>
+  </view>
+
   <text class="section">已创建赛事</text>
   <view wx:if="{{tournaments.length === 0}}" class="empty">暂无赛事</view>
   <view wx:for="{{tournaments}}" wx:key="id" class="item">
     <text class="item-title">{{item.name}}</text>
     <text class="item-desc">{{item.location || '未填写地点'}} · {{item.date || '未填写日期'}}</text>
+    <text class="item-desc">{{item.homeTeamName || '主队'}} {{item.homePlayers.length || 0}}人 vs {{item.awayTeamName || '客队'}} {{item.awayPlayers.length || 0}}人</text>
   </view>
 </view>

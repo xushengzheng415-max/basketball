@@ -1,7 +1,7 @@
 .page-wrap {
   padding: 28rpx;
 }
-.title, .desc, .section, .item-title, .item-desc {
+.title, .desc, .section, .item-title, .item-desc, .field-label, .roster-title, .player-name {
   display: block;
 }
 .title {
@@ -13,6 +13,7 @@
   margin-top: 12rpx;
   color: #667085;
   font-size: 26rpx;
+  line-height: 1.45;
 }
 .form-card {
   display: grid;
@@ -23,12 +24,58 @@
   background: #fff;
 }
 input {
+  box-sizing: border-box;
+  width: 100%;
   height: 78rpx;
   padding: 0 20rpx;
   border: 1rpx solid #d7dee8;
   border-radius: 10rpx;
   background: #f8fafc;
   font-size: 26rpx;
+}
+.field-label {
+  margin-bottom: 10rpx;
+  color: #18212f;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+.team-grid, .roster-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
+}
+.roster-card {
+  min-height: 140rpx;
+  padding: 18rpx;
+  border: 1rpx solid #e5eaf0;
+  border-radius: 10rpx;
+  background: #f8fafc;
+}
+.roster-title {
+  color: #18212f;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+.mini-empty {
+  margin-top: 16rpx;
+  color: #98a2b3;
+  font-size: 24rpx;
+}
+.selected-player {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12rpx;
+  padding: 12rpx 14rpx;
+  border-radius: 8rpx;
+  color: #18212f;
+  background: #fff;
+  font-size: 24rpx;
+  font-weight: 800;
+}
+.remove {
+  color: #d83b01;
+  font-size: 22rpx;
 }
 .primary {
   display: flex;
@@ -47,12 +94,44 @@ input {
   font-size: 30rpx;
   font-weight: 900;
 }
-.empty, .item {
+.empty, .item, .player-row {
   padding: 24rpx;
   border-radius: 10rpx;
   background: #fff;
   color: #667085;
   font-size: 26rpx;
+}
+.player-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 14rpx;
+}
+.player-name {
+  color: #18212f;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.player-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10rpx;
+}
+.player-actions view {
+  display: flex;
+  min-width: 112rpx;
+  height: 56rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  color: #fff;
+  background: #344054;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+.player-actions view:first-child {
+  background: #f05a28;
 }
 .item {
   margin-bottom: 14rpx;
@@ -66,4 +145,5 @@ input {
   margin-top: 8rpx;
   color: #667085;
   font-size: 24rpx;
+  line-height: 1.35;
 }

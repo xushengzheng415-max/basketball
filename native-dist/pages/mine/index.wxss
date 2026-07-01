@@ -1,0 +1,137 @@
+.page-wrap {
+  padding: 28rpx;
+}
+.profile-card {
+  padding: 30rpx 28rpx;
+  border-radius: 12rpx;
+  color: #fff;
+  background: #101820;
+}
+.eyebrow, .title, .desc, .section-title, .label, .hint {
+  display: block;
+}
+.eyebrow {
+  color: #f8d568;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+.title {
+  margin-top: 10rpx;
+  font-size: 42rpx;
+  font-weight: 900;
+}
+.desc {
+  margin-top: 10rpx;
+  color: #d7dee8;
+  font-size: 24rpx;
+  line-height: 1.45;
+}
+.settings-card {
+  margin-top: 22rpx;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  background: #fff;
+}
+.section-title {
+  margin-bottom: 18rpx;
+  color: #18212f;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+.field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 76rpx;
+  margin-top: 12rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid #d7dee8;
+  border-radius: 10rpx;
+  background: #f8fafc;
+  font-size: 26rpx;
+}
+.label {
+  color: #18212f;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+.hint {
+  margin-top: 6rpx;
+  color: #667085;
+  font-size: 22rpx;
+}
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+.with-gap {
+  margin-top: 26rpx;
+}
+.number-control {
+  display: grid;
+  grid-template-columns: 56rpx 100rpx 56rpx;
+  gap: 8rpx;
+  align-items: center;
+  flex-shrink: 0;
+}
+.number-control text, .step-btn {
+  display: flex;
+  height: 54rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+.number-control text {
+  color: #18212f;
+  background: #f8fafc;
+}
+.step-btn {
+  color: #fff;
+  background: #344054;
+}
+.preset-row, .mode-row {
+  display: grid;
+  gap: 12rpx;
+  margin-top: 16rpx;
+}
+.preset-row {
+  grid-template-columns: repeat(4, 1fr);
+}
+.period-row {
+  grid-template-columns: repeat(3, 1fr);
+}
+.mode-row {
+  grid-template-columns: 1fr 1fr;
+}
+.preset, .mode {
+  display: flex;
+  height: 64rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid #d7dee8;
+  border-radius: 9rpx;
+  color: #18212f;
+  background: #fff;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+.preset.active, .mode.active {
+  border-color: #f05a28;
+  color: #fff;
+  background: #f05a28;
+}
+.danger {
+  display: flex;
+  height: 76rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid #fecaca;
+  border-radius: 10rpx;
+  color: #d83b01;
+  background: #fff5f5;
+  font-size: 26rpx;
+  font-weight: 900;
+}

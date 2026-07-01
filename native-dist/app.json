@@ -6,7 +6,8 @@
     "pages/order/index",
     "pages/pay-result/index",
     "pages/tournament/index",
-    "pages/team/index"
+    "pages/team/index",
+    "pages/mine/index"
   ],
   "window": {
     "backgroundTextStyle": "light",
@@ -23,7 +24,8 @@
     "list": [
       { "pagePath": "pages/home/index", "text": "首页" },
       { "pagePath": "pages/tournament/index", "text": "赛事" },
-      { "pagePath": "pages/team/index", "text": "球员" }
+      { "pagePath": "pages/team/index", "text": "球员" },
+      { "pagePath": "pages/mine/index", "text": "我的" }
     ]
   }
 }

@@ -1,0 +1,61 @@
+<view class="page-wrap">
+  <view class="profile-card">
+    <text class="eyebrow">我的</text>
+    <text class="title">赛小蜂篮球</text>
+    <text class="desc">管理基础设置，默认比赛参数会用于快速比赛。</text>
+  </view>
+
+  <view class="settings-card">
+    <text class="section-title">基础设置</text>
+    <view class="field">
+      <text class="label">小程序名称</text>
+      <input value="{{settings.appName}}" placeholder="赛小蜂篮球" bindinput="onAppNameInput" />
+    </view>
+  </view>
+
+  <view class="settings-card">
+    <text class="section-title">默认比赛设置</text>
+    <view class="setting-row">
+      <view>
+        <text class="label">每节时长</text>
+        <text class="hint">默认 {{settings.defaultPeriodMinutes}} 分钟</text>
+      </view>
+      <view class="number-control">
+        <view class="step-btn" bindtap="decreaseDuration">-</view>
+        <text>{{settings.defaultPeriodMinutes}}分</text>
+        <view class="step-btn" bindtap="increaseDuration">+</view>
+      </view>
+    </view>
+    <view class="preset-row">
+      <view wx:for="{{durationOptions}}" wx:key="*this" class="preset {{settings.defaultPeriodMinutes == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setDuration">{{item}}分</view>
+    </view>
+
+    <view class="setting-row with-gap">
+      <view>
+        <text class="label">比赛节数</text>
+        <text class="hint">默认 {{settings.defaultTotalPeriods}} 节</text>
+      </view>
+      <view class="number-control">
+        <view class="step-btn" bindtap="decreasePeriods">-</view>
+        <text>{{settings.defaultTotalPeriods}}节</text>
+        <view class="step-btn" bindtap="increasePeriods">+</view>
+      </view>
+    </view>
+    <view class="preset-row period-row">
+      <view wx:for="{{periodOptions}}" wx:key="*this" class="preset {{settings.defaultTotalPeriods == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriods">{{item}}节</view>
+    </view>
+
+    <view class="field with-gap">
+      <text class="label">计时方式</text>
+      <view class="mode-row">
+        <view class="mode {{settings.defaultTimerMode == 'down' ? 'active' : ''}}" data-mode="down" bindtap="setTimerMode">倒计时</view>
+        <view class="mode {{settings.defaultTimerMode == 'up' ? 'active' : ''}}" data-mode="up" bindtap="setTimerMode">正计时</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="settings-card">
+    <text class="section-title">数据管理</text>
+    <view class="danger" bindtap="clearLocalData">清空本地测试数据</view>
+  </view>
+</view>

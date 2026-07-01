@@ -15,23 +15,26 @@
   </view>
 
   <view class="section-title">最近赛果</view>
-  <view wx:if="{{latestResult}}" class="result-card">
-    <view class="result-row">
-      <text>{{latestResult.homeName}}</text>
-      <text class="score">{{latestResult.homeScore}}</text>
+  <view wx:if="{{latestResult}}" class="result-swipe">
+    <view class="delete-action" bindtap="deleteLatestResult">删除</view>
+    <view class="result-card {{showResultDelete ? 'show-delete' : ''}}" bindtouchstart="onResultTouchStart" bindtouchend="onResultTouchEnd">
+      <view class="result-row">
+        <text>{{latestResult.homeName}}</text>
+        <text class="score">{{latestResult.homeScore}}</text>
+      </view>
+      <view class="result-row">
+        <text>{{latestResult.awayName}}</text>
+        <text class="score">{{latestResult.awayScore}}</text>
+      </view>
+      <text class="time">{{latestResult.endedAt}}</text>
     </view>
-    <view class="result-row">
-      <text>{{latestResult.awayName}}</text>
-      <text class="score">{{latestResult.awayScore}}</text>
-    </view>
-    <text class="time">{{latestResult.endedAt}}</text>
   </view>
   <view wx:else class="empty">暂无赛果，先开始一场比赛吧。</view>
 
   <view class="shortcuts">
     <view class="shortcut" bindtap="goTournament">
       <text class="shortcut-title">创建赛事</text>
-      <text class="shortcut-desc">赛事名称、地点、时间</text>
+      <text class="shortcut-desc">赛事名称、球队、球员</text>
     </view>
     <view class="shortcut" bindtap="goTeam">
       <text class="shortcut-title">球员名单</text>
