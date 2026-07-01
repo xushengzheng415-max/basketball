@@ -1,0 +1,15 @@
+﻿<view class="page-wrap">
+  <text class="title">球员名单</text>
+  <text class="desc">添加比赛要用的球员姓名和号码。</text>
+  <view class="form-card">
+    <input value="{{name}}" placeholder="球员姓名" bindinput="onNameInput" />
+    <input value="{{number}}" type="number" placeholder="号码，例如：8" bindinput="onNumberInput" />
+    <view class="primary" bindtap="addPlayer">添加球员</view>
+  </view>
+  <text class="section">当前名单</text>
+  <view wx:if="{{players.length === 0}}" class="empty">暂无球员</view>
+  <view wx:for="{{players}}" wx:key="id" class="player">
+    <text class="number">#{{item.number || '--'}}</text>
+    <text>{{item.name}}</text>
+  </view>
+</view>

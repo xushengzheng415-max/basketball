@@ -1,0 +1,98 @@
+﻿.home {
+  padding: 28rpx;
+}
+.hero {
+  padding: 34rpx 30rpx;
+  border-radius: 12rpx;
+  color: #fff;
+  background: #101820;
+}
+.brand, .title, .desc, .shortcut-title, .shortcut-desc, .time {
+  display: block;
+}
+.brand {
+  color: #f8d568;
+  font-size: 26rpx;
+  font-weight: 800;
+}
+.title {
+  margin-top: 16rpx;
+  font-size: 48rpx;
+  font-weight: 900;
+}
+.desc {
+  margin-top: 12rpx;
+  color: #d7dee8;
+  font-size: 26rpx;
+  line-height: 1.5;
+}
+.primary {
+  display: flex;
+  height: 96rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28rpx;
+  border-radius: 10rpx;
+  color: #fff;
+  background: #f05a28;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+.section-title {
+  margin: 34rpx 0 16rpx;
+  color: #18212f;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+.result-card, .empty, .shortcuts > view {
+  border: 1rpx solid #e5eaf0;
+  border-radius: 10rpx;
+  background: #fff;
+  box-shadow: 0 8rpx 20rpx rgba(16, 24, 32, 0.05);
+}
+.result-card {
+  padding: 24rpx;
+}
+.result-row {
+  display: flex;
+  min-height: 74rpx;
+  align-items: center;
+  justify-content: space-between;
+  color: #18212f;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+.score {
+  color: #f05a28;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 52rpx;
+}
+.time {
+  margin-top: 14rpx;
+  color: #667085;
+  font-size: 22rpx;
+}
+.empty {
+  padding: 34rpx 24rpx;
+  color: #667085;
+  font-size: 26rpx;
+}
+.shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+  margin-top: 28rpx;
+}
+.shortcuts > view {
+  padding: 26rpx 22rpx;
+}
+.shortcut-title {
+  color: #18212f;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.shortcut-desc {
+  margin-top: 10rpx;
+  color: #667085;
+  font-size: 22rpx;
+}

@@ -90,3 +90,26 @@
 - 首页入口从 Button 改成 View 样式按钮，减少 Button 默认行为干扰。
 - 保留 `pages/scorer/index` 的 `pageOrientation: 'landscape'`，让独立计分页继续横屏。
 - 已确认 `dist/app.json` 不再包含比赛 Tab，首页产物包含 `navigateTo`。
+
+## 2026-07-01 切换原生小程序 MVP
+
+### 问题
+
+Taro React 构建产物在微信开发者工具中出现 TabBar 和导航栏正常，但页面主体持续空白的问题。多次确认 dist 页面 JS 有内容，但 Taro runtime 未稳定挂载页面 root。
+
+### 决策
+
+为了先跑通 MVP，不再依赖 Taro React 渲染层，改为微信开发者工具直接读取原生小程序产物 `native-dist/`。
+
+### 已完成
+
+- `project.config.json` 的 `miniprogramRoot` 改为 `native-dist/`。
+- 新增原生小程序 `app.json/app.js/app.wxss`。
+- 原生首页：进入比赛积分系统、最近赛果、创建赛事、球员名单入口。
+- 原生横屏计分页：输入两队名称、开始计分、+1/+2/+3、撤销、重开、结束比赛并回首页生成赛果。
+- 原生赛事页：创建赛事并本地保存。
+- 原生球员页：添加球员并本地保存。
+
+### 说明
+
+Taro 源码暂时保留，后续可在 MVP 跑通后再决定是否迁回 Taro 或继续原生小程序开发。

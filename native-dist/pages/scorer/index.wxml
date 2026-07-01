@@ -1,0 +1,53 @@
+﻿<view wx:if="{{!started}}" class="setup">
+  <view class="setup-card">
+    <text class="setup-title">创建一场比赛</text>
+    <text class="setup-desc">输入两支队伍名称，然后进入横屏计分盘。</text>
+    <view class="form">
+      <text>队伍 A</text>
+      <input value="{{homeName}}" placeholder="请输入主队名称" bindinput="onHomeInput" />
+      <text>队伍 B</text>
+      <input value="{{awayName}}" placeholder="请输入客队名称" bindinput="onAwayInput" />
+    </view>
+    <view class="start" bindtap="startMatch">开始计分</view>
+  </view>
+</view>
+
+<view wx:else class="scoreboard">
+  <view class="topbar">
+    <text>赛小蜂篮球计分盘</text>
+    <view class="finish" bindtap="finishMatch">结束比赛</view>
+  </view>
+
+  <view class="main">
+    <view class="team-card">
+      <text class="team-name">{{homeName}}</text>
+      <text class="team-score">{{homeScore}}</text>
+      <view class="score-buttons">
+        <view bindtap="addHome1">+1</view>
+        <view bindtap="addHome2">+2</view>
+        <view bindtap="addHome3">+3</view>
+      </view>
+    </view>
+
+    <view class="center">
+      <text class="vs">VS</text>
+      <view class="undo" bindtap="undo">撤销</view>
+      <view class="reset" bindtap="resetMatch">重开</view>
+    </view>
+
+    <view class="team-card">
+      <text class="team-name">{{awayName}}</text>
+      <text class="team-score">{{awayScore}}</text>
+      <view class="score-buttons">
+        <view bindtap="addAway1">+1</view>
+        <view bindtap="addAway2">+2</view>
+        <view bindtap="addAway3">+3</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="events">
+    <text>最近记录</text>
+    <text>{{latestEvent}}</text>
+  </view>
+</view>

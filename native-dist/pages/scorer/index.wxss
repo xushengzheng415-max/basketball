@@ -1,0 +1,163 @@
+﻿.setup {
+  min-height: 100vh;
+  padding: 32rpx;
+  background: #f4f7fa;
+}
+.setup-card {
+  max-width: 640rpx;
+  padding: 28rpx;
+  border-radius: 14rpx;
+  background: #fff;
+}
+.setup-title, .setup-desc, .form text, .team-name, .team-score {
+  display: block;
+}
+.setup-title {
+  color: #101820;
+  font-size: 42rpx;
+  font-weight: 900;
+}
+.setup-desc {
+  margin-top: 10rpx;
+  color: #667085;
+  font-size: 24rpx;
+}
+.form {
+  display: grid;
+  gap: 14rpx;
+  margin-top: 24rpx;
+}
+.form text {
+  color: #18212f;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+.form input {
+  height: 72rpx;
+  padding: 0 18rpx;
+  border: 1rpx solid #d7dee8;
+  border-radius: 8rpx;
+  background: #f8fafc;
+  font-size: 26rpx;
+}
+.start {
+  display: flex;
+  height: 78rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 24rpx;
+  border-radius: 10rpx;
+  color: #fff;
+  background: #f05a28;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.scoreboard {
+  min-height: 100vh;
+  padding: 18rpx 24rpx;
+  color: #fff;
+  background: #101820;
+}
+.topbar {
+  display: flex;
+  height: 64rpx;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+.finish {
+  display: flex;
+  width: 170rpx;
+  height: 56rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  background: #d83b01;
+  font-size: 24rpx;
+}
+.main {
+  display: grid;
+  grid-template-columns: 1fr 170rpx 1fr;
+  gap: 18rpx;
+  min-height: 350rpx;
+}
+.team-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22rpx;
+  border-radius: 14rpx;
+  color: #101820;
+  background: #fff;
+}
+.team-name {
+  max-width: 100%;
+  font-size: 32rpx;
+  font-weight: 900;
+  text-align: center;
+}
+.team-score {
+  color: #f05a28;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 140rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+.score-buttons {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12rpx;
+}
+.score-buttons view {
+  display: flex;
+  height: 72rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10rpx;
+  color: #fff;
+  background: #f05a28;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+.center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16rpx;
+}
+.vs {
+  font-size: 44rpx;
+  font-weight: 900;
+}
+.undo, .reset {
+  display: flex;
+  width: 140rpx;
+  height: 58rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  font-size: 24rpx;
+  font-weight: 900;
+}
+.undo {
+  color: #101820;
+  background: #f8d568;
+}
+.reset {
+  color: #fff;
+  background: #344054;
+}
+.events {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 10rpx;
+  color: #d7dee8;
+  background: rgba(255,255,255,0.08);
+  font-size: 24rpx;
+}

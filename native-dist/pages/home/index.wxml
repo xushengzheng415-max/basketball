@@ -1,0 +1,36 @@
+﻿<view class="home">
+  <view class="hero">
+    <text class="brand">赛小蜂篮球</text>
+    <text class="title">快速开始一场比赛</text>
+    <text class="desc">输入两支队伍，横屏计分，结束后自动生成赛果。</text>
+  </view>
+
+  <view class="primary" bindtap="goScorer">
+    <text>进入比赛积分系统</text>
+  </view>
+
+  <view class="section-title">最近赛果</view>
+  <view wx:if="{{latestResult}}" class="result-card">
+    <view class="result-row">
+      <text>{{latestResult.homeName}}</text>
+      <text class="score">{{latestResult.homeScore}}</text>
+    </view>
+    <view class="result-row">
+      <text>{{latestResult.awayName}}</text>
+      <text class="score">{{latestResult.awayScore}}</text>
+    </view>
+    <text class="time">{{latestResult.endedAt}}</text>
+  </view>
+  <view wx:else class="empty">暂无赛果，先开始一场比赛吧。</view>
+
+  <view class="shortcuts">
+    <view bindtap="goTournament">
+      <text class="shortcut-title">创建赛事</text>
+      <text class="shortcut-desc">赛事名称、地点、时间</text>
+    </view>
+    <view bindtap="goTeam">
+      <text class="shortcut-title">球员名单</text>
+      <text class="shortcut-desc">添加球员与号码</text>
+    </view>
+  </view>
+</view>
