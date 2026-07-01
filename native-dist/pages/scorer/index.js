@@ -16,6 +16,8 @@ Page({
     events: [],
     latestEvent: '暂无得分记录',
     period: 1,
+    totalPeriods: 4,
+    periodOptions: [2, 4, 6],
     periodMinutes: 10,
     durationOptions: [6, 8, 10, 12],
     timerMode: 'down',
@@ -48,11 +50,27 @@ Page({
   setPeriodPreset(event) {
     this.applyPeriodMinutes(event.currentTarget.dataset.value);
   },
-  decreasePeriod() {
+  decreasePeriodMinutes() {
     this.applyPeriodMinutes(this.data.periodMinutes - 1);
   },
-  increasePeriod() {
+  increasePeriodMinutes() {
     this.applyPeriodMinutes(this.data.periodMinutes + 1);
+  },
+  applyTotalPeriods(value) {
+    const totalPeriods = Math.min(8, Math.max(1, Number(value) || 4));
+    this.setData({
+      totalPeriods,
+      period: Math.min(this.data.period, totalPeriods)
+    });
+  },
+  setPeriodCountPreset(event) {
+    this.applyTotalPeriods(event.currentTarget.dataset.value);
+  },
+  decreasePeriodCount() {
+    this.applyTotalPeriods(this.data.totalPeriods - 1);
+  },
+  increasePeriodCount() {
+    this.applyTotalPeriods(this.data.totalPeriods + 1);
   },
   setTimerMode(event) {
     const timerMode = event.currentTarget.dataset.mode;
@@ -110,6 +128,10 @@ Page({
     this.setData({ clockSeconds: seconds, clockText: formatClock(seconds) });
   },
   nextPeriod() {
+    if (this.data.period >= this.data.totalPeriods) {
+      wx.showToast({ title: '已到最后一节', icon: 'none' });
+      return;
+    }
     const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
     this.stopClock();
     this.setData({
@@ -171,6 +193,7 @@ Page({
       homeScore: this.data.homeScore,
       awayScore: this.data.awayScore,
       period: this.data.period,
+      totalPeriods: this.data.totalPeriods,
       clockText: this.data.clockText,
       endedAt: new Date().toLocaleString()
     };

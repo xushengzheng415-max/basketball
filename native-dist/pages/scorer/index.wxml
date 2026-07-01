@@ -3,7 +3,7 @@
     <view class="setup-head">
       <view>
         <text class="setup-title">快速开始比赛</text>
-        <text class="setup-desc">设置主客队、每节时长和计时方式。</text>
+        <text class="setup-desc">设置主客队、比赛节数、每节时长和计时方式。</text>
       </view>
       <view class="start" bindtap="startMatch">开始比赛</view>
     </view>
@@ -17,22 +17,33 @@
         <text>客队名称</text>
         <input value="{{awayName}}" placeholder="客队" bindinput="onAwayInput" />
       </view>
-      <view class="field duration-field">
-        <text>每节时长</text>
-        <view class="duration-control">
-          <view class="step-btn" bindtap="decreasePeriod">-</view>
-          <text class="duration-value">{{periodMinutes}} 分钟</text>
-          <view class="step-btn" bindtap="increasePeriod">+</view>
-        </view>
-        <view class="preset-row">
-          <view wx:for="{{durationOptions}}" wx:key="*this" class="preset {{periodMinutes == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodPreset">{{item}}分</view>
-        </view>
-      </view>
       <view class="field mode-field">
         <text>计时方式</text>
         <view class="mode-row">
           <view class="mode {{timerMode == 'down' ? 'active' : ''}}" data-mode="down" bindtap="setTimerMode">倒计时</view>
           <view class="mode {{timerMode == 'up' ? 'active' : ''}}" data-mode="up" bindtap="setTimerMode">正计时</view>
+        </view>
+      </view>
+      <view class="field duration-field">
+        <text>每节时长</text>
+        <view class="number-control">
+          <view class="step-btn" bindtap="decreasePeriodMinutes">-</view>
+          <text class="number-value">{{periodMinutes}} 分钟</text>
+          <view class="step-btn" bindtap="increasePeriodMinutes">+</view>
+        </view>
+        <view class="preset-row">
+          <view wx:for="{{durationOptions}}" wx:key="*this" class="preset {{periodMinutes == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodPreset">{{item}}分</view>
+        </view>
+      </view>
+      <view class="field period-count-field">
+        <text>比赛节数</text>
+        <view class="number-control">
+          <view class="step-btn" bindtap="decreasePeriodCount">-</view>
+          <text class="number-value">{{totalPeriods}} 节</text>
+          <view class="step-btn" bindtap="increasePeriodCount">+</view>
+        </view>
+        <view class="preset-row period-preset-row">
+          <view wx:for="{{periodOptions}}" wx:key="*this" class="preset {{totalPeriods == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodCountPreset">{{item}}节</view>
         </view>
       </view>
     </view>
@@ -47,7 +58,7 @@
 
   <view class="clock-card">
     <view>
-      <text class="period">第 {{period}} 节</text>
+      <text class="period">第 {{period}} / {{totalPeriods}} 节</text>
       <text class="clock-mode">{{timerModeText}} · {{periodMinutes}} 分钟</text>
     </view>
     <text class="clock">{{clockText}}</text>
