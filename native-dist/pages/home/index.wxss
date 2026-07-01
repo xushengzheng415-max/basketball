@@ -152,6 +152,15 @@ page {
 .result-card.show-delete {
   transform: translateX(-150rpx);
 }
+.result-fouls {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8rpx;
+  color: #667085;
+  font-size: 23rpx;
+  font-weight: 800;
+}
 .result-row {
   display: flex;
   min-height: 74rpx;

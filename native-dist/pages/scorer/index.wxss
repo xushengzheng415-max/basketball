@@ -24,7 +24,13 @@ page {
   justify-content: space-between;
   gap: 16px;
 }
-.setup-title, .setup-desc, .field text, .team-name, .team-score, .period, .clock-mode {
+.setup-title,
+.setup-desc,
+.field text,
+.team-name,
+.team-score,
+.period,
+.clock-mode {
   display: block;
 }
 .setup-title {
@@ -82,16 +88,19 @@ page {
   align-items: center;
   margin-top: 5px;
 }
-.step-btn {
+.step-btn,
+.foul-btn {
   display: flex;
-  height: 34px;
   align-items: center;
   justify-content: center;
   border-radius: 7px;
   color: #fff;
   background: #344054;
-  font-size: 20px;
   font-weight: 900;
+}
+.step-btn {
+  height: 34px;
+  font-size: 20px;
 }
 .number-value {
   display: flex;
@@ -114,19 +123,23 @@ page {
 .period-preset-row {
   grid-template-columns: repeat(3, 1fr);
 }
-.preset {
+.preset,
+.mode {
   display: flex;
-  height: 28px;
   align-items: center;
   justify-content: center;
   border: 1px solid #d7dee8;
   border-radius: 7px;
   color: #18212f;
   background: #fff;
-  font-size: 13px;
   font-weight: 900;
 }
-.preset.active {
+.preset {
+  height: 28px;
+  font-size: 13px;
+}
+.preset.active,
+.mode.active {
   border-color: #f05a28;
   color: #fff;
   background: #f05a28;
@@ -138,21 +151,8 @@ page {
   margin-top: 5px;
 }
 .mode {
-  display: flex;
   height: 36px;
-  align-items: center;
-  justify-content: center;
-  border: 1px solid #d7dee8;
-  border-radius: 7px;
-  color: #18212f;
-  background: #fff;
   font-size: 15px;
-  font-weight: 900;
-}
-.mode.active {
-  border-color: #f05a28;
-  color: #fff;
-  background: #f05a28;
 }
 .scoreboard {
   display: grid;
@@ -240,7 +240,7 @@ page {
 }
 .team-card {
   display: grid;
-  grid-template-rows: 24px minmax(0, 1fr) 40px;
+  grid-template-rows: 24px minmax(0, 1fr) 34px 40px;
   align-items: center;
   min-height: 0;
   box-sizing: border-box;
@@ -263,10 +263,32 @@ page {
   align-self: center;
   color: #f05a28;
   font-family: DIN Alternate, Arial, sans-serif;
-  font-size: 66px;
+  font-size: 58px;
   font-weight: 900;
   line-height: 0.95;
   text-align: center;
+}
+.foul-line {
+  display: grid;
+  grid-template-columns: 82px 1fr;
+  gap: 8px;
+  align-items: center;
+  color: #18212f;
+  font-size: 15px;
+  font-weight: 900;
+}
+.foul-actions {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 6px;
+}
+.foul-btn {
+  height: 30px;
+  font-size: 16px;
+}
+.foul-btn.add {
+  background: #101820;
+  font-size: 14px;
 }
 .score-buttons {
   display: grid;
@@ -297,7 +319,8 @@ page {
   font-weight: 900;
   line-height: 1;
 }
-.undo, .reset {
+.undo,
+.reset {
   display: flex;
   width: 82px;
   height: 30px;
@@ -327,40 +350,16 @@ page {
   font-size: 15px;
 }
 @media (max-height: 330px) {
-  .setup-card {
-    padding: 11px 14px;
-  }
-  .setup-title {
-    font-size: 22px;
-  }
-  .setup-desc {
-    font-size: 13px;
-  }
-  .form-grid {
-    gap: 8px 12px;
-    margin-top: 10px;
-  }
-  .preset {
-    height: 25px;
-  }
-  .scoreboard {
-    grid-template-rows: 34px 54px minmax(0, 1fr) 30px;
-    gap: 6px;
-    padding-top: 6px;
-    padding-bottom: 8px;
-  }
-  .clock-card {
-    grid-template-columns: minmax(110px, 1fr) 104px 210px;
-    padding: 6px 9px;
-  }
-  .clock {
-    font-size: 32px;
-  }
-  .team-score {
-    font-size: 58px;
-  }
-  .score-btn {
-    height: 34px;
-    font-size: 18px;
-  }
+  .setup-card { padding: 11px 14px; }
+  .setup-title { font-size: 22px; }
+  .setup-desc { font-size: 13px; }
+  .form-grid { gap: 8px 12px; margin-top: 10px; }
+  .preset { height: 25px; }
+  .scoreboard { grid-template-rows: 34px 54px minmax(0, 1fr) 30px; gap: 6px; padding-top: 6px; padding-bottom: 8px; }
+  .clock-card { grid-template-columns: minmax(110px, 1fr) 104px 210px; padding: 6px 9px; }
+  .clock { font-size: 32px; }
+  .team-score { font-size: 48px; }
+  .score-btn { height: 32px; font-size: 18px; }
+  .foul-line { grid-template-columns: 76px 1fr; font-size: 14px; }
+  .foul-btn { height: 28px; }
 }

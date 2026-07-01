@@ -73,6 +73,13 @@
     <view class="team-card">
       <text class="team-name">{{homeName}}</text>
       <text class="team-score">{{homeScore}}</text>
+      <view class="foul-line">
+        <text>犯规 {{homeFouls}}</text>
+        <view class="foul-actions">
+          <view class="foul-btn" bindtap="subtractHomeFoul">-</view>
+          <view class="foul-btn add" bindtap="addHomeFoul">+犯规</view>
+        </view>
+      </view>
       <view class="score-buttons">
         <view class="score-btn" bindtap="addHome1">+1</view>
         <view class="score-btn" bindtap="addHome2">+2</view>
@@ -89,6 +96,13 @@
     <view class="team-card">
       <text class="team-name">{{awayName}}</text>
       <text class="team-score">{{awayScore}}</text>
+      <view class="foul-line">
+        <text>犯规 {{awayFouls}}</text>
+        <view class="foul-actions">
+          <view class="foul-btn" bindtap="subtractAwayFoul">-</view>
+          <view class="foul-btn add" bindtap="addAwayFoul">+犯规</view>
+        </view>
+      </view>
       <view class="score-buttons">
         <view class="score-btn" bindtap="addAway1">+1</view>
         <view class="score-btn" bindtap="addAway2">+2</view>
