@@ -17,9 +17,16 @@
         <text>客队名称</text>
         <input value="{{awayName}}" placeholder="客队" bindinput="onAwayInput" />
       </view>
-      <view class="field small-field">
+      <view class="field duration-field">
         <text>每节时长</text>
-        <input value="{{periodMinutes}}" type="number" placeholder="10" bindinput="onPeriodInput" />
+        <view class="duration-control">
+          <view class="step-btn" bindtap="decreasePeriod">-</view>
+          <text class="duration-value">{{periodMinutes}} 分钟</text>
+          <view class="step-btn" bindtap="increasePeriod">+</view>
+        </view>
+        <view class="preset-row">
+          <view wx:for="{{durationOptions}}" wx:key="*this" class="preset {{periodMinutes == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodPreset">{{item}}分</view>
+        </view>
       </view>
       <view class="field mode-field">
         <text>计时方式</text>

@@ -17,6 +17,7 @@ Page({
     latestEvent: '暂无得分记录',
     period: 1,
     periodMinutes: 10,
+    durationOptions: [6, 8, 10, 12],
     timerMode: 'down',
     timerModeText: '倒计时',
     clockSeconds: 600,
@@ -35,14 +36,23 @@ Page({
   onAwayInput(event) {
     this.setData({ awayName: event.detail.value || '客队' });
   },
-  onPeriodInput(event) {
-    const value = Math.min(60, Math.max(1, Number(event.detail.value) || 10));
-    const seconds = this.data.timerMode === 'down' ? value * 60 : 0;
+  applyPeriodMinutes(value) {
+    const minutes = Math.min(60, Math.max(1, Number(value) || 10));
+    const seconds = this.data.timerMode === 'down' ? minutes * 60 : 0;
     this.setData({
-      periodMinutes: value,
+      periodMinutes: minutes,
       clockSeconds: seconds,
       clockText: formatClock(seconds)
     });
+  },
+  setPeriodPreset(event) {
+    this.applyPeriodMinutes(event.currentTarget.dataset.value);
+  },
+  decreasePeriod() {
+    this.applyPeriodMinutes(this.data.periodMinutes - 1);
+  },
+  increasePeriod() {
+    this.applyPeriodMinutes(this.data.periodMinutes + 1);
   },
   setTimerMode(event) {
     const timerMode = event.currentTarget.dataset.mode;
@@ -140,6 +150,7 @@ Page({
   },
   resetMatch() {
     this.stopClock();
+    const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
     this.setData({
       homeScore: 0,
       awayScore: 0,
@@ -147,8 +158,8 @@ Page({
       events: [],
       latestEvent: '暂无得分记录',
       period: 1,
-      clockSeconds: this.data.periodMinutes * 60,
-      clockText: formatClock(this.data.periodMinutes * 60),
+      clockSeconds: seconds,
+      clockText: formatClock(seconds),
       clockRunning: false
     });
   },
