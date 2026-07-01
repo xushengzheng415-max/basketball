@@ -1,67 +1,68 @@
-﻿import Taro from '@tarojs/taro';
-import { View, Text } from '@tarojs/components';
-import GameCard from '@/components/GameCard';
-import { homeMetrics, operationAlerts, todayGames } from '@/data/mock';
+﻿import { useState } from 'react';
+import Taro, { useDidShow } from '@tarojs/taro';
+import { View, Text, Button } from '@tarojs/components';
 import './index.scss';
 
-const quickActions = [
-  { label: '进入计分台', path: '/pages/scorer/index', tone: 'primary' },
-  { label: '查看赛事', path: '/pages/tournament/index', tone: 'dark' },
-  { label: '球队数据', path: '/pages/team/index', tone: 'light' }
-];
+interface MatchResult {
+  homeName: string;
+  awayName: string;
+  homeScore: number;
+  awayScore: number;
+  endedAt: string;
+}
 
 export default function HomePage() {
+  const [result, setResult] = useState<MatchResult | null>(null);
+
+  useDidShow(() => {
+    const saved = Taro.getStorageSync<MatchResult | ''>('latestMatchResult');
+    setResult(saved || null);
+  });
+
+  const startMatch = () => {
+    Taro.switchTab({ url: '/pages/scorer/index' });
+  };
+
   return (
-    <View className='page home'>
-      <View className='home__hero'>
-        <View>
-          <Text className='home__eyebrow'>赛小蜂篮球 · 运营工作台</Text>
-          <Text className='home__title'>今日比赛中心</Text>
-          <Text className='home__subtitle'>计分、赛程、球队和数据一站处理</Text>
-        </View>
-        <Text className='home__live-badge'>3 场直播</Text>
+    <View className='page home-simple'>
+      <View className='home-simple__hero'>
+        <Text className='home-simple__brand'>赛小蜂篮球</Text>
+        <Text className='home-simple__title'>快速开始一场比赛</Text>
+        <Text className='home-simple__desc'>输入两支队伍，横屏计分，结束后自动生成赛果。</Text>
       </View>
 
-      <View className='home__metrics'>
-        {homeMetrics.map((metric) => (
-          <View className='home__metric card' key={metric.label}>
-            <Text className='home__metric-value'>{metric.value}</Text>
-            <Text className='home__metric-label'>{metric.label}</Text>
-            <Text className='home__metric-hint'>{metric.hint}</Text>
-          </View>
-        ))}
-      </View>
+      <Button className='home-simple__primary' onClick={startMatch}>进入比赛积分系统</Button>
 
-      <View className='home__actions'>
-        {quickActions.map((action) => (
-          <View
-            className={`home__action home__action--${action.tone}`}
-            key={action.label}
-            onClick={() => Taro.switchTab({ url: action.path })}
-          >
-            <Text>{action.label}</Text>
-          </View>
-        ))}
-      </View>
-
-      <Text className='section-title'>运营提醒</Text>
-      <View className='home__alerts'>
-        {operationAlerts.map((alert) => (
-          <View className={`home__alert home__alert--${alert.level}`} key={alert.title}>
-            <View>
-              <Text className='home__alert-title'>{alert.title}</Text>
-              <Text className='home__alert-action'>{alert.action}</Text>
+      <View className='home-simple__result'>
+        <Text className='home-simple__section'>最近赛果</Text>
+        {result ? (
+          <View className='home-simple__result-card'>
+            <View className='home-simple__result-row'>
+              <Text>{result.homeName}</Text>
+              <Text className='home-simple__score'>{result.homeScore}</Text>
             </View>
-            <Text className='home__alert-arrow'>›</Text>
+            <View className='home-simple__result-row'>
+              <Text>{result.awayName}</Text>
+              <Text className='home-simple__score'>{result.awayScore}</Text>
+            </View>
+            <Text className='home-simple__time'>{result.endedAt}</Text>
           </View>
-        ))}
+        ) : (
+          <View className='home-simple__empty'>
+            <Text>暂无赛果，先开始一场比赛吧。</Text>
+          </View>
+        )}
       </View>
 
-      <Text className='section-title'>今日赛程</Text>
-      <View>
-        {todayGames.map((game) => (
-          <GameCard game={game} key={game.id} />
-        ))}
+      <View className='home-simple__shortcuts'>
+        <View onClick={() => Taro.switchTab({ url: '/pages/tournament/index' })}>
+          <Text className='home-simple__shortcut-title'>创建赛事</Text>
+          <Text className='home-simple__shortcut-desc'>赛事名称、地点、时间</Text>
+        </View>
+        <View onClick={() => Taro.switchTab({ url: '/pages/team/index' })}>
+          <Text className='home-simple__shortcut-title'>球员名单</Text>
+          <Text className='home-simple__shortcut-desc'>添加球员与号码</Text>
+        </View>
       </View>
     </View>
   );

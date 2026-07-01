@@ -1,3 +1,4 @@
-export default definePageConfig({
-  navigationBarTitleText: '计分台'
+﻿export default definePageConfig({
+  navigationBarTitleText: '比赛计分',
+  pageOrientation: 'landscape'
 });

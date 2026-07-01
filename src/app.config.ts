@@ -1,4 +1,4 @@
-export default defineAppConfig({
+﻿export default defineAppConfig({
   pages: [
     'pages/home/index',
     'pages/scorer/index',
@@ -25,7 +25,7 @@ export default defineAppConfig({
       },
       {
         pagePath: 'pages/scorer/index',
-        text: '计分'
+        text: '比赛'
       },
       {
         pagePath: 'pages/tournament/index',
@@ -33,7 +33,7 @@ export default defineAppConfig({
       },
       {
         pagePath: 'pages/team/index',
-        text: '球队'
+        text: '球员'
       }
     ]
   }

@@ -1,69 +1,82 @@
-.tournament__summary {
-  padding: 28px;
-  border-radius: 8px;
-  color: #ffffff;
-  background: #18212f;
+﻿.tournament-simple {
+  padding: 28rpx;
 }
 
-.tournament__name,
-.tournament__meta {
+.tournament-simple__title,
+.tournament-simple__desc,
+.tournament-simple__section,
+.tournament-simple__item text {
   display: block;
 }
 
-.tournament__name {
-  font-size: 38px;
+.tournament-simple__title {
+  color: #101820;
+  font-size: 44rpx;
   font-weight: 900;
 }
 
-.tournament__meta {
-  margin-top: 10px;
-  color: #d7dee8;
-  font-size: 24px;
-}
-
-.tournament__table {
-  padding: 10px 20px;
-}
-
-.tournament__row {
-  display: grid;
-  grid-template-columns: 52px 1fr 130px 48px;
-  align-items: center;
-  min-height: 74px;
-  border-bottom: 1px solid #edf1f5;
-  font-size: 24px;
-}
-
-.tournament__row:last-child {
-  border-bottom: 0;
-}
-
-.tournament__rank,
-.tournament__points {
-  font-weight: 900;
-  text-align: center;
-}
-
-.tournament__team {
-  font-weight: 800;
-}
-
-.tournament__record {
+.tournament-simple__desc {
+  margin-top: 12rpx;
   color: #667085;
-  text-align: right;
+  font-size: 26rpx;
 }
 
-.tournament__alerts {
+.tournament-simple__form {
   display: grid;
-  gap: 12px;
+  gap: 18rpx;
+  margin-top: 28rpx;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  background: #ffffff;
 }
 
-.tournament__alerts text {
-  display: block;
-  padding: 18px 20px;
-  border-left: 6px solid #f05a28;
-  border-radius: 8px;
-  color: #344054;
+.tournament-simple__form input {
+  height: 78rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid #d7dee8;
+  border-radius: 10rpx;
+  background: #f8fafc;
+  font-size: 26rpx;
+}
+
+.tournament-simple__form button {
+  height: 84rpx;
+  border-radius: 10rpx;
+  color: #ffffff;
+  background: #f05a28;
+  font-size: 28rpx;
+  font-weight: 900;
+  line-height: 84rpx;
+}
+
+.tournament-simple__section {
+  margin: 32rpx 0 16rpx;
+  color: #18212f;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.tournament-simple__empty,
+.tournament-simple__item {
+  padding: 24rpx;
+  border-radius: 10rpx;
   background: #ffffff;
-  font-size: 24px;
+  color: #667085;
+  font-size: 26rpx;
+}
+
+.tournament-simple__item {
+  margin-bottom: 14rpx;
+}
+
+.tournament-simple__item text:first-child {
+  color: #18212f;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.tournament-simple__item text:last-child {
+  margin-top: 8rpx;
+  color: #667085;
+  font-size: 24rpx;
 }

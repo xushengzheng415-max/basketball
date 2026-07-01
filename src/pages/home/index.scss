@@ -1,162 +1,125 @@
-﻿.home__hero {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  padding: 32px 28px;
-  border-radius: 8px;
+﻿.home-simple {
+  padding: 28rpx;
+}
+
+.home-simple__hero {
+  padding: 34rpx 30rpx;
+  border-radius: 12rpx;
   color: #ffffff;
   background: #101820;
 }
 
-.home__eyebrow,
-.home__subtitle,
-.home__title,
-.home__metric-value,
-.home__metric-label,
-.home__metric-hint,
-.home__alert-title,
-.home__alert-action {
+.home-simple__brand,
+.home-simple__title,
+.home-simple__desc,
+.home-simple__section,
+.home-simple__shortcut-title,
+.home-simple__shortcut-desc,
+.home-simple__time {
   display: block;
 }
 
-.home__eyebrow {
+.home-simple__brand {
   color: #f8d568;
-  font-size: 24px;
-  font-weight: 700;
-}
-
-.home__title {
-  margin-top: 12px;
-  font-size: 48px;
+  font-size: 26rpx;
   font-weight: 800;
 }
 
-.home__subtitle {
-  margin-top: 10px;
+.home-simple__title {
+  margin-top: 16rpx;
+  font-size: 48rpx;
+  font-weight: 900;
+}
+
+.home-simple__desc {
+  margin-top: 12rpx;
   color: #d7dee8;
-  font-size: 26px;
+  font-size: 26rpx;
+  line-height: 1.5;
 }
 
-.home__live-badge {
-  flex: 0 0 auto;
-  padding: 8px 14px;
-  border-radius: 6px;
-  color: #101820;
-  background: #f8d568;
-  font-size: 22px;
-  font-weight: 900;
-}
-
-.home__metrics {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin-top: 16px;
-}
-
-.home__metric {
-  min-height: 132px;
-  padding: 18px 12px;
-  text-align: center;
-}
-
-.home__metric-value {
-  color: #f05a28;
-  font-family: DIN Alternate, Arial, sans-serif;
-  font-size: 42px;
-  font-weight: 900;
-  line-height: 1;
-}
-
-.home__metric-label {
-  margin-top: 10px;
-  color: #18212f;
-  font-size: 22px;
-  font-weight: 800;
-}
-
-.home__metric-hint {
-  margin-top: 6px;
-  color: #667085;
-  font-size: 18px;
-}
-
-.home__actions {
-  display: grid;
-  grid-template-columns: 1.2fr 1fr 1fr;
-  gap: 14px;
-  margin-top: 18px;
-}
-
-.home__action {
-  display: flex;
-  min-height: 96px;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  font-size: 24px;
-  font-weight: 800;
-  text-align: center;
-}
-
-.home__action--primary {
+.home-simple__primary {
+  margin: 28rpx 0 0;
+  height: 96rpx;
+  border-radius: 10rpx;
   color: #ffffff;
   background: #f05a28;
+  font-size: 30rpx;
+  font-weight: 900;
+  line-height: 96rpx;
 }
 
-.home__action--dark {
-  color: #ffffff;
-  background: #18212f;
+.home-simple__result {
+  margin-top: 34rpx;
 }
 
-.home__action--light {
-  border: 1px solid #e7ecf2;
+.home-simple__section {
+  margin-bottom: 16rpx;
   color: #18212f;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+
+.home-simple__result-card,
+.home-simple__empty,
+.home-simple__shortcuts > view {
+  border: 1rpx solid #e5eaf0;
+  border-radius: 10rpx;
   background: #ffffff;
+  box-shadow: 0 8rpx 20rpx rgba(16, 24, 32, 0.05);
 }
 
-.home__alerts {
-  display: grid;
-  gap: 12px;
+.home-simple__result-card {
+  padding: 24rpx;
 }
 
-.home__alert {
+.home-simple__result-row {
   display: flex;
-  min-height: 88px;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 18px;
-  border-radius: 8px;
-  background: #ffffff;
-}
-
-.home__alert--high {
-  border-left: 8px solid #d83b01;
-}
-
-.home__alert--medium {
-  border-left: 8px solid #f8d568;
-}
-
-.home__alert--low {
-  border-left: 8px solid #21a67a;
-}
-
-.home__alert-title {
+  min-height: 74rpx;
   color: #18212f;
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 30rpx;
+  font-weight: 900;
 }
 
-.home__alert-action {
-  margin-top: 6px;
+.home-simple__score {
+  color: #f05a28;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 52rpx;
+}
+
+.home-simple__time {
+  margin-top: 14rpx;
   color: #667085;
-  font-size: 22px;
+  font-size: 22rpx;
 }
 
-.home__alert-arrow {
-  color: #98a2b3;
-  font-size: 42px;
-  line-height: 1;
+.home-simple__empty {
+  padding: 34rpx 24rpx;
+  color: #667085;
+  font-size: 26rpx;
+}
+
+.home-simple__shortcuts {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+  margin-top: 28rpx;
+}
+
+.home-simple__shortcuts > view {
+  padding: 26rpx 22rpx;
+}
+
+.home-simple__shortcut-title {
+  color: #18212f;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
+.home-simple__shortcut-desc {
+  margin-top: 10rpx;
+  color: #667085;
+  font-size: 22rpx;
 }
