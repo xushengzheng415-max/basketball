@@ -1,5 +1,5 @@
-.scorer {
-  padding-bottom: 40px;
+﻿.scorer {
+  padding-bottom: 132px;
 }
 
 .scorer__header {
@@ -17,7 +17,11 @@
 .scorer__team-name,
 .scorer__meta,
 .scorer__panel-title,
-.scorer__event {
+.scorer__event,
+.scorer__player-number,
+.scorer__player-name,
+.scorer__sync-text,
+.scorer__panel-kicker {
   display: block;
 }
 
@@ -34,12 +38,25 @@
   font-weight: 800;
 }
 
+.scorer__sync {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 8px;
+}
+
 .scorer__live {
   padding: 8px 14px;
   border-radius: 6px;
   background: #d83b01;
   font-size: 22px;
   font-weight: 800;
+}
+
+.scorer__sync-text {
+  color: #9fe3bd;
+  font-size: 20px;
+  font-weight: 700;
 }
 
 .scorer__board {
@@ -82,6 +99,76 @@
   font-size: 22px;
 }
 
+.scorer__modes {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 16px;
+  padding: 8px;
+  border-radius: 8px;
+  background: #e9eef5;
+}
+
+.scorer__mode {
+  padding: 14px 4px;
+  border-radius: 6px;
+  color: #667085;
+  font-size: 22px;
+  font-weight: 800;
+  text-align: center;
+}
+
+.scorer__mode--active {
+  color: #ffffff;
+  background: #18212f;
+}
+
+.scorer__lineup {
+  margin-top: 16px;
+  padding: 18px;
+}
+
+.scorer__lineup-head {
+  display: flex;
+  justify-content: space-between;
+  color: #667085;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.scorer__lineup-list {
+  margin-top: 12px;
+}
+
+.scorer__player {
+  display: grid;
+  grid-template-columns: 62px 1fr 58px 58px 72px;
+  align-items: center;
+  min-height: 58px;
+  border-top: 1px solid #edf1f5;
+  color: #344054;
+  font-size: 22px;
+}
+
+.scorer__player-number,
+.scorer__player-name {
+  color: #18212f;
+  font-weight: 900;
+}
+
+.scorer__player-status {
+  padding: 4px 6px;
+  border-radius: 6px;
+  color: #667085;
+  background: #eef2f6;
+  text-align: center;
+}
+
+.scorer__player-status--active {
+  color: #ffffff;
+  background: #21a67a;
+}
+
 .scorer__controls {
   display: grid;
   gap: 18px;
@@ -92,14 +179,33 @@
   padding: 22px;
 }
 
+.scorer__panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.scorer__panel-kicker {
+  flex: 0 0 auto;
+  padding: 6px 10px;
+  border-radius: 6px;
+  color: #ffffff;
+  background: #f05a28;
+  font-size: 20px;
+  font-weight: 900;
+}
+
 .scorer__panel-title {
   color: #18212f;
   font-size: 28px;
   font-weight: 800;
+  text-align: right;
 }
 
 .scorer__buttons,
-.scorer__secondary {
+.scorer__secondary,
+.scorer__stats {
   display: grid;
   gap: 14px;
   margin-top: 16px;
@@ -120,6 +226,34 @@
   font-weight: 900;
 }
 
+.scorer__stats {
+  grid-template-columns: repeat(5, 1fr);
+  padding: 16px;
+}
+
+.scorer__stats button,
+.scorer__secondary button,
+.scorer__bottom-bar button,
+.scorer__undo {
+  font-size: 22px;
+}
+
+.scorer__event-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.scorer__event-head .section-title {
+  margin-bottom: 16px;
+}
+
+.scorer__undo {
+  margin: 0;
+  color: #18212f;
+  background: #f8d568;
+}
+
 .scorer__events {
   padding: 8px 22px;
 }
@@ -133,4 +267,23 @@
 
 .scorer__event:last-child {
   border-bottom: 0;
+}
+
+.scorer__bottom-bar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.1fr;
+  gap: 12px;
+  padding: 18px 24px 26px;
+  border-top: 1px solid #e5eaf0;
+  background: #ffffff;
+}
+
+.scorer__finish {
+  color: #ffffff;
+  background: #d83b01;
 }
