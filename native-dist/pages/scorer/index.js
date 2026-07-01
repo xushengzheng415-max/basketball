@@ -5,15 +5,6 @@ function formatClock(totalSeconds) {
   return `${minutes}:${seconds}`;
 }
 
-function getDefaultMatchSettings() {
-  const saved = wx.getStorageSync('appSettings') || {};
-  return {
-    periodMinutes: Number(saved.defaultPeriodMinutes) || 10,
-    totalPeriods: Number(saved.defaultTotalPeriods) || 4,
-    timerMode: saved.defaultTimerMode || 'down'
-  };
-}
-
 Page({
   timer: null,
   data: {
@@ -34,19 +25,6 @@ Page({
     clockSeconds: 600,
     clockText: '10:00',
     clockRunning: false
-  },
-  onShow() {
-    if (this.data.started) return;
-    const settings = getDefaultMatchSettings();
-    const seconds = settings.timerMode === 'down' ? settings.periodMinutes * 60 : 0;
-    this.setData({
-      periodMinutes: settings.periodMinutes,
-      totalPeriods: settings.totalPeriods,
-      timerMode: settings.timerMode,
-      timerModeText: settings.timerMode === 'down' ? '倒计时' : '正计时',
-      clockSeconds: seconds,
-      clockText: formatClock(seconds)
-    });
   },
   onUnload() {
     this.stopClock();

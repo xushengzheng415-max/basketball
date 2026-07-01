@@ -1,61 +1,50 @@
 <view class="page-wrap">
   <view class="profile-card">
-    <text class="eyebrow">我的</text>
-    <text class="title">赛小蜂篮球</text>
-    <text class="desc">管理基础设置，默认比赛参数会用于快速比赛。</text>
+    <view class="profile-main">
+      <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+        <image wx:if="{{profile.avatarUrl}}" class="avatar" src="{{profile.avatarUrl}}" mode="aspectFill" />
+        <text wx:else class="avatar-placeholder">蜂</text>
+      </button>
+      <view class="profile-info">
+        <text class="eyebrow">我的账号</text>
+        <text class="title">{{profile.nickName}}</text>
+        <text class="desc">{{profile.loggedIn ? '已登录，可编辑头像和昵称' : '登录后可保存个人资料'}}</text>
+      </view>
+    </view>
+    <view wx:if="{{!profile.loggedIn}}" class="login-btn" bindtap="login">微信授权登录</view>
+    <view wx:else class="logout-btn" bindtap="logout">退出登录</view>
   </view>
 
   <view class="settings-card">
-    <text class="section-title">基础设置</text>
+    <text class="section-title">个人资料</text>
     <view class="field">
-      <text class="label">小程序名称</text>
-      <input value="{{settings.appName}}" placeholder="赛小蜂篮球" bindinput="onAppNameInput" />
+      <text class="label">昵称</text>
+      <input type="nickname" value="{{profile.nickName}}" placeholder="请输入昵称" bindinput="onNicknameInput" />
     </view>
   </view>
 
   <view class="settings-card">
-    <text class="section-title">默认比赛设置</text>
-    <view class="setting-row">
-      <view>
-        <text class="label">每节时长</text>
-        <text class="hint">默认 {{settings.defaultPeriodMinutes}} 分钟</text>
-      </view>
-      <view class="number-control">
-        <view class="step-btn" bindtap="decreaseDuration">-</view>
-        <text>{{settings.defaultPeriodMinutes}}分</text>
-        <view class="step-btn" bindtap="increaseDuration">+</view>
-      </view>
+    <view class="section-head">
+      <text class="section-title no-margin">意见反馈</text>
+      <text class="count">已提交 {{feedbackCount}} 条</text>
     </view>
-    <view class="preset-row">
-      <view wx:for="{{durationOptions}}" wx:key="*this" class="preset {{settings.defaultPeriodMinutes == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setDuration">{{item}}分</view>
+    <view class="type-row">
+      <view wx:for="{{feedbackTypes}}" wx:key="*this" class="type-pill {{feedbackType == item ? 'active' : ''}}" data-type="{{item}}" bindtap="setFeedbackType">{{item}}</view>
     </view>
-
-    <view class="setting-row with-gap">
-      <view>
-        <text class="label">比赛节数</text>
-        <text class="hint">默认 {{settings.defaultTotalPeriods}} 节</text>
-      </view>
-      <view class="number-control">
-        <view class="step-btn" bindtap="decreasePeriods">-</view>
-        <text>{{settings.defaultTotalPeriods}}节</text>
-        <view class="step-btn" bindtap="increasePeriods">+</view>
-      </view>
-    </view>
-    <view class="preset-row period-row">
-      <view wx:for="{{periodOptions}}" wx:key="*this" class="preset {{settings.defaultTotalPeriods == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriods">{{item}}节</view>
-    </view>
-
-    <view class="field with-gap">
-      <text class="label">计时方式</text>
-      <view class="mode-row">
-        <view class="mode {{settings.defaultTimerMode == 'down' ? 'active' : ''}}" data-mode="down" bindtap="setTimerMode">倒计时</view>
-        <view class="mode {{settings.defaultTimerMode == 'up' ? 'active' : ''}}" data-mode="up" bindtap="setTimerMode">正计时</view>
-      </view>
-    </view>
+    <textarea value="{{feedbackContent}}" placeholder="告诉我们哪里不好用，或者你希望增加什么功能" maxlength="300" bindinput="onFeedbackInput" />
+    <input value="{{contact}}" placeholder="联系方式（选填）" bindinput="onContactInput" />
+    <view class="primary" bindtap="submitFeedback">提交反馈</view>
   </view>
 
   <view class="settings-card">
-    <text class="section-title">数据管理</text>
-    <view class="danger" bindtap="clearLocalData">清空本地测试数据</view>
+    <text class="section-title">关于赛小蜂篮球</text>
+    <view class="info-row">
+      <text>当前版本</text>
+      <text>原型版 0.1.0</text>
+    </view>
+    <view class="info-row">
+      <text>服务内容</text>
+      <text>赛事、计分、球员管理</text>
+    </view>
   </view>
 </view>
