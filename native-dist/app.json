@@ -7,6 +7,8 @@
     "pages/order/index",
     "pages/pay-result/index",
     "pages/tournament/index",
+    "pages/tournament-detail/index",
+    "pages/game-detail/index",
     "pages/team/index",
     "pages/mine/index"
   ],

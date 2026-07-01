@@ -1,0 +1,40 @@
+<view class="page-wrap" wx:if="{{game}}">
+  <view class="hero">
+    <text class="eyebrow">{{tournament.name || '赛事'}}</text>
+    <text class="title">{{game.name}}</text>
+    <text class="desc">{{game.homeTeamName}} vs {{game.awayTeamName}}</text>
+  </view>
+
+  <view class="roster-grid">
+    <view class="roster-card">
+      <text class="roster-title">{{game.homeTeamName}}球员</text>
+      <view wx:if="{{game.homePlayers.length === 0}}" class="mini-empty">未选择</view>
+      <view wx:for="{{game.homePlayers}}" wx:key="id" class="selected-player" data-id="{{item.id}}" bindtap="removeHome">
+        <text>#{{item.number || '--'}} {{item.name}}</text>
+        <text class="remove">移除</text>
+      </view>
+    </view>
+    <view class="roster-card">
+      <text class="roster-title">{{game.awayTeamName}}球员</text>
+      <view wx:if="{{game.awayPlayers.length === 0}}" class="mini-empty">未选择</view>
+      <view wx:for="{{game.awayPlayers}}" wx:key="id" class="selected-player" data-id="{{item.id}}" bindtap="removeAway">
+        <text>#{{item.number || '--'}} {{item.name}}</text>
+        <text class="remove">移除</text>
+      </view>
+    </view>
+  </view>
+
+  <text class="section">球员库</text>
+  <view wx:if="{{players.length === 0}}" class="empty">暂无球员，请先到底部“球员”页添加球员。</view>
+  <view wx:for="{{players}}" wx:key="id" class="player-row">
+    <text class="player-name">#{{item.number || '--'}} {{item.name}}</text>
+    <view class="player-actions">
+      <view data-id="{{item.id}}" bindtap="addToHome">加主队</view>
+      <view data-id="{{item.id}}" bindtap="addToAway">加客队</view>
+    </view>
+  </view>
+</view>
+
+<view class="page-wrap" wx:else>
+  <view class="empty">没有找到这场比赛，请返回赛事详情重新进入。</view>
+</view>

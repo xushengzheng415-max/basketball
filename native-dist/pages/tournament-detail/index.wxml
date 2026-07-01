@@ -1,0 +1,33 @@
+<view class="page-wrap" wx:if="{{tournament}}">
+  <view class="hero">
+    <text class="eyebrow">当前赛事</text>
+    <text class="title">{{tournament.name}}</text>
+    <text class="desc">{{tournament.location || '未填写地点'}} · {{tournament.date || '未填写日期'}}</text>
+  </view>
+
+  <text class="section">创建比赛</text>
+  <view class="form-card">
+    <input value="{{gameName}}" placeholder="比赛名称，例如：小组赛第 1 场" bindinput="onGameNameInput" />
+    <input value="{{gameDate}}" placeholder="比赛日期，例如：2026-07-20" bindinput="onGameDateInput" />
+    <view class="team-grid">
+      <input value="{{homeTeamName}}" placeholder="主队名称" bindinput="onHomeTeamInput" />
+      <input value="{{awayTeamName}}" placeholder="客队名称" bindinput="onAwayTeamInput" />
+    </view>
+    <view class="primary" bindtap="saveGame">保存比赛</view>
+  </view>
+
+  <text class="section">赛事比赛</text>
+  <view wx:if="{{games.length === 0}}" class="empty">暂无比赛，先创建一场比赛。</view>
+  <view wx:for="{{games}}" wx:key="id" class="item" data-id="{{item.id}}" bindtap="openGame">
+    <view>
+      <text class="item-title">{{item.name}}</text>
+      <text class="item-desc">{{item.homeTeamName}} vs {{item.awayTeamName}}</text>
+      <text class="item-desc">{{item.date || '未填写日期'}} · 已选 {{item.homePlayers.length + item.awayPlayers.length}} 人</text>
+    </view>
+    <text class="item-action">添加球员</text>
+  </view>
+</view>
+
+<view class="page-wrap" wx:else>
+  <view class="empty">没有找到这个赛事，请返回赛事页重新进入。</view>
+</view>
