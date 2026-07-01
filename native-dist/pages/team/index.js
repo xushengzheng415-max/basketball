@@ -53,5 +53,25 @@ Page({
     wx.setStorageSync('players', players);
     this.setData({ name: '', number: '', players });
     this.refreshPlayers();
+  },
+  deletePlayer(event) {
+    const id = event.currentTarget.dataset.id;
+    const player = this.data.players.find((item) => String(item.id) === String(id));
+    if (!player) return;
+
+    wx.showModal({
+      title: '删除球员',
+      content: `确定从球员库删除 #${player.number || '--'} ${player.name} 吗？`,
+      confirmText: '删除',
+      confirmColor: '#d83b01',
+      success: (res) => {
+        if (!res.confirm) return;
+        const players = this.data.players.filter((item) => String(item.id) !== String(id));
+        wx.setStorageSync('players', players);
+        this.setData({ players });
+        this.refreshPlayers();
+        wx.showToast({ title: '已删除', icon: 'success' });
+      }
+    });
   }
 });

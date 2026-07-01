@@ -1,6 +1,6 @@
 <view class="page-wrap">
-  <text class="title">球员名单</text>
-  <text class="desc">添加球员姓名和唯一球衣号码，同一个号码只能被一名球员使用。</text>
+  <text class="title">球员库</text>
+  <text class="desc">添加常用球员姓名和唯一球衣号码，创建场次时可从球员库选择。</text>
 
   <view class="form-card">
     <input value="{{name}}" placeholder="球员姓名" bindinput="onNameInput" />
@@ -9,10 +9,13 @@
     <view class="primary" bindtap="addPlayer">添加球员</view>
   </view>
 
-  <text class="section">当前名单</text>
+  <text class="section">当前球员库</text>
   <view wx:if="{{players.length === 0}}" class="empty">暂无球员</view>
   <view wx:for="{{players}}" wx:key="id" class="player">
-    <text class="number">#{{item.number || '--'}}</text>
-    <text>{{item.name}}</text>
+    <view class="player-info">
+      <text class="number">#{{item.number || '--'}}</text>
+      <text class="name">{{item.name}}</text>
+    </view>
+    <view class="delete-btn" data-id="{{item.id}}" catchtap="deletePlayer">删除</view>
   </view>
 </view>

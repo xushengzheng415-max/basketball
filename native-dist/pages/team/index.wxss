@@ -68,14 +68,41 @@ input {
 .player {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 20rpx;
   margin-bottom: 14rpx;
   color: #18212f;
   font-size: 30rpx;
   font-weight: 900;
 }
+.player-info {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 18rpx;
+}
 .number {
+  flex-shrink: 0;
   color: #f05a28;
   font-family: DIN Alternate, Arial, sans-serif;
   font-size: 36rpx;
+}
+.name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.delete-btn {
+  display: flex;
+  width: 96rpx;
+  height: 52rpx;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid #ffd6cc;
+  border-radius: 8rpx;
+  color: #d83b01;
+  background: #fff7f4;
+  font-size: 24rpx;
+  font-weight: 900;
 }
