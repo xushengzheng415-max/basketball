@@ -1,125 +1,223 @@
+page {
+  height: 100vh;
+  overflow: hidden;
+  background: #f4f7fa;
+}
 .setup {
   min-height: 100vh;
-  padding: 32rpx;
+  box-sizing: border-box;
+  padding: 18rpx 28rpx 22rpx;
   background: #f4f7fa;
 }
 .setup-card {
-  max-width: 640rpx;
-  padding: 28rpx;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: calc(100vh - 40rpx);
+  padding: 22rpx 26rpx;
   border-radius: 14rpx;
   background: #fff;
 }
-.setup-title, .setup-desc, .form text, .team-name, .team-score {
+.setup-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24rpx;
+}
+.setup-title, .setup-desc, .field text, .team-name, .team-score, .period, .clock-mode {
   display: block;
 }
 .setup-title {
   color: #101820;
-  font-size: 42rpx;
+  font-size: 34rpx;
   font-weight: 900;
 }
 .setup-desc {
-  margin-top: 10rpx;
+  margin-top: 6rpx;
   color: #667085;
-  font-size: 24rpx;
-}
-.form {
-  display: grid;
-  gap: 14rpx;
-  margin-top: 24rpx;
-}
-.form text {
-  color: #18212f;
-  font-size: 24rpx;
-  font-weight: 900;
-}
-.form input {
-  height: 72rpx;
-  padding: 0 18rpx;
-  border: 1rpx solid #d7dee8;
-  border-radius: 8rpx;
-  background: #f8fafc;
-  font-size: 26rpx;
+  font-size: 20rpx;
 }
 .start {
   display: flex;
-  height: 78rpx;
+  width: 190rpx;
+  height: 58rpx;
+  flex-shrink: 0;
   align-items: center;
   justify-content: center;
-  margin-top: 24rpx;
   border-radius: 10rpx;
   color: #fff;
   background: #f05a28;
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 900;
 }
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx 20rpx;
+  margin-top: 18rpx;
+}
+.field text {
+  color: #18212f;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+.field input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 56rpx;
+  margin-top: 8rpx;
+  padding: 0 16rpx;
+  border: 1rpx solid #d7dee8;
+  border-radius: 8rpx;
+  background: #f8fafc;
+  font-size: 24rpx;
+}
+.mode-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12rpx;
+  margin-top: 8rpx;
+}
+.mode {
+  display: flex;
+  height: 56rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid #d7dee8;
+  border-radius: 8rpx;
+  color: #18212f;
+  background: #fff;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+.mode.active {
+  border-color: #f05a28;
+  color: #fff;
+  background: #f05a28;
+}
 .scoreboard {
-  min-height: 100vh;
-  padding: 18rpx 24rpx;
+  display: grid;
+  grid-template-rows: 48rpx 72rpx minmax(0, 1fr) 42rpx;
+  gap: 10rpx;
+  height: 100vh;
+  box-sizing: border-box;
+  padding: 10rpx 22rpx 14rpx;
+  overflow: hidden;
   color: #fff;
   background: #101820;
 }
 .topbar {
   display: flex;
-  height: 64rpx;
   align-items: center;
   justify-content: space-between;
-  font-size: 26rpx;
+  font-size: 22rpx;
   font-weight: 900;
 }
 .finish {
   display: flex;
-  width: 170rpx;
-  height: 56rpx;
+  width: 144rpx;
+  height: 44rpx;
   align-items: center;
   justify-content: center;
   border-radius: 8rpx;
   background: #d83b01;
+  font-size: 20rpx;
+}
+.clock-card {
+  display: grid;
+  grid-template-columns: 1fr 190rpx 310rpx;
+  gap: 14rpx;
+  align-items: center;
+  min-height: 0;
+  padding: 10rpx 14rpx;
+  border-radius: 12rpx;
+  background: rgba(255,255,255,0.1);
+}
+.period {
+  color: #f8d568;
   font-size: 24rpx;
+  font-weight: 900;
+}
+.clock-mode {
+  margin-top: 4rpx;
+  color: #d7dee8;
+  font-size: 18rpx;
+}
+.clock {
+  color: #fff;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 46rpx;
+  font-weight: 900;
+  text-align: center;
+}
+.clock-actions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8rpx;
+}
+.clock-btn {
+  display: flex;
+  height: 46rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  color: #101820;
+  background: #fff;
+  font-size: 18rpx;
+  font-weight: 900;
+}
+.primary-clock {
+  color: #101820;
+  background: #f8d568;
 }
 .main {
   display: grid;
-  grid-template-columns: 1fr 170rpx 1fr;
-  gap: 18rpx;
-  min-height: 350rpx;
+  grid-template-columns: 1fr 134rpx 1fr;
+  gap: 14rpx;
+  min-height: 0;
 }
 .team-card {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: 34rpx minmax(0, 1fr) 52rpx;
   align-items: center;
-  justify-content: space-between;
-  padding: 22rpx;
-  border-radius: 14rpx;
+  min-height: 0;
+  box-sizing: border-box;
+  padding: 12rpx 16rpx;
+  border-radius: 12rpx;
   color: #101820;
   background: #fff;
 }
 .team-name {
   max-width: 100%;
-  font-size: 32rpx;
+  overflow: hidden;
+  font-size: 24rpx;
   font-weight: 900;
   text-align: center;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .team-score {
+  align-self: center;
   color: #f05a28;
   font-family: DIN Alternate, Arial, sans-serif;
-  font-size: 140rpx;
+  font-size: 96rpx;
   font-weight: 900;
   line-height: 1;
+  text-align: center;
 }
 .score-buttons {
   display: grid;
-  width: 100%;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12rpx;
+  gap: 10rpx;
 }
-.score-buttons view {
+.score-btn {
   display: flex;
-  height: 72rpx;
+  height: 48rpx;
   align-items: center;
   justify-content: center;
-  border-radius: 10rpx;
+  border-radius: 9rpx;
   color: #fff;
   background: #f05a28;
-  font-size: 30rpx;
+  font-size: 24rpx;
   font-weight: 900;
 }
 .center {
@@ -127,20 +225,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16rpx;
+  gap: 10rpx;
+  min-height: 0;
 }
 .vs {
-  font-size: 44rpx;
+  font-size: 32rpx;
   font-weight: 900;
 }
 .undo, .reset {
   display: flex;
-  width: 140rpx;
-  height: 58rpx;
+  width: 112rpx;
+  height: 44rpx;
   align-items: center;
   justify-content: center;
   border-radius: 8rpx;
-  font-size: 24rpx;
+  font-size: 20rpx;
   font-weight: 900;
 }
 .undo {
@@ -153,11 +252,12 @@
 }
 .events {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  margin-top: 16rpx;
-  padding: 16rpx 20rpx;
+  min-height: 0;
+  padding: 0 16rpx;
   border-radius: 10rpx;
   color: #d7dee8;
   background: rgba(255,255,255,0.08);
-  font-size: 24rpx;
+  font-size: 20rpx;
 }

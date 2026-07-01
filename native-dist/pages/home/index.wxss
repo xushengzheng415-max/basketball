@@ -7,7 +7,7 @@
   color: #fff;
   background: #101820;
 }
-.brand, .title, .desc, .shortcut-title, .shortcut-desc, .time {
+.brand, .title, .desc, .shortcut-title, .shortcut-desc, .time, .pay-title, .pay-desc {
   display: block;
 }
 .brand {
@@ -26,16 +26,42 @@
   font-size: 26rpx;
   line-height: 1.5;
 }
-.primary {
+.hero-action {
   display: flex;
-  height: 96rpx;
+  width: 190rpx;
+  height: 62rpx;
   align-items: center;
   justify-content: center;
-  margin-top: 28rpx;
+  margin-top: 24rpx;
+  border-radius: 8rpx;
+  color: #101820;
+  background: #f8d568;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+.pay-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18rpx;
+  padding: 24rpx 22rpx;
+  border: 1rpx solid #fed7aa;
   border-radius: 10rpx;
-  color: #fff;
-  background: #f05a28;
-  font-size: 30rpx;
+  background: #fff7ed;
+}
+.pay-title {
+  color: #9a3412;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.pay-desc {
+  margin-top: 8rpx;
+  color: #9a6b42;
+  font-size: 22rpx;
+}
+.pay-arrow {
+  color: #f05a28;
+  font-size: 44rpx;
   font-weight: 900;
 }
 .section-title {
@@ -44,7 +70,7 @@
   font-size: 32rpx;
   font-weight: 900;
 }
-.result-card, .empty, .shortcuts > view {
+.result-card, .empty, .shortcut {
   border: 1rpx solid #e5eaf0;
   border-radius: 10rpx;
   background: #fff;
@@ -83,7 +109,7 @@
   gap: 18rpx;
   margin-top: 28rpx;
 }
-.shortcuts > view {
+.shortcut {
   padding: 26rpx 22rpx;
 }
 .shortcut-title {
@@ -95,32 +121,4 @@
   margin-top: 10rpx;
   color: #667085;
   font-size: 22rpx;
-}
-.pay-entry {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 18rpx;
-  padding: 24rpx 22rpx;
-  border: 1rpx solid #fed7aa;
-  border-radius: 10rpx;
-  background: #fff7ed;
-}
-.pay-title, .pay-desc {
-  display: block;
-}
-.pay-title {
-  color: #9a3412;
-  font-size: 28rpx;
-  font-weight: 900;
-}
-.pay-desc {
-  margin-top: 8rpx;
-  color: #9a6b42;
-  font-size: 22rpx;
-}
-.pay-arrow {
-  color: #f05a28;
-  font-size: 44rpx;
-  font-weight: 900;
 }

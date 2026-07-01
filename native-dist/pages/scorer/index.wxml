@@ -1,14 +1,34 @@
 <view wx:if="{{!started}}" class="setup">
   <view class="setup-card">
-    <text class="setup-title">创建一场比赛</text>
-    <text class="setup-desc">输入两支队伍名称，然后进入横屏计分盘。</text>
-    <view class="form">
-      <text>队伍 A</text>
-      <input value="{{homeName}}" placeholder="请输入主队名称" bindinput="onHomeInput" />
-      <text>队伍 B</text>
-      <input value="{{awayName}}" placeholder="请输入客队名称" bindinput="onAwayInput" />
+    <view class="setup-head">
+      <view>
+        <text class="setup-title">快速开始比赛</text>
+        <text class="setup-desc">设置主客队、每节时长和计时方式。</text>
+      </view>
+      <view class="start" bindtap="startMatch">开始比赛</view>
     </view>
-    <view class="start" bindtap="startMatch">开始计分</view>
+
+    <view class="form-grid">
+      <view class="field">
+        <text>主队名称</text>
+        <input value="{{homeName}}" placeholder="主队" bindinput="onHomeInput" />
+      </view>
+      <view class="field">
+        <text>客队名称</text>
+        <input value="{{awayName}}" placeholder="客队" bindinput="onAwayInput" />
+      </view>
+      <view class="field small-field">
+        <text>每节时长</text>
+        <input value="{{periodMinutes}}" type="number" placeholder="10" bindinput="onPeriodInput" />
+      </view>
+      <view class="field mode-field">
+        <text>计时方式</text>
+        <view class="mode-row">
+          <view class="mode {{timerMode == 'down' ? 'active' : ''}}" data-mode="down" bindtap="setTimerMode">倒计时</view>
+          <view class="mode {{timerMode == 'up' ? 'active' : ''}}" data-mode="up" bindtap="setTimerMode">正计时</view>
+        </view>
+      </view>
+    </view>
   </view>
 </view>
 
@@ -18,14 +38,27 @@
     <view class="finish" bindtap="finishMatch">结束比赛</view>
   </view>
 
+  <view class="clock-card">
+    <view>
+      <text class="period">第 {{period}} 节</text>
+      <text class="clock-mode">{{timerModeText}} · {{periodMinutes}} 分钟</text>
+    </view>
+    <text class="clock">{{clockText}}</text>
+    <view class="clock-actions">
+      <view class="clock-btn primary-clock" bindtap="toggleClock">{{clockRunning ? '暂停' : '开始'}}</view>
+      <view class="clock-btn" bindtap="resetClock">复位</view>
+      <view class="clock-btn" bindtap="nextPeriod">下一节</view>
+    </view>
+  </view>
+
   <view class="main">
     <view class="team-card">
       <text class="team-name">{{homeName}}</text>
       <text class="team-score">{{homeScore}}</text>
       <view class="score-buttons">
-        <view bindtap="addHome1">+1</view>
-        <view bindtap="addHome2">+2</view>
-        <view bindtap="addHome3">+3</view>
+        <view class="score-btn" bindtap="addHome1">+1</view>
+        <view class="score-btn" bindtap="addHome2">+2</view>
+        <view class="score-btn" bindtap="addHome3">+3</view>
       </view>
     </view>
 
@@ -39,9 +72,9 @@
       <text class="team-name">{{awayName}}</text>
       <text class="team-score">{{awayScore}}</text>
       <view class="score-buttons">
-        <view bindtap="addAway1">+1</view>
-        <view bindtap="addAway2">+2</view>
-        <view bindtap="addAway3">+3</view>
+        <view class="score-btn" bindtap="addAway1">+1</view>
+        <view class="score-btn" bindtap="addAway2">+2</view>
+        <view class="score-btn" bindtap="addAway3">+3</view>
       </view>
     </view>
   </view>
