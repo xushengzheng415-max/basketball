@@ -1,0 +1,39 @@
+{
+  "users": [
+    {
+      "userId": "user-1001",
+      "nickName": "微信用户",
+      "wechatId": "saixiaofeng_001",
+      "phone": "13800000000",
+      "source": "微信登录",
+      "updatedAt": "2026/7/1 20:45:00"
+    },
+    {
+      "userId": "user-1002",
+      "nickName": "游客体验",
+      "wechatId": "",
+      "phone": "",
+      "source": "游客",
+      "updatedAt": "2026/7/1 20:49:00"
+    }
+  ],
+  "feedback": [
+    {
+      "id": 1,
+      "type": "功能建议",
+      "content": "希望计分结束后可以生成海报。",
+      "contact": "13800000000",
+      "user": {
+        "nickName": "微信用户",
+        "wechatId": "saixiaofeng_001",
+        "phone": "13800000000"
+      },
+      "createdAt": "2026/7/1 20:51:00"
+    }
+  ],
+  "stats": {
+    "matches": 6,
+    "tournaments": 2,
+    "players": 18
+  }
+}

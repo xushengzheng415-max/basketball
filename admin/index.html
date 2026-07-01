@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>赛小蜂篮球 PC 后台</title>
+  <style>
+    :root {
+      --ink: #101820;
+      --muted: #667085;
+      --line: #e5eaf0;
+      --bg: #f4f7fa;
+      --orange: #f05a28;
+      --yellow: #ffd65a;
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    .shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
+    .side { background: var(--ink); color: #fff; padding: 28px 22px; }
+    .brand { color: var(--yellow); font-size: 14px; font-weight: 900; }
+    .brand-title { margin-top: 10px; font-size: 28px; font-weight: 900; line-height: 1.1; }
+    .nav { display: grid; gap: 8px; margin-top: 36px; }
+    .nav button {
+      height: 42px;
+      border: 0;
+      border-radius: 8px;
+      color: rgba(255,255,255,.78);
+      background: transparent;
+      text-align: left;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .nav button.active { color: #fff; background: rgba(255,255,255,.12); }
+    .main { padding: 28px; overflow: auto; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    h1 { margin: 0; font-size: 28px; }
+    .tools { display: flex; align-items: center; gap: 10px; }
+    .upload-label, .btn {
+      display: inline-flex;
+      height: 40px;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #fff;
+      padding: 0 14px;
+      font-size: 14px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .btn.primary { border-color: var(--orange); color: #fff; background: var(--orange); }
+    input[type="file"] { display: none; }
+    .stats { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 14px; margin-top: 24px; }
+    .stat { border-radius: 8px; background: var(--card); padding: 18px; box-shadow: 0 1px 2px rgba(16,24,32,.06); }
+    .stat span { display: block; color: var(--muted); font-size: 13px; font-weight: 800; }
+    .stat strong { display: block; margin-top: 8px; font-size: 30px; }
+    .panel { margin-top: 24px; border-radius: 8px; background: var(--card); box-shadow: 0 1px 2px rgba(16,24,32,.06); overflow: hidden; }
+    .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .panel-title { font-size: 18px; font-weight: 900; }
+    .search { width: 260px; height: 36px; border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 14px 20px; border-bottom: 1px solid #eef2f6; text-align: left; vertical-align: top; font-size: 14px; }
+    th { color: var(--muted); background: #fbfcfe; font-size: 12px; font-weight: 900; }
+    tr:last-child td { border-bottom: 0; }
+    .tag { display: inline-flex; align-items: center; height: 24px; border-radius: 999px; background: #fff3ed; color: var(--orange); padding: 0 9px; font-size: 12px; font-weight: 900; }
+    .muted { color: var(--muted); }
+    .empty { padding: 28px 20px; color: var(--muted); }
+    .hidden { display: none; }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      .side { position: static; }
+      .stats { grid-template-columns: repeat(2, 1fr); }
+      .topbar, .panel-head { align-items: stretch; flex-direction: column; }
+      .search { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand">赛小蜂篮球</div>
+      <div class="brand-title">运营后台</div>
+      <nav class="nav">
+        <button class="active" data-tab="overview">数据概览</button>
+        <button data-tab="users">用户资料</button>
+        <button data-tab="feedback">反馈信息</button>
+      </nav>
+    </aside>
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h1>小程序数据看板</h1>
+          <div class="muted">用于查看用户资料、联系方式和反馈内容。</div>
+        </div>
+        <div class="tools">
+          <label class="upload-label" for="dataFile">导入数据 JSON</label>
+          <input id="dataFile" type="file" accept="application/json" />
+          <button class="btn primary" id="loadSample">加载示例数据</button>
+        </div>
+      </div>
+
+      <section class="stats">
+        <div class="stat"><span>用户数</span><strong id="userCount">0</strong></div>
+        <div class="stat"><span>反馈数</span><strong id="feedbackCount">0</strong></div>
+        <div class="stat"><span>赛事数</span><strong id="tournamentCount">0</strong></div>
+        <div class="stat"><span>场次数</span><strong id="matchCount">0</strong></div>
+        <div class="stat"><span>球员数</span><strong id="playerCount">0</strong></div>
+      </section>
+
+      <section class="panel" data-panel="overview">
+        <div class="panel-head"><div class="panel-title">最近反馈</div></div>
+        <div id="overviewContent"></div>
+      </section>
+
+      <section class="panel hidden" data-panel="users">
+        <div class="panel-head">
+          <div class="panel-title">用户资料</div>
+          <input class="search" id="userSearch" placeholder="搜索昵称、微信号、手机号" />
+        </div>
+        <div id="usersTable"></div>
+      </section>
+
+      <section class="panel hidden" data-panel="feedback">
+        <div class="panel-head">
+          <div class="panel-title">反馈信息</div>
+          <input class="search" id="feedbackSearch" placeholder="搜索反馈内容、联系方式" />
+        </div>
+        <div id="feedbackTable"></div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const state = {
+      users: [],
+      feedback: [],
+      stats: { tournaments: 0, matches: 0, players: 0 },
+      activeTab: 'overview',
+      userKeyword: '',
+      feedbackKeyword: ''
+    };
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    }
+
+    function renderStats() {
+      document.getElementById('userCount').textContent = state.users.length;
+      document.getElementById('feedbackCount').textContent = state.feedback.length;
+      document.getElementById('tournamentCount').textContent = state.stats.tournaments || 0;
+      document.getElementById('matchCount').textContent = state.stats.matches || 0;
+      document.getElementById('playerCount').textContent = state.stats.players || 0;
+    }
+
+    function renderUsers() {
+      const keyword = state.userKeyword.trim().toLowerCase();
+      const users = state.users.filter((user) => [user.nickName, user.wechatId, user.phone].join(' ').toLowerCase().includes(keyword));
+      if (!users.length) {
+        document.getElementById('usersTable').innerHTML = '<div class="empty">暂无用户资料</div>';
+        return;
+      }
+      document.getElementById('usersTable').innerHTML = `
+        <table>
+          <thead><tr><th>昵称</th><th>微信号</th><th>手机号</th><th>来源</th><th>更新时间</th></tr></thead>
+          <tbody>${users.map((user) => `
+            <tr>
+              <td><strong>${escapeHtml(user.nickName || '未填写')}</strong><div class="muted">${escapeHtml(user.userId || '-')}</div></td>
+              <td>${escapeHtml(user.wechatId || '未填写')}</td>
+              <td>${escapeHtml(user.phone || '未填写')}</td>
+              <td><span class="tag">${escapeHtml(user.source || '未知')}</span></td>
+              <td>${escapeHtml(user.updatedAt || '-')}</td>
+            </tr>`).join('')}</tbody>
+        </table>`;
+    }
+
+    function renderFeedback(targetId = 'feedbackTable', limit = null) {
+      const keyword = state.feedbackKeyword.trim().toLowerCase();
+      let list = state.feedback.filter((item) => [item.type, item.content, item.contact, item.user?.nickName, item.user?.wechatId, item.user?.phone].join(' ').toLowerCase().includes(keyword));
+      if (limit) list = list.slice(0, limit);
+      if (!list.length) {
+        document.getElementById(targetId).innerHTML = '<div class="empty">暂无反馈信息</div>';
+        return;
+      }
+      document.getElementById(targetId).innerHTML = `
+        <table>
+          <thead><tr><th>类型</th><th>反馈内容</th><th>用户资料</th><th>联系方式</th><th>提交时间</th></tr></thead>
+          <tbody>${list.map((item) => `
+            <tr>
+              <td><span class="tag">${escapeHtml(item.type || '未分类')}</span></td>
+              <td>${escapeHtml(item.content || '')}</td>
+              <td><strong>${escapeHtml(item.user?.nickName || '未知用户')}</strong><div class="muted">微信号：${escapeHtml(item.user?.wechatId || '未填写')}</div><div class="muted">手机号：${escapeHtml(item.user?.phone || '未填写')}</div></td>
+              <td>${escapeHtml(item.contact || '未填写')}</td>
+              <td>${escapeHtml(item.createdAt || '-')}</td>
+            </tr>`).join('')}</tbody>
+        </table>`;
+    }
+
+    function render() {
+      renderStats();
+      renderUsers();
+      renderFeedback('feedbackTable');
+      renderFeedback('overviewContent', 5);
+    }
+
+    function setData(data) {
+      state.users = Array.isArray(data.users) ? data.users : [];
+      state.feedback = Array.isArray(data.feedback) ? data.feedback : [];
+      state.stats = data.stats || {};
+      render();
+    }
+
+    document.querySelectorAll('.nav button').forEach((button) => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.nav button').forEach((item) => item.classList.remove('active'));
+        button.classList.add('active');
+        state.activeTab = button.dataset.tab;
+        document.querySelectorAll('[data-panel]').forEach((panel) => panel.classList.toggle('hidden', panel.dataset.panel !== state.activeTab));
+      });
+    });
+
+    document.getElementById('userSearch').addEventListener('input', (event) => {
+      state.userKeyword = event.target.value;
+      renderUsers();
+    });
+    document.getElementById('feedbackSearch').addEventListener('input', (event) => {
+      state.feedbackKeyword = event.target.value;
+      renderFeedback('feedbackTable');
+    });
+    document.getElementById('dataFile').addEventListener('change', async (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+      setData(JSON.parse(await file.text()));
+    });
+    document.getElementById('loadSample').addEventListener('click', async () => {
+      const response = await fetch('./sample-data.json');
+      setData(await response.json());
+    });
+
+    setData({ users: [], feedback: [], stats: {} });
+  </script>
+</body>
+</html>
