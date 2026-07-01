@@ -2,6 +2,9 @@
   "pages": [
     "pages/home/index",
     "pages/scorer/index",
+    "pages/products/index",
+    "pages/order/index",
+    "pages/pay-result/index",
     "pages/tournament/index",
     "pages/team/index"
   ],

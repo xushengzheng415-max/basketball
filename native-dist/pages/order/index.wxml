@@ -1,0 +1,26 @@
+<view class="order">
+  <text class="title">确认订单</text>
+
+  <view class="card">
+    <text class="label">购买项目</text>
+    <text class="product-name">{{product.name}}</text>
+    <text class="product-desc">{{product.desc}}</text>
+  </view>
+
+  <view class="card form-card">
+    <text class="label">联系人</text>
+    <input value="{{buyerName}}" placeholder="请输入姓名" bindinput="onNameInput" />
+    <text class="label">手机号</text>
+    <input value="{{phone}}" type="number" placeholder="请输入手机号" bindinput="onPhoneInput" />
+  </view>
+
+  <view class="summary">
+    <view>
+      <text class="summary-label">应付金额</text>
+      <text class="summary-desc">微信支付申请阶段示例订单</text>
+    </view>
+    <text class="amount">¥{{product.price}}</text>
+  </view>
+
+  <view class="pay-button" bindtap="payNow">确认支付</view>
+</view>

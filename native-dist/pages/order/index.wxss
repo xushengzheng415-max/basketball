@@ -1,0 +1,79 @@
+.order {
+  padding: 28rpx;
+}
+.title, .label, .product-name, .product-desc, .summary-label, .summary-desc, .amount {
+  display: block;
+}
+.title {
+  color: #101820;
+  font-size: 44rpx;
+  font-weight: 900;
+}
+.card, .summary {
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border-radius: 12rpx;
+  background: #fff;
+}
+.label {
+  margin-bottom: 10rpx;
+  color: #667085;
+  font-size: 23rpx;
+  font-weight: 800;
+}
+.product-name {
+  color: #18212f;
+  font-size: 32rpx;
+  font-weight: 900;
+}
+.product-desc {
+  margin-top: 10rpx;
+  color: #667085;
+  font-size: 24rpx;
+  line-height: 1.45;
+}
+.form-card {
+  display: grid;
+  gap: 14rpx;
+}
+input {
+  height: 78rpx;
+  padding: 0 20rpx;
+  border: 1rpx solid #d7dee8;
+  border-radius: 10rpx;
+  background: #f8fafc;
+  font-size: 26rpx;
+}
+.summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.summary-label {
+  color: #18212f;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.summary-desc {
+  margin-top: 6rpx;
+  color: #98a2b3;
+  font-size: 22rpx;
+}
+.amount {
+  color: #f05a28;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 42rpx;
+  font-weight: 900;
+}
+.pay-button {
+  display: flex;
+  height: 92rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 28rpx;
+  border-radius: 10rpx;
+  color: #fff;
+  background: #f05a28;
+  font-size: 30rpx;
+  font-weight: 900;
+}

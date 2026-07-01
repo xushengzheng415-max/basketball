@@ -96,3 +96,31 @@
   color: #667085;
   font-size: 22rpx;
 }
+.pay-entry {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 18rpx;
+  padding: 24rpx 22rpx;
+  border: 1rpx solid #fed7aa;
+  border-radius: 10rpx;
+  background: #fff7ed;
+}
+.pay-title, .pay-desc {
+  display: block;
+}
+.pay-title {
+  color: #9a3412;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.pay-desc {
+  margin-top: 8rpx;
+  color: #9a6b42;
+  font-size: 22rpx;
+}
+.pay-arrow {
+  color: #f05a28;
+  font-size: 44rpx;
+  font-weight: 900;
+}

@@ -9,6 +9,9 @@ Page({
   goScorer() {
     wx.navigateTo({ url: '/pages/scorer/index' });
   },
+  goProducts() {
+    wx.navigateTo({ url: '/pages/products/index' });
+  },
   goTournament() {
     wx.switchTab({ url: '/pages/tournament/index' });
   },

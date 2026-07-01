@@ -1,0 +1,23 @@
+<view class="products">
+  <view class="header">
+    <text class="kicker">赛小蜂篮球</text>
+    <text class="title">选择赛事服务</text>
+    <text class="desc">适合训练营、班级赛、青少年联赛的报名与计分服务。</text>
+  </view>
+
+  <view wx:for="{{products}}" wx:key="id" class="product-card" data-id="{{item.id}}" bindtap="selectProduct">
+    <view>
+      <text class="product-name">{{item.name}}</text>
+      <text class="product-desc">{{item.desc}}</text>
+    </view>
+    <view class="price-block">
+      <text class="price">¥{{item.price}}</text>
+      <text class="buy">购买</text>
+    </view>
+  </view>
+
+  <view class="notice">
+    <text>支付说明</text>
+    <text>当前为微信支付申请阶段的页面原型，正式上线后将接入微信支付能力。</text>
+  </view>
+</view>

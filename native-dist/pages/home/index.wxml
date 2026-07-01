@@ -9,6 +9,14 @@
     <text>进入比赛积分系统</text>
   </view>
 
+  <view class="pay-entry" bindtap="goProducts">
+    <view>
+      <text class="pay-title">购买赛事服务</text>
+      <text class="pay-desc">报名费、赛事服务包、技术统计服务</text>
+    </view>
+    <text class="pay-arrow">›</text>
+  </view>
+
   <view class="section-title">最近赛果</view>
   <view wx:if="{{latestResult}}" class="result-card">
     <view class="result-row">
