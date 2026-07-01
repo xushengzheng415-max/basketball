@@ -1,4 +1,4 @@
-node_modules/
+﻿node_modules/
 dist/
 .temp/
 .rn_temp/
@@ -10,3 +10,6 @@ pnpm-debug.log*
 Thumbs.db
 .env.local
 .env.*.local
+dev-weapp*.log
+.swc/
+project.private.config.json

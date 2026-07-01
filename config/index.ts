@@ -1,3 +1,4 @@
+import path from 'path';
 import type { UserConfigExport } from '@tarojs/cli';
 
 const config: UserConfigExport = {
@@ -13,6 +14,9 @@ const config: UserConfigExport = {
   outputRoot: 'dist',
   plugins: [],
   defineConstants: {},
+  alias: {
+    '@': path.resolve(__dirname, '..', 'src')
+  },
   copy: {
     patterns: [],
     options: {}

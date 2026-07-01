@@ -29,3 +29,19 @@
 - 给计分台增加本地事件队列、离线重试和冲突处理状态。
 - 增加赛事报名、支付、家长端观赛和分享链路。
 - 用微信开发者工具跑 `npm run dev:weapp` 后做移动端真机尺寸检查。
+
+## 2026-07-01 微信开发者工具接入
+
+### 已完成
+
+- 补全依赖安装，固定 `webpack@5.88.2`，避免 Taro 3.6 与过新 Webpack 的 ProgressPlugin 参数不兼容。
+- 新增 `babel.config.js`，安装 `babel-preset-taro@3.6.40`，让 Taro 正确编译 TypeScript/React。
+- 在 `config/index.ts` 增加 `@ -> src` alias，修复页面组件导入。
+- 成功运行 `npm run build:weapp`，生成 `dist/`。
+- 已后台启动 `npm run dev:weapp` watch，微信开发者工具可直接读取 `dist/`。
+- `npm run typecheck` 通过。
+
+### 注意
+
+- 本机 Node 版本是 v24.15.0，Taro 3.6 可以跑通，但长期建议使用 Node 18 或 Node 20 LTS。
+- `project.private.config.json` 和 `.swc/` 为本地开发工具/缓存文件，已加入 `.gitignore`。
