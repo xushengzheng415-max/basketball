@@ -1,71 +1,30 @@
 <view class="login-page">
-  <view class="login-page__honeycomb"></view>
-  <view class="login-page__court login-page__court--left"></view>
-  <view class="login-page__court login-page__court--right"></view>
-  <view class="login-page__beam login-page__beam--one"></view>
-  <view class="login-page__beam login-page__beam--two"></view>
-  <view class="login-page__beam login-page__beam--three"></view>
-  <view class="login-page__lights">
-    <text></text>
-    <text></text>
-    <text></text>
-  </view>
+  <image class="login-bg" src="/assets/home/home-bg.jpg" mode="aspectFill" />
+  <view class="login-mask"></view>
 
-  <view class="login-page__hero">
-    <view class="login-page__mark">
-      <view class="login-page__speed login-page__speed--one"></view>
-      <view class="login-page__speed login-page__speed--two"></view>
-      <view class="login-page__bee">
-        <view class="login-page__wing login-page__wing--main"></view>
-        <view class="login-page__wing login-page__wing--small"></view>
-        <view class="login-page__body"></view>
-        <view class="login-page__head"></view>
-        <view class="login-page__tail"></view>
+  <view class="login-content">
+    <view class="brand-zone">
+      <image class="main-logo" src="/assets/home/main-logo.png" mode="aspectFit" />
+      <text class="brand-name">赛小蜂篮球</text>
+      <text class="brand-en">BASKETBALL</text>
+      <text class="slogan">热爱上场 · 蜂行无畏</text>
+    </view>
+
+    <view class="action-panel">
+      <image class="panel-ball" src="/assets/home/basketball-icon.png" mode="aspectFit" />
+      <view class="image-button" bindtap="loginByWechat">
+        <image src="/assets/login/login-button.png" mode="widthFix" />
       </view>
-      <view class="login-page__orbit login-page__orbit--white"></view>
-      <view class="login-page__orbit login-page__orbit--orange"></view>
-      <view class="login-page__ball">
-        <view class="login-page__ball-line login-page__ball-line--v"></view>
-        <view class="login-page__ball-line login-page__ball-line--h"></view>
-        <view class="login-page__ball-line login-page__ball-line--a"></view>
-        <view class="login-page__ball-line login-page__ball-line--b"></view>
+      <view class="image-button guest" bindtap="enterAsGuest">
+        <image src="/assets/login/guest-button.png" mode="widthFix" />
       </view>
-      <text class="login-page__spark login-page__spark--one">*</text>
-      <text class="login-page__spark login-page__spark--two">*</text>
-      <text class="login-page__spark login-page__spark--three">*</text>
-    </view>
-
-    <view class="login-page__title-wrap">
-      <text class="login-page__name">赛小蜂篮球</text>
-      <text class="login-page__english">BASKETBALL</text>
-      <text class="login-page__slogan">热爱上场 · 蜂行无畏</text>
-    </view>
-  </view>
-
-  <view class="login-page__panel">
-    <view class="login-page__panel-ball">
-      <view class="login-page__panel-ball-line login-page__panel-ball-line--v"></view>
-      <view class="login-page__panel-ball-line login-page__panel-ball-line--a"></view>
-    </view>
-
-    <view class="login-page__button login-page__button--primary" bindtap="loginByWechat">
-      <text class="login-page__wechat">●●</text>
-      <text>微信一键登录</text>
-      <text class="login-page__slash">▰</text>
-    </view>
-    <view class="login-page__button login-page__button--ghost" bindtap="enterAsGuest">
-      <text class="login-page__guest-icon">●</text>
-      <text>游客体验</text>
-    </view>
-
-    <view class="login-page__agreement" bindtap="toggleAgreement">
-      <view class="login-page__check {{agreed ? 'login-page__check--active' : ''}}">
-        <text>✓</text>
+      <view class="agreement" bindtap="toggleAgreement">
+        <view class="check {{agreed ? 'active' : ''}}">✓</view>
+        <text>登录即代表同意</text>
+        <text class="link">用户协议</text>
+        <text>和</text>
+        <text class="link">隐私政策</text>
       </view>
-      <text>登录即代表同意</text>
-      <text class="login-page__link">用户协议</text>
-      <text>和</text>
-      <text class="login-page__link">隐私政策</text>
     </view>
   </view>
 </view>
