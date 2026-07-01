@@ -1,4 +1,4 @@
-﻿<view class="page-wrap">
+<view class="page-wrap">
   <text class="title">创建赛事</text>
   <text class="desc">记录赛事名称、地点、日期，先把赛事建起来。</text>
   <view class="form-card">

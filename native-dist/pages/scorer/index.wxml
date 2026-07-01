@@ -1,4 +1,4 @@
-﻿<view wx:if="{{!started}}" class="setup">
+<view wx:if="{{!started}}" class="setup">
   <view class="setup-card">
     <text class="setup-title">创建一场比赛</text>
     <text class="setup-desc">输入两支队伍名称，然后进入横屏计分盘。</text>

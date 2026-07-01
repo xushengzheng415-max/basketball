@@ -1,4 +1,4 @@
-﻿.setup {
+.setup {
   min-height: 100vh;
   padding: 32rpx;
   background: #f4f7fa;

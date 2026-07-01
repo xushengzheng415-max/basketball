@@ -1,4 +1,4 @@
-﻿.page-wrap {
+.page-wrap {
   padding: 28rpx;
 }
 .title, .desc, .section {

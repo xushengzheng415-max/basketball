@@ -1,4 +1,4 @@
-﻿Page({
+Page({
   data: {
     homeName: '主队',
     awayName: '客队',
