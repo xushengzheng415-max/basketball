@@ -42,7 +42,7 @@ Page({
   onAwayTeamInput(event) {
     this.setData({ awayTeamName: event.detail.value || '客队' });
   },
-  onGameDateInput(event) {
+  onGameDateChange(event) {
     this.setData({ gameDate: event.detail.value });
   },
   saveGame() {
@@ -58,7 +58,7 @@ Page({
       name: this.data.gameName.trim() || `第 ${games.length + 1} 场`,
       homeTeamName: this.data.homeTeamName || '主队',
       awayTeamName: this.data.awayTeamName || '客队',
-      date: this.data.gameDate.trim(),
+      date: this.data.gameDate,
       homePlayers: [],
       awayPlayers: []
     };
@@ -71,7 +71,7 @@ Page({
       gameDate: '',
       games: nextGames
     });
-    wx.showToast({ title: '比赛已创建', icon: 'success' });
+    wx.showToast({ title: '场次已创建', icon: 'success' });
   },
   openGame(event) {
     const gameId = event.currentTarget.dataset.id;

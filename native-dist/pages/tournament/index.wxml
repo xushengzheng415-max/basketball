@@ -1,11 +1,13 @@
 <view class="page-wrap">
   <text class="title">创建赛事</text>
-  <text class="desc">先建立赛事档案，再进入赛事内创建具体比赛。</text>
+  <text class="desc">先建立赛事档案，进入赛事后再创建场次。</text>
 
   <view class="form-card">
     <input value="{{name}}" placeholder="赛事名称，例如：暑期篮球联赛" bindinput="onNameInput" />
     <input value="{{location}}" placeholder="赛事地点，例如：蜂巢 1 号场" bindinput="onLocationInput" />
-    <input value="{{date}}" placeholder="赛事日期，例如：2026-07-20" bindinput="onDateInput" />
+    <picker mode="date" value="{{date}}" bindchange="onDateChange">
+      <view class="date-picker {{date ? 'has-value' : ''}}">{{date || '选择赛事日期'}}</view>
+    </picker>
     <view class="primary" bindtap="saveTournament">保存赛事</view>
   </view>
 
@@ -14,7 +16,7 @@
   <view wx:for="{{tournaments}}" wx:key="id" class="item" data-id="{{item.id}}" bindtap="openTournament">
     <view>
       <text class="item-title">{{item.name}}</text>
-      <text class="item-desc">{{item.location || '未填写地点'}} · {{item.date || '未填写日期'}}</text>
+      <text class="item-desc">{{item.location || '未填写地点'}} · {{item.date || '未选择日期'}}</text>
     </view>
     <text class="item-action">进入</text>
   </view>

@@ -26,7 +26,8 @@
 
   <text class="section">球员库</text>
   <view wx:if="{{players.length === 0}}" class="empty">暂无球员，请先到底部“球员”页添加球员。</view>
-  <view wx:for="{{players}}" wx:key="id" class="player-row">
+  <view wx:elif="{{availablePlayers.length === 0}}" class="empty">球员已全部加入本场次。</view>
+  <view wx:for="{{availablePlayers}}" wx:key="id" class="player-row">
     <text class="player-name">#{{item.number || '--'}} {{item.name}}</text>
     <view class="player-actions">
       <view data-id="{{item.id}}" bindtap="addToHome">加主队</view>
@@ -36,5 +37,5 @@
 </view>
 
 <view class="page-wrap" wx:else>
-  <view class="empty">没有找到这场比赛，请返回赛事详情重新进入。</view>
+  <view class="empty">没有找到这场场次，请返回赛事详情重新进入。</view>
 </view>

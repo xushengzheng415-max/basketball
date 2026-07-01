@@ -27,7 +27,8 @@
   border-radius: 12rpx;
   background: #fff;
 }
-input {
+input,
+.date-picker {
   box-sizing: border-box;
   width: 100%;
   height: 78rpx;
@@ -35,7 +36,12 @@ input {
   border: 1rpx solid #d7dee8;
   border-radius: 10rpx;
   background: #f8fafc;
+  color: #98a2b3;
   font-size: 26rpx;
+  line-height: 78rpx;
+}
+.date-picker.has-value {
+  color: #18212f;
 }
 .primary {
   display: flex;

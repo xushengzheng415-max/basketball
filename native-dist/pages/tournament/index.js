@@ -14,7 +14,7 @@ Page({
   onLocationInput(event) {
     this.setData({ location: event.detail.value });
   },
-  onDateInput(event) {
+  onDateChange(event) {
     this.setData({ date: event.detail.value });
   },
   saveTournament() {
@@ -28,7 +28,7 @@ Page({
       id: Date.now(),
       name,
       location: this.data.location.trim(),
-      date: this.data.date.trim()
+      date: this.data.date
     };
     const tournaments = [tournament].concat(this.data.tournaments);
     wx.setStorageSync('tournaments', tournaments);
