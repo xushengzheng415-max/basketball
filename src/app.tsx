@@ -1,5 +1,8 @@
+import { Component, PropsWithChildren } from 'react';
 import './app.scss';
 
-export default function App(props: { children: React.ReactNode }) {
-  return props.children;
+export default class App extends Component<PropsWithChildren> {
+  render() {
+    return this.props.children;
+  }
 }

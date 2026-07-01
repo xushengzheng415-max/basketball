@@ -45,3 +45,15 @@
 
 - 本机 Node 版本是 v24.15.0，Taro 3.6 可以跑通，但长期建议使用 Node 18 或 Node 20 LTS。
 - `project.private.config.json` 和 `.swc/` 为本地开发工具/缓存文件，已加入 `.gitignore`。
+
+## 2026-07-01 页面空白修复
+
+### 问题
+
+微信开发者工具中导航栏和 TabBar 正常出现，但首页主体为空白。
+
+### 处理
+
+- 将 `src/app.tsx` 从函数组件改为 Taro 官方模板常用的 class App 写法，确保页面 children 在小程序运行时稳定挂载。
+- 重新执行 `npm run build:weapp`，确认 `dist/pages/home/index.js` 包含首页内容。
+- 重启 `npm run dev:weapp` watch，当前已重新进入监听状态。
