@@ -51,6 +51,7 @@ page {
   border-radius: 54rpx 54rpx 0 0;
   background: rgba(255, 255, 255, 0.96);
   box-shadow: 0 -18rpx 46rpx rgba(16, 24, 32, 0.24);
+  animation: panelRise 0.72s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 .panel-ball {
   position: absolute;
@@ -58,7 +59,7 @@ page {
   left: 50%;
   width: 96rpx;
   height: 96rpx;
-  animation: ballFloat 2.8s ease-in-out infinite;
+  animation: ballRise 0.72s cubic-bezier(0.16, 1, 0.3, 1) both, ballFloat 2.8s ease-in-out 0.78s infinite;
   transform: translateX(-50%);
   filter: drop-shadow(0 8rpx 16rpx rgba(16, 24, 32, 0.22));
 }
@@ -73,13 +74,13 @@ page {
   width: 100%;
 }
 .login-button-float {
-  animation: buttonFloat 2.4s ease-in-out infinite;
+  animation: buttonRise 0.72s cubic-bezier(0.16, 1, 0.3, 1) 0.12s both, buttonFloat 2.4s ease-in-out 0.92s infinite;
 }
 .image-button.guest {
   margin-top: 24rpx;
 }
 .guest-button-float {
-  animation: buttonFloat 2.4s ease-in-out 0.32s infinite;
+  animation: buttonRise 0.72s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both, buttonFloat 2.4s ease-in-out 1.16s infinite;
 }
 .agreement {
   display: flex;
@@ -112,6 +113,34 @@ page {
 .link {
   color: #f05a28;
   font-weight: 900;
+}
+@keyframes panelRise {
+  0% {
+    transform: translateY(110%);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+@keyframes buttonRise {
+  0% {
+    opacity: 0;
+    transform: translateY(72rpx);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes ballRise {
+  0% {
+    opacity: 0;
+    transform: translateX(-50%) translateY(72rpx) rotate(-18deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) rotate(0deg);
+  }
 }
 @keyframes logoFloat {
   0%, 100% {
