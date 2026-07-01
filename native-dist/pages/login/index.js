@@ -42,6 +42,6 @@ Page({
     };
     wx.setStorageSync('loginProfile', profile);
     wx.setStorageSync('userProfile', profile);
-    wx.switchTab({ url: '/pages/home/index' });
+    wx.navigateTo({ url: '/pages/scorer/index' });
   }
 });
