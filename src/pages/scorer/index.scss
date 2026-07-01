@@ -1,0 +1,136 @@
+.scorer {
+  padding-bottom: 40px;
+}
+
+.scorer__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 22px;
+  border-radius: 8px;
+  color: #ffffff;
+  background: #101820;
+}
+
+.scorer__court,
+.scorer__period,
+.scorer__team-name,
+.scorer__meta,
+.scorer__panel-title,
+.scorer__event {
+  display: block;
+}
+
+.scorer__court {
+  color: #f8d568;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.scorer__period {
+  margin-top: 6px;
+  color: #d7dee8;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.scorer__live {
+  padding: 8px 14px;
+  border-radius: 6px;
+  background: #d83b01;
+  font-size: 22px;
+  font-weight: 800;
+}
+
+.scorer__board {
+  display: grid;
+  grid-template-columns: 1fr 36px 1fr;
+  align-items: center;
+  margin-top: 18px;
+  padding: 28px 18px;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.scorer__team--right {
+  text-align: right;
+}
+
+.scorer__team-name {
+  color: #3a4656;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.scorer__score {
+  display: block;
+  color: #101820;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 92px;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.scorer__divider {
+  color: #c4ccd8;
+  font-size: 52px;
+  text-align: center;
+}
+
+.scorer__meta {
+  color: #667085;
+  font-size: 22px;
+}
+
+.scorer__controls {
+  display: grid;
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.scorer__panel {
+  padding: 22px;
+}
+
+.scorer__panel-title {
+  color: #18212f;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.scorer__buttons,
+.scorer__secondary {
+  display: grid;
+  gap: 14px;
+  margin-top: 16px;
+}
+
+.scorer__buttons {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.scorer__secondary {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.scorer__button {
+  color: #ffffff;
+  background: #f05a28;
+  font-size: 28px;
+  font-weight: 900;
+}
+
+.scorer__events {
+  padding: 8px 22px;
+}
+
+.scorer__event {
+  padding: 18px 0;
+  border-bottom: 1px solid #edf1f5;
+  color: #344054;
+  font-size: 24px;
+}
+
+.scorer__event:last-child {
+  border-bottom: 0;
+}

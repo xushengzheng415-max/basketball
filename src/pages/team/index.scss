@@ -1,0 +1,104 @@
+.team__profile {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 26px;
+  border-radius: 8px;
+  color: #101820;
+  background: #f8d568;
+}
+
+.team__badge {
+  display: flex;
+  width: 96px;
+  height: 96px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #101820;
+  background: #ffffff;
+  font-size: 42px;
+  font-weight: 900;
+}
+
+.team__info,
+.team__name,
+.team__meta,
+.team__stat-value,
+.team__stat-label {
+  display: block;
+}
+
+.team__name {
+  font-size: 38px;
+  font-weight: 900;
+}
+
+.team__meta {
+  margin-top: 8px;
+  color: #4a5565;
+  font-size: 24px;
+}
+
+.team__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.team__stats > view,
+.team__next,
+.team__players {
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+  background: #ffffff;
+}
+
+.team__stats > view {
+  padding: 20px 10px;
+  text-align: center;
+}
+
+.team__stat-value {
+  color: #f05a28;
+  font-size: 34px;
+  font-weight: 900;
+}
+
+.team__stat-label {
+  margin-top: 4px;
+  color: #667085;
+  font-size: 22px;
+}
+
+.team__next {
+  display: grid;
+  gap: 10px;
+  padding: 22px;
+  color: #344054;
+  font-size: 26px;
+}
+
+.team__players {
+  padding: 8px 20px;
+}
+
+.team__player {
+  display: grid;
+  grid-template-columns: 70px 1fr 72px 72px 72px;
+  align-items: center;
+  min-height: 74px;
+  border-bottom: 1px solid #edf1f5;
+  color: #344054;
+  font-size: 24px;
+}
+
+.team__player:last-child {
+  border-bottom: 0;
+}
+
+.team__number,
+.team__player-name {
+  font-weight: 900;
+}

@@ -1,0 +1,82 @@
+.game-card {
+  padding: 22px;
+}
+
+.game-card + .game-card {
+  margin-top: 16px;
+}
+
+.game-card__top,
+.game-card__score {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.game-card__status {
+  min-width: 96px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.game-card__status--live {
+  color: #fff;
+  background: #d83b01;
+}
+
+.game-card__status--ready {
+  color: #101820;
+  background: #f8d568;
+}
+
+.game-card__status--done {
+  color: #fff;
+  background: #287d3c;
+}
+
+.game-card__court,
+.game-card__event {
+  color: #667085;
+  font-size: 24px;
+}
+
+.game-card__score {
+  margin: 20px 0 14px;
+}
+
+.game-card__team {
+  width: 220px;
+}
+
+.game-card__team--right {
+  text-align: right;
+}
+
+.game-card__name {
+  display: block;
+  color: #3a4656;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.game-card__points {
+  display: block;
+  color: #101820;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 64px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.game-card__meta {
+  display: flex;
+  min-width: 120px;
+  flex-direction: column;
+  align-items: center;
+  color: #f05a28;
+  font-size: 28px;
+  font-weight: 800;
+}

@@ -1,0 +1,40 @@
+export default defineAppConfig({
+  pages: [
+    'pages/home/index',
+    'pages/scorer/index',
+    'pages/tournament/index',
+    'pages/team/index',
+    'pages/stats/index'
+  ],
+  window: {
+    backgroundTextStyle: 'light',
+    navigationBarBackgroundColor: '#101820',
+    navigationBarTitleText: '赛小蜂篮球',
+    navigationBarTextStyle: 'white',
+    backgroundColor: '#F4F7FA'
+  },
+  tabBar: {
+    color: '#6B7280',
+    selectedColor: '#F05A28',
+    backgroundColor: '#FFFFFF',
+    borderStyle: 'black',
+    list: [
+      {
+        pagePath: 'pages/home/index',
+        text: '首页'
+      },
+      {
+        pagePath: 'pages/scorer/index',
+        text: '计分'
+      },
+      {
+        pagePath: 'pages/tournament/index',
+        text: '赛事'
+      },
+      {
+        pagePath: 'pages/team/index',
+        text: '球队'
+      }
+    ]
+  }
+});
