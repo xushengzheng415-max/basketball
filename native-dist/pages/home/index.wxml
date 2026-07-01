@@ -1,44 +1,57 @@
 <view class="home">
-  <view class="hero" bindtap="goScorer">
-    <text class="brand">赛小蜂篮球</text>
-    <text class="title">快速开始一场比赛</text>
-    <text class="desc">设置主队、客队和比赛时间，横屏计分，结束后自动生成赛果。</text>
-    <view class="hero-action">开始设置</view>
-  </view>
-
-  <view class="pay-entry" bindtap="goProducts">
-    <view>
-      <text class="pay-title">购买赛事服务</text>
-      <text class="pay-desc">报名费、赛事服务包、技术统计服务</text>
-    </view>
-    <text class="pay-arrow">›</text>
-  </view>
-
-  <view class="section-title">最近赛果</view>
-  <view wx:if="{{latestResult}}" class="result-swipe">
-    <view class="delete-action" bindtap="deleteLatestResult">删除</view>
-    <view class="result-card {{showResultDelete ? 'show-delete' : ''}}" bindtouchstart="onResultTouchStart" bindtouchend="onResultTouchEnd">
-      <view class="result-row">
-        <text>{{latestResult.homeName}}</text>
-        <text class="score">{{latestResult.homeScore}}</text>
+  <image class="home-bg" src="/assets/home/home-bg.jpg" mode="aspectFill" />
+  <view class="home-content">
+    <view class="hero" bindtap="goScorer">
+      <image class="hero-logo" src="/assets/home/main-logo.png" mode="aspectFit" />
+      <view class="hero-copy">
+        <text class="brand">赛小蜂篮球</text>
+        <text class="title">快速开始一场比赛</text>
+        <text class="desc">设置主队、客队和比赛时间，横屏计分，结束后自动生成赛果。</text>
+        <view class="hero-action">开始设置</view>
       </view>
-      <view class="result-row">
-        <text>{{latestResult.awayName}}</text>
-        <text class="score">{{latestResult.awayScore}}</text>
-      </view>
-      <text class="time">{{latestResult.endedAt}}</text>
     </view>
-  </view>
-  <view wx:else class="empty">暂无赛果，先开始一场比赛吧。</view>
 
-  <view class="shortcuts">
-    <view class="shortcut" bindtap="goTournament">
-      <text class="shortcut-title">创建赛事</text>
-      <text class="shortcut-desc">赛事名称、球队、球员</text>
+    <view class="pay-entry" bindtap="goProducts">
+      <image class="entry-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
+      <view class="entry-copy">
+        <text class="pay-title">购买赛事服务</text>
+        <text class="pay-desc">报名费、赛事服务包、技术统计服务</text>
+      </view>
+      <text class="pay-arrow">›</text>
     </view>
-    <view class="shortcut" bindtap="goTeam">
-      <text class="shortcut-title">球员名单</text>
-      <text class="shortcut-desc">添加球员与号码</text>
+
+    <view class="section-title">最近赛果</view>
+    <view wx:if="{{latestResult}}" class="result-swipe">
+      <view class="delete-action" bindtap="deleteLatestResult">删除</view>
+      <view class="result-card {{showResultDelete ? 'show-delete' : ''}}" bindtouchstart="onResultTouchStart" bindtouchend="onResultTouchEnd">
+        <view class="result-row">
+          <text>{{latestResult.homeName}}</text>
+          <text class="score">{{latestResult.homeScore}}</text>
+        </view>
+        <view class="result-row">
+          <text>{{latestResult.awayName}}</text>
+          <text class="score">{{latestResult.awayScore}}</text>
+        </view>
+        <text class="time">{{latestResult.endedAt}}</text>
+      </view>
+    </view>
+    <view wx:else class="empty">暂无赛果，先开始一场比赛吧。</view>
+
+    <view class="shortcuts">
+      <view class="shortcut" bindtap="goTournament">
+        <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
+        <view>
+          <text class="shortcut-title">创建赛事</text>
+          <text class="shortcut-desc">赛事名称、球队、球员</text>
+        </view>
+      </view>
+      <view class="shortcut" bindtap="goTeam">
+        <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
+        <view>
+          <text class="shortcut-title">球员名单</text>
+          <text class="shortcut-desc">添加球员与号码</text>
+        </view>
+      </view>
     </view>
   </view>
 </view>
