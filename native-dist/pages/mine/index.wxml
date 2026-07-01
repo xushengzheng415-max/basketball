@@ -8,7 +8,7 @@
       <view class="profile-info">
         <text class="eyebrow">我的账号</text>
         <text class="title">{{profile.nickName}}</text>
-        <text class="desc">{{profile.loggedIn ? '已登录，可编辑头像和资料' : '登录后可保存个人资料'}}</text>
+        <text class="desc">{{profile.loggedIn ? '已登录，可编辑头像和昵称' : '登录后可保存个人资料'}}</text>
       </view>
     </view>
     <view wx:if="{{!profile.loggedIn}}" class="login-btn" bindtap="login">微信授权登录</view>
@@ -21,13 +21,13 @@
       <text class="label">昵称</text>
       <input type="nickname" value="{{draftNickName}}" placeholder="请输入昵称" bindinput="onNicknameInput" />
     </view>
-    <view class="field">
-      <text class="label">微信号</text>
-      <input value="{{draftWechatId}}" placeholder="请输入微信号" bindinput="onWechatInput" />
+    <view class="auth-row">
+      <text>微信授权标识</text>
+      <text>{{profile.wxOpenId || profile.wxUnionId ? '已授权' : '登录后由系统获取'}}</text>
     </view>
-    <view class="field">
-      <text class="label">手机号</text>
-      <input type="number" value="{{draftPhone}}" placeholder="请输入手机号" maxlength="11" bindinput="onPhoneInput" />
+    <view class="auth-row">
+      <text>授权手机号</text>
+      <text>{{profile.phoneNumber || '登录授权后同步'}}</text>
     </view>
     <view class="primary" bindtap="saveProfile">确认修改</view>
   </view>

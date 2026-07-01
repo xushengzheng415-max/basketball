@@ -135,6 +135,30 @@
   background: #f8fafc;
   font-size: 26rpx;
 }
+.auth-row {
+  display: flex;
+  min-height: 64rpx;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  border-top: 1rpx solid #eef2f6;
+  color: #667085;
+  font-size: 24rpx;
+}
+.auth-row:first-of-type {
+  margin-top: 18rpx;
+}
+.auth-row text:first-child {
+  color: #18212f;
+  font-weight: 900;
+}
+.auth-row text:last-child {
+  max-width: 380rpx;
+  overflow: hidden;
+  text-align: right;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 .type-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

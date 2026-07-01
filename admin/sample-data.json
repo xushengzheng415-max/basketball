@@ -3,16 +3,18 @@
     {
       "userId": "user-1001",
       "nickName": "微信用户",
-      "wechatId": "saixiaofeng_001",
-      "phone": "13800000000",
+      "wxOpenId": "openid_mock_1001",
+      "wxUnionId": "unionid_mock_1001",
+      "phoneNumber": "13800000000",
       "source": "微信登录",
       "updatedAt": "2026/7/1 20:45:00"
     },
     {
       "userId": "user-1002",
       "nickName": "游客体验",
-      "wechatId": "",
-      "phone": "",
+      "wxOpenId": "",
+      "wxUnionId": "",
+      "phoneNumber": "",
       "source": "游客",
       "updatedAt": "2026/7/1 20:49:00"
     }
@@ -25,8 +27,9 @@
       "contact": "13800000000",
       "user": {
         "nickName": "微信用户",
-        "wechatId": "saixiaofeng_001",
-        "phone": "13800000000"
+        "wxOpenId": "openid_mock_1001",
+        "wxUnionId": "unionid_mock_1001",
+        "phoneNumber": "13800000000"
       },
       "createdAt": "2026/7/1 20:51:00"
     }

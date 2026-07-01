@@ -2,8 +2,9 @@ const defaultProfile = {
   loggedIn: false,
   avatarUrl: '',
   nickName: '未登录用户',
-  wechatId: '',
-  phone: ''
+  wxOpenId: '',
+  wxUnionId: '',
+  phoneNumber: ''
 };
 
 function getSavedProfile() {
@@ -16,10 +17,10 @@ function getAdminUsers() {
 
 function upsertAdminUser(profile) {
   const users = getAdminUsers();
-  const id = profile.userId || 'local-user';
+  const id = profile.userId || profile.wxOpenId || 'local-user';
   const item = Object.assign({}, profile, {
     userId: id,
-    source: profile.loggedIn ? '微信登录' : '游客',
+    source: profile.mode === 'guest' ? '游客' : '微信登录',
     updatedAt: new Date().toLocaleString()
   });
   const next = [item].concat(users.filter((user) => user.userId !== id));
@@ -30,8 +31,6 @@ Page({
   data: {
     profile: defaultProfile,
     draftNickName: '',
-    draftWechatId: '',
-    draftPhone: '',
     feedbackType: '功能建议',
     feedbackTypes: ['功能建议', '问题反馈', '赛事合作'],
     feedbackContent: '',
@@ -44,8 +43,6 @@ Page({
     this.setData({
       profile,
       draftNickName: profile.nickName,
-      draftWechatId: profile.wechatId,
-      draftPhone: profile.phone,
       feedbackCount: feedbackList.length
     });
   },
@@ -64,9 +61,7 @@ Page({
         wx.removeStorageSync('userProfile');
         this.setData({
           profile: defaultProfile,
-          draftNickName: defaultProfile.nickName,
-          draftWechatId: '',
-          draftPhone: ''
+          draftNickName: defaultProfile.nickName
         });
         wx.reLaunch({ url: '/pages/login/index' });
       }
@@ -84,20 +79,12 @@ Page({
   onNicknameInput(event) {
     this.setData({ draftNickName: event.detail.value });
   },
-  onWechatInput(event) {
-    this.setData({ draftWechatId: event.detail.value });
-  },
-  onPhoneInput(event) {
-    this.setData({ draftPhone: event.detail.value });
-  },
   saveProfile() {
     const nickName = this.data.draftNickName.trim() || '赛小蜂用户';
     const profile = Object.assign({}, this.data.profile, {
       loggedIn: true,
       userId: this.data.profile.userId || `user-${Date.now()}`,
-      nickName,
-      wechatId: this.data.draftWechatId.trim(),
-      phone: this.data.draftPhone.trim()
+      nickName
     });
     wx.setStorageSync('userProfile', profile);
     upsertAdminUser(profile);
@@ -127,8 +114,9 @@ Page({
       contact: this.data.contact.trim(),
       user: {
         nickName: profile.nickName,
-        wechatId: profile.wechatId,
-        phone: profile.phone
+        wxOpenId: profile.wxOpenId,
+        wxUnionId: profile.wxUnionId,
+        phoneNumber: profile.phoneNumber
       },
       createdAt: new Date().toLocaleString()
     };
