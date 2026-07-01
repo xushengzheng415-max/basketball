@@ -1,0 +1,325 @@
+﻿.login-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  padding: 0;
+  background: linear-gradient(160deg, #2a160b 0%, #e84e0f 50%, #f6a313 100%);
+}
+
+.login-page__honeycomb {
+  position: absolute;
+  inset: 0;
+  opacity: 0.22;
+  background:
+    linear-gradient(30deg, rgba(27, 17, 10, 0.8) 12%, transparent 12.5%, transparent 87%, rgba(27, 17, 10, 0.8) 87.5%, rgba(27, 17, 10, 0.8)),
+    linear-gradient(150deg, rgba(27, 17, 10, 0.8) 12%, transparent 12.5%, transparent 87%, rgba(27, 17, 10, 0.8) 87.5%, rgba(27, 17, 10, 0.8)),
+    linear-gradient(30deg, rgba(27, 17, 10, 0.8) 12%, transparent 12.5%, transparent 87%, rgba(27, 17, 10, 0.8) 87.5%, rgba(27, 17, 10, 0.8)),
+    linear-gradient(150deg, rgba(27, 17, 10, 0.8) 12%, transparent 12.5%, transparent 87%, rgba(27, 17, 10, 0.8) 87.5%, rgba(27, 17, 10, 0.8));
+  background-position: 0 0, 0 0, 66rpx 114rpx, 66rpx 114rpx;
+  background-size: 132rpx 228rpx;
+}
+
+.login-page__glow {
+  position: absolute;
+  width: 420rpx;
+  height: 420rpx;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.login-page__glow--top {
+  top: -168rpx;
+  right: -150rpx;
+}
+
+.login-page__glow--bottom {
+  bottom: 210rpx;
+  left: -220rpx;
+  background: rgba(0, 0, 0, 0.16);
+}
+
+.login-page__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 92rpx 44rpx 54rpx;
+}
+
+.login-page__brand {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding-top: 28rpx;
+  color: #ffffff;
+}
+
+.login-page__badge {
+  position: relative;
+  width: 390rpx;
+  height: 318rpx;
+  margin-bottom: 28rpx;
+}
+
+.login-page__bee {
+  position: absolute;
+  top: 28rpx;
+  left: 60rpx;
+  width: 238rpx;
+  height: 158rpx;
+  transform: rotate(-18deg);
+}
+
+.login-page__wing {
+  position: absolute;
+  border-radius: 62% 38% 68% 32%;
+  background: #ffffff;
+  box-shadow: 0 8rpx 0 #15100c;
+}
+
+.login-page__wing--main {
+  top: 22rpx;
+  left: 26rpx;
+  width: 152rpx;
+  height: 56rpx;
+}
+
+.login-page__wing--small {
+  top: 88rpx;
+  left: 54rpx;
+  width: 112rpx;
+  height: 36rpx;
+}
+
+.login-page__body,
+.login-page__head,
+.login-page__tail {
+  position: absolute;
+  background: #15100c;
+}
+
+.login-page__body {
+  right: 58rpx;
+  bottom: 28rpx;
+  width: 122rpx;
+  height: 66rpx;
+  border-radius: 54% 46% 48% 52%;
+  box-shadow: inset 36rpx 0 0 #ffb21a, inset 72rpx 0 0 #15100c;
+}
+
+.login-page__head {
+  right: 8rpx;
+  top: 48rpx;
+  width: 74rpx;
+  height: 80rpx;
+  border-radius: 50% 48% 58% 42%;
+}
+
+.login-page__tail {
+  left: 4rpx;
+  bottom: 28rpx;
+  width: 78rpx;
+  height: 20rpx;
+  transform: rotate(-20deg);
+  border-radius: 999rpx;
+  background: #ffffff;
+}
+
+.login-page__speed {
+  position: absolute;
+  height: 12rpx;
+  border-radius: 999rpx;
+  background: #ffffff;
+  transform: rotate(-14deg);
+}
+
+.login-page__speed--one {
+  top: 6rpx;
+  left: 208rpx;
+  width: 124rpx;
+  background: #15100c;
+}
+
+.login-page__speed--two {
+  top: 36rpx;
+  left: 190rpx;
+  width: 100rpx;
+}
+
+.login-page__orbit {
+  position: absolute;
+  right: 34rpx;
+  bottom: 28rpx;
+  width: 280rpx;
+  height: 116rpx;
+  transform: rotate(-24deg);
+  border-bottom: 18rpx solid #ffffff;
+  border-left: 12rpx solid #ffffff;
+  border-radius: 0 0 180rpx 180rpx;
+}
+
+.login-page__ball {
+  position: absolute;
+  right: 16rpx;
+  bottom: 50rpx;
+  width: 108rpx;
+  height: 108rpx;
+  overflow: hidden;
+  border: 8rpx solid #15100c;
+  border-radius: 50%;
+  background: #f05a13;
+}
+
+.login-page__ball-line {
+  position: absolute;
+  background: #15100c;
+}
+
+.login-page__ball-line--v {
+  left: 50rpx;
+  top: -10rpx;
+  width: 7rpx;
+  height: 132rpx;
+}
+
+.login-page__ball-line--h {
+  left: -12rpx;
+  top: 50rpx;
+  width: 136rpx;
+  height: 7rpx;
+}
+
+.login-page__ball-line--a {
+  left: 32rpx;
+  top: -18rpx;
+  width: 7rpx;
+  height: 148rpx;
+  transform: rotate(34deg);
+}
+
+.login-page__spark {
+  position: absolute;
+  color: #fff7d7;
+  font-size: 48rpx;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.login-page__spark--one {
+  right: 0;
+  top: 116rpx;
+}
+
+.login-page__spark--two {
+  right: 60rpx;
+  bottom: 18rpx;
+  font-size: 34rpx;
+}
+
+.login-page__name,
+.login-page__english,
+.login-page__slogan,
+.login-page__panel-title,
+.login-page__panel-desc {
+  display: block;
+}
+
+.login-page__name {
+  color: #ffffff;
+  font-size: 66rpx;
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 8rpx 0 #15100c, 0 12rpx 24rpx rgba(0, 0, 0, 0.18);
+}
+
+.login-page__english {
+  margin-top: 16rpx;
+  color: #15100c;
+  font-family: DIN Alternate, Arial, sans-serif;
+  font-size: 28rpx;
+  font-weight: 900;
+  letter-spacing: 9rpx;
+}
+
+.login-page__slogan {
+  margin-top: 26rpx;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 26rpx;
+  font-weight: 700;
+}
+
+.login-page__panel {
+  padding: 36rpx 30rpx 28rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.28);
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 22rpx 54rpx rgba(21, 16, 12, 0.25);
+}
+
+.login-page__panel-title {
+  color: #15100c;
+  font-size: 40rpx;
+  font-weight: 900;
+}
+
+.login-page__panel-desc {
+  margin-top: 10rpx;
+  color: #6b4c36;
+  font-size: 25rpx;
+}
+
+.login-page__button {
+  height: 92rpx;
+  margin: 24rpx 0 0;
+  border-radius: 12rpx;
+  font-size: 30rpx;
+  font-weight: 900;
+  line-height: 92rpx;
+}
+
+.login-page__button::after {
+  border: 0;
+}
+
+.login-page__button--primary {
+  color: #ffffff;
+  background: linear-gradient(135deg, #15100c 0%, #302015 35%, #f05a13 100%);
+  box-shadow: 0 14rpx 26rpx rgba(240, 90, 19, 0.3);
+}
+
+.login-page__button--ghost {
+  color: #15100c;
+  background: #fff4e3;
+}
+
+.login-page__agreement {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 26rpx;
+  color: #7b695d;
+  font-size: 22rpx;
+  line-height: 1.4;
+}
+
+.login-page__check {
+  display: flex;
+  width: 30rpx;
+  height: 30rpx;
+  flex: 0 0 30rpx;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #d8c6b9;
+  border-radius: 50%;
+  color: transparent;
+  font-size: 20rpx;
+  font-weight: 900;
+}
+
+.login-page__check--active {
+  border-color: #f05a13;
+  color: #ffffff;
+  background: #f05a13;
+}

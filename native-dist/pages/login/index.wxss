@@ -1,0 +1,153 @@
+page {
+  min-height: 100vh;
+  background: #101820;
+}
+.login-page {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  color: #fff;
+  background: #101820;
+}
+.court-bg {
+  position: absolute;
+  left: -120rpx;
+  right: -120rpx;
+  bottom: -260rpx;
+  height: 520rpx;
+  border: 4rpx solid rgba(248, 213, 104, 0.22);
+  border-radius: 50%;
+}
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 84rpx 34rpx 54rpx;
+}
+.brand-card {
+  padding-top: 34rpx;
+}
+.badge {
+  display: flex;
+  width: 150rpx;
+  height: 150rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 36rpx;
+  background: #f8d568;
+  box-shadow: 0 22rpx 50rpx rgba(240, 90, 40, 0.35);
+}
+.ball {
+  position: relative;
+  width: 90rpx;
+  height: 90rpx;
+  border-radius: 50%;
+  background: #f05a28;
+  overflow: hidden;
+}
+.ball-line {
+  position: absolute;
+  background: #101820;
+  opacity: 0.85;
+}
+.vertical {
+  left: 42rpx;
+  top: 0;
+  width: 6rpx;
+  height: 90rpx;
+}
+.horizontal {
+  left: 0;
+  top: 42rpx;
+  width: 90rpx;
+  height: 6rpx;
+}
+.diagonal {
+  left: 14rpx;
+  top: -10rpx;
+  width: 6rpx;
+  height: 116rpx;
+  transform: rotate(42deg);
+}
+.name, .english, .slogan, .panel-title, .panel-desc {
+  display: block;
+}
+.name {
+  margin-top: 40rpx;
+  font-size: 58rpx;
+  font-weight: 900;
+  line-height: 1.1;
+}
+.english {
+  margin-top: 10rpx;
+  color: #f8d568;
+  font-size: 26rpx;
+  font-weight: 900;
+  letter-spacing: 0;
+}
+.slogan {
+  margin-top: 20rpx;
+  color: #d7dee8;
+  font-size: 26rpx;
+}
+.panel {
+  padding: 30rpx;
+  border-radius: 14rpx;
+  background: #fff;
+  color: #101820;
+}
+.panel-title {
+  font-size: 38rpx;
+  font-weight: 900;
+}
+.panel-desc {
+  margin-top: 10rpx;
+  color: #667085;
+  font-size: 24rpx;
+}
+.primary, .ghost {
+  display: flex;
+  height: 86rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 22rpx;
+  border-radius: 10rpx;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.primary {
+  color: #fff;
+  background: #f05a28;
+}
+.ghost {
+  color: #101820;
+  background: #f4f7fa;
+}
+.agreement {
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 24rpx;
+  color: #667085;
+  font-size: 22rpx;
+}
+.check {
+  display: flex;
+  width: 34rpx;
+  height: 34rpx;
+  align-items: center;
+  justify-content: center;
+  border: 2rpx solid #d7dee8;
+  border-radius: 50%;
+  color: transparent;
+  font-size: 20rpx;
+  font-weight: 900;
+}
+.check.active {
+  border-color: #f05a28;
+  color: #fff;
+  background: #f05a28;
+}

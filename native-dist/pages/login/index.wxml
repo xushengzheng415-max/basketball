@@ -1,0 +1,28 @@
+<view class="login-page">
+  <view class="court-bg"></view>
+  <view class="content">
+    <view class="brand-card">
+      <view class="badge">
+        <view class="ball">
+          <view class="ball-line vertical"></view>
+          <view class="ball-line horizontal"></view>
+          <view class="ball-line diagonal"></view>
+        </view>
+      </view>
+      <text class="name">赛小蜂篮球</text>
+      <text class="english">BASKETBALL</text>
+      <text class="slogan">赛事管理 · 球员数据 · 比赛计分</text>
+    </view>
+
+    <view class="panel">
+      <text class="panel-title">欢迎回来</text>
+      <text class="panel-desc">登录后管理球队、赛事和计分记录。</text>
+      <view class="primary" bindtap="loginByWechat">微信一键登录</view>
+      <view class="ghost" bindtap="enterAsGuest">游客体验</view>
+      <view class="agreement" bindtap="toggleAgreement">
+        <view class="check {{agreed ? 'active' : ''}}">✓</view>
+        <text>登录即代表同意用户协议和隐私政策</text>
+      </view>
+    </view>
+  </view>
+</view>
