@@ -19,27 +19,22 @@ Page({
     this.setData({ profile, feedbackCount: feedbackList.length });
   },
   login() {
-    wx.getUserProfile({
-      desc: '用于完善赛小蜂篮球个人资料',
-      success: (res) => {
-        const profile = {
-          loggedIn: true,
-          avatarUrl: res.userInfo.avatarUrl || '',
-          nickName: res.userInfo.nickName || '赛小蜂用户'
-        };
-        wx.setStorageSync('userProfile', profile);
-        this.setData({ profile });
-        wx.showToast({ title: '登录成功', icon: 'success' });
-      },
-      fail: () => {
-        wx.showToast({ title: '已取消登录', icon: 'none' });
-      }
-    });
+    wx.reLaunch({ url: '/pages/login/index' });
   },
   logout() {
-    wx.removeStorageSync('userProfile');
-    this.setData({ profile: defaultProfile });
-    wx.showToast({ title: '已退出登录', icon: 'none' });
+    wx.showModal({
+      title: '退出登录',
+      content: '退出后将返回登录授权页。',
+      confirmText: '退出',
+      confirmColor: '#d83b01',
+      success: (res) => {
+        if (!res.confirm) return;
+        wx.removeStorageSync('loginProfile');
+        wx.removeStorageSync('userProfile');
+        this.setData({ profile: defaultProfile });
+        wx.reLaunch({ url: '/pages/login/index' });
+      }
+    });
   },
   onChooseAvatar(event) {
     const profile = Object.assign({}, this.data.profile, {
