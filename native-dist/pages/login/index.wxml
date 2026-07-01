@@ -5,17 +5,14 @@
   <view class="login-content">
     <view class="brand-zone">
       <image class="main-logo" src="/assets/home/main-logo.png" mode="aspectFit" />
-      <text class="brand-name">赛小蜂篮球</text>
-      <text class="brand-en">BASKETBALL</text>
-      <text class="slogan">热爱上场 · 蜂行无畏</text>
     </view>
 
     <view class="action-panel">
       <image class="panel-ball" src="/assets/home/basketball-icon.png" mode="aspectFit" />
-      <view class="image-button" bindtap="loginByWechat">
+      <view class="image-button login-button-float" bindtap="loginByWechat">
         <image src="/assets/login/login-button.png" mode="widthFix" />
       </view>
-      <view class="image-button guest" bindtap="enterAsGuest">
+      <view class="image-button guest guest-button-float" bindtap="enterAsGuest">
         <image src="/assets/login/guest-button.png" mode="widthFix" />
       </view>
       <view class="agreement" bindtap="toggleAgreement">
