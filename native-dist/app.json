@@ -4,6 +4,8 @@
     "pages/home/index",
     "pages/scorer/index",
     "pages/products/index",
+    "pages/mc-system/index",
+    "pages/stats-scorer/index",
     "pages/order/index",
     "pages/pay-result/index",
     "pages/tournament/index",

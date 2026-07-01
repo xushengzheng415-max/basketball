@@ -1,23 +1,42 @@
 <view class="products">
   <view class="header">
-    <text class="kicker">赛小蜂篮球</text>
-    <text class="title">选择赛事服务</text>
-    <text class="desc">适合训练营、班级赛、青少年联赛的报名与计分服务。</text>
+    <text class="kicker">赛小蜂篮球 Pro</text>
+    <text class="title">升级付费功能</text>
+    <text class="desc">免费计分已经够用；当你需要现场气氛和球员数据复盘时，开启 Pro 功能。</text>
   </view>
 
-  <view wx:for="{{products}}" wx:key="id" class="product-card" data-id="{{item.id}}" bindtap="selectProduct">
-    <view>
-      <text class="product-name">{{item.name}}</text>
-      <text class="product-desc">{{item.desc}}</text>
+  <text class="section-title">付费功能</text>
+  <view wx:for="{{features}}" wx:key="id" class="feature-card">
+    <view class="feature-head">
+      <view>
+        <text class="feature-tag">{{item.tag}}</text>
+        <text class="feature-name">{{item.name}}</text>
+      </view>
+      <view class="preview" data-id="{{item.id}}" catchtap="previewFeature">预览</view>
+    </view>
+    <text class="feature-desc">{{item.desc}}</text>
+    <view class="point" wx:for="{{item.points}}" wx:for-item="point" wx:key="*this">{{point}}</view>
+  </view>
+
+  <text class="section-title">购买套餐</text>
+  <view wx:for="{{plans}}" wx:key="id" class="plan-card" data-id="{{item.id}}" bindtap="selectPlan">
+    <view class="plan-main">
+      <view class="plan-top">
+        <text class="plan-name">{{item.name}}</text>
+        <text class="promo">{{item.promoLabel}}</text>
+      </view>
+      <text class="plan-scene">{{item.scene}}</text>
+      <text class="plan-desc">{{item.desc}}</text>
     </view>
     <view class="price-block">
-      <text class="price">¥{{item.price}}</text>
+      <text class="original">¥{{item.price}}</text>
+      <text class="price">¥{{item.promoPrice}}</text>
       <text class="buy">购买</text>
     </view>
   </view>
 
   <view class="notice">
     <text>支付说明</text>
-    <text>当前为微信支付申请阶段的页面原型，正式上线后将接入微信支付能力。</text>
+    <text>当前为微信支付接入前的产品原型，确认后会生成本地模拟订单；正式上线后将接入微信支付和云端权益校验。</text>
   </view>
 </view>

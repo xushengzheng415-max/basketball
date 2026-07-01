@@ -2,7 +2,7 @@ Page({
   data: {
     order: {
       orderNo: '--',
-      product: { name: '赛事服务', price: '0.00' },
+      product: { name: '赛小蜂 Pro', price: '0.00' },
       paidAt: '--'
     }
   },

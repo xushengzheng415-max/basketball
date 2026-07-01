@@ -4,22 +4,25 @@
   <view class="card">
     <text class="label">购买项目</text>
     <text class="product-name">{{product.name}}</text>
+    <text class="product-desc">{{product.featureSummary}}</text>
     <text class="product-desc">{{product.desc}}</text>
   </view>
 
-  <view class="card form-card">
-    <text class="label">联系人</text>
-    <input value="{{buyerName}}" placeholder="请输入姓名" bindinput="onNameInput" />
-    <text class="label">手机号</text>
-    <input value="{{phone}}" type="number" placeholder="请输入手机号" bindinput="onPhoneInput" />
+  <view class="card">
+    <text class="label">账号信息</text>
+    <text class="product-name">{{profile.nickName || '微信用户'}}</text>
+    <text class="product-desc">授权手机号：{{profile.phoneNumber || '支付接入后同步'}}</text>
   </view>
 
   <view class="summary">
     <view>
       <text class="summary-label">应付金额</text>
-      <text class="summary-desc">微信支付申请阶段示例订单</text>
+      <text class="summary-desc">{{product.promoLabel || '优惠价'}} · 微信支付接入前为模拟订单</text>
     </view>
-    <text class="amount">¥{{product.price}}</text>
+    <view class="amount-wrap">
+      <text class="original">¥{{product.originalPrice}}</text>
+      <text class="amount">¥{{product.price}}</text>
+    </view>
   </view>
 
   <view class="pay-button" bindtap="payNow">确认支付</view>

@@ -1,7 +1,7 @@
 <view class="result">
   <view class="success-icon">✓</view>
   <text class="title">支付成功</text>
-  <text class="desc">订单已生成，赛事服务将在确认后生效。</text>
+  <text class="desc">订单已生成，正式接入微信支付后会自动开通对应权益。</text>
 
   <view class="card">
     <view class="row">

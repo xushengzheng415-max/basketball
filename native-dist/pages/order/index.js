@@ -1,41 +1,30 @@
 const fallbackProduct = {
-  id: 'score',
-  name: '现场计分服务包',
-  desc: '横屏计分、赛果生成、赛事数据归档。',
-  price: '199.00'
+  id: 'single',
+  name: '赛小蜂 Pro · 单场体验',
+  desc: '解锁一场比赛的 MC 系统和计分板 2.0。',
+  featureSummary: 'MC 现场音频系统 + 计分板 2.0 球员数据统计',
+  price: '4.90',
+  originalPrice: '9.90',
+  promoLabel: '首场价'
 };
 
 Page({
   data: {
     product: fallbackProduct,
-    buyerName: '',
-    phone: ''
+    profile: null
   },
   onLoad() {
     const product = wx.getStorageSync('pendingOrderProduct') || fallbackProduct;
-    this.setData({ product });
-  },
-  onNameInput(event) {
-    this.setData({ buyerName: event.detail.value });
-  },
-  onPhoneInput(event) {
-    this.setData({ phone: event.detail.value });
+    const profile = wx.getStorageSync('userProfile') || null;
+    this.setData({ product, profile });
   },
   payNow() {
-    if (!this.data.buyerName.trim()) {
-      wx.showToast({ title: '请填写联系人', icon: 'none' });
-      return;
-    }
-    if (!this.data.phone.trim()) {
-      wx.showToast({ title: '请填写手机号', icon: 'none' });
-      return;
-    }
     const order = {
       orderNo: `SXF${Date.now()}`,
       product: this.data.product,
-      buyerName: this.data.buyerName,
-      phone: this.data.phone,
-      paidAt: new Date().toLocaleString()
+      user: this.data.profile,
+      paidAt: new Date().toLocaleString(),
+      status: 'paid'
     };
     wx.setStorageSync('latestPaidOrder', order);
     wx.navigateTo({ url: '/pages/pay-result/index' });

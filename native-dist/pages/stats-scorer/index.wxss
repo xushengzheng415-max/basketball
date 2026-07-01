@@ -1,0 +1,12 @@
+.page-wrap { padding: 28rpx; }
+.hero { padding: 30rpx 28rpx; border-radius: 12rpx; color: #fff; background: #101820; }
+.kicker, .title, .desc, .group-title { display: block; }
+.kicker { color: #f8d568; font-size: 24rpx; font-weight: 900; }
+.title { margin-top: 12rpx; font-size: 44rpx; font-weight: 900; }
+.desc { margin-top: 10rpx; color: #d7dee8; font-size: 25rpx; line-height: 1.45; }
+.group { margin-top: 20rpx; padding: 24rpx; border-radius: 12rpx; background: #fff; }
+.group-title { color: #18212f; font-size: 30rpx; font-weight: 900; }
+.item-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12rpx; margin-top: 18rpx; }
+.stat-item { display: flex; height: 68rpx; align-items: center; justify-content: center; border-radius: 8rpx; color: #18212f; background: #f8fafc; font-size: 24rpx; font-weight: 900; }
+.notice { margin-top: 22rpx; padding: 20rpx; border-radius: 10rpx; color: #667085; background: #fff7ed; font-size: 24rpx; line-height: 1.45; }
+.primary { display: flex; height: 88rpx; align-items: center; justify-content: center; margin-top: 24rpx; border-radius: 10rpx; color: #fff; background: #f05a28; font-size: 29rpx; font-weight: 900; }

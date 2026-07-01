@@ -7,7 +7,20 @@
   color: #fff;
   background: #101820;
 }
-.kicker, .title, .desc, .product-name, .product-desc, .price, .buy, .notice text {
+.kicker,
+.title,
+.desc,
+.section-title,
+.feature-tag,
+.feature-name,
+.feature-desc,
+.plan-name,
+.plan-scene,
+.plan-desc,
+.original,
+.price,
+.buy,
+.notice text {
   display: block;
 }
 .kicker {
@@ -26,36 +39,113 @@
   font-size: 25rpx;
   line-height: 1.5;
 }
-.product-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20rpx;
-  margin-top: 18rpx;
-  padding: 26rpx 24rpx;
-  border: 1rpx solid #e5eaf0;
-  border-radius: 12rpx;
-  background: #fff;
-}
-.product-name {
+.section-title {
+  margin: 30rpx 0 14rpx;
   color: #18212f;
   font-size: 30rpx;
   font-weight: 900;
 }
-.product-desc {
+.feature-card,
+.plan-card {
+  margin-top: 16rpx;
+  padding: 24rpx;
+  border: 1rpx solid #e5eaf0;
+  border-radius: 12rpx;
+  background: #fff;
+}
+.feature-head,
+.plan-card,
+.plan-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+.feature-tag,
+.promo {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border-radius: 999rpx;
+  color: #d83b01;
+  background: #fff3ed;
+  padding: 6rpx 14rpx;
+  font-size: 21rpx;
+  font-weight: 900;
+}
+.feature-name,
+.plan-name {
   margin-top: 10rpx;
+  color: #18212f;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+.preview {
+  display: flex;
+  width: 96rpx;
+  height: 56rpx;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  color: #fff;
+  background: #344054;
+  font-size: 23rpx;
+  font-weight: 900;
+}
+.feature-desc,
+.plan-desc {
+  margin-top: 12rpx;
   color: #667085;
   font-size: 24rpx;
   line-height: 1.45;
+}
+.point {
+  margin-top: 12rpx;
+  color: #18212f;
+  font-size: 23rpx;
+  font-weight: 800;
+}
+.point::before {
+  content: '';
+  display: inline-block;
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 10rpx;
+  border-radius: 5rpx;
+  background: #f05a28;
+  vertical-align: middle;
+}
+.plan-main {
+  min-width: 0;
+  flex: 1;
+}
+.plan-top {
+  justify-content: flex-start;
+}
+.plan-name {
+  margin-top: 0;
+}
+.plan-scene {
+  margin-top: 8rpx;
+  color: #101820;
+  font-size: 23rpx;
+  font-weight: 800;
 }
 .price-block {
   flex: 0 0 150rpx;
   text-align: right;
 }
+.original {
+  color: #98a2b3;
+  font-size: 22rpx;
+  text-decoration: line-through;
+}
 .price {
+  margin-top: 4rpx;
   color: #f05a28;
   font-family: DIN Alternate, Arial, sans-serif;
-  font-size: 34rpx;
+  font-size: 38rpx;
   font-weight: 900;
 }
 .buy {

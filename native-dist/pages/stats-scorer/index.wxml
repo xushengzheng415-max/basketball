@@ -1,0 +1,17 @@
+<view class="page-wrap">
+  <view class="hero">
+    <text class="kicker">Pro 功能</text>
+    <text class="title">计分板 2.0</text>
+    <text class="desc">在当前横屏计分基础上，增加球员级数据记录，让每一场比赛都有可复盘的数据。</text>
+  </view>
+
+  <view wx:for="{{statGroups}}" wx:key="name" class="group">
+    <text class="group-title">{{item.name}}</text>
+    <view class="item-grid">
+      <view wx:for="{{item.items}}" wx:for-item="stat" wx:key="*this" class="stat-item">{{stat}}</view>
+    </view>
+  </view>
+
+  <view class="notice">当前为功能预览，购买后会进入计分板 2.0 操作台。</view>
+  <view class="primary" bindtap="goBuy">查看购买套餐</view>
+</view>

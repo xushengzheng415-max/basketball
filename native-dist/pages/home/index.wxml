@@ -14,8 +14,8 @@
     <view class="pay-entry" bindtap="goProducts">
       <image class="entry-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
       <view class="entry-copy">
-        <text class="pay-title">购买赛事服务</text>
-        <text class="pay-desc">报名费、赛事服务包、技术统计服务</text>
+        <text class="pay-title">升级 Pro 功能</text>
+        <text class="pay-desc">MC 音频系统、计分板 2.0 球员数据统计</text>
       </view>
       <text class="pay-arrow">›</text>
     </view>
@@ -42,13 +42,13 @@
         <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
         <view>
           <text class="shortcut-title">创建赛事</text>
-          <text class="shortcut-desc">赛事名称、球队、球员</text>
+          <text class="shortcut-desc">赛事名称、地点、场次</text>
         </view>
       </view>
       <view class="shortcut" bindtap="goTeam">
         <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
         <view>
-          <text class="shortcut-title">球员名单</text>
+          <text class="shortcut-title">球员库</text>
           <text class="shortcut-desc">添加球员与号码</text>
         </view>
       </view>
