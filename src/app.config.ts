@@ -24,10 +24,6 @@
         text: '首页'
       },
       {
-        pagePath: 'pages/scorer/index',
-        text: '比赛'
-      },
-      {
         pagePath: 'pages/tournament/index',
         text: '赛事'
       },

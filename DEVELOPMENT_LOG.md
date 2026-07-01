@@ -72,3 +72,21 @@
 - 结束比赛后写入 `latestMatchResult` 本地缓存，并自动回到首页展示最近赛果。
 - 赛事页简化为赛事名称、地点、日期创建。
 - 球员页简化为球员姓名和号码录入。
+
+## 2026-07-01 横屏计分页路由修复
+
+### 问题
+
+用户反馈：首页进入比赛无反应，底部点击比赛后虽然横屏但页面为空白。
+
+### 原因判断
+
+`pages/scorer/index` 同时作为 TabBar 页面并配置 `pageOrientation: 'landscape'`，在微信开发者工具中容易出现横屏容器切换后页面主体不渲染的问题。
+
+### 已调整
+
+- 从底部 TabBar 移除比赛页，只保留首页、赛事、球员。
+- 首页“进入比赛积分系统”改为 `Taro.navigateTo({ url: '/pages/scorer/index' })`，打开独立横屏页面。
+- 首页入口从 Button 改成 View 样式按钮，减少 Button 默认行为干扰。
+- 保留 `pages/scorer/index` 的 `pageOrientation: 'landscape'`，让独立计分页继续横屏。
+- 已确认 `dist/app.json` 不再包含比赛 Tab，首页产物包含 `navigateTo`。

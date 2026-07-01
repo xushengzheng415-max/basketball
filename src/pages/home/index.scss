@@ -39,14 +39,16 @@
 }
 
 .home-simple__primary {
-  margin: 28rpx 0 0;
+  display: flex;
   height: 96rpx;
+  align-items: center;
+  justify-content: center;
+  margin: 28rpx 0 0;
   border-radius: 10rpx;
   color: #ffffff;
   background: #f05a28;
   font-size: 30rpx;
   font-weight: 900;
-  line-height: 96rpx;
 }
 
 .home-simple__result {

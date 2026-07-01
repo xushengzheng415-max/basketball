@@ -1,6 +1,6 @@
 ﻿import { useState } from 'react';
 import Taro, { useDidShow } from '@tarojs/taro';
-import { View, Text, Button } from '@tarojs/components';
+import { View, Text } from '@tarojs/components';
 import './index.scss';
 
 interface MatchResult {
@@ -20,7 +20,7 @@ export default function HomePage() {
   });
 
   const startMatch = () => {
-    Taro.switchTab({ url: '/pages/scorer/index' });
+    Taro.navigateTo({ url: '/pages/scorer/index' });
   };
 
   return (
@@ -31,7 +31,7 @@ export default function HomePage() {
         <Text className='home-simple__desc'>输入两支队伍，横屏计分，结束后自动生成赛果。</Text>
       </View>
 
-      <Button className='home-simple__primary' onClick={startMatch}>进入比赛积分系统</Button>
+      <View className='home-simple__primary' onClick={startMatch}><Text>进入比赛积分系统</Text></View>
 
       <View className='home-simple__result'>
         <Text className='home-simple__section'>最近赛果</Text>
@@ -67,3 +67,5 @@ export default function HomePage() {
     </View>
   );
 }
+
+
