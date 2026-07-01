@@ -1,32 +1,42 @@
 const categories = [
-  {
-    name: '比赛音效',
-    desc: '用于关键回合、进球和现场提示。',
-    tracks: ['24秒倒计时5秒', '蜂鸣器', '欢呼声', '三分球']
-  },
-  {
-    name: '进攻防守音乐',
-    desc: '适合攻防转换和现场带动。',
-    tracks: ['Let\'s Go Tigers', 'Charge', 'Defense', '防守音效1']
-  },
-  {
-    name: '暂停休息音乐',
-    desc: '用于暂停、节间休息和暖场。',
-    tracks: ['Remember the Name', 'Its My Life']
-  },
-  {
-    name: '仪式音乐',
-    desc: '适合开场、升旗和正式仪式。',
-    tracks: ['义勇军进行曲']
-  }
+  { name: '比赛音效', desc: '用于关键回合、进球和现场提示。', tracks: [
+    { name: '蜂鸣器', src: '/assets/audio/buzzer.mp3' },
+    { name: '2分进球有效', src: '/assets/audio/two-pointer.mp3' },
+    { name: '三分球', src: '/assets/audio/three-pointer.mp3' },
+    { name: '投篮未进', src: '/assets/audio/miss.mp3' },
+    { name: '欢呼声', src: '/assets/audio/cheer.mp3' }
+  ] },
+  { name: '进攻防守音乐', desc: '比赛中点击随机播放。', tracks: [
+    { name: '进攻音乐', src: '/assets/audio/attack-1.mp3' },
+    { name: '防守音乐', src: '/assets/audio/defense-1.mp3' }
+  ] }
 ];
 
 Page({
-  data: { categories },
+  audio: null,
+  data: { categories, mcUnlocked: false },
+  onLoad() {
+    this.audio = wx.createInnerAudioContext();
+  },
+  onShow() {
+    const order = wx.getStorageSync('latestPaidOrder');
+    this.setData({ mcUnlocked: !!(order && order.status === 'paid') });
+  },
+  onUnload() {
+    if (this.audio) this.audio.destroy();
+  },
   goBuy() {
     wx.navigateTo({ url: '/pages/products/index' });
   },
-  playLocked() {
-    wx.showToast({ title: '购买后解锁播放', icon: 'none' });
+  playTrack(event) {
+    if (!this.data.mcUnlocked) {
+      wx.showToast({ title: '购买后解锁播放', icon: 'none' });
+      return;
+    }
+    const src = event.currentTarget.dataset.src;
+    if (!src || !this.audio) return;
+    this.audio.stop();
+    this.audio.src = src;
+    this.audio.play();
   }
 });

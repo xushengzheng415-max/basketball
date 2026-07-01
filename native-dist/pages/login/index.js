@@ -1,3 +1,5 @@
+const { callCloud } = require('../../utils/cloud');
+
 Page({
   data: {
     agreed: true
@@ -24,6 +26,7 @@ Page({
         };
         wx.setStorageSync('loginProfile', profile);
         wx.setStorageSync('userProfile', profile);
+        callCloud('sxLogin', { profile });
         wx.switchTab({ url: '/pages/home/index' });
       },
       fail: () => {
@@ -42,6 +45,7 @@ Page({
     };
     wx.setStorageSync('loginProfile', profile);
     wx.setStorageSync('userProfile', profile);
+    callCloud('sxLogin', { profile });
     wx.navigateTo({ url: '/pages/scorer/index' });
   }
 });

@@ -53,6 +53,7 @@
 <view wx:else class="scoreboard">
   <view class="topbar">
     <text>赛小蜂篮球计分盘</text>
+    <view class="mc-status {{mcUnlocked ? 'unlocked' : ''}}">{{mcStatus}}</view>
     <view class="finish" bindtap="finishMatch">结束比赛</view>
   </view>
 
@@ -69,6 +70,19 @@
     </view>
   </view>
 
+  <view class="mc-panel">
+    <view class="mc-btn" bindtap="playAttackMusic">进攻音乐</view>
+    <view class="mc-btn" bindtap="playDefenseMusic">防守音乐</view>
+    <view class="mc-btn" bindtap="playTwoSound">2分有效</view>
+    <view class="mc-btn" bindtap="playMissSound">投篮未进</view>
+    <view class="mc-btn" bindtap="playCheerSound">欢呼声</view>
+  </view>
+
+  <view wx:if="{{longPressActive}}" class="three-progress">
+    <text>{{longPressText}}</text>
+    <view class="progress-track"><view class="progress-bar" style="width: {{longPressProgress}}%;"></view></view>
+  </view>
+
   <view class="main">
     <view class="team-card">
       <text class="team-name">{{homeName}}</text>
@@ -83,7 +97,7 @@
       <view class="score-buttons">
         <view class="score-btn" bindtap="addHome1">+1</view>
         <view class="score-btn" bindtap="addHome2">+2</view>
-        <view class="score-btn" bindtap="addHome3">+3</view>
+        <view class="score-btn hold" bindtouchstart="startHome3Press" bindtouchend="stopLongPress" bindtouchcancel="stopLongPress">长按+3</view>
       </view>
     </view>
 
@@ -106,7 +120,7 @@
       <view class="score-buttons">
         <view class="score-btn" bindtap="addAway1">+1</view>
         <view class="score-btn" bindtap="addAway2">+2</view>
-        <view class="score-btn" bindtap="addAway3">+3</view>
+        <view class="score-btn hold" bindtouchstart="startAway3Press" bindtouchend="stopLongPress" bindtouchcancel="stopLongPress">长按+3</view>
       </view>
     </view>
   </view>

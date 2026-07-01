@@ -4,25 +4,25 @@
     <view class="hero" bindtap="goScorer">
       <image class="hero-logo" src="/assets/home/main-logo.png" mode="aspectFit" />
       <view class="hero-copy">
-        <text class="brand">璧涘皬铚傜鐞?/text>
-        <text class="title">蹇€熷紑濮嬩竴鍦烘瘮璧?/text>
-        <text class="desc">璁剧疆涓婚槦銆佸闃熷拰姣旇禌鏃堕棿锛屾í灞忚鍒嗭紝缁撴潫鍚庤嚜鍔ㄧ敓鎴愯禌鏋溿€?/text>
-        <view class="hero-action">寮€濮嬭缃?/view>
+        <text class="brand">赛小蜂篮球</text>
+        <text class="title">快速开始一场比赛</text>
+        <text class="desc">设置主队、客队和比赛时间，横屏计分，结束后自动生成赛果。</text>
+        <view class="hero-action">开始设置</view>
       </view>
     </view>
 
     <view class="pay-entry" bindtap="goProducts">
       <image class="entry-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
       <view class="entry-copy">
-        <text class="pay-title">鍗囩骇 Pro 鍔熻兘</text>
-        <text class="pay-desc">MC 闊抽绯荤粺銆佽鍒嗘澘 2.0 鐞冨憳鏁版嵁缁熻</text>
+        <text class="pay-title">升级 Pro 功能</text>
+        <text class="pay-desc">MC 音频系统、计分板 2.0 球员数据统计</text>
       </view>
-      <text class="pay-arrow">鈥?/text>
+      <text class="pay-arrow">›</text>
     </view>
 
-    <view class="section-title">鏈€杩戣禌鏋?/view>
+    <view class="section-title">最近赛果</view>
     <view wx:if="{{latestResult}}" class="result-swipe">
-      <view class="delete-action" bindtap="deleteLatestResult">鍒犻櫎</view>
+      <view class="delete-action" bindtap="deleteLatestResult">删除</view>
       <view class="result-card {{showResultDelete ? 'show-delete' : ''}}" bindtouchstart="onResultTouchStart" bindtouchend="onResultTouchEnd">
         <view class="result-row">
           <text>{{latestResult.homeName}}</text>
@@ -32,25 +32,28 @@
           <text>{{latestResult.awayName}}</text>
           <text class="score">{{latestResult.awayScore}}</text>
         </view>
-        <view class="result-fouls"><text>犯规 {{latestResult.homeFouls || 0}}</text><text>犯规 {{latestResult.awayFouls || 0}}</text></view>
+        <view class="result-fouls">
+          <text>犯规 {{latestResult.homeFouls || 0}}</text>
+          <text>犯规 {{latestResult.awayFouls || 0}}</text>
+        </view>
         <text class="time">{{latestResult.endedAt}}</text>
       </view>
     </view>
-    <view wx:else class="empty">鏆傛棤璧涙灉锛屽厛寮€濮嬩竴鍦烘瘮璧涘惂銆?/view>
+    <view wx:else class="empty">暂无赛果，先开始一场比赛吧。</view>
 
     <view class="shortcuts">
       <view class="shortcut" bindtap="goTournament">
         <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
         <view>
-          <text class="shortcut-title">鍒涘缓璧涗簨</text>
-          <text class="shortcut-desc">璧涗簨鍚嶇О銆佸湴鐐广€佸満娆?/text>
+          <text class="shortcut-title">创建赛事</text>
+          <text class="shortcut-desc">赛事名称、地点、场次</text>
         </view>
       </view>
       <view class="shortcut" bindtap="goTeam">
         <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
         <view>
-          <text class="shortcut-title">鐞冨憳搴?/text>
-          <text class="shortcut-desc">娣诲姞鐞冨憳涓庡彿鐮?/text>
+          <text class="shortcut-title">球员库</text>
+          <text class="shortcut-desc">添加球员与号码</text>
         </view>
       </view>
     </view>

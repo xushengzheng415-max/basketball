@@ -26,12 +26,8 @@ Page({
   onResultTouchEnd(event) {
     const endX = event.changedTouches[0].clientX;
     const deltaX = endX - this.touchStartX;
-    if (deltaX < -40) {
-      this.setData({ showResultDelete: true });
-    }
-    if (deltaX > 40) {
-      this.setData({ showResultDelete: false });
-    }
+    if (deltaX < -40) this.setData({ showResultDelete: true });
+    if (deltaX > 40) this.setData({ showResultDelete: false });
   },
   deleteLatestResult() {
     wx.removeStorageSync('latestMatchResult');

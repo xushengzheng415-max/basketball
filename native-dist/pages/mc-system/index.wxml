@@ -2,19 +2,19 @@
   <view class="hero">
     <text class="kicker">Pro 功能</text>
     <text class="title">MC 现场音频系统</text>
-    <text class="desc">把比赛音效、攻防音乐、暂停音乐和仪式音乐整理成现场可快速点击的播放台。</text>
+    <text class="desc">把比赛音效、攻防音乐和现场气氛音整理成可快速点击的播放台。</text>
   </view>
 
   <view wx:for="{{categories}}" wx:key="name" class="category">
     <text class="category-title">{{item.name}}</text>
     <text class="category-desc">{{item.desc}}</text>
     <view class="track-grid">
-      <view wx:for="{{item.tracks}}" wx:for-item="track" wx:key="*this" class="track" bindtap="playLocked">
-        <text>{{track}}</text>
-        <text class="lock">锁定</text>
+      <view wx:for="{{item.tracks}}" wx:for-item="track" wx:key="name" class="track" data-src="{{track.src}}" bindtap="playTrack">
+        <text>{{track.name}}</text>
+        <text class="lock">{{mcUnlocked ? '播放' : '锁定'}}</text>
       </view>
     </view>
   </view>
 
-  <view class="primary" bindtap="goBuy">查看购买套餐</view>
+  <view wx:if="{{!mcUnlocked}}" class="primary" bindtap="goBuy">查看购买套餐</view>
 </view>

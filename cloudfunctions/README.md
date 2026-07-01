@@ -1,0 +1,43 @@
+# 赛小蜂篮球云开发说明
+
+环境名称：`cloudbase`  
+环境 ID：`cloudbase-d4g93f0re5f3274c1`
+
+## 云函数
+
+请在微信开发者工具中展开 `cloudfunctions/`，逐个右键上传并部署：
+
+- `sxLogin`：登录/游客进入时写入或更新用户资料。
+- `sxSaveUser`：保存昵称、头像等用户资料。
+- `sxSubmitFeedback`：提交意见反馈。
+- `sxCreateOrder`：创建 Pro 订单，并在原型阶段写入模拟权益。
+- `sxSaveMatchResult`：保存免费计分赛果，包含比分和犯规。
+- `sxAdminDashboard`：后台汇总读取用户、反馈、订单、权益、赛果数据。
+
+## 数据库集合
+
+如果数据库集合不能由代码自动创建，请在云开发控制台手动创建下面集合：
+
+| 集合名 | 用途 | 建议权限 |
+| --- | --- | --- |
+| `sx_users` | 小程序用户资料、openid、unionid、昵称、头像、手机号 | 仅创建者和管理员可读写，或仅云函数可读写 |
+| `sx_feedback` | 用户反馈内容、联系方式、处理状态 | 仅云函数可读写 |
+| `sx_orders` | Pro 订单、金额、支付状态 | 仅云函数可读写 |
+| `sx_entitlements` | Pro 权益，控制 MC 系统和计分板 2.0 解锁 | 仅云函数可读写 |
+| `sx_match_results` | 免费计分结果，包含比分、犯规、节次、结束时间 | 仅创建者和管理员可读写，或仅云函数可读写 |
+
+## 建议索引
+
+- `sx_users`: `openid`
+- `sx_feedback`: `openid`, `createdAt`, `status`
+- `sx_orders`: `openid`, `orderNo`, `status`, `createdAt`
+- `sx_entitlements`: `openid`, `status`, `productId`
+- `sx_match_results`: `openid`, `createdAt`
+
+## 注意
+
+当前 `sxCreateOrder` 为原型阶段模拟支付：会生成 `mock_paid` 订单并写入权益。正式接入微信支付后，应改为：
+
+1. 下单云函数创建 `pending` 订单。
+2. 微信支付回调校验成功后更新 `sx_orders.status = paid`。
+3. 回调或支付确认云函数写入 `sx_entitlements`。

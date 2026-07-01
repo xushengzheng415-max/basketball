@@ -1,3 +1,15 @@
+const { callCloud } = require('../../utils/cloud');
+
+const audioMap = {
+  buzzer: '/assets/audio/buzzer.mp3',
+  three: '/assets/audio/three-pointer.mp3',
+  two: '/assets/audio/two-pointer.mp3',
+  miss: '/assets/audio/miss.mp3',
+  cheer: '/assets/audio/cheer.mp3',
+  attack: ['/assets/audio/attack-1.mp3'],
+  defense: ['/assets/audio/defense-1.mp3']
+};
+
 function formatClock(totalSeconds) {
   const safe = Math.max(0, totalSeconds);
   const minutes = String(Math.floor(safe / 60)).padStart(2, '0');
@@ -5,8 +17,16 @@ function formatClock(totalSeconds) {
   return `${minutes}:${seconds}`;
 }
 
+function randomItem(list) {
+  return list[Math.floor(Math.random() * list.length)];
+}
+
 Page({
   timer: null,
+  longPressTimer: null,
+  longPressSide: '',
+  sound: null,
+  bgm: null,
   data: {
     homeName: '主队',
     awayName: '客队',
@@ -26,72 +46,108 @@ Page({
     timerModeText: '倒计时',
     clockSeconds: 600,
     clockText: '10:00',
-    clockRunning: false
+    clockRunning: false,
+    mcUnlocked: false,
+    mcStatus: '购买后解锁 MC 音效',
+    longPressActive: false,
+    longPressProgress: 0,
+    longPressText: ''
+  },
+  onLoad() {
+    this.sound = wx.createInnerAudioContext();
+    this.bgm = wx.createInnerAudioContext();
+  },
+  onShow() {
+    const order = wx.getStorageSync('latestPaidOrder');
+    const mcUnlocked = !!(order && order.status === 'paid');
+    this.setData({ mcUnlocked, mcStatus: mcUnlocked ? 'MC 音效已解锁' : '购买后解锁 MC 音效' });
   },
   onUnload() {
     this.stopClock();
+    this.stopLongPress();
+    this.stopAudio();
   },
   onHide() {
     this.stopClock();
+    this.stopLongPress();
+    this.stopAudio();
   },
-  onHomeInput(event) {
-    this.setData({ homeName: event.detail.value || '主队' });
+  stopAudio() {
+    if (this.sound) this.sound.stop();
+    if (this.bgm) this.bgm.stop();
   },
-  onAwayInput(event) {
-    this.setData({ awayName: event.detail.value || '客队' });
+  ensureMc(silent) {
+    if (this.data.mcUnlocked) return true;
+    if (!silent) wx.showToast({ title: '购买 Pro 后解锁 MC 系统', icon: 'none' });
+    return false;
   },
+  playSound(key, silent) {
+    if (!this.ensureMc(silent)) return false;
+    const src = audioMap[key];
+    if (!src || !this.sound) return false;
+    this.sound.stop();
+    this.sound.src = src;
+    this.sound.play();
+    return true;
+  },
+  playRandomBgm(type) {
+    if (!this.ensureMc(false)) return;
+    const list = audioMap[type] || [];
+    if (!list.length || !this.bgm) return;
+    this.bgm.stop();
+    this.bgm.src = randomItem(list);
+    this.bgm.play();
+    wx.showToast({ title: type === 'attack' ? '进攻音乐' : '防守音乐', icon: 'none' });
+  },
+  playAttackMusic() { this.playRandomBgm('attack'); },
+  playDefenseMusic() { this.playRandomBgm('defense'); },
+  playTwoSound() { this.playSound('two', false); },
+  playMissSound() { this.playSound('miss', false); },
+  playCheerSound() { this.playSound('cheer', false); },
+  askBreakMusic(title) {
+    if (!this.data.mcUnlocked) return;
+    wx.showModal({
+      title,
+      content: '要播放暂停/休息音乐吗？',
+      confirmText: '播放',
+      cancelText: '不用',
+      success: (res) => {
+        if (res.confirm) this.playRandomBgm('attack');
+      }
+    });
+  },
+  onHomeInput(event) { this.setData({ homeName: event.detail.value || '主队' }); },
+  onAwayInput(event) { this.setData({ awayName: event.detail.value || '客队' }); },
   applyPeriodMinutes(value) {
     const minutes = Math.min(60, Math.max(1, Number(value) || 10));
     const seconds = this.data.timerMode === 'down' ? minutes * 60 : 0;
     this.setData({ periodMinutes: minutes, clockSeconds: seconds, clockText: formatClock(seconds) });
   },
-  setPeriodPreset(event) {
-    this.applyPeriodMinutes(event.currentTarget.dataset.value);
-  },
-  decreasePeriodMinutes() {
-    this.applyPeriodMinutes(this.data.periodMinutes - 1);
-  },
-  increasePeriodMinutes() {
-    this.applyPeriodMinutes(this.data.periodMinutes + 1);
-  },
+  setPeriodPreset(event) { this.applyPeriodMinutes(event.currentTarget.dataset.value); },
+  decreasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes - 1); },
+  increasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes + 1); },
   applyTotalPeriods(value) {
     const totalPeriods = Math.min(8, Math.max(1, Number(value) || 4));
     this.setData({ totalPeriods, period: Math.min(this.data.period, totalPeriods) });
   },
-  setPeriodCountPreset(event) {
-    this.applyTotalPeriods(event.currentTarget.dataset.value);
-  },
-  decreasePeriodCount() {
-    this.applyTotalPeriods(this.data.totalPeriods - 1);
-  },
-  increasePeriodCount() {
-    this.applyTotalPeriods(this.data.totalPeriods + 1);
-  },
+  setPeriodCountPreset(event) { this.applyTotalPeriods(event.currentTarget.dataset.value); },
+  decreasePeriodCount() { this.applyTotalPeriods(this.data.totalPeriods - 1); },
+  increasePeriodCount() { this.applyTotalPeriods(this.data.totalPeriods + 1); },
   setTimerMode(event) {
     const timerMode = event.currentTarget.dataset.mode;
     const seconds = timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
     this.stopClock();
-    this.setData({
-      timerMode,
-      timerModeText: timerMode === 'down' ? '倒计时' : '正计时',
-      clockSeconds: seconds,
-      clockText: formatClock(seconds),
-      clockRunning: false
-    });
+    this.setData({ timerMode, timerModeText: timerMode === 'down' ? '倒计时' : '正计时', clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
   },
   startMatch() {
     const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.setData({
-      started: true,
-      period: 1,
-      clockSeconds: seconds,
-      clockText: formatClock(seconds),
-      clockRunning: false
-    });
+    this.setData({ started: true, period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
   },
   toggleClock() {
     if (this.data.clockRunning) {
       this.stopClock();
+      this.playSound('buzzer', true);
+      this.askBreakMusic('比赛暂停');
       return;
     }
     this.setData({ clockRunning: true });
@@ -100,6 +156,8 @@ Page({
       if (this.data.timerMode === 'down' && next <= 0) {
         this.setData({ clockSeconds: 0, clockText: '00:00' });
         this.stopClock();
+        this.playSound('buzzer', true);
+        this.askBreakMusic('本节结束');
         wx.showToast({ title: '本节时间到', icon: 'none' });
         return;
       }
@@ -107,13 +165,9 @@ Page({
     }, 1000);
   },
   stopClock() {
-    if (this.timer) {
-      clearInterval(this.timer);
-      this.timer = null;
-    }
-    if (this.data.clockRunning) {
-      this.setData({ clockRunning: false });
-    }
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
+    if (this.data.clockRunning) this.setData({ clockRunning: false });
   },
   resetClock() {
     const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
@@ -127,14 +181,42 @@ Page({
     }
     const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
     this.stopClock();
+    this.playSound('buzzer', true);
+    this.askBreakMusic('本节结束');
     this.setData({ period: this.data.period + 1, clockSeconds: seconds, clockText: formatClock(seconds) });
   },
   addHome1() { this.addScore('home', 1); },
-  addHome2() { this.addScore('home', 2); },
-  addHome3() { this.addScore('home', 3); },
+  addHome2() { this.addScore('home', 2); this.playSound('two', true); },
   addAway1() { this.addScore('away', 1); },
-  addAway2() { this.addScore('away', 2); },
-  addAway3() { this.addScore('away', 3); },
+  addAway2() { this.addScore('away', 2); this.playSound('two', true); },
+  startHome3Press() { this.startLongPress('home'); },
+  startAway3Press() { this.startLongPress('away'); },
+  stopLongPress() {
+    if (this.longPressTimer) clearInterval(this.longPressTimer);
+    this.longPressTimer = null;
+    this.longPressSide = '';
+    if (this.data.longPressActive) this.setData({ longPressActive: false, longPressProgress: 0, longPressText: '' });
+  },
+  startLongPress(side) {
+    this.stopLongPress();
+    this.longPressSide = side;
+    const team = side === 'home' ? this.data.homeName : this.data.awayName;
+    this.setData({ longPressActive: true, longPressProgress: 0, longPressText: `${team} 三分确认中` });
+    let progress = 0;
+    this.longPressTimer = setInterval(() => {
+      progress += 10;
+      this.setData({ longPressProgress: progress });
+      if (progress >= 100) {
+        clearInterval(this.longPressTimer);
+        this.longPressTimer = null;
+        const confirmedSide = this.longPressSide;
+        this.longPressSide = '';
+        this.setData({ longPressActive: false, longPressProgress: 0, longPressText: '' });
+        this.playSound('three', true);
+        this.addScore(confirmedSide, 3);
+      }
+    }, 80);
+  },
   addHomeFoul() { this.addFoul('home', 1); },
   addAwayFoul() { this.addFoul('away', 1); },
   subtractHomeFoul() { this.addFoul('home', -1); },
@@ -144,12 +226,7 @@ Page({
     const team = isHome ? this.data.homeName : this.data.awayName;
     const event = { type: 'score', side, points, text: `${team} +${points}` };
     const nextEvents = [event].concat(this.data.events);
-    this.setData({
-      homeScore: isHome ? this.data.homeScore + points : this.data.homeScore,
-      awayScore: isHome ? this.data.awayScore : this.data.awayScore + points,
-      events: nextEvents,
-      latestEvent: event.text
-    });
+    this.setData({ homeScore: isHome ? this.data.homeScore + points : this.data.homeScore, awayScore: isHome ? this.data.awayScore : this.data.awayScore + points, events: nextEvents, latestEvent: event.text });
   },
   addFoul(side, delta) {
     const isHome = side === 'home';
@@ -157,19 +234,9 @@ Page({
     const next = Math.max(0, current + delta);
     if (next === current) return;
     const team = isHome ? this.data.homeName : this.data.awayName;
-    const event = {
-      type: 'foul',
-      side,
-      delta,
-      text: delta > 0 ? `${team} 犯规 +1` : `${team} 犯规 -1`
-    };
+    const event = { type: 'foul', side, delta, text: delta > 0 ? `${team} 犯规 +1` : `${team} 犯规 -1` };
     const nextEvents = [event].concat(this.data.events);
-    this.setData({
-      homeFouls: isHome ? next : this.data.homeFouls,
-      awayFouls: isHome ? this.data.awayFouls : next,
-      events: nextEvents,
-      latestEvent: event.text
-    });
+    this.setData({ homeFouls: isHome ? next : this.data.homeFouls, awayFouls: isHome ? this.data.awayFouls : next, events: nextEvents, latestEvent: event.text });
   },
   undo() {
     const events = this.data.events.slice();
@@ -177,51 +244,29 @@ Page({
     if (!latest) return;
     const isHome = latest.side === 'home';
     const patch = { events, latestEvent: events[0] ? events[0].text : '暂无记录' };
-
     if (latest.type === 'score') {
       patch.homeScore = isHome ? Math.max(0, this.data.homeScore - latest.points) : this.data.homeScore;
       patch.awayScore = isHome ? this.data.awayScore : Math.max(0, this.data.awayScore - latest.points);
     }
-
     if (latest.type === 'foul') {
       patch.homeFouls = isHome ? Math.max(0, this.data.homeFouls - latest.delta) : this.data.homeFouls;
       patch.awayFouls = isHome ? this.data.awayFouls : Math.max(0, this.data.awayFouls - latest.delta);
     }
-
     this.setData(patch);
   },
   resetMatch() {
     this.stopClock();
+    this.stopLongPress();
     const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.setData({
-      homeScore: 0,
-      awayScore: 0,
-      homeFouls: 0,
-      awayFouls: 0,
-      started: false,
-      events: [],
-      latestEvent: '暂无记录',
-      period: 1,
-      clockSeconds: seconds,
-      clockText: formatClock(seconds),
-      clockRunning: false
-    });
+    this.setData({ homeScore: 0, awayScore: 0, homeFouls: 0, awayFouls: 0, started: false, events: [], latestEvent: '暂无记录', period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
   },
   finishMatch() {
     this.stopClock();
-    const result = {
-      homeName: this.data.homeName,
-      awayName: this.data.awayName,
-      homeScore: this.data.homeScore,
-      awayScore: this.data.awayScore,
-      homeFouls: this.data.homeFouls,
-      awayFouls: this.data.awayFouls,
-      period: this.data.period,
-      totalPeriods: this.data.totalPeriods,
-      clockText: this.data.clockText,
-      endedAt: new Date().toLocaleString()
-    };
+    this.stopLongPress();
+    this.playSound('buzzer', true);
+    const result = { homeName: this.data.homeName, awayName: this.data.awayName, homeScore: this.data.homeScore, awayScore: this.data.awayScore, homeFouls: this.data.homeFouls, awayFouls: this.data.awayFouls, period: this.data.period, totalPeriods: this.data.totalPeriods, clockText: this.data.clockText, endedAt: new Date().toLocaleString() };
     wx.setStorageSync('latestMatchResult', result);
+    callCloud('sxSaveMatchResult', { result });
     wx.showToast({ title: '赛果已生成', icon: 'success' });
     setTimeout(() => wx.switchTab({ url: '/pages/home/index' }), 500);
   }

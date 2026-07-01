@@ -1,3 +1,5 @@
+const { callCloud } = require('../../utils/cloud');
+
 const defaultProfile = {
   loggedIn: false,
   avatarUrl: '',
@@ -40,11 +42,7 @@ Page({
   onShow() {
     const profile = getSavedProfile();
     const feedbackList = wx.getStorageSync('feedbackList') || [];
-    this.setData({
-      profile,
-      draftNickName: profile.nickName,
-      feedbackCount: feedbackList.length
-    });
+    this.setData({ profile, draftNickName: profile.nickName, feedbackCount: feedbackList.length });
   },
   login() {
     wx.reLaunch({ url: '/pages/login/index' });
@@ -59,21 +57,16 @@ Page({
         if (!res.confirm) return;
         wx.removeStorageSync('loginProfile');
         wx.removeStorageSync('userProfile');
-        this.setData({
-          profile: defaultProfile,
-          draftNickName: defaultProfile.nickName
-        });
+        this.setData({ profile: defaultProfile, draftNickName: defaultProfile.nickName });
         wx.reLaunch({ url: '/pages/login/index' });
       }
     });
   },
   onChooseAvatar(event) {
-    const profile = Object.assign({}, getSavedProfile(), {
-      loggedIn: true,
-      avatarUrl: event.detail.avatarUrl
-    });
+    const profile = Object.assign({}, getSavedProfile(), { loggedIn: true, avatarUrl: event.detail.avatarUrl });
     wx.setStorageSync('userProfile', profile);
     upsertAdminUser(profile);
+    callCloud('sxSaveUser', { profile });
     this.setData({ profile });
   },
   onNicknameInput(event) {
@@ -88,6 +81,7 @@ Page({
     });
     wx.setStorageSync('userProfile', profile);
     upsertAdminUser(profile);
+    callCloud('sxSaveUser', { profile });
     this.setData({ profile });
     wx.showToast({ title: '资料已保存', icon: 'success' });
   },
@@ -101,7 +95,8 @@ Page({
     this.setData({ contact: event.detail.value });
   },
   submitFeedback() {
-    if (!this.data.feedbackContent.trim()) {
+    const content = this.data.feedbackContent.trim();
+    if (!content) {
       wx.showToast({ title: '请填写反馈内容', icon: 'none' });
       return;
     }
@@ -110,7 +105,7 @@ Page({
     const item = {
       id: Date.now(),
       type: this.data.feedbackType,
-      content: this.data.feedbackContent.trim(),
+      content,
       contact: this.data.contact.trim(),
       user: {
         nickName: profile.nickName,
@@ -121,11 +116,8 @@ Page({
       createdAt: new Date().toLocaleString()
     };
     wx.setStorageSync('feedbackList', [item].concat(feedbackList));
-    this.setData({
-      feedbackContent: '',
-      contact: '',
-      feedbackCount: feedbackList.length + 1
-    });
+    callCloud('sxSubmitFeedback', item);
+    this.setData({ feedbackContent: '', contact: '', feedbackCount: feedbackList.length + 1 });
     wx.showToast({ title: '反馈已提交', icon: 'success' });
   }
 });
