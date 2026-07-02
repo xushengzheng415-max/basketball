@@ -145,6 +145,20 @@
   color: #667085;
   font-size: 24rpx;
 }
+.member-status {
+  display: flex;
+  min-height: 64rpx;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18rpx;
+  margin-bottom: 16rpx;
+  padding: 0 18rpx;
+  border-radius: 10rpx;
+  color: #0f9f6e;
+  background: #e8fbf4;
+  font-size: 24rpx;
+  font-weight: 900;
+}
 .auth-row:first-of-type {
   margin-top: 18rpx;
 }

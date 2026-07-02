@@ -122,3 +122,22 @@
 - `sxCreateWxPayOrder` 需要 `SXF_WXPAY_SERIAL_NO`、`SXF_WXPAY_PRIVATE_KEY`、`SXF_WXPAY_NOTIFY_URL`。
 - `sxWxPayNotify` 需要 `SXF_WXPAY_API_V3_KEY`。
 - 不要把证书、私钥、APIv3 密钥提交到代码仓库。
+## 2026-07-02 会员兑换码与 MC 音乐库
+
+新增云函数：
+
+- `sxCreateRedeemCode`：后台生成会员兑换码，可批量生成，写入 `sx_redeem_codes`。
+- `sxRedeemCode`：小程序用户在“我的”页面兑换会员码，兑换成功后写入 `sx_entitlements`。
+- `sxSaveAudioLibrary`：后台把 MC 音乐云存储 fileID 保存到 `sx_mc_audio_library`。
+- `sxGetAudioLibrary`：小程序计分盘读取 MC 音乐库，按音频类型同步最新配置。
+
+新增数据库集合：
+
+- `sx_redeem_codes`：会员码、状态、有效天数、使用人、批次号。
+- `sx_mc_audio_library`：MC 音频类型、名称、云存储 fileID、状态。
+
+建议新增环境变量：
+
+- `SXF_ADMIN_TOKEN`：后台口令，建议同时配置到 `sxCreateRedeemCode` 和 `sxSaveAudioLibrary`。
+
+MC 音频类型：`buzzer`、`three`、`two`、`miss`、`cheer`、`attack`、`defense`、`rest`。

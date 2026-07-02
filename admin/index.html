@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>赛小蜂篮球 PC 后台</title>
   <style>
-    :root { --ink: #101820; --muted: #667085; --line: #e5eaf0; --bg: #f4f7fa; --orange: #f05a28; --yellow: #ffd65a; --card: #ffffff; }
+    :root { --ink: #101820; --muted: #667085; --line: #e5eaf0; --bg: #f4f7fa; --orange: #f05a28; --yellow: #ffd65a; --card: #fff; --green: #0f9f6e; }
     * { box-sizing: border-box; }
     body { margin: 0; background: var(--bg); color: var(--ink); font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif; }
     .shell { display: grid; grid-template-columns: 240px 1fr; min-height: 100vh; }
@@ -16,30 +16,39 @@
     .nav button { height: 42px; border: 0; border-radius: 8px; color: rgba(255,255,255,.78); background: transparent; text-align: left; padding: 0 14px; font-size: 14px; font-weight: 800; cursor: pointer; }
     .nav button.active { color: #fff; background: rgba(255,255,255,.12); }
     .main { padding: 28px; overflow: auto; }
-    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .topbar { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; }
     h1 { margin: 0; font-size: 28px; }
-    .tools { display: flex; align-items: center; gap: 10px; }
+    .muted { color: var(--muted); }
+    .tools, .form-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .config { display: grid; grid-template-columns: minmax(260px, 1fr) 220px; gap: 10px; margin-top: 18px; }
+    input, select, textarea { width: 100%; border: 1px solid var(--line); border-radius: 8px; background: #fff; color: var(--ink); font: inherit; }
+    input, select { height: 40px; padding: 0 12px; }
+    textarea { min-height: 90px; padding: 12px; resize: vertical; }
     .upload-label, .btn { display: inline-flex; height: 40px; align-items: center; justify-content: center; border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 0 14px; font-size: 14px; font-weight: 800; cursor: pointer; }
     .btn.primary { border-color: var(--orange); color: #fff; background: var(--orange); }
+    .btn.green { border-color: var(--green); color: #fff; background: var(--green); }
     input[type="file"] { display: none; }
-    .stats { display: grid; grid-template-columns: repeat(5, minmax(120px, 1fr)); gap: 14px; margin-top: 24px; }
+    .stats { display: grid; grid-template-columns: repeat(6, minmax(120px, 1fr)); gap: 14px; margin-top: 24px; }
     .stat { border-radius: 8px; background: var(--card); padding: 18px; box-shadow: 0 1px 2px rgba(16,24,32,.06); }
     .stat span { display: block; color: var(--muted); font-size: 13px; font-weight: 800; }
     .stat strong { display: block; margin-top: 8px; font-size: 30px; }
     .panel { margin-top: 24px; border-radius: 8px; background: var(--card); box-shadow: 0 1px 2px rgba(16,24,32,.06); overflow: hidden; }
     .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 20px; border-bottom: 1px solid var(--line); }
+    .panel-body { padding: 20px; }
     .panel-title { font-size: 18px; font-weight: 900; }
-    .search { width: 300px; height: 36px; border: 1px solid var(--line); border-radius: 8px; padding: 0 12px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+    .grid-3 { display: grid; grid-template-columns: 1.1fr 1fr 1.2fr; gap: 14px; }
+    .field label { display: block; margin-bottom: 7px; color: #344054; font-size: 13px; font-weight: 900; }
     table { width: 100%; border-collapse: collapse; }
     th, td { padding: 14px 20px; border-bottom: 1px solid #eef2f6; text-align: left; vertical-align: top; font-size: 14px; }
     th { color: var(--muted); background: #fbfcfe; font-size: 12px; font-weight: 900; }
     tr:last-child td { border-bottom: 0; }
     .tag { display: inline-flex; align-items: center; height: 24px; border-radius: 999px; background: #fff3ed; color: var(--orange); padding: 0 9px; font-size: 12px; font-weight: 900; }
-    .muted { color: var(--muted); }
     .mono { font-family: Consolas, Menlo, monospace; font-size: 12px; }
     .empty { padding: 28px 20px; color: var(--muted); }
     .hidden { display: none; }
-    @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } .stats { grid-template-columns: repeat(2, 1fr); } .topbar, .panel-head { align-items: stretch; flex-direction: column; } .search { width: 100%; } }
+    .result-box { margin-top: 14px; padding: 14px; border-radius: 8px; background: #101820; color: #fff; white-space: pre-wrap; word-break: break-all; }
+    @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } .stats, .grid-2, .grid-3, .config { grid-template-columns: 1fr; } .topbar, .panel-head { align-items: stretch; flex-direction: column; } }
   </style>
 </head>
 <body>
@@ -51,27 +60,36 @@
         <button class="active" data-tab="overview">数据概览</button>
         <button data-tab="users">用户资料</button>
         <button data-tab="feedback">反馈信息</button>
+        <button data-tab="redeem">会员码</button>
+        <button data-tab="audio">MC 音乐库</button>
       </nav>
     </aside>
     <main class="main">
       <div class="topbar">
         <div>
           <h1>小程序数据看板</h1>
-          <div class="muted">用于查看用户授权资料、手机号和反馈内容。</div>
+          <div class="muted">查看用户、反馈、权益，并生成测试会员码和维护 MC 音乐库。</div>
         </div>
         <div class="tools">
-          <label class="upload-label" for="dataFile">导入数据 JSON</label>
+          <label class="upload-label" for="dataFile">导入 JSON</label>
           <input id="dataFile" type="file" accept="application/json" />
-          <button class="btn primary" id="loadSample">加载示例数据</button>
+          <button class="btn" id="loadSample">加载示例</button>
+          <button class="btn primary" id="loadCloud">读取云端</button>
         </div>
+      </div>
+
+      <div class="config">
+        <input id="gatewayBase" placeholder="云函数 HTTP 网关域名，例如：https://xxx.app.tcloudbase.com" />
+        <input id="adminToken" placeholder="后台口令 SXF_ADMIN_TOKEN" />
       </div>
 
       <section class="stats">
         <div class="stat"><span>用户数</span><strong id="userCount">0</strong></div>
         <div class="stat"><span>反馈数</span><strong id="feedbackCount">0</strong></div>
-        <div class="stat"><span>赛事数</span><strong id="tournamentCount">0</strong></div>
-        <div class="stat"><span>场次数</span><strong id="matchCount">0</strong></div>
-        <div class="stat"><span>球员数</span><strong id="playerCount">0</strong></div>
+        <div class="stat"><span>订单数</span><strong id="orderCount">0</strong></div>
+        <div class="stat"><span>权益数</span><strong id="entitlementCount">0</strong></div>
+        <div class="stat"><span>会员码</span><strong id="redeemCount">0</strong></div>
+        <div class="stat"><span>赛果数</span><strong id="matchCount">0</strong></div>
       </section>
 
       <section class="panel" data-panel="overview">
@@ -80,85 +98,160 @@
       </section>
 
       <section class="panel hidden" data-panel="users">
-        <div class="panel-head">
-          <div class="panel-title">用户资料</div>
-          <input class="search" id="userSearch" placeholder="搜索昵称、授权标识、手机号" />
-        </div>
+        <div class="panel-head"><div class="panel-title">用户资料</div><input id="userSearch" placeholder="搜索昵称、openid、手机号" /></div>
         <div id="usersTable"></div>
       </section>
 
       <section class="panel hidden" data-panel="feedback">
-        <div class="panel-head">
-          <div class="panel-title">反馈信息</div>
-          <input class="search" id="feedbackSearch" placeholder="搜索反馈内容、手机号、授权标识" />
-        </div>
+        <div class="panel-head"><div class="panel-title">反馈信息</div><input id="feedbackSearch" placeholder="搜索反馈内容、联系方式" /></div>
         <div id="feedbackTable"></div>
+      </section>
+
+      <section class="panel hidden" data-panel="redeem">
+        <div class="panel-head"><div class="panel-title">生成会员码</div></div>
+        <div class="panel-body">
+          <div class="grid-3">
+            <div class="field"><label>生成数量</label><input id="redeemCountInput" type="number" min="1" max="100" value="5" /></div>
+            <div class="field"><label>有效天数，0 为买断</label><input id="redeemDays" type="number" min="0" value="31" /></div>
+            <div class="field"><label>会员类型</label><select id="redeemPlan"><option value="pro_month">月度 Pro</option><option value="pro_single">单场 Pro</option><option value="pro_lifetime">买断 Pro</option></select></div>
+          </div>
+          <div class="form-row" style="margin-top:14px;">
+            <button class="btn primary" id="createRedeem">生成会员码</button>
+            <button class="btn" id="copyRedeem">复制结果</button>
+          </div>
+          <div class="result-box" id="redeemResult">生成结果会显示在这里。</div>
+        </div>
+      </section>
+
+      <section class="panel hidden" data-panel="audio">
+        <div class="panel-head"><div class="panel-title">MC 音乐库</div><button class="btn" id="refreshAudio">刷新列表</button></div>
+        <div class="panel-body">
+          <div class="grid-3">
+            <div class="field">
+              <label>音频类型</label>
+              <select id="audioChannel">
+                <option value="cheer">欢呼声</option>
+                <option value="attack">进攻音乐</option>
+                <option value="defense">防守音乐</option>
+                <option value="rest">暂停休息音乐</option>
+                <option value="two">2分有效</option>
+                <option value="miss">投篮未进</option>
+                <option value="three">三分球</option>
+                <option value="buzzer">蜂鸣器</option>
+              </select>
+            </div>
+            <div class="field"><label>音频名称</label><input id="audioName" placeholder="例如：Remember the Name" /></div>
+            <div class="field"><label>云存储 fileID</label><input id="audioFileID" placeholder="cloud://.../mc-mp3/..." /></div>
+          </div>
+          <div class="form-row" style="margin-top:14px;">
+            <button class="btn green" id="saveAudio">保存到音乐库</button>
+          </div>
+          <div class="result-box" id="audioResult">音乐库结果会显示在这里。</div>
+        </div>
       </section>
     </main>
   </div>
 
   <script>
-    const state = { users: [], feedback: [], stats: { tournaments: 0, matches: 0, players: 0 }, activeTab: 'overview', userKeyword: '', feedbackKeyword: '' };
-    function escapeHtml(value) { return String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char])); }
-    function authId(item = {}) { return item.wxUnionId || item.wxOpenId || item.userId || ''; }
-    function phone(item = {}) { return item.phoneNumber || item.phone || ''; }
+    const state = { users: [], feedback: [], orders: [], entitlements: [], redeemCodes: [], matchResults: [], audioItems: [], stats: {}, userKeyword: '', feedbackKeyword: '' };
+    const $ = (id) => document.getElementById(id);
+    const escapeHtml = (value) => String(value ?? '').replace(/[&<>"]/g, (char) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[char]));
+    const authId = (item = {}) => item.wxUnionId || item.wxOpenId || item.openid || item.userId || '';
+    const phone = (item = {}) => item.phoneNumber || item.phone || '';
+
+    function getGatewayBase() { return $('gatewayBase').value.trim().replace(/\/$/, ''); }
+    function saveConfig() {
+      localStorage.setItem('sx_admin_gateway', $('gatewayBase').value.trim());
+      localStorage.setItem('sx_admin_token', $('adminToken').value.trim());
+    }
+    function functionUrl(name) {
+      const base = getGatewayBase();
+      if (!base) throw new Error('请先填写云函数 HTTP 网关域名');
+      return `${base}/${name}`;
+    }
+    async function postFunction(name, payload = {}) {
+      saveConfig();
+      const response = await fetch(functionUrl(name), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.assign({}, payload, { adminToken: $('adminToken').value.trim() }))
+      });
+      return response.json();
+    }
     function renderStats() {
-      document.getElementById('userCount').textContent = state.users.length;
-      document.getElementById('feedbackCount').textContent = state.feedback.length;
-      document.getElementById('tournamentCount').textContent = state.stats.tournaments || 0;
-      document.getElementById('matchCount').textContent = state.stats.matches || 0;
-      document.getElementById('playerCount').textContent = state.stats.players || 0;
+      $('userCount').textContent = state.users.length || state.stats.users || 0;
+      $('feedbackCount').textContent = state.feedback.length || state.stats.feedback || 0;
+      $('orderCount').textContent = state.orders.length || state.stats.orders || 0;
+      $('entitlementCount').textContent = state.entitlements.length || state.stats.entitlements || 0;
+      $('redeemCount').textContent = state.redeemCodes.length || state.stats.redeemCodes || 0;
+      $('matchCount').textContent = state.matchResults.length || state.stats.matchResults || 0;
     }
     function renderUsers() {
       const keyword = state.userKeyword.trim().toLowerCase();
       const users = state.users.filter((user) => [user.nickName, authId(user), phone(user)].join(' ').toLowerCase().includes(keyword));
-      if (!users.length) { document.getElementById('usersTable').innerHTML = '<div class="empty">暂无用户资料</div>'; return; }
-      document.getElementById('usersTable').innerHTML = `
-        <table>
-          <thead><tr><th>昵称</th><th>微信授权标识</th><th>授权手机号</th><th>来源</th><th>更新时间</th></tr></thead>
-          <tbody>${users.map((user) => `
-            <tr>
-              <td><strong>${escapeHtml(user.nickName || '未填写')}</strong><div class="muted mono">${escapeHtml(user.userId || '-')}</div></td>
-              <td class="mono">${escapeHtml(authId(user) || '未同步')}</td>
-              <td>${escapeHtml(phone(user) || '未授权')}</td>
-              <td><span class="tag">${escapeHtml(user.source || '未知')}</span></td>
-              <td>${escapeHtml(user.updatedAt || '-')}</td>
-            </tr>`).join('')}</tbody>
-        </table>`;
+      $('usersTable').innerHTML = users.length ? `
+        <table><thead><tr><th>昵称</th><th>授权标识</th><th>手机号</th><th>来源</th><th>更新时间</th></tr></thead>
+        <tbody>${users.map((user) => `<tr><td><strong>${escapeHtml(user.nickName || '未填写')}</strong></td><td class="mono">${escapeHtml(authId(user) || '-')}</td><td>${escapeHtml(phone(user) || '-')}</td><td><span class="tag">${escapeHtml(user.source || user.mode || '-')}</span></td><td>${escapeHtml(user.updatedAt || user.createdAt || '-')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">暂无用户资料</div>';
     }
     function renderFeedback(targetId = 'feedbackTable', limit = null) {
       const keyword = state.feedbackKeyword.trim().toLowerCase();
       let list = state.feedback.filter((item) => [item.type, item.content, item.contact, item.user?.nickName, authId(item.user), phone(item.user)].join(' ').toLowerCase().includes(keyword));
       if (limit) list = list.slice(0, limit);
-      if (!list.length) { document.getElementById(targetId).innerHTML = '<div class="empty">暂无反馈信息</div>'; return; }
-      document.getElementById(targetId).innerHTML = `
-        <table>
-          <thead><tr><th>类型</th><th>反馈内容</th><th>用户资料</th><th>联系方式</th><th>提交时间</th></tr></thead>
-          <tbody>${list.map((item) => `
-            <tr>
-              <td><span class="tag">${escapeHtml(item.type || '未分类')}</span></td>
-              <td>${escapeHtml(item.content || '')}</td>
-              <td><strong>${escapeHtml(item.user?.nickName || '未知用户')}</strong><div class="muted mono">授权标识：${escapeHtml(authId(item.user) || '未同步')}</div><div class="muted">手机号：${escapeHtml(phone(item.user) || '未授权')}</div></td>
-              <td>${escapeHtml(item.contact || '未填写')}</td>
-              <td>${escapeHtml(item.createdAt || '-')}</td>
-            </tr>`).join('')}</tbody>
-        </table>`;
+      $(targetId).innerHTML = list.length ? `
+        <table><thead><tr><th>类型</th><th>反馈内容</th><th>用户资料</th><th>联系方式</th><th>提交时间</th></tr></thead>
+        <tbody>${list.map((item) => `<tr><td><span class="tag">${escapeHtml(item.type || '未分类')}</span></td><td>${escapeHtml(item.content || '')}</td><td><strong>${escapeHtml(item.user?.nickName || item.nickName || '未知用户')}</strong><div class="muted mono">${escapeHtml(authId(item.user || item) || '-')}</div></td><td>${escapeHtml(item.contact || '-')}</td><td>${escapeHtml(item.createdAt || '-')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">暂无反馈信息</div>';
     }
-    function render() { renderStats(); renderUsers(); renderFeedback('feedbackTable'); renderFeedback('overviewContent', 5); }
-    function setData(data) { state.users = Array.isArray(data.users) ? data.users : []; state.feedback = Array.isArray(data.feedback) ? data.feedback : []; state.stats = data.stats || {}; render(); }
+    function setData(data) {
+      state.users = Array.isArray(data.users) ? data.users : [];
+      state.feedback = Array.isArray(data.feedback) ? data.feedback : [];
+      state.orders = Array.isArray(data.orders) ? data.orders : [];
+      state.entitlements = Array.isArray(data.entitlements) ? data.entitlements : [];
+      state.redeemCodes = Array.isArray(data.redeemCodes) ? data.redeemCodes : [];
+      state.matchResults = Array.isArray(data.matchResults) ? data.matchResults : [];
+      state.stats = data.stats || {};
+      renderStats(); renderUsers(); renderFeedback('feedbackTable'); renderFeedback('overviewContent', 5);
+    }
+    function setResult(id, data) { $(id).textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2); }
+
     document.querySelectorAll('.nav button').forEach((button) => {
       button.addEventListener('click', () => {
         document.querySelectorAll('.nav button').forEach((item) => item.classList.remove('active'));
         button.classList.add('active');
-        state.activeTab = button.dataset.tab;
-        document.querySelectorAll('[data-panel]').forEach((panel) => panel.classList.toggle('hidden', panel.dataset.panel !== state.activeTab));
+        document.querySelectorAll('[data-panel]').forEach((panel) => panel.classList.toggle('hidden', panel.dataset.panel !== button.dataset.tab));
       });
     });
-    document.getElementById('userSearch').addEventListener('input', (event) => { state.userKeyword = event.target.value; renderUsers(); });
-    document.getElementById('feedbackSearch').addEventListener('input', (event) => { state.feedbackKeyword = event.target.value; renderFeedback('feedbackTable'); });
-    document.getElementById('dataFile').addEventListener('change', async (event) => { const file = event.target.files[0]; if (!file) return; setData(JSON.parse(await file.text())); });
-    document.getElementById('loadSample').addEventListener('click', async () => { const response = await fetch('./sample-data.json'); setData(await response.json()); });
-    setData({ users: [], feedback: [], stats: {} });
+    $('gatewayBase').value = localStorage.getItem('sx_admin_gateway') || '';
+    $('adminToken').value = localStorage.getItem('sx_admin_token') || '';
+    $('gatewayBase').addEventListener('change', saveConfig);
+    $('adminToken').addEventListener('change', saveConfig);
+    $('userSearch').addEventListener('input', (event) => { state.userKeyword = event.target.value; renderUsers(); });
+    $('feedbackSearch').addEventListener('input', (event) => { state.feedbackKeyword = event.target.value; renderFeedback('feedbackTable'); });
+    $('dataFile').addEventListener('change', async (event) => { const file = event.target.files[0]; if (!file) return; setData(JSON.parse(await file.text())); });
+    $('loadSample').addEventListener('click', async () => { const response = await fetch('./sample-data.json'); setData(await response.json()); });
+    $('loadCloud').addEventListener('click', async () => {
+      try { setData(await postFunction('sxAdminDashboard')); } catch (error) { alert(error.message); }
+    });
+    $('createRedeem').addEventListener('click', async () => {
+      try {
+        const result = await postFunction('sxCreateRedeemCode', {
+          count: Number($('redeemCountInput').value || 1),
+          durationDays: Number($('redeemDays').value || 31),
+          plan: $('redeemPlan').value
+        });
+        setResult('redeemResult', result.ok ? result.codes.map((item) => item.code).join('\n') : result);
+      } catch (error) { setResult('redeemResult', error.message); }
+    });
+    $('copyRedeem').addEventListener('click', () => navigator.clipboard.writeText($('redeemResult').textContent || ''));
+    $('saveAudio').addEventListener('click', async () => {
+      try {
+        const result = await postFunction('sxSaveAudioLibrary', { channel: $('audioChannel').value, name: $('audioName').value, fileID: $('audioFileID').value });
+        setResult('audioResult', result);
+      } catch (error) { setResult('audioResult', error.message); }
+    });
+    $('refreshAudio').addEventListener('click', async () => {
+      try { setResult('audioResult', await postFunction('sxGetAudioLibrary')); } catch (error) { setResult('audioResult', error.message); }
+    });
+    setData({});
   </script>
 </body>
 </html>

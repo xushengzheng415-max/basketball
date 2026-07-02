@@ -1,0 +1,94 @@
+const crypto = require('crypto');
+const cloud = require('wx-server-sdk');
+
+cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+const db = cloud.database();
+
+const DEFAULT_FEATURES = ['mc_system', 'stats_scorer_2'];
+
+function parsePayload(event) {
+  if (!event) return {};
+  if (typeof event.body === 'string') {
+    try { return Object.assign({}, event, JSON.parse(event.body)); } catch (error) { return event; }
+  }
+  return event;
+}
+
+function normalizeFeatures(features) {
+  if (!Array.isArray(features) || !features.length) return DEFAULT_FEATURES;
+  return features.map((item) => String(item).trim()).filter(Boolean);
+}
+
+function normalizeCount(value) {
+  const count = Number(value || 1);
+  return Math.min(100, Math.max(1, Number.isFinite(count) ? Math.floor(count) : 1));
+}
+
+function makeCode(prefix) {
+  const body = crypto.randomBytes(6).toString('hex').toUpperCase();
+  return `${prefix}-${body.slice(0, 4)}-${body.slice(4, 8)}-${body.slice(8, 12)}`;
+}
+
+async function insertUniqueCode(data, prefix) {
+  for (let attempt = 0; attempt < 8; attempt += 1) {
+    const code = makeCode(prefix);
+    const exists = await db.collection('sx_redeem_codes').where({ code }).limit(1).get();
+    if (exists.data && exists.data.length) continue;
+    const created = await db.collection('sx_redeem_codes').add({ data: Object.assign({}, data, { code }) });
+    return Object.assign({ _id: created._id, code }, data);
+  }
+  throw new Error('兑换码生成冲突，请重试');
+}
+
+exports.main = async (event) => {
+  const payload = parsePayload(event);
+  const adminToken = process.env.SXF_ADMIN_TOKEN || '';
+
+  if (adminToken && payload.adminToken !== adminToken) {
+    return { ok: false, message: '后台口令不正确' };
+  }
+
+  const wxContext = cloud.getWXContext();
+  const now = db.serverDate();
+  const count = normalizeCount(payload.count);
+  const durationDays = Math.max(0, Number(payload.durationDays || 31));
+  const prefix = String(payload.prefix || 'SXF').replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase() || 'SXF';
+  const plan = String(payload.plan || 'pro_month');
+  const productName = String(payload.productName || '赛小蜂 Pro 会员');
+  const features = normalizeFeatures(payload.features);
+  const batchId = `redeem-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
+  const expiresAt = payload.expiresAt ? new Date(payload.expiresAt) : null;
+
+  const base = {
+    batchId,
+    plan,
+    productId: plan,
+    productName,
+    features,
+    durationDays,
+    status: 'unused',
+    generatedByOpenid: wxContext.OPENID || '',
+    generatedByUnionid: wxContext.UNIONID || '',
+    note: String(payload.note || ''),
+    source: 'admin_redeem_code',
+    createdAt: now,
+    updatedAt: now
+  };
+
+  if (expiresAt && !Number.isNaN(expiresAt.getTime())) {
+    base.expiresAt = expiresAt;
+  }
+
+  const codes = [];
+  for (let i = 0; i < count; i += 1) {
+    codes.push(await insertUniqueCode(base, prefix));
+  }
+
+  return {
+    ok: true,
+    warning: adminToken ? '' : '当前未配置 SXF_ADMIN_TOKEN，建议上线前设置后台口令。',
+    batchId,
+    count: codes.length,
+    codes
+  };
+};

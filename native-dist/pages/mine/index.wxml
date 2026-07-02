@@ -16,6 +16,19 @@
   </view>
 
   <view class="settings-card">
+    <view class="section-head">
+      <text class="section-title no-margin">会员兑换</text>
+      <text class="count">{{membership ? '已解锁' : '未兑换'}}</text>
+    </view>
+    <view wx:if="{{membership}}" class="member-status">
+      <text>{{membership.productName || '赛小蜂 Pro 会员'}}</text>
+      <text>{{membership.expiresAt ? '有效期内' : '长期有效'}}</text>
+    </view>
+    <input value="{{redeemCode}}" placeholder="请输入会员兑换码" bindinput="onRedeemInput" />
+    <view class="primary" bindtap="redeemMembership">{{redeemLoading ? '兑换中...' : '兑换会员'}}</view>
+  </view>
+
+  <view class="settings-card">
     <text class="section-title">个人资料</text>
     <view class="field">
       <text class="label">昵称</text>

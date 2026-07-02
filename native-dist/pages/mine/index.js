@@ -37,12 +37,16 @@ Page({
     feedbackTypes: ['功能建议', '问题反馈', '赛事合作'],
     feedbackContent: '',
     contact: '',
-    feedbackCount: 0
+    feedbackCount: 0,
+    redeemCode: '',
+    redeemLoading: false,
+    membership: null
   },
   onShow() {
     const profile = getSavedProfile();
     const feedbackList = wx.getStorageSync('feedbackList') || [];
-    this.setData({ profile, draftNickName: profile.nickName, feedbackCount: feedbackList.length });
+    const membership = wx.getStorageSync('proEntitlement') || null;
+    this.setData({ profile, draftNickName: profile.nickName, feedbackCount: feedbackList.length, membership });
   },
   login() {
     wx.reLaunch({ url: '/pages/login/index' });
@@ -93,6 +97,31 @@ Page({
   },
   onContactInput(event) {
     this.setData({ contact: event.detail.value });
+  },
+  onRedeemInput(event) {
+    this.setData({ redeemCode: event.detail.value });
+  },
+  async redeemMembership() {
+    const code = this.data.redeemCode.trim();
+    if (!code) {
+      wx.showToast({ title: '请输入会员码', icon: 'none' });
+      return;
+    }
+    if (this.data.redeemLoading) return;
+    this.setData({ redeemLoading: true });
+    wx.showLoading({ title: '兑换中' });
+    const result = await callCloud('sxRedeemCode', { code });
+    wx.hideLoading();
+    this.setData({ redeemLoading: false });
+
+    if (!result || !result.ok) {
+      wx.showToast({ title: result && result.message ? result.message : '兑换失败', icon: 'none' });
+      return;
+    }
+
+    wx.setStorageSync('proEntitlement', result.entitlement || {});
+    this.setData({ redeemCode: '', membership: result.entitlement || null });
+    wx.showToast({ title: '会员已解锁', icon: 'success' });
   },
   submitFeedback() {
     const content = this.data.feedbackContent.trim();

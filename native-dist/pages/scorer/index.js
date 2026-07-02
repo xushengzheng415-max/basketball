@@ -126,6 +126,7 @@ Page({
     voiceText: '',
     voiceLoading: false,
     mcPanelOpen: false,
+    audioMap: getAudioMap(),
     bgmType: '',
     bgmLabel: '',
     longPressActive: false,
@@ -142,6 +143,7 @@ Page({
       mcUnlocked,
       mcStatus: mcUnlocked ? 'MC 音效已解锁' : '购买后解锁 MC 音效'
     });
+    this.loadAudioLibrary();
   },
   onUnload() {
     this.stopClock();
@@ -162,9 +164,16 @@ Page({
     if (!silent) wx.showToast({ title: '购买 Pro 后解锁 MC 系统', icon: 'none' });
     return false;
   },
+  async loadAudioLibrary() {
+    const result = await callCloud('sxGetAudioLibrary', {});
+    if (!result || !result.ok || !result.audioMap) return;
+    const merged = Object.assign({}, defaultAudioMap, result.audioMap);
+    wx.setStorageSync('sx_mc_audio_map', result.audioMap);
+    this.setData({ audioMap: merged });
+  },
   async playSound(key, silent) {
     if (!this.ensureMc(silent)) return false;
-    const src = await getPlayableAudioSrc(getAudioMap()[key]);
+    const src = await getPlayableAudioSrc(this.data.audioMap[key]);
     if (!src || !this.audio) {
       if (!silent) wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
       return false;
@@ -184,7 +193,7 @@ Page({
       wx.showToast({ title: '音乐已暂停', icon: 'none' });
       return;
     }
-    const list = getAudioMap()[type] || [];
+    const list = this.data.audioMap[type] || [];
     const src = await getPlayableAudioSrc(list);
     if (!src || !this.audio) {
       wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
@@ -273,8 +282,8 @@ Page({
       }
     });
   },
-  onHomeInput(event) { this.setData({ homeName: event.detail.value || '主队' }); },
-  onAwayInput(event) { this.setData({ awayName: event.detail.value || '客队' }); },
+  onHomeInput(event) { this.setData({ homeName: event.detail.value }); },
+  onAwayInput(event) { this.setData({ awayName: event.detail.value }); },
   applyPeriodMinutes(value) {
     const minutes = Math.min(60, Math.max(1, Number(value) || 10));
     const seconds = this.data.timerMode === 'down' ? minutes * 60 : 0;
@@ -299,7 +308,9 @@ Page({
   },
   startMatch() {
     const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.setData({ started: true, period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
+    const homeName = (this.data.homeName || '').trim() || '主队';
+    const awayName = (this.data.awayName || '').trim() || '客队';
+    this.setData({ homeName, awayName, started: true, period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
   },
   toggleClock() {
     if (this.data.clockRunning) {
