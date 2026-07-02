@@ -1,70 +1,128 @@
-const features = [
+const proFeatures = [
   {
     id: 'mc',
-    name: 'MC 现场音频系统',
-    tag: '付费功能',
-    desc: '内置比赛音效、进攻防守音乐、暂停休息音乐和国歌，适合现场主持快速播放。',
-    points: ['蜂鸣器、欢呼、三分球音效', '进攻/防守气氛音乐', '暂停休息音乐与国歌']
+    name: 'MC 现场音效系统',
+    tag: 'Pro 解锁',
+    desc: '蜂鸣器、进攻防守音乐、暂停休息音乐和现场音效，适合比赛现场快速控场。',
+    points: ['蜂鸣器、三分、2分有效、未进、欢呼', '进攻/防守音乐一路播放，不叠加', '后台音乐库可持续维护']
   },
   {
     id: 'stats2',
-    name: '计分板 2.0 球员数据统计',
-    tag: '付费功能',
-    desc: '在基础计分外记录球员数据，支持得分、犯规、篮板、助攻等技术统计。',
-    points: ['按球员记录技术数据', '赛后球员数据汇总', '适合球队复盘与赛事运营']
+    name: '计分板 2.0 球员数据',
+    tag: 'Pro 解锁',
+    desc: '在基础计分外记录球员数据，用于赛后复盘、球队统计和赛事运营。',
+    points: ['按球员记录技术数据', '赛后生成数据汇总', '适合球队长期沉淀']
   }
 ];
 
-const plans = [
+const proPlans = [
+  {
+    id: 'share_trial',
+    name: '分享试用',
+    price: '0',
+    badge: '推荐拉新',
+    desc: '转发小程序或朋友圈，获得 31 天 Pro 试用。',
+    action: '分享解锁'
+  },
   {
     id: 'single',
-    name: '单场体验',
-    scene: '临时活动 / 单场比赛',
+    name: '单场 Pro',
     price: '9.90',
-    promoPrice: '4.90',
-    promoLabel: '首场价',
-    desc: '解锁一场比赛的 MC 系统和计分板 2.0。'
+    promo: '首场 4.90',
+    desc: '适合临时比赛或单场活动。',
+    action: '购买'
   },
   {
     id: 'monthly',
-    name: '月度会员',
-    scene: '训练营 / 月赛 / 高频使用',
+    name: '月度 Pro',
     price: '39.90',
-    promoPrice: '19.90',
-    promoLabel: '首月价',
-    desc: '30 天内不限场次使用付费功能。'
+    promo: '首月 19.90',
+    desc: '适合训练营、月赛和高频使用。',
+    action: '购买'
   },
   {
     id: 'lifetime',
-    name: '买断授权',
-    scene: '长期运营 / 固定场馆',
-    price: '199.00',
-    promoPrice: '99.00',
-    promoLabel: '惊喜价',
-    desc: '一次购买，长期使用当前两大付费功能。'
+    name: '买断 Pro',
+    price: '199',
+    promo: '惊喜价 99',
+    desc: '适合长期运营和固定场馆。',
+    action: '购买'
+  }
+];
+
+const voicePlans = [
+  {
+    id: 'voice_free',
+    name: '新用户体验额度',
+    price: '免费',
+    desc: '每个账号默认赠送 10 次 AI 比分播报。',
+    action: '登录领取'
+  },
+  {
+    id: 'voice_share',
+    name: '分享换积分',
+    price: '+10 积分',
+    desc: '分享一次获得积分，播报时按次消耗。',
+    action: '去分享'
+  },
+  {
+    id: 'voice_pack',
+    name: 'AI 播报包',
+    price: '单独购买',
+    desc: '语音合成有流量成本，后续按次数包售卖。',
+    action: '查看'
   }
 ];
 
 Page({
-  data: { features, plans },
+  data: {
+    proFeatures,
+    proPlans,
+    voicePlans
+  },
+  onShareAppMessage() {
+    return {
+      title: '赛小蜂篮球计分器，快速开始一场比赛',
+      path: '/pages/login/index'
+    };
+  },
   previewFeature(event) {
     const id = event.currentTarget.dataset.id;
-    if (id === 'mc') {
-      wx.navigateTo({ url: '/pages/mc-system/index' });
+    wx.navigateTo({ url: id === 'mc' ? '/pages/mc-system/index' : '/pages/stats-scorer/index' });
+  },
+  selectProPlan(event) {
+    const plan = proPlans.find((item) => item.id === event.currentTarget.dataset.id);
+    if (!plan) return;
+    if (plan.id === 'share_trial') {
+      wx.showShareMenu({ withShareTicket: true });
+      wx.showModal({
+        title: '分享试用',
+        content: '首版先由后台发放分享试用会员码。正式版会在分享完成后自动发放 31 天 Pro 试用。',
+        confirmText: '知道了',
+        showCancel: false
+      });
       return;
     }
-    wx.navigateTo({ url: '/pages/stats-scorer/index' });
-  },
-  selectPlan(event) {
-    const plan = plans.find((item) => item.id === event.currentTarget.dataset.id);
-    const product = Object.assign({}, plan, {
-      name: `赛小蜂 Pro · ${plan.name}`,
-      price: plan.promoPrice,
+    wx.setStorageSync('pendingOrderProduct', {
+      id: plan.id,
+      name: `赛小蜂 Pro ${plan.name}`,
+      price: plan.promo ? plan.promo.replace(/[^\d.]/g, '') : plan.price,
       originalPrice: plan.price,
-      featureSummary: 'MC 现场音频系统 + 计分板 2.0 球员数据统计',
+      featureSummary: 'MC 现场音效系统 + 计分板 2.0 球员数据',
       desc: plan.desc
     });
-    wx.setStorageSync('pendingOrderProduct', product);
     wx.navigateTo({ url: '/pages/order/index' });
+  },
+  selectVoicePlan(event) {
+    const plan = voicePlans.find((item) => item.id === event.currentTarget.dataset.id);
+    if (!plan) return;
+    wx.showModal({
+      title: plan.name,
+      content: plan.id === 'voice_pack'
+        ? 'AI 语音播报包会单独售卖，避免语音合成流量成本影响 Pro 会员价格。'
+        : plan.desc,
+      confirmText: '知道了',
+      showCancel: false
+    });
   }
 });

@@ -2,8 +2,19 @@ const cloud = require('wx-server-sdk');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
+const _ = db.command;
 
 const CHANNELS = ['buzzer', 'three', 'two', 'miss', 'cheer', 'attack', 'defense', 'rest'];
+const DEFAULT_BUCKET_PREFIX = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3';
+const DEFAULT_AUDIO_ITEMS = [
+  { channel: 'buzzer', name: '蜂鸣器', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/蜂鸣器.mp3`, sort: 10 },
+  { channel: 'three', name: '三分球', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/三分球.mp3`, sort: 20 },
+  { channel: 'two', name: '2分进球有效', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/2分进球音效.mp3`, sort: 30 },
+  { channel: 'miss', name: '投篮未进', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/投篮未进音效.mp3`, sort: 40 },
+  { channel: 'cheer', name: '欢呼声', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/欢呼声.mp3`, sort: 50 },
+  { channel: 'rest', name: 'Remember the Name', fileID: `${DEFAULT_BUCKET_PREFIX}/暂停休息音乐/Fort Minor - Remember the Name_L.mp3`, sort: 60 },
+  { channel: 'rest', name: 'Its My Life', fileID: `${DEFAULT_BUCKET_PREFIX}/暂停休息音乐/Studio 99 - Its My Life_L.mp3`, sort: 70 }
+];
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
@@ -44,6 +55,26 @@ function normalizeItem(item) {
   };
 }
 
+async function upsertAudioItem(item, extra) {
+  const existing = await db.collection('sx_mc_audio_library')
+    .where({ fileID: item.fileID })
+    .limit(1)
+    .get();
+
+  const data = Object.assign({}, item, extra);
+  if (existing.data && existing.data[0]) {
+    await db.collection('sx_mc_audio_library').doc(existing.data[0]._id).update({
+      data: Object.assign({}, data, {
+        createdAt: _.set(existing.data[0].createdAt || extra.createdAt)
+      })
+    });
+    return Object.assign({ _id: existing.data[0]._id, mode: 'updated' }, data);
+  }
+
+  const created = await db.collection('sx_mc_audio_library').add({ data });
+  return Object.assign({ _id: created._id, mode: 'created' }, data);
+}
+
 exports.main = async (event) => {
   if (event && event.httpMethod === 'OPTIONS') {
     return httpResponse(event, { ok: true });
@@ -56,7 +87,9 @@ exports.main = async (event) => {
     return httpResponse(event, { ok: false, message: '后台口令不正确' }, 403);
   }
 
-  const rawItems = Array.isArray(payload.items) ? payload.items : [payload];
+  const rawItems = payload.preset === 'sxf_default'
+    ? DEFAULT_AUDIO_ITEMS
+    : (Array.isArray(payload.items) ? payload.items : [payload]);
   const items = rawItems.map(normalizeItem).filter(Boolean);
   if (!items.length) {
     return httpResponse(event, { ok: false, message: '请填写正确的音频类型和 cloud:// 文件 ID' }, 400);
@@ -73,8 +106,12 @@ exports.main = async (event) => {
       createdAt: now,
       updatedAt: now
     });
-    const created = await db.collection('sx_mc_audio_library').add({ data: item });
-    saved.push(Object.assign({ _id: created._id }, item));
+    saved.push(await upsertAudioItem(item, {
+      createdByOpenid: wxContext.OPENID || '',
+      createdByUnionid: wxContext.UNIONID || '',
+      createdAt: now,
+      updatedAt: now
+    }));
   }
 
   return httpResponse(event, {

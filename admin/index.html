@@ -48,7 +48,14 @@
     .empty { padding: 28px 20px; color: var(--muted); }
     .hidden { display: none; }
     .result-box { margin-top: 14px; padding: 14px; border-radius: 8px; background: #101820; color: #fff; white-space: pre-wrap; word-break: break-all; }
-    @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } .stats, .grid-2, .grid-3, .config { grid-template-columns: 1fr; } .topbar, .panel-head { align-items: stretch; flex-direction: column; } }
+    .strategy-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
+    .strategy-card { border: 1px solid var(--line); border-radius: 8px; background: #fff; padding: 16px; }
+    .strategy-card strong { display: block; font-size: 18px; }
+    .strategy-card p { margin: 8px 0 0; color: var(--muted); line-height: 1.55; }
+    .audio-list { margin-top: 16px; display: grid; gap: 10px; }
+    .audio-item { display: grid; grid-template-columns: 120px 1fr 1.6fr 80px; gap: 10px; align-items: center; border: 1px solid #eef2f6; border-radius: 8px; background: #fff; padding: 12px; }
+    .audio-item .file-id { color: var(--muted); overflow-wrap: anywhere; }
+    @media (max-width: 900px) { .shell { grid-template-columns: 1fr; } .stats, .grid-2, .grid-3, .config, .strategy-grid, .audio-item { grid-template-columns: 1fr; } .topbar, .panel-head { align-items: stretch; flex-direction: column; } }
   </style>
 </head>
 <body>
@@ -61,6 +68,7 @@
         <button data-tab="users">用户资料</button>
         <button data-tab="feedback">反馈信息</button>
         <button data-tab="redeem">会员码</button>
+        <button data-tab="strategy">定价策略</button>
         <button data-tab="audio">MC 音乐库</button>
       </nav>
     </aside>
@@ -113,7 +121,7 @@
           <div class="grid-3">
             <div class="field"><label>生成数量</label><input id="redeemCountInput" type="number" min="1" max="100" value="5" /></div>
             <div class="field"><label>有效天数，0 为买断</label><input id="redeemDays" type="number" min="0" value="31" /></div>
-            <div class="field"><label>会员类型</label><select id="redeemPlan"><option value="pro_month">月度 Pro</option><option value="pro_single">单场 Pro</option><option value="pro_lifetime">买断 Pro</option></select></div>
+            <div class="field"><label>会员类型</label><select id="redeemPlan"><option value="pro_share_month">分享试用 Pro 31 天</option><option value="voice_credits_50">AI 播报包 50 次</option><option value="share_points_10">分享奖励 10 积分</option><option value="pro_month">月度 Pro</option><option value="pro_single">单场 Pro</option><option value="pro_lifetime">买断 Pro</option></select></div>
           </div>
           <div class="form-row" style="margin-top:14px;">
             <button class="btn primary" id="createRedeem">生成会员码</button>
@@ -123,8 +131,35 @@
         </div>
       </section>
 
+      <section class="panel hidden" data-panel="strategy">
+        <div class="panel-head"><div class="panel-title">定价与增长策略</div></div>
+        <div class="panel-body">
+          <div class="strategy-grid">
+            <div class="strategy-card">
+              <strong>免费版</strong>
+              <p>基础计分、犯规、暂停、赛果保存继续免费，先让用户自然完成第一场比赛。</p>
+            </div>
+            <div class="strategy-card">
+              <strong>分享换 Pro 试用</strong>
+              <p>用户转发小程序或朋友圈后，发放 31 天 Pro 试用。后台可用 pro_share_month 会员码给朋友测试。</p>
+            </div>
+            <div class="strategy-card">
+              <strong>AI 语音单独计量</strong>
+              <p>每个账号默认 10 次 AI 播报体验额度。额度用完后，可购买播报包，或分享换积分继续消耗。</p>
+            </div>
+          </div>
+          <div class="result-box">首版建议：Pro 解锁 MC 系统和球员数据统计；AI 比分播报不包含在无限 Pro 内，按“次数/积分”消耗，避免 TTS 流量成本不可控。</div>
+        </div>
+      </section>
+
       <section class="panel hidden" data-panel="audio">
-        <div class="panel-head"><div class="panel-title">MC 音乐库</div><button class="btn" id="refreshAudio">刷新列表</button></div>
+        <div class="panel-head">
+          <div class="panel-title">MC 音乐库</div>
+          <div class="tools">
+            <button class="btn" id="initAudio">初始化默认音效</button>
+            <button class="btn" id="refreshAudio">刷新列表</button>
+          </div>
+        </div>
         <div class="panel-body">
           <div class="grid-3">
             <div class="field">
@@ -147,6 +182,7 @@
             <button class="btn green" id="saveAudio">保存到音乐库</button>
           </div>
           <div class="result-box" id="audioResult">音乐库结果会显示在这里。</div>
+          <div class="audio-list" id="audioList"></div>
         </div>
       </section>
     </main>
@@ -201,6 +237,17 @@
         <table><thead><tr><th>类型</th><th>反馈内容</th><th>用户资料</th><th>联系方式</th><th>提交时间</th></tr></thead>
         <tbody>${list.map((item) => `<tr><td><span class="tag">${escapeHtml(item.type || '未分类')}</span></td><td>${escapeHtml(item.content || '')}</td><td><strong>${escapeHtml(item.user?.nickName || item.nickName || '未知用户')}</strong><div class="muted mono">${escapeHtml(authId(item.user || item) || '-')}</div></td><td>${escapeHtml(item.contact || '-')}</td><td>${escapeHtml(item.createdAt || '-')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">暂无反馈信息</div>';
     }
+    function renderAudioList(items = state.audioItems) {
+      state.audioItems = Array.isArray(items) ? items : [];
+      $('audioList').innerHTML = state.audioItems.length ? state.audioItems.map((item) => `
+        <div class="audio-item">
+          <span class="tag">${escapeHtml(item.channel || '-')}</span>
+          <strong>${escapeHtml(item.name || '未命名音效')}</strong>
+          <span class="file-id mono">${escapeHtml(item.fileID || item.fileId || '-')}</span>
+          <span>${escapeHtml(item.status || 'active')}</span>
+        </div>
+      `).join('') : '<div class="empty">音乐库暂无数据。可以先点“初始化默认音效”。</div>';
+    }
     function setData(data) {
       state.users = Array.isArray(data.users) ? data.users : [];
       state.feedback = Array.isArray(data.feedback) ? data.feedback : [];
@@ -208,8 +255,10 @@
       state.entitlements = Array.isArray(data.entitlements) ? data.entitlements : [];
       state.redeemCodes = Array.isArray(data.redeemCodes) ? data.redeemCodes : [];
       state.matchResults = Array.isArray(data.matchResults) ? data.matchResults : [];
+      state.audioItems = Array.isArray(data.audioItems) ? data.audioItems : state.audioItems;
       state.stats = data.stats || {};
       renderStats(); renderUsers(); renderFeedback('feedbackTable'); renderFeedback('overviewContent', 5);
+      renderAudioList();
     }
     function setResult(id, data) { $(id).textContent = typeof data === 'string' ? data : JSON.stringify(data, null, 2); }
 
@@ -246,10 +295,24 @@
       try {
         const result = await postFunction('sxSaveAudioLibrary', { channel: $('audioChannel').value, name: $('audioName').value, fileID: $('audioFileID').value });
         setResult('audioResult', result);
+        $('audioName').value = '';
+        $('audioFileID').value = '';
+        $('refreshAudio').click();
+      } catch (error) { setResult('audioResult', error.message); }
+    });
+    $('initAudio').addEventListener('click', async () => {
+      try {
+        const result = await postFunction('sxSaveAudioLibrary', { preset: 'sxf_default' });
+        setResult('audioResult', result);
+        $('refreshAudio').click();
       } catch (error) { setResult('audioResult', error.message); }
     });
     $('refreshAudio').addEventListener('click', async () => {
-      try { setResult('audioResult', await postFunction('sxGetAudioLibrary')); } catch (error) { setResult('audioResult', error.message); }
+      try {
+        const result = await postFunction('sxGetAudioLibrary');
+        setResult('audioResult', result);
+        renderAudioList(result.items || []);
+      } catch (error) { setResult('audioResult', error.message); }
     });
     setData({});
   </script>

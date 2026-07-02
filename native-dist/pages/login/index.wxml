@@ -9,9 +9,9 @@
 
     <view class="action-panel">
       <image class="panel-ball" src="/assets/home/basketball-icon.png" mode="aspectFit" />
-      <view class="image-button login-button-float" bindtap="loginByWechat">
+      <button class="image-button login-button-float" open-type="getPhoneNumber" bindgetphonenumber="loginByWechat">
         <image src="/assets/login/login-button.png" mode="widthFix" />
-      </view>
+      </button>
       <view class="image-button guest guest-button-float" bindtap="enterAsGuest">
         <image src="/assets/login/guest-button.png" mode="widthFix" />
       </view>

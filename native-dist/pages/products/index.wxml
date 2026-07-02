@@ -1,12 +1,12 @@
 <view class="products">
-  <view class="header">
+  <view class="hero">
     <text class="kicker">赛小蜂篮球 Pro</text>
-    <text class="title">升级付费功能</text>
-    <text class="desc">免费计分已经够用；当你需要现场气氛和球员数据复盘时，开启 Pro 功能。</text>
+    <text class="title">先免费打起来，再解锁现场能力</text>
+    <text class="desc">基础计分永久免费。Pro 用来解锁 MC 音效和球员数据，AI 比分播报因为有语音合成成本，单独按额度使用。</text>
   </view>
 
-  <text class="section-title">付费功能</text>
-  <view wx:for="{{features}}" wx:key="id" class="feature-card">
+  <text class="section-title">Pro 功能</text>
+  <view wx:for="{{proFeatures}}" wx:key="id" class="feature-card">
     <view class="feature-head">
       <view>
         <text class="feature-tag">{{item.tag}}</text>
@@ -18,25 +18,33 @@
     <view class="point" wx:for="{{item.points}}" wx:for-item="point" wx:key="*this">{{point}}</view>
   </view>
 
-  <text class="section-title">购买套餐</text>
-  <view wx:for="{{plans}}" wx:key="id" class="plan-card" data-id="{{item.id}}" bindtap="selectPlan">
+  <text class="section-title">Pro 获取方式</text>
+  <view wx:for="{{proPlans}}" wx:key="id" class="plan-card" data-id="{{item.id}}" bindtap="selectProPlan">
     <view class="plan-main">
       <view class="plan-top">
         <text class="plan-name">{{item.name}}</text>
-        <text class="promo">{{item.promoLabel}}</text>
+        <text wx:if="{{item.badge || item.promo}}" class="promo">{{item.badge || item.promo}}</text>
       </view>
-      <text class="plan-scene">{{item.scene}}</text>
       <text class="plan-desc">{{item.desc}}</text>
     </view>
     <view class="price-block">
-      <text class="original">¥{{item.price}}</text>
-      <text class="price">¥{{item.promoPrice}}</text>
-      <text class="buy">购买</text>
+      <text class="price">{{item.price == '0' ? '免费' : '¥' + item.price}}</text>
+      <text class="buy">{{item.action}}</text>
+    </view>
+  </view>
+
+  <text class="section-title">AI 语音播报包</text>
+  <view class="voice-grid">
+    <view wx:for="{{voicePlans}}" wx:key="id" class="voice-card" data-id="{{item.id}}" bindtap="selectVoicePlan">
+      <text class="voice-name">{{item.name}}</text>
+      <text class="voice-price">{{item.price}}</text>
+      <text class="voice-desc">{{item.desc}}</text>
+      <text class="voice-action">{{item.action}}</text>
     </view>
   </view>
 
   <view class="notice">
-    <text>支付说明</text>
-    <text>当前为微信支付接入前的产品原型，确认后会生成本地模拟订单；正式上线后将接入微信支付和云端权益校验。</text>
+    <text>首版运营规则</text>
+    <text>分享可换 Pro 试用或积分；AI 播报按次数/积分消耗。这样用户能先体验，平台也能控制语音成本。</text>
   </view>
 </view>

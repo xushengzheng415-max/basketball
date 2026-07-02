@@ -68,7 +68,16 @@ page {
   align-items: center;
   justify-content: center;
   width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  line-height: 1;
   will-change: transform;
+}
+.image-button::after {
+  border: 0;
 }
 .image-button image {
   width: 100%;

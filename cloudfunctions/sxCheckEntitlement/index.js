@@ -56,6 +56,8 @@ exports.main = async (event) => {
       features: entitlement.features || [],
       scope: entitlement.scope || '',
       remainingUses: entitlement.remainingUses,
+      voiceCredits: entitlement.voiceCredits || 0,
+      shareCredits: entitlement.shareCredits || 0,
       expiresAt: entitlement.expiresAt || null,
       source: entitlement.source || ''
     } : null

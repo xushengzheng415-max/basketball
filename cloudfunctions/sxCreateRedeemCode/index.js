@@ -5,6 +5,29 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 const DEFAULT_FEATURES = ['mc_system', 'stats_scorer_2'];
+const PLAN_PRESETS = {
+  pro_share_month: {
+    productName: '赛小蜂 Pro 分享试用',
+    durationDays: 31,
+    features: DEFAULT_FEATURES,
+    voiceCredits: 10,
+    shareCredits: 0
+  },
+  voice_credits_50: {
+    productName: 'AI 语音播报包 50 次',
+    durationDays: 0,
+    features: ['score_voice'],
+    voiceCredits: 50,
+    shareCredits: 0
+  },
+  share_points_10: {
+    productName: '分享奖励积分',
+    durationDays: 0,
+    features: [],
+    voiceCredits: 0,
+    shareCredits: 10
+  }
+};
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
@@ -73,8 +96,14 @@ exports.main = async (event) => {
   const durationDays = Math.max(0, Number(payload.durationDays || 31));
   const prefix = String(payload.prefix || 'SXF').replace(/[^A-Za-z0-9]/g, '').slice(0, 8).toUpperCase() || 'SXF';
   const plan = String(payload.plan || 'pro_month');
-  const productName = String(payload.productName || '赛小蜂 Pro 会员');
-  const features = normalizeFeatures(payload.features);
+  const preset = PLAN_PRESETS[plan] || {};
+  const productName = String(payload.productName || preset.productName || '赛小蜂 Pro 会员');
+  const hasFeaturePayload = Array.isArray(payload.features);
+  const features = hasFeaturePayload
+    ? normalizeFeatures(payload.features)
+    : (Array.isArray(preset.features) ? preset.features : normalizeFeatures());
+  const voiceCredits = Math.max(0, Math.floor(Number(payload.voiceCredits ?? preset.voiceCredits ?? 0)));
+  const shareCredits = Math.max(0, Math.floor(Number(payload.shareCredits ?? preset.shareCredits ?? 0)));
   const batchId = `redeem-${Date.now()}-${crypto.randomBytes(3).toString('hex')}`;
   const expiresAt = payload.expiresAt ? new Date(payload.expiresAt) : null;
 
@@ -84,7 +113,9 @@ exports.main = async (event) => {
     productId: plan,
     productName,
     features,
-    durationDays,
+    durationDays: Math.max(0, Number(payload.durationDays ?? preset.durationDays ?? durationDays)),
+    voiceCredits,
+    shareCredits,
     status: 'unused',
     generatedByOpenid: wxContext.OPENID || '',
     generatedByUnionid: wxContext.UNIONID || '',

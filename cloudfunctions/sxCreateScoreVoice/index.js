@@ -4,6 +4,7 @@ const https = require('https');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
+const _ = db.command;
 
 const TTS_HOST = 'tts.tencentcloudapi.com';
 const TTS_SERVICE = 'tts';
@@ -44,6 +45,37 @@ async function hasEntitlement(openid, feature) {
   return (result.data || []).some((item) => (
     isFeatureEnabled(item, feature) && isNotExpired(item) && isQuotaAvailable(item)
   ));
+}
+
+async function findVoiceCredit(openid) {
+  const result = await db.collection('sx_entitlements')
+    .where({ openid, status: 'active' })
+    .orderBy('createdAt', 'desc')
+    .limit(20)
+    .get();
+
+  return (result.data || []).find((item) => (
+    isFeatureEnabled(item, 'score_voice')
+    && isNotExpired(item)
+    && (Number(item.voiceCredits || 0) > 0 || Number(item.shareCredits || 0) > 0)
+  ));
+}
+
+async function consumeVoiceCredit(entitlement) {
+  if (!entitlement || !entitlement._id) return null;
+  const field = Number(entitlement.voiceCredits || 0) > 0 ? 'voiceCredits' : 'shareCredits';
+  const current = Number(entitlement[field] || 0);
+  if (current <= 0) return null;
+  await db.collection('sx_entitlements').doc(entitlement._id).update({
+    data: {
+      [field]: _.inc(-1),
+      updatedAt: db.serverDate()
+    }
+  });
+  return {
+    creditField: field,
+    remaining: Math.max(0, current - 1)
+  };
 }
 
 function buildVoiceConfig(style) {
@@ -175,8 +207,10 @@ exports.main = async (event) => {
   if (!text) return { ok: false, code: 'empty_text', message: '播报文案不能为空' };
   if (text.length > 500) return { ok: false, code: 'text_too_long', message: '播报文案过长' };
 
-  const entitled = await hasEntitlement(openid, 'mc_system');
-  if (!entitled) return { ok: false, code: 'no_entitlement', message: '购买 Pro 后解锁 AI 播报' };
+  const voiceEntitlement = await findVoiceCredit(openid);
+  if (!voiceEntitlement) {
+    return { ok: false, code: 'no_voice_credit', message: 'AI 播报额度不足，请通过分享或购买语音播报包获取额度' };
+  }
 
   const voice = buildVoiceConfig(style);
   const sessionId = `sxf-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
@@ -218,6 +252,7 @@ exports.main = async (event) => {
       requestId: response.RequestId || '',
       createdAt: db.serverDate()
     });
+    const credit = await consumeVoiceCredit(voiceEntitlement);
 
     return {
       ok: true,
@@ -227,6 +262,7 @@ exports.main = async (event) => {
       style,
       voiceType: voice.voiceType,
       voiceName: voice.voiceName,
+      credit,
       sessionId,
       requestId: response.RequestId || ''
     };

@@ -1,6 +1,6 @@
 page { height: 100vh; overflow: hidden; background: #f4f7fa; }
-.setup { height: 100vh; box-sizing: border-box; padding: 10px 16px 12px; overflow: hidden; background: #f4f7fa; }
-.setup-card { box-sizing: border-box; width: 100%; height: 100%; padding: 14px 16px; border-radius: 10px; background: #fff; }
+.setup { height: 100vh; box-sizing: border-box; padding: 8px 14px 18px; overflow-y: auto; background: #f4f7fa; }
+.setup-card { box-sizing: border-box; width: 100%; min-height: calc(100vh - 26px); padding: 12px 14px; border-radius: 10px; background: #fff; }
 .setup-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 .setup-title, .setup-desc, .field text, .team-name, .team-score, .period, .clock-mode { display: block; }
 .setup-title { color: #101820; font-size: 24px; font-weight: 900; line-height: 1.1; }
@@ -8,7 +8,7 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .start { display: flex; width: 124px; height: 42px; flex-shrink: 0; align-items: center; justify-content: center; border-radius: 8px; color: #fff; background: #f05a28; font-size: 17px; font-weight: 900; }
 .form-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px 14px; margin-top: 12px; }
 .field text { color: #18212f; font-size: 15px; font-weight: 900; line-height: 1.15; }
-.field input { box-sizing: border-box; width: 100%; height: 36px; margin-top: 5px; padding: 0 11px; border: 1px solid #d7dee8; border-radius: 7px; background: #f8fafc; font-size: 16px; }
+.field input { position: relative; z-index: 2; box-sizing: border-box; width: 100%; height: 38px; margin-top: 5px; padding: 0 11px; border: 1px solid #d7dee8; border-radius: 7px; background: #f8fafc; font-size: 16px; }
 .number-control { display: grid; grid-template-columns: 36px 1fr 36px; gap: 7px; align-items: center; margin-top: 5px; }
 .step-btn, .stat-btn { display: flex; align-items: center; justify-content: center; border-radius: 7px; color: #fff; background: #344054; font-weight: 900; }
 .step-btn { height: 34px; font-size: 20px; }
@@ -20,17 +20,17 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .preset.active, .mode.active { border-color: #f05a28; color: #fff; background: #f05a28; }
 .mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
 .mode { height: 36px; font-size: 15px; }
-.scoreboard { position: relative; display: grid; grid-template-rows: 36px 58px minmax(0, 1fr) auto 32px; gap: 6px; height: 100vh; box-sizing: border-box; padding: 7px 14px 8px; overflow: hidden; color: #fff; background: #101820; }
-.topbar { display: grid; grid-template-columns: 1fr auto 116px; align-items: center; gap: 10px; font-size: 16px; font-weight: 900; }
+.scoreboard { position: relative; display: grid; grid-template-rows: 32px 52px minmax(0, 1fr) auto 28px; gap: 5px; height: 100vh; box-sizing: border-box; padding: 6px 14px 7px; overflow: hidden; color: #fff; background: #101820; }
+.topbar { display: grid; grid-template-columns: 1fr auto 112px; align-items: center; gap: 10px; font-size: 15px; font-weight: 900; }
 .mc-status { padding: 5px 10px; border-radius: 999px; color: #f8d568; background: rgba(248,213,104,0.12); font-size: 12px; }
 .mc-status.unlocked { color: #21d19f; background: rgba(33,209,159,0.16); }
-.finish { display: flex; height: 32px; align-items: center; justify-content: center; border-radius: 7px; background: #d83b01; font-size: 15px; }
-.clock-card { display: grid; grid-template-columns: minmax(120px, 1fr) 116px 230px; gap: 10px; align-items: center; min-height: 0; padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,0.1); }
-.period { color: #f8d568; font-size: 19px; font-weight: 900; line-height: 1.05; }
+.finish { display: flex; height: 30px; align-items: center; justify-content: center; border-radius: 7px; background: #d83b01; font-size: 15px; }
+.clock-card { display: grid; grid-template-columns: minmax(120px, 1fr) 108px 224px; gap: 8px; align-items: center; min-height: 0; padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,0.1); }
+.period { color: #f8d568; font-size: 18px; font-weight: 900; line-height: 1.05; }
 .clock-mode { margin-top: 4px; color: #d7dee8; font-size: 13px; line-height: 1.1; }
-.clock { color: #fff; font-family: DIN Alternate, Arial, sans-serif; font-size: 34px; font-weight: 900; line-height: 1; text-align: center; }
+.clock { color: #fff; font-family: DIN Alternate, Arial, sans-serif; font-size: 31px; font-weight: 900; line-height: 1; text-align: center; }
 .clock-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
-.clock-btn { display: flex; height: 36px; align-items: center; justify-content: center; border-radius: 7px; color: #101820; background: #fff; font-size: 15px; font-weight: 900; }
+.clock-btn { display: flex; height: 34px; align-items: center; justify-content: center; border-radius: 7px; color: #101820; background: #fff; font-size: 15px; font-weight: 900; }
 .primary-clock { color: #101820; background: #f8d568; }
 .mc-shade { position: fixed; inset: 0; z-index: 18; background: rgba(0,0,0,0.18); }
 .mc-sidebar { position: fixed; left: -248px; top: 78px; z-index: 20; display: flex; align-items: flex-start; transition: left 0.22s ease; }
@@ -63,10 +63,10 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .three-progress { position: fixed; left: 50%; top: 102px; z-index: 9; width: 260px; margin-left: -130px; padding: 8px 10px; border-radius: 9px; color: #fff; background: rgba(16,24,32,0.92); font-size: 13px; font-weight: 900; text-align: center; }
 .progress-track { height: 8px; margin-top: 6px; border-radius: 999px; background: rgba(255,255,255,0.22); overflow: hidden; }
 .progress-bar { height: 8px; border-radius: 999px; background: #f05a28; transition: width 0.06s linear; }
-.main { display: grid; grid-template-columns: minmax(0, 1fr) 92px minmax(0, 1fr); gap: 10px; min-height: 0; }
-.team-card { display: grid; grid-template-rows: 22px minmax(0, 1fr) 36px 38px; align-items: center; min-height: 0; box-sizing: border-box; padding: 8px 10px; border-radius: 10px; color: #101820; background: #fff; }
+.main { display: grid; grid-template-columns: minmax(0, 1fr) 88px minmax(0, 1fr); gap: 9px; min-height: 0; }
+.team-card { display: grid; grid-template-rows: 20px minmax(0, 1fr) 34px 36px; align-items: center; min-height: 0; box-sizing: border-box; padding: 7px 10px; border-radius: 10px; color: #101820; background: #fff; }
 .team-name { max-width: 100%; overflow: hidden; font-size: 17px; font-weight: 900; line-height: 1; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-.team-score { align-self: center; color: #f05a28; font-family: DIN Alternate, Arial, sans-serif; font-size: 68px; font-weight: 900; line-height: 0.9; text-align: center; text-shadow: 0 8px 18px rgba(240,90,40,0.18); transform-origin: center; }
+.team-score { align-self: center; color: #f05a28; font-family: DIN Alternate, Arial, sans-serif; font-size: 64px; font-weight: 900; line-height: 0.88; text-align: center; text-shadow: 0 8px 18px rgba(240,90,40,0.18); transform-origin: center; }
 .team-score.pulse { animation: score-pop 0.5s ease-out both; }
 @keyframes score-pop {
   0% { transform: scale(0.92); color: #f8d568; text-shadow: 0 0 0 rgba(248,213,104,0); }
@@ -80,17 +80,17 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .stat-btn { height: 26px; font-size: 14px; }
 .stat-btn.add { background: #101820; font-size: 16px; }
 .score-buttons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.score-btn { display: flex; height: 36px; align-items: center; justify-content: center; border-radius: 8px; color: #fff; background: #f05a28; font-size: 18px; font-weight: 900; }
+.score-btn { display: flex; height: 34px; align-items: center; justify-content: center; border-radius: 8px; color: #fff; background: #f05a28; font-size: 18px; font-weight: 900; }
 .score-btn.hold { background: #d83b01; font-size: 15px; }
-.center { display: grid; grid-template-rows: minmax(12px, 1fr) 30px 30px 30px auto minmax(0, 1fr); align-items: center; justify-items: center; min-height: 0; }
+.center { display: grid; grid-template-rows: 34px repeat(4, 28px) minmax(0, 1fr); gap: 5px; align-items: center; justify-items: center; min-height: 0; overflow: hidden; }
 .vs { align-self: end; font-size: 27px; font-weight: 900; line-height: 1; }
-.undo, .reset, .swap { display: flex; width: 78px; height: 27px; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; font-weight: 900; }
+.undo, .reset, .swap { display: flex; width: 76px; height: 27px; align-items: center; justify-content: center; border-radius: 7px; font-size: 14px; font-weight: 900; }
 .swap { color: #101820; background: #fff; }
 .undo { color: #101820; background: #f8d568; }
 .reset { color: #fff; background: #344054; }
 .music-bar { display: flex; align-items: center; justify-content: space-between; min-height: 28px; padding: 0 10px; border: 1px solid rgba(248,213,104,0.28); border-radius: 8px; color: #f8d568; background: rgba(248,213,104,0.1); font-size: 13px; font-weight: 900; }
 .music-stop { display: flex; width: 52px; height: 22px; align-items: center; justify-content: center; border-radius: 6px; color: #fff; background: #d83b01; font-size: 12px; }
-.events { display: flex; align-items: center; justify-content: space-between; min-height: 0; padding: 0 12px; border-radius: 8px; color: #d7dee8; background: rgba(255,255,255,0.08); font-size: 14px; }
+.events { display: flex; align-items: center; justify-content: space-between; min-height: 0; padding: 0 12px; border-radius: 8px; color: #d7dee8; background: rgba(255,255,255,0.08); font-size: 13px; overflow: hidden; }
 @media (max-height: 330px) {
   .scoreboard { grid-template-rows: 32px 50px minmax(0, 1fr) auto 28px; gap: 5px; padding-top: 5px; padding-bottom: 6px; }
   .clock-card { grid-template-columns: minmax(110px, 1fr) 104px 210px; padding: 5px 9px; }

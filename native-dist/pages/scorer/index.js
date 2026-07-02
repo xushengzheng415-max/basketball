@@ -240,7 +240,7 @@ Page({
     this.setData({ voiceStyle: style });
   },
   async announceScore() {
-    if (!this.ensureMc(false) || this.data.voiceLoading) return;
+    if (this.data.voiceLoading) return;
     const text = buildScoreVoice({
       homeName: this.data.homeName,
       awayName: this.data.awayName,

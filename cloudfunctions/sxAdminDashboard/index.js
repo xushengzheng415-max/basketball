@@ -34,13 +34,14 @@ exports.main = async (event) => {
     return httpResponse(event, { ok: true });
   }
 
-  const [users, feedback, orders, matchResults, entitlements, redeemCodes] = await Promise.all([
+  const [users, feedback, orders, matchResults, entitlements, redeemCodes, audioItems] = await Promise.all([
     getList('sx_users'),
     getList('sx_feedback'),
     getList('sx_orders'),
     getList('sx_match_results'),
     getList('sx_entitlements'),
-    getList('sx_redeem_codes')
+    getList('sx_redeem_codes'),
+    getList('sx_mc_audio_library', 100)
   ]);
 
   return httpResponse(event, {
@@ -51,13 +52,15 @@ exports.main = async (event) => {
     matchResults,
     entitlements,
     redeemCodes,
+    audioItems,
     stats: {
       users: users.length,
       feedback: feedback.length,
       orders: orders.length,
       matchResults: matchResults.length,
       entitlements: entitlements.length,
-      redeemCodes: redeemCodes.length
+      redeemCodes: redeemCodes.length,
+      audioItems: audioItems.length
     }
   });
 };

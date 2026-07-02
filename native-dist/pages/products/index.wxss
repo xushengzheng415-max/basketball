@@ -1,8 +1,11 @@
 .products {
+  min-height: 100vh;
+  box-sizing: border-box;
   padding: 28rpx;
+  background: #f4f7fa;
 }
-.header {
-  padding: 32rpx 28rpx;
+.hero {
+  padding: 34rpx 28rpx;
   border-radius: 12rpx;
   color: #fff;
   background: #101820;
@@ -15,43 +18,48 @@
 .feature-name,
 .feature-desc,
 .plan-name,
-.plan-scene,
 .plan-desc,
-.original,
 .price,
 .buy,
+.voice-name,
+.voice-price,
+.voice-desc,
+.voice-action,
 .notice text {
   display: block;
 }
 .kicker {
   color: #f8d568;
   font-size: 24rpx;
-  font-weight: 800;
+  font-weight: 900;
 }
 .title {
   margin-top: 12rpx;
-  font-size: 44rpx;
+  font-size: 42rpx;
   font-weight: 900;
+  line-height: 1.18;
 }
 .desc {
-  margin-top: 10rpx;
+  margin-top: 12rpx;
   color: #d7dee8;
   font-size: 25rpx;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 .section-title {
-  margin: 30rpx 0 14rpx;
+  margin: 32rpx 0 14rpx;
   color: #18212f;
   font-size: 30rpx;
   font-weight: 900;
 }
 .feature-card,
-.plan-card {
+.plan-card,
+.voice-card {
   margin-top: 16rpx;
   padding: 24rpx;
   border: 1rpx solid #e5eaf0;
   border-radius: 12rpx;
   background: #fff;
+  box-shadow: 0 6rpx 18rpx rgba(16, 24, 32, 0.04);
 }
 .feature-head,
 .plan-card,
@@ -94,7 +102,8 @@
   font-weight: 900;
 }
 .feature-desc,
-.plan-desc {
+.plan-desc,
+.voice-desc {
   margin-top: 12rpx;
   color: #667085;
   font-size: 24rpx;
@@ -126,36 +135,56 @@
 .plan-name {
   margin-top: 0;
 }
-.plan-scene {
-  margin-top: 8rpx;
-  color: #101820;
-  font-size: 23rpx;
-  font-weight: 800;
-}
 .price-block {
-  flex: 0 0 150rpx;
+  flex: 0 0 154rpx;
   text-align: right;
 }
-.original {
-  color: #98a2b3;
-  font-size: 22rpx;
-  text-decoration: line-through;
-}
 .price {
-  margin-top: 4rpx;
   color: #f05a28;
   font-family: DIN Alternate, Arial, sans-serif;
-  font-size: 38rpx;
+  font-size: 36rpx;
   font-weight: 900;
 }
-.buy {
+.buy,
+.voice-action {
   margin-top: 8rpx;
   color: #101820;
   font-size: 22rpx;
-  font-weight: 800;
+  font-weight: 900;
+}
+.voice-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16rpx;
+}
+.voice-card {
+  margin-top: 0;
+}
+.voice-name {
+  color: #18212f;
+  font-size: 28rpx;
+  font-weight: 900;
+}
+.voice-price {
+  margin-top: 8rpx;
+  color: #f05a28;
+  font-size: 34rpx;
+  font-weight: 900;
+}
+.voice-action {
+  display: inline-flex;
+  width: fit-content;
+  height: 52rpx;
+  align-items: center;
+  justify-content: center;
+  margin-top: 14rpx;
+  border-radius: 8rpx;
+  color: #fff;
+  background: #101820;
+  padding: 0 22rpx;
 }
 .notice {
-  margin-top: 22rpx;
+  margin-top: 24rpx;
   padding: 22rpx;
   border-radius: 10rpx;
   color: #667085;

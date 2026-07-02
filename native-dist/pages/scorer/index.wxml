@@ -11,11 +11,11 @@
     <view class="form-grid">
       <view class="field">
         <text>主队名称</text>
-        <input value="{{homeName}}" placeholder="主队" bindinput="onHomeInput" />
+        <input value="{{homeName}}" placeholder="主队" bindinput="onHomeInput" adjust-position="{{true}}" cursor-spacing="90" />
       </view>
       <view class="field">
         <text>客队名称</text>
-        <input value="{{awayName}}" placeholder="客队" bindinput="onAwayInput" />
+        <input value="{{awayName}}" placeholder="客队" bindinput="onAwayInput" adjust-position="{{true}}" cursor-spacing="90" />
       </view>
       <view class="field mode-field">
         <text>计时方式</text>
@@ -142,12 +142,7 @@
       <view class="swap" bindtap="swapTeams">换边</view>
       <view class="undo" bindtap="undo">撤销</view>
       <view class="reset" bindtap="resetMatch">重开</view>
-      <view class="voice-center">
-        <view class="voice-tabs">
-          <view wx:for="{{voiceStyles}}" wx:key="id" class="voice-style {{voiceStyle == item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="setVoiceStyle">{{item.name}}</view>
-        </view>
-        <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
-      </view>
+      <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
     </view>
 
     <view class="team-card">
