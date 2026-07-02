@@ -114,11 +114,20 @@
     <view class="team-card">
       <text class="team-name">{{homeName}}</text>
       <text class="team-score {{homeScorePulse ? 'pulse' : ''}}">{{homeScore}}</text>
-      <view class="foul-line">
-        <text>犯规 {{homeFouls}}</text>
-        <view class="foul-actions">
-          <view class="foul-btn" bindtap="subtractHomeFoul">-</view>
-          <view class="foul-btn add" bindtap="addHomeFoul">+</view>
+      <view class="stat-line">
+        <view class="team-stat">
+          <text>犯规 {{homeFouls}}</text>
+          <view class="stat-actions">
+            <view class="stat-btn" bindtap="subtractHomeFoul">-</view>
+            <view class="stat-btn add" bindtap="addHomeFoul">+</view>
+          </view>
+        </view>
+        <view class="team-stat">
+          <text>暂停 {{homeTimeouts}}</text>
+          <view class="stat-actions">
+            <view class="stat-btn" bindtap="subtractHomeTimeout">-</view>
+            <view class="stat-btn add" bindtap="addHomeTimeout">+</view>
+          </view>
         </view>
       </view>
       <view class="score-buttons">
@@ -130,6 +139,7 @@
 
     <view class="center">
       <text class="vs">VS</text>
+      <view class="swap" bindtap="swapTeams">换边</view>
       <view class="undo" bindtap="undo">撤销</view>
       <view class="reset" bindtap="resetMatch">重开</view>
       <view class="voice-center">
@@ -143,11 +153,20 @@
     <view class="team-card">
       <text class="team-name">{{awayName}}</text>
       <text class="team-score {{awayScorePulse ? 'pulse' : ''}}">{{awayScore}}</text>
-      <view class="foul-line">
-        <text>犯规 {{awayFouls}}</text>
-        <view class="foul-actions">
-          <view class="foul-btn" bindtap="subtractAwayFoul">-</view>
-          <view class="foul-btn add" bindtap="addAwayFoul">+</view>
+      <view class="stat-line">
+        <view class="team-stat">
+          <text>犯规 {{awayFouls}}</text>
+          <view class="stat-actions">
+            <view class="stat-btn" bindtap="subtractAwayFoul">-</view>
+            <view class="stat-btn add" bindtap="addAwayFoul">+</view>
+          </view>
+        </view>
+        <view class="team-stat">
+          <text>暂停 {{awayTimeouts}}</text>
+          <view class="stat-actions">
+            <view class="stat-btn" bindtap="subtractAwayTimeout">-</view>
+            <view class="stat-btn add" bindtap="addAwayTimeout">+</view>
+          </view>
         </view>
       </view>
       <view class="score-buttons">

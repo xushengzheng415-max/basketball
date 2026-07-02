@@ -51,6 +51,18 @@ function getAudioMap() {
   return Object.assign({}, defaultAudioMap, saved);
 }
 
+function oppositeSide(side) {
+  return side === 'home' ? 'away' : 'home';
+}
+
+function describeEvent(event, homeName, awayName) {
+  const team = event.side === 'home' ? homeName : awayName;
+  if (event.type === 'score') return `${team} +${event.points}`;
+  if (event.type === 'foul') return event.delta > 0 ? `${team} 犯规 +1` : `${team} 犯规 -1`;
+  if (event.type === 'timeout') return event.delta > 0 ? `${team} 暂停 +1` : `${team} 暂停 -1`;
+  return event.text || '暂无记录';
+}
+
 function getTempAudioSrc(src) {
   if (!src || typeof src !== 'string') return Promise.resolve('');
   if (!src.startsWith('cloud://')) return Promise.resolve(src);
@@ -105,6 +117,8 @@ Page({
     awayScorePulse: false,
     homeFouls: 0,
     awayFouls: 0,
+    homeTimeouts: 0,
+    awayTimeouts: 0,
     started: false,
     events: [],
     latestEvent: '暂无记录',
@@ -390,10 +404,14 @@ Page({
   addAwayFoul() { this.addFoul('away', 1); },
   subtractHomeFoul() { this.addFoul('home', -1); },
   subtractAwayFoul() { this.addFoul('away', -1); },
+  addHomeTimeout() { this.addTimeout('home', 1); },
+  addAwayTimeout() { this.addTimeout('away', 1); },
+  subtractHomeTimeout() { this.addTimeout('home', -1); },
+  subtractAwayTimeout() { this.addTimeout('away', -1); },
   addScore(side, points) {
     const isHome = side === 'home';
-    const team = isHome ? this.data.homeName : this.data.awayName;
-    const event = { type: 'score', side, points, text: `${team} +${points}` };
+    const event = { type: 'score', side, points };
+    event.text = describeEvent(event, this.data.homeName, this.data.awayName);
     const nextEvents = [event].concat(this.data.events);
     const pulseKey = isHome ? 'homeScorePulse' : 'awayScorePulse';
     this.setData({
@@ -411,10 +429,41 @@ Page({
     const current = isHome ? this.data.homeFouls : this.data.awayFouls;
     const next = Math.max(0, current + delta);
     if (next === current) return;
-    const team = isHome ? this.data.homeName : this.data.awayName;
-    const event = { type: 'foul', side, delta, text: delta > 0 ? `${team} 犯规 +1` : `${team} 犯规 -1` };
+    const event = { type: 'foul', side, delta };
+    event.text = describeEvent(event, this.data.homeName, this.data.awayName);
     const nextEvents = [event].concat(this.data.events);
     this.setData({ homeFouls: isHome ? next : this.data.homeFouls, awayFouls: isHome ? this.data.awayFouls : next, events: nextEvents, latestEvent: event.text });
+  },
+  addTimeout(side, delta) {
+    const isHome = side === 'home';
+    const current = isHome ? this.data.homeTimeouts : this.data.awayTimeouts;
+    const next = Math.max(0, current + delta);
+    if (next === current) return;
+    const event = { type: 'timeout', side, delta };
+    event.text = describeEvent(event, this.data.homeName, this.data.awayName);
+    const nextEvents = [event].concat(this.data.events);
+    this.setData({ homeTimeouts: isHome ? next : this.data.homeTimeouts, awayTimeouts: isHome ? this.data.awayTimeouts : next, events: nextEvents, latestEvent: event.text });
+  },
+  swapTeams() {
+    const homeName = this.data.awayName;
+    const awayName = this.data.homeName;
+    const events = this.data.events.map((event) => {
+      const next = Object.assign({}, event, { side: oppositeSide(event.side) });
+      next.text = describeEvent(next, homeName, awayName);
+      return next;
+    });
+    this.setData({
+      homeName,
+      awayName,
+      homeScore: this.data.awayScore,
+      awayScore: this.data.homeScore,
+      homeFouls: this.data.awayFouls,
+      awayFouls: this.data.homeFouls,
+      homeTimeouts: this.data.awayTimeouts,
+      awayTimeouts: this.data.homeTimeouts,
+      events,
+      latestEvent: events[0] ? events[0].text : '暂无记录'
+    });
   },
   undo() {
     const events = this.data.events.slice();
@@ -430,19 +479,35 @@ Page({
       patch.homeFouls = isHome ? Math.max(0, this.data.homeFouls - latest.delta) : this.data.homeFouls;
       patch.awayFouls = isHome ? this.data.awayFouls : Math.max(0, this.data.awayFouls - latest.delta);
     }
+    if (latest.type === 'timeout') {
+      patch.homeTimeouts = isHome ? Math.max(0, this.data.homeTimeouts - latest.delta) : this.data.homeTimeouts;
+      patch.awayTimeouts = isHome ? this.data.awayTimeouts : Math.max(0, this.data.awayTimeouts - latest.delta);
+    }
     this.setData(patch);
   },
   resetMatch() {
+    wx.showModal({
+      title: '重新比赛',
+      content: '确定要清空当前比分、犯规、暂停和记录吗？',
+      confirmText: '重开',
+      cancelText: '取消',
+      confirmColor: '#d83b01',
+      success: (res) => {
+        if (res.confirm) this.doResetMatch();
+      }
+    });
+  },
+  doResetMatch() {
     this.stopClock();
     this.stopLongPress();
     const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.setData({ homeScore: 0, awayScore: 0, homeFouls: 0, awayFouls: 0, started: false, events: [], latestEvent: '暂无记录', period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
+    this.setData({ homeScore: 0, awayScore: 0, homeFouls: 0, awayFouls: 0, homeTimeouts: 0, awayTimeouts: 0, started: false, events: [], latestEvent: '暂无记录', period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
   },
   finishMatch() {
     this.stopClock();
     this.stopLongPress();
     this.playSound('buzzer', true);
-    const result = { homeName: this.data.homeName, awayName: this.data.awayName, homeScore: this.data.homeScore, awayScore: this.data.awayScore, homeFouls: this.data.homeFouls, awayFouls: this.data.awayFouls, period: this.data.period, totalPeriods: this.data.totalPeriods, clockText: this.data.clockText, endedAt: new Date().toLocaleString() };
+    const result = { homeName: this.data.homeName, awayName: this.data.awayName, homeScore: this.data.homeScore, awayScore: this.data.awayScore, homeFouls: this.data.homeFouls, awayFouls: this.data.awayFouls, homeTimeouts: this.data.homeTimeouts, awayTimeouts: this.data.awayTimeouts, period: this.data.period, totalPeriods: this.data.totalPeriods, clockText: this.data.clockText, endedAt: new Date().toLocaleString() };
     wx.setStorageSync('latestMatchResult', result);
     callCloud('sxSaveMatchResult', { result });
     wx.showToast({ title: '赛果已生成', icon: 'success' });
