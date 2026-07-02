@@ -77,6 +77,12 @@
     <view class="mc-btn" bindtap="playMissSound">投篮未进</view>
     <view class="mc-btn" bindtap="playCheerSound">欢呼声</view>
   </view>
+  <view class="voice-panel">
+    <view class="voice-styles">
+      <view wx:for="{{voiceStyles}}" wx:key="id" class="voice-style {{voiceStyle == item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="setVoiceStyle">{{item.name}}</view>
+    </view>
+    <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
+  </view>
 
   <view wx:if="{{longPressActive}}" class="three-progress">
     <text>{{longPressText}}</text>

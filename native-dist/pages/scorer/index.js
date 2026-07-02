@@ -1,5 +1,6 @@
 const { callCloud } = require('../../utils/cloud');
 const { checkEntitlement } = require('../../utils/entitlement');
+const { voiceStyles, buildScoreVoice } = require('../../utils/scoreVoice');
 
 const audioMap = {
   buzzer: '/assets/audio/buzzer.mp3',
@@ -50,6 +51,10 @@ Page({
     clockRunning: false,
     mcUnlocked: false,
     mcStatus: '购买后解锁 MC 音效',
+    voiceStyles,
+    voiceStyle: 'standard',
+    voiceButtonText: '播报比分',
+    voiceText: '',
     longPressActive: false,
     longPressProgress: 0,
     longPressText: ''
@@ -108,6 +113,32 @@ Page({
   playTwoSound() { this.playSound('two', false); },
   playMissSound() { this.playSound('miss', false); },
   playCheerSound() { this.playSound('cheer', false); },
+  setVoiceStyle(event) {
+    const style = event.currentTarget.dataset.id || 'standard';
+    this.setData({ voiceStyle: style });
+  },
+  announceScore() {
+    if (!this.ensureMc(false)) return;
+    const text = buildScoreVoice({
+      homeName: this.data.homeName,
+      awayName: this.data.awayName,
+      homeScore: this.data.homeScore,
+      awayScore: this.data.awayScore,
+      period: this.data.period,
+      totalPeriods: this.data.totalPeriods,
+      clockText: this.data.clockText,
+      clockSeconds: this.data.clockSeconds,
+      timerMode: this.data.timerMode,
+      latestEvent: this.data.latestEvent
+    }, this.data.voiceStyle);
+    this.setData({ voiceText: text });
+    wx.showModal({
+      title: 'AI 比分播报',
+      content: text,
+      confirmText: '确定',
+      showCancel: false
+    });
+  },
   askBreakMusic(title) {
     if (!this.data.mcUnlocked) return;
     wx.showModal({
