@@ -79,8 +79,7 @@ Page({
   timer: null,
   longPressTimer: null,
   longPressSide: '',
-  sound: null,
-  bgm: null,
+  audio: null,
   data: {
     homeName: '主队',
     awayName: '客队',
@@ -115,8 +114,7 @@ Page({
     longPressText: ''
   },
   onLoad() {
-    this.sound = wx.createInnerAudioContext();
-    this.bgm = wx.createInnerAudioContext();
+    this.audio = wx.createInnerAudioContext();
   },
   async onShow() {
     const entitlement = await checkEntitlement('mc_system');
@@ -137,8 +135,7 @@ Page({
     this.stopAudio();
   },
   stopAudio() {
-    if (this.sound) this.sound.stop();
-    if (this.bgm) this.bgm.stop();
+    if (this.audio) this.audio.stop();
     if (this.data.bgmType) this.setData({ bgmType: '' });
   },
   ensureMc(silent) {
@@ -149,33 +146,35 @@ Page({
   async playSound(key, silent) {
     if (!this.ensureMc(silent)) return false;
     const src = await getPlayableAudioSrc(getAudioMap()[key]);
-    if (!src || !this.sound) {
+    if (!src || !this.audio) {
       if (!silent) wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
       return false;
     }
-    this.sound.stop();
-    this.sound.src = src;
-    this.sound.play();
+    this.audio.stop();
+    this.audio.loop = false;
+    this.audio.src = src;
+    this.audio.play();
+    if (this.data.bgmType) this.setData({ bgmType: '' });
     return true;
   },
   async playRandomBgm(type) {
     if (!this.ensureMc(false)) return;
     if (this.data.bgmType === type) {
-      if (this.bgm) this.bgm.stop();
+      if (this.audio) this.audio.stop();
       this.setData({ bgmType: '' });
       wx.showToast({ title: '音乐已暂停', icon: 'none' });
       return;
     }
     const list = getAudioMap()[type] || [];
     const src = await getPlayableAudioSrc(list);
-    if (!src || !this.bgm) {
+    if (!src || !this.audio) {
       wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
       return;
     }
-    this.bgm.stop();
-    this.bgm.loop = true;
-    this.bgm.src = src;
-    this.bgm.play();
+    this.audio.stop();
+    this.audio.loop = true;
+    this.audio.src = src;
+    this.audio.play();
     this.setData({ bgmType: type });
     wx.showToast({ title: type === 'attack' ? '进攻音乐' : type === 'defense' ? '防守音乐' : '休息音乐', icon: 'none' });
   },
@@ -224,13 +223,15 @@ Page({
     this.playVoiceFile(result.tempFileURL || result.fileID, text);
   },
   playVoiceFile(src, fallbackText) {
-    if (!src || !this.sound) {
+    if (!src || !this.audio) {
       wx.showModal({ title: 'AI 比分播报', content: fallbackText, showCancel: false });
       return;
     }
-    this.sound.stop();
-    this.sound.src = src;
-    this.sound.play();
+    this.audio.stop();
+    this.audio.loop = false;
+    this.audio.src = src;
+    this.audio.play();
+    if (this.data.bgmType) this.setData({ bgmType: '' });
     wx.showToast({ title: '正在播报', icon: 'none' });
   },
   askBreakMusic(title) {
