@@ -69,8 +69,8 @@
 
 云函数环境变量：
 
-- `TENCENTCLOUD_SECRET_ID`：腾讯云 CAM API 密钥 SecretId
-- `TENCENTCLOUD_SECRET_KEY`：腾讯云 CAM API 密钥 SecretKey
+- `SXF_TTS_SECRET_ID`：腾讯云 CAM API 密钥 SecretId
+- `SXF_TTS_SECRET_KEY`：腾讯云 CAM API 密钥 SecretKey
 - `TTS_REGION`：建议 `ap-guangzhou`
 - `TTS_VOICE_TYPE`：默认音色 ID，例如先用腾讯云控制台试听后选择
 - `TTS_VOICE_STANDARD`：可选，标准播报音色 ID

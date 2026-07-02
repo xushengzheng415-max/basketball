@@ -66,11 +66,11 @@ function buildVoiceConfig(style) {
 }
 
 function getTtsClient() {
-  const secretId = process.env.TENCENTCLOUD_SECRET_ID;
-  const secretKey = process.env.TENCENTCLOUD_SECRET_KEY;
+  const secretId = process.env.SXF_TTS_SECRET_ID;
+  const secretKey = process.env.SXF_TTS_SECRET_KEY;
   if (!secretId || !secretKey) {
-    const error = new Error('missing_tencentcloud_secret');
-    error.code = 'missing_tencentcloud_secret';
+    const error = new Error('missing_tts_secret');
+    error.code = 'missing_tts_secret';
     throw error;
   }
 
@@ -107,7 +107,7 @@ exports.main = async (event) => {
   try {
     client = getTtsClient();
   } catch (error) {
-    return { ok: false, code: error.code || 'config_error', message: '请先配置腾讯云 TTS 密钥环境变量' };
+    return { ok: false, code: error.code || 'config_error', message: '请先配置腾讯云 TTS 密钥环境变量 SXF_TTS_SECRET_ID / SXF_TTS_SECRET_KEY' };
   }
 
   const voice = buildVoiceConfig(style);
