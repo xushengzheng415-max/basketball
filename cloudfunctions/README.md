@@ -41,3 +41,18 @@
 1. 下单云函数创建 `pending` 订单。
 2. 微信支付回调校验成功后更新 `sx_orders.status = paid`。
 3. 回调或支付确认云函数写入 `sx_entitlements`。
+## 2026-07-02 新增权益校验
+
+新增云函数：
+
+- `sxCheckEntitlement`：查询当前微信用户在 `sx_entitlements` 中是否拥有指定功能权益。当前用于 `mc_system`，后续也可用于 `stats_scorer_2`。
+
+权益字段建议：
+
+- `features`: 数组，例如 `['mc_system', 'stats_scorer_2']`
+- `status`: `active` 表示有效
+- `scope`: `single_match`、`monthly`、`lifetime`
+- `remainingUses`: 单场权益剩余次数，月卡和买断可不填
+- `expiresAt`: 月卡到期时间，买断可不填
+
+请在云开发工具中上传并部署 `sxCheckEntitlement`。微信支付正式接入前，`sxCreateOrder` 仍保留原型模拟支付逻辑。

@@ -1,4 +1,5 @@
 const { callCloud } = require('../../utils/cloud');
+const { checkEntitlement } = require('../../utils/entitlement');
 
 const audioMap = {
   buzzer: '/assets/audio/buzzer.mp3',
@@ -57,10 +58,13 @@ Page({
     this.sound = wx.createInnerAudioContext();
     this.bgm = wx.createInnerAudioContext();
   },
-  onShow() {
-    const order = wx.getStorageSync('latestPaidOrder');
-    const mcUnlocked = !!(order && order.status === 'paid');
-    this.setData({ mcUnlocked, mcStatus: mcUnlocked ? 'MC 音效已解锁' : '购买后解锁 MC 音效' });
+  async onShow() {
+    const entitlement = await checkEntitlement('mc_system');
+    const mcUnlocked = !!entitlement.active;
+    this.setData({
+      mcUnlocked,
+      mcStatus: mcUnlocked ? 'MC 音效已解锁' : '购买后解锁 MC 音效'
+    });
   },
   onUnload() {
     this.stopClock();

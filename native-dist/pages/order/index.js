@@ -32,6 +32,15 @@ Page({
     if (cloudOrder && cloudOrder.orderNo) {
       order.orderNo = cloudOrder.orderNo;
       order.cloudStatus = cloudOrder.status;
+      if (cloudOrder.entitlement) {
+        wx.setStorageSync('proEntitlement', {
+          active: true,
+          feature: 'mc_system',
+          source: 'cloud_order',
+          checkedAt: Date.now(),
+          detail: cloudOrder.entitlement
+        });
+      }
     }
     wx.setStorageSync('latestPaidOrder', order);
     wx.navigateTo({ url: '/pages/pay-result/index' });

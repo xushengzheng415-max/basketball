@@ -1,3 +1,5 @@
+const { checkEntitlement } = require('../../utils/entitlement');
+
 const categories = [
   { name: '比赛音效', desc: '用于关键回合、进球和现场提示。', tracks: [
     { name: '蜂鸣器', src: '/assets/audio/buzzer.mp3' },
@@ -18,9 +20,9 @@ Page({
   onLoad() {
     this.audio = wx.createInnerAudioContext();
   },
-  onShow() {
-    const order = wx.getStorageSync('latestPaidOrder');
-    this.setData({ mcUnlocked: !!(order && order.status === 'paid') });
+  async onShow() {
+    const entitlement = await checkEntitlement('mc_system');
+    this.setData({ mcUnlocked: !!entitlement.active });
   },
   onUnload() {
     if (this.audio) this.audio.destroy();
