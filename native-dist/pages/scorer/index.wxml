@@ -1,4 +1,4 @@
-<view wx:if="{{!started}}" class="setup">
+﻿<view wx:if="{{!started}}" class="setup">
   <view class="setup-card">
     <view class="setup-head">
       <view>

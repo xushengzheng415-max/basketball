@@ -1,4 +1,4 @@
-const voiceStyles = [
+﻿const voiceStyles = [
   { id: 'standard', name: '标准播报' },
   { id: 'live', name: '现场 MC' },
   { id: 'kids', name: '儿童友好' }
@@ -55,7 +55,7 @@ function getSituationLine(data, style) {
   if (leader.diff <= 12) {
     if (style === 'kids') return `${leader.leaderName}现在领先，但${leader.trailingName}还有追分机会。`;
     if (style === 'live') return `${leader.leaderName}逐渐掌握主动，${leader.trailingName}需要打出回应。`;
-    return `${leader.leaderName}暂时掌握主动，领先${leader.diff}分。`;
+    return `${leader.leaderName}暂时掌握主动，目前领先${leader.diff}分。`;
   }
 
   if (style === 'kids') return `${leader.leaderName}领先比较多，${leader.trailingName}也要继续加油。`;
@@ -92,7 +92,7 @@ function buildStandard(data, seed) {
   const starts = ['现在为您播报场上比分。', '来看一下当前比分。', '赛小蜂为您带来即时比分。'];
   return [
     pick(starts, seed),
-    `第${data.period}节，${data.timerMode === 'down' ? '比赛还剩' : '比赛已进行'}${parseClock(data.clockText)}。`,
+    `第${data.period}节，${data.timerMode === 'down' ? '比赛还剩' : '比赛已经进行'}${parseClock(data.clockText)}。`,
     `目前${data.homeName}${data.homeScore}分，${data.awayName}${data.awayScore}分。`,
     getSituationLine(data, 'standard'),
     getLatestLine(data, 'standard')

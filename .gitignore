@@ -13,3 +13,4 @@ Thumbs.db
 dev-weapp*.log
 .swc/
 project.private.config.json
+local-assets/

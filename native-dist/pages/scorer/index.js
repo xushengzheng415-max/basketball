@@ -1,15 +1,18 @@
-const { callCloud } = require('../../utils/cloud');
+﻿const { callCloud } = require('../../utils/cloud');
 const { checkEntitlement } = require('../../utils/entitlement');
 const { voiceStyles, buildScoreVoice } = require('../../utils/scoreVoice');
 
-const audioMap = {
-  buzzer: '/assets/audio/buzzer.mp3',
-  three: '/assets/audio/three-pointer.mp3',
-  two: '/assets/audio/two-pointer.mp3',
-  miss: '/assets/audio/miss.mp3',
-  cheer: '/assets/audio/cheer.mp3',
-  attack: ['/assets/audio/attack-1.mp3'],
-  defense: ['/assets/audio/defense-1.mp3']
+const cloudAudioPrefix = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/';
+const audioFile = (name) => `${cloudAudioPrefix}${name}`;
+
+const defaultAudioMap = {
+  buzzer: audioFile('蜂鸣器.mp3'),
+  three: audioFile('三分球.mp3'),
+  two: audioFile('2分进球音效.mp3'),
+  miss: audioFile('投篮未进音效.mp3'),
+  cheer: audioFile('欢呼声.mp3'),
+  attack: [audioFile('进攻音效1.mp3')],
+  defense: [audioFile('防守音效1.mp3')]
 };
 
 function formatClock(totalSeconds) {
@@ -20,7 +23,43 @@ function formatClock(totalSeconds) {
 }
 
 function randomItem(list) {
+  if (!list || !list.length) return '';
   return list[Math.floor(Math.random() * list.length)];
+}
+
+function getAudioMap() {
+  const saved = wx.getStorageSync('sx_mc_audio_map') || {};
+  return Object.assign({}, defaultAudioMap, saved);
+}
+
+function getTempAudioSrc(src) {
+  if (!src || typeof src !== 'string') return Promise.resolve('');
+  if (!src.startsWith('cloud://')) return Promise.resolve(src);
+  if (!wx.cloud || !wx.cloud.getTempFileURL) return Promise.resolve('');
+  return new Promise((resolve) => {
+    wx.cloud.getTempFileURL({
+      fileList: [src],
+      success(res) {
+        const item = res.fileList && res.fileList[0];
+        if (item && item.status === 0 && item.tempFileURL) {
+          resolve(item.tempFileURL);
+        } else {
+          console.warn('MC 音效云文件不可用', src, item);
+          resolve('');
+        }
+      },
+      fail(err) { console.warn('MC 音效临时地址失败', src, err); resolve(''); }
+    });
+  });
+}
+
+async function getPlayableAudioSrc(srcOrList) {
+  const list = Array.isArray(srcOrList) ? srcOrList : [srcOrList];
+  for (let i = 0; i < list.length; i += 1) {
+    const src = await getTempAudioSrc(list[i]);
+    if (src) return src;
+  }
+  return '';
 }
 
 Page({
@@ -55,6 +94,7 @@ Page({
     voiceStyle: 'standard',
     voiceButtonText: '播报比分',
     voiceText: '',
+    voiceLoading: false,
     longPressActive: false,
     longPressProgress: 0,
     longPressText: ''
@@ -90,21 +130,28 @@ Page({
     if (!silent) wx.showToast({ title: '购买 Pro 后解锁 MC 系统', icon: 'none' });
     return false;
   },
-  playSound(key, silent) {
+  async playSound(key, silent) {
     if (!this.ensureMc(silent)) return false;
-    const src = audioMap[key];
-    if (!src || !this.sound) return false;
+    const src = await getPlayableAudioSrc(getAudioMap()[key]);
+    if (!src || !this.sound) {
+      if (!silent) wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
+      return false;
+    }
     this.sound.stop();
     this.sound.src = src;
     this.sound.play();
     return true;
   },
-  playRandomBgm(type) {
+  async playRandomBgm(type) {
     if (!this.ensureMc(false)) return;
-    const list = audioMap[type] || [];
-    if (!list.length || !this.bgm) return;
+    const list = getAudioMap()[type] || [];
+    const src = await getPlayableAudioSrc(randomItem(list));
+    if (!src || !this.bgm) {
+      wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
+      return;
+    }
     this.bgm.stop();
-    this.bgm.src = randomItem(list);
+    this.bgm.src = src;
     this.bgm.play();
     wx.showToast({ title: type === 'attack' ? '进攻音乐' : '防守音乐', icon: 'none' });
   },
@@ -177,13 +224,14 @@ Page({
   applyPeriodMinutes(value) {
     const minutes = Math.min(60, Math.max(1, Number(value) || 10));
     const seconds = this.data.timerMode === 'down' ? minutes * 60 : 0;
-    this.setData({ periodMinutes: minutes, clockSeconds: seconds, clockText: formatClock(seconds) });
+    this.stopClock();
+    this.setData({ periodMinutes: minutes, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
   },
   setPeriodPreset(event) { this.applyPeriodMinutes(event.currentTarget.dataset.value); },
   decreasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes - 1); },
   increasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes + 1); },
   applyTotalPeriods(value) {
-    const totalPeriods = Math.min(8, Math.max(1, Number(value) || 4));
+    const totalPeriods = Math.min(12, Math.max(1, Number(value) || 4));
     this.setData({ totalPeriods, period: Math.min(this.data.period, totalPeriods) });
   },
   setPeriodCountPreset(event) { this.applyTotalPeriods(event.currentTarget.dataset.value); },
@@ -327,3 +375,5 @@ Page({
     setTimeout(() => wx.switchTab({ url: '/pages/home/index' }), 500);
   }
 });
+
+
