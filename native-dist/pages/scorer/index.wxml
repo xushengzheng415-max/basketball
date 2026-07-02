@@ -158,6 +158,11 @@
     </view>
   </view>
 
+  <view wx:if="{{bgmType}}" class="music-bar">
+    <text>{{bgmLabel}}播放中</text>
+    <view class="music-stop" bindtap="stopBgm">停止</view>
+  </view>
+
   <view class="events">
     <text>最近记录</text>
     <text>{{latestEvent}}</text>

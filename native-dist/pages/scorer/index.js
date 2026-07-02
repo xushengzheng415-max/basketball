@@ -127,6 +127,7 @@ Page({
     voiceLoading: false,
     mcPanelOpen: false,
     bgmType: '',
+    bgmLabel: '',
     longPressActive: false,
     longPressProgress: 0,
     longPressText: ''
@@ -154,7 +155,7 @@ Page({
   },
   stopAudio() {
     if (this.audio) this.audio.stop();
-    if (this.data.bgmType) this.setData({ bgmType: '' });
+    if (this.data.bgmType) this.setData({ bgmType: '', bgmLabel: '' });
   },
   ensureMc(silent) {
     if (this.data.mcUnlocked) return true;
@@ -179,7 +180,7 @@ Page({
     if (!this.ensureMc(false)) return;
     if (this.data.bgmType === type) {
       if (this.audio) this.audio.stop();
-      this.setData({ bgmType: '' });
+      this.setData({ bgmType: '', bgmLabel: '' });
       wx.showToast({ title: '音乐已暂停', icon: 'none' });
       return;
     }
@@ -193,11 +194,19 @@ Page({
     this.audio.loop = true;
     this.audio.src = src;
     this.audio.play();
-    this.setData({ bgmType: type });
-    wx.showToast({ title: type === 'attack' ? '进攻音乐' : type === 'defense' ? '防守音乐' : '休息音乐', icon: 'none' });
+    const label = this.getBgmLabel(type);
+    this.setData({ bgmType: type, bgmLabel: label });
+    wx.showToast({ title: label, icon: 'none' });
   },
   playAttackMusic() { this.playRandomBgm('attack'); },
   playDefenseMusic() { this.playRandomBgm('defense'); },
+  stopBgm() { this.stopAudio(); wx.showToast({ title: '音乐已停止', icon: 'none' }); },
+  getBgmLabel(type) {
+    if (type === 'attack') return '进攻音乐';
+    if (type === 'defense') return '防守音乐';
+    if (type === 'rest') return '休息音乐';
+    return '音乐';
+  },
   playTwoSound() { this.playSound('two', false); },
   playMissSound() { this.playSound('miss', false); },
   playCheerSound() { this.playSound('cheer', false); },
