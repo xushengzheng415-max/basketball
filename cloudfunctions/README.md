@@ -92,3 +92,7 @@
 - `TTS_VOICE_STANDARD` 覆盖标准播报
 - `TTS_VOICE_LIVE` 覆盖现场 MC
 - `TTS_VOICE_KIDS` 覆盖儿童友好
+
+### 包体说明
+
+`sxCreateScoreVoice` 当前不依赖腾讯云 Node SDK，而是用 Node.js 内置 `https` 和 `crypto` 直接调用腾讯云 `TextToVoice` API，避免自动真机调试时云函数源码包超过 2MB。

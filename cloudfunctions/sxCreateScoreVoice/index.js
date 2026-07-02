@@ -1,10 +1,15 @@
 const cloud = require('wx-server-sdk');
-const tencentcloud = require('tencentcloud-sdk-nodejs-tts');
+const crypto = require('crypto');
+const https = require('https');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
-const TtsClient = tencentcloud.tts.v20190823.Client;
+const TTS_HOST = 'tts.tencentcloudapi.com';
+const TTS_SERVICE = 'tts';
+const TTS_VERSION = '2019-08-23';
+const TTS_ACTION = 'TextToVoice';
+const TTS_ALGORITHM = 'TC3-HMAC-SHA256';
 
 function toTime(value) {
   if (!value) return 0;
@@ -65,7 +70,15 @@ function buildVoiceConfig(style) {
   return styleMap[style] || styleMap.standard;
 }
 
-function getTtsClient() {
+function sha256(message, encoding) {
+  return crypto.createHash('sha256').update(message).digest(encoding);
+}
+
+function hmacSha256(key, message, encoding) {
+  return crypto.createHmac('sha256', key).update(message).digest(encoding);
+}
+
+function getCredential() {
   const secretId = process.env.SXF_TTS_SECRET_ID;
   const secretKey = process.env.SXF_TTS_SECRET_KEY;
   if (!secretId || !secretKey) {
@@ -73,13 +86,75 @@ function getTtsClient() {
     error.code = 'missing_tts_secret';
     throw error;
   }
+  return { secretId, secretKey };
+}
 
-  return new TtsClient({
-    credential: { secretId, secretKey },
-    region: process.env.TTS_REGION || 'ap-guangzhou',
-    profile: {
-      httpProfile: { endpoint: 'tts.tencentcloudapi.com' }
+function buildAuthorization({ secretId, secretKey, timestamp, payload }) {
+  const date = new Date(timestamp * 1000).toISOString().slice(0, 10);
+  const canonicalHeaders = `content-type:application/json; charset=utf-8\nhost:${TTS_HOST}\nx-tc-action:${TTS_ACTION.toLowerCase()}\n`;
+  const signedHeaders = 'content-type;host;x-tc-action';
+  const hashedRequestPayload = sha256(payload, 'hex');
+  const canonicalRequest = ['POST', '/', '', canonicalHeaders, signedHeaders, hashedRequestPayload].join('\n');
+  const credentialScope = `${date}/${TTS_SERVICE}/tc3_request`;
+  const hashedCanonicalRequest = sha256(canonicalRequest, 'hex');
+  const stringToSign = [TTS_ALGORITHM, timestamp, credentialScope, hashedCanonicalRequest].join('\n');
+  const secretDate = hmacSha256(`TC3${secretKey}`, date);
+  const secretService = hmacSha256(secretDate, TTS_SERVICE);
+  const secretSigning = hmacSha256(secretService, 'tc3_request');
+  const signature = hmacSha256(secretSigning, stringToSign, 'hex');
+
+  return `${TTS_ALGORITHM} Credential=${secretId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
+}
+
+function postTencentTts(params) {
+  const { secretId, secretKey } = getCredential();
+  const region = process.env.TTS_REGION || 'ap-guangzhou';
+  const timestamp = Math.floor(Date.now() / 1000);
+  const payload = JSON.stringify(params);
+  const authorization = buildAuthorization({ secretId, secretKey, timestamp, payload });
+
+  const options = {
+    method: 'POST',
+    hostname: TTS_HOST,
+    path: '/',
+    headers: {
+      Authorization: authorization,
+      'Content-Type': 'application/json; charset=utf-8',
+      Host: TTS_HOST,
+      'X-TC-Action': TTS_ACTION,
+      'X-TC-Timestamp': String(timestamp),
+      'X-TC-Version': TTS_VERSION,
+      'X-TC-Region': region
     }
+  };
+
+  return new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      const chunks = [];
+      res.on('data', (chunk) => chunks.push(chunk));
+      res.on('end', () => {
+        const body = Buffer.concat(chunks).toString('utf8');
+        let parsed;
+        try {
+          parsed = JSON.parse(body);
+        } catch (error) {
+          error.message = `TTS response parse failed: ${body.slice(0, 200)}`;
+          reject(error);
+          return;
+        }
+        if (parsed.Response && parsed.Response.Error) {
+          const error = new Error(parsed.Response.Error.Message || 'Tencent TTS failed');
+          error.code = parsed.Response.Error.Code;
+          error.requestId = parsed.Response.RequestId;
+          reject(error);
+          return;
+        }
+        resolve(parsed.Response || parsed);
+      });
+    });
+    req.on('error', reject);
+    req.write(payload);
+    req.end();
   });
 }
 
@@ -103,13 +178,6 @@ exports.main = async (event) => {
   const entitled = await hasEntitlement(openid, 'mc_system');
   if (!entitled) return { ok: false, code: 'no_entitlement', message: '购买 Pro 后解锁 AI 播报' };
 
-  let client;
-  try {
-    client = getTtsClient();
-  } catch (error) {
-    return { ok: false, code: error.code || 'config_error', message: '请先配置腾讯云 TTS 密钥环境变量 SXF_TTS_SECRET_ID / SXF_TTS_SECRET_KEY' };
-  }
-
   const voice = buildVoiceConfig(style);
   const sessionId = `sxf-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
   const params = {
@@ -124,7 +192,7 @@ exports.main = async (event) => {
   };
 
   try {
-    const response = await client.TextToVoice(params);
+    const response = await postTencentTts(params);
     const audioBase64 = response.Audio;
     if (!audioBase64) return { ok: false, code: 'empty_audio', message: '腾讯云未返回音频' };
 
@@ -143,7 +211,9 @@ exports.main = async (event) => {
       text,
       style,
       voiceType: voice.voiceType,
+      voiceName: voice.voiceName,
       fileID: upload.fileID,
+      tempFileURL,
       sessionId,
       requestId: response.RequestId || '',
       createdAt: db.serverDate()
@@ -152,9 +222,11 @@ exports.main = async (event) => {
     return {
       ok: true,
       fileID: upload.fileID,
+      tempFileURL,
       text,
       style,
       voiceType: voice.voiceType,
+      voiceName: voice.voiceName,
       sessionId,
       requestId: response.RequestId || ''
     };
