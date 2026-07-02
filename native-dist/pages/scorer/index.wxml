@@ -70,23 +70,38 @@
     </view>
   </view>
 
-  <view class="mc-panel">
-    <view class="mc-btn" bindtap="playAttackMusic">进攻音乐</view>
-    <view class="mc-btn" bindtap="playDefenseMusic">防守音乐</view>
-    <view class="mc-btn" bindtap="playTwoSound">2分有效</view>
-    <view class="mc-btn" bindtap="playMissSound">投篮未进</view>
-    <view class="mc-btn" bindtap="playCheerSound">欢呼声</view>
-  </view>
-  <view class="voice-panel">
-    <view class="voice-styles">
-      <view wx:for="{{voiceStyles}}" wx:key="id" class="voice-style {{voiceStyle == item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="setVoiceStyle">{{item.name}}</view>
-    </view>
-    <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
-  </view>
-
   <view wx:if="{{longPressActive}}" class="three-progress">
     <text>{{longPressText}}</text>
     <view class="progress-track"><view class="progress-bar" style="width: {{longPressProgress}}%;"></view></view>
+  </view>
+
+  <view wx:if="{{mcPanelOpen}}" class="mc-shade" bindtap="closeMcPanel"></view>
+  <view class="mc-dock {{mcPanelOpen ? 'open' : ''}}">
+    <view class="mc-handle" bindtap="toggleMcPanel">
+      <view class="stick-dot"></view>
+      <text>MC</text>
+    </view>
+    <view class="mc-drawer">
+      <view class="drawer-head">
+        <text>MC 音效盘</text>
+        <view class="drawer-close" bindtap="closeMcPanel">×</view>
+      </view>
+      <view class="pad-row">
+        <view class="pad-btn attack" bindtap="playAttackMusic">进攻</view>
+        <view class="pad-btn defense" bindtap="playDefenseMusic">防守</view>
+      </view>
+      <view class="pad-grid">
+        <view class="pad-btn" bindtap="playTwoSound">2分有效</view>
+        <view class="pad-btn" bindtap="playMissSound">投篮未进</view>
+        <view class="pad-btn" bindtap="playCheerSound">欢呼声</view>
+      </view>
+      <view class="voice-drawer">
+        <view class="voice-tabs">
+          <view wx:for="{{voiceStyles}}" wx:key="id" class="voice-style {{voiceStyle == item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="setVoiceStyle">{{item.name}}</view>
+        </view>
+        <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
+      </view>
+    </view>
   </view>
 
   <view class="main">

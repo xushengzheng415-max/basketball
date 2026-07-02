@@ -20,7 +20,7 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .preset.active, .mode.active { border-color: #f05a28; color: #fff; background: #f05a28; }
 .mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 5px; }
 .mode { height: 36px; font-size: 15px; }
-.scoreboard { display: grid; grid-template-rows: 36px 58px 36px 34px minmax(0, 1fr) 32px; gap: 6px; height: 100vh; box-sizing: border-box; padding: 7px 14px 8px; overflow: hidden; color: #fff; background: #101820; }
+.scoreboard { position: relative; display: grid; grid-template-rows: 36px 58px minmax(0, 1fr) 32px; gap: 8px; height: 100vh; box-sizing: border-box; padding: 7px 14px 8px; overflow: hidden; color: #fff; background: #101820; }
 .topbar { display: grid; grid-template-columns: 1fr auto 116px; align-items: center; gap: 10px; font-size: 16px; font-weight: 900; }
 .mc-status { padding: 5px 10px; border-radius: 999px; color: #f8d568; background: rgba(248,213,104,0.12); font-size: 12px; }
 .mc-status.unlocked { color: #21d19f; background: rgba(33,209,159,0.16); }
@@ -32,11 +32,23 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .clock-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 7px; }
 .clock-btn { display: flex; height: 36px; align-items: center; justify-content: center; border-radius: 7px; color: #101820; background: #fff; font-size: 15px; font-weight: 900; }
 .primary-clock { color: #101820; background: #f8d568; }
-.mc-panel { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
-.mc-btn { display: flex; height: 34px; align-items: center; justify-content: center; border-radius: 7px; color: #fff; background: #243244; font-size: 14px; font-weight: 900; }
-.voice-panel { display: grid; grid-template-columns: minmax(0, 1fr) 112px; gap: 8px; min-height: 0; }
-.voice-styles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-.voice-style, .voice-btn { display: flex; height: 32px; align-items: center; justify-content: center; border-radius: 7px; font-size: 13px; font-weight: 900; }
+.mc-shade { position: fixed; inset: 0; z-index: 18; background: rgba(0,0,0,0.18); }
+.mc-dock { position: fixed; right: -238px; top: 92px; z-index: 20; display: flex; align-items: center; gap: 10px; transition: right 0.22s ease; }
+.mc-dock.open { right: 14px; }
+.mc-handle { position: relative; display: flex; width: 66px; height: 66px; flex-shrink: 0; align-items: center; justify-content: center; border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; color: #f8d568; background: radial-gradient(circle at 34% 28%, rgba(255,255,255,0.24), rgba(52,64,84,0.78) 38%, rgba(16,24,32,0.9)); box-shadow: 0 8px 22px rgba(0,0,0,0.34), inset 0 0 0 10px rgba(255,255,255,0.04); font-size: 13px; font-weight: 900; }
+.mc-handle::before { content: ""; position: absolute; inset: 10px; border: 1px solid rgba(248,213,104,0.28); border-radius: 50%; }
+.stick-dot { position: absolute; left: 16px; top: 14px; width: 12px; height: 12px; border-radius: 50%; background: #21d19f; box-shadow: 0 0 12px rgba(33,209,159,0.75); }
+.mc-drawer { box-sizing: border-box; width: 238px; padding: 12px; border: 1px solid rgba(255,255,255,0.14); border-radius: 14px; background: rgba(16,24,32,0.94); box-shadow: 0 12px 30px rgba(0,0,0,0.35); backdrop-filter: blur(8px); }
+.drawer-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; color: #fff; font-size: 15px; font-weight: 900; }
+.drawer-close { display: flex; width: 24px; height: 24px; align-items: center; justify-content: center; border-radius: 50%; color: #d7dee8; background: rgba(255,255,255,0.1); font-size: 18px; line-height: 1; }
+.pad-row { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-bottom: 9px; }
+.pad-grid { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.pad-btn { display: flex; height: 38px; align-items: center; justify-content: center; border-radius: 999px; color: #fff; background: #243244; box-shadow: inset 0 -3px 0 rgba(0,0,0,0.18); font-size: 14px; font-weight: 900; }
+.pad-btn.attack { color: #101820; background: #f8d568; }
+.pad-btn.defense { background: #344054; }
+.voice-drawer { margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); }
+.voice-tabs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-bottom: 8px; }
+.voice-style, .voice-btn { display: flex; height: 32px; align-items: center; justify-content: center; border-radius: 999px; font-size: 12px; font-weight: 900; }
 .voice-style { color: #d7dee8; background: #1b2838; }
 .voice-style.active { color: #101820; background: #f8d568; }
 .voice-btn { color: #fff; background: #f05a28; font-size: 14px; }
@@ -61,7 +73,7 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .reset { color: #fff; background: #344054; }
 .events { display: flex; align-items: center; justify-content: space-between; min-height: 0; padding: 0 12px; border-radius: 8px; color: #d7dee8; background: rgba(255,255,255,0.08); font-size: 14px; }
 @media (max-height: 330px) {
-  .scoreboard { grid-template-rows: 32px 50px 30px 30px minmax(0, 1fr) 28px; gap: 5px; padding-top: 5px; padding-bottom: 6px; }
+  .scoreboard { grid-template-rows: 32px 50px minmax(0, 1fr) 28px; gap: 6px; padding-top: 5px; padding-bottom: 6px; }
   .clock-card { grid-template-columns: minmax(110px, 1fr) 104px 210px; padding: 5px 9px; }
   .clock { font-size: 30px; }
   .team-card { grid-template-rows: 20px minmax(0, 1fr) 29px 33px; }
@@ -69,8 +81,10 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
   .score-btn { height: 31px; font-size: 16px; }
   .foul-line { grid-template-columns: 72px 1fr; font-size: 13px; }
   .foul-btn { height: 25px; }
-  .mc-btn { height: 30px; font-size: 13px; }
-  .voice-style, .voice-btn { height: 29px; font-size: 12px; }
-  .voice-panel { grid-template-columns: minmax(0, 1fr) 98px; gap: 6px; }
-  .voice-styles { gap: 6px; }
+  .mc-dock { top: 72px; right: -220px; }
+  .mc-dock.open { right: 10px; }
+  .mc-handle { width: 58px; height: 58px; }
+  .mc-drawer { width: 220px; padding: 10px; }
+  .pad-btn { height: 34px; font-size: 13px; }
+  .voice-style, .voice-btn { height: 29px; font-size: 11px; }
 }

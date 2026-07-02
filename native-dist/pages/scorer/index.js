@@ -6,13 +6,13 @@ const cloudAudioPrefix = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g
 const audioFile = (name) => `${cloudAudioPrefix}${name}`;
 
 const defaultAudioMap = {
-  buzzer: audioFile('蜂鸣器.mp3'),
-  three: audioFile('三分球.mp3'),
-  two: audioFile('2分进球音效.mp3'),
-  miss: audioFile('投篮未进音效.mp3'),
-  cheer: audioFile('欢呼声.mp3'),
-  attack: [audioFile('进攻音效1.mp3')],
-  defense: [audioFile('防守音效1.mp3')]
+  buzzer: [audioFile('蜂鸣器.mp3'), audioFile('buzzer.mp3')],
+  three: [audioFile('三分球.mp3'), audioFile('three-pointer.mp3')],
+  two: [audioFile('2分进球音效.mp3'), audioFile('two-pointer.mp3')],
+  miss: [audioFile('投篮未进音效.mp3'), audioFile('miss.mp3')],
+  cheer: [audioFile('欢呼声.mp3'), audioFile('cheer.mp3')],
+  attack: [audioFile('进攻音效1.mp3'), audioFile('attack-1.mp3')],
+  defense: [audioFile('防守音效1.mp3'), audioFile('defense-1.mp3')]
 };
 
 function formatClock(totalSeconds) {
@@ -95,6 +95,7 @@ Page({
     voiceButtonText: '播报比分',
     voiceText: '',
     voiceLoading: false,
+    mcPanelOpen: false,
     longPressActive: false,
     longPressProgress: 0,
     longPressText: ''
@@ -160,6 +161,8 @@ Page({
   playTwoSound() { this.playSound('two', false); },
   playMissSound() { this.playSound('miss', false); },
   playCheerSound() { this.playSound('cheer', false); },
+  toggleMcPanel() { this.setData({ mcPanelOpen: !this.data.mcPanelOpen }); },
+  closeMcPanel() { this.setData({ mcPanelOpen: false }); },
   setVoiceStyle(event) {
     const style = event.currentTarget.dataset.id || 'standard';
     this.setData({ voiceStyle: style });
