@@ -76,15 +76,20 @@
   </view>
 
   <view wx:if="{{mcPanelOpen}}" class="mc-shade" bindtap="closeMcPanel"></view>
-  <view class="mc-dock {{mcPanelOpen ? 'open' : ''}}">
-    <view class="mc-handle" bindtap="toggleMcPanel">
-      <view class="stick-dot"></view>
-      <text>MC</text>
-    </view>
+  <view class="mc-sidebar {{mcPanelOpen ? 'open' : ''}}">
     <view class="mc-drawer">
       <view class="drawer-head">
-        <text>MC 音效盘</text>
+        <text>MC 控制台</text>
         <view class="drawer-close" bindtap="closeMcPanel">×</view>
+      </view>
+      <view class="quick-custom">
+        <text class="quick-title">快捷自定义</text>
+        <view class="quick-strip">
+          <view class="quick-chip active">进攻</view>
+          <view class="quick-chip active">欢呼</view>
+          <view class="quick-chip active">播报</view>
+          <view class="quick-chip">暂停乐</view>
+        </view>
       </view>
       <view class="pad-row">
         <view class="pad-btn attack" bindtap="playAttackMusic">进攻</view>
@@ -102,6 +107,15 @@
         <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
       </view>
     </view>
+    <view class="mc-edge-tab" bindtap="toggleMcPanel">
+      <view class="tab-signal"></view>
+      <text>MC</text>
+    </view>
+    <view wx:if="{{!mcPanelOpen}}" class="quick-float">
+      <view class="quick-dot attack" bindtap="playAttackMusic">攻</view>
+      <view class="quick-dot cheer" bindtap="playCheerSound">呼</view>
+      <view class="quick-dot voice" bindtap="announceScore">播</view>
+    </view>
   </view>
 
   <view class="main">
@@ -112,7 +126,7 @@
         <text>犯规 {{homeFouls}}</text>
         <view class="foul-actions">
           <view class="foul-btn" bindtap="subtractHomeFoul">-</view>
-          <view class="foul-btn add" bindtap="addHomeFoul">+犯规</view>
+          <view class="foul-btn add" bindtap="addHomeFoul">+</view>
         </view>
       </view>
       <view class="score-buttons">
@@ -135,7 +149,7 @@
         <text>犯规 {{awayFouls}}</text>
         <view class="foul-actions">
           <view class="foul-btn" bindtap="subtractAwayFoul">-</view>
-          <view class="foul-btn add" bindtap="addAwayFoul">+犯规</view>
+          <view class="foul-btn add" bindtap="addAwayFoul">+</view>
         </view>
       </view>
       <view class="score-buttons">
