@@ -119,7 +119,7 @@ exports.main = async (event) => {
   const product = event.product || {};
   const { config, missing } = requiredConfig();
   if (missing.length) {
-    return { ok: false, code: 'missing_wxpay_config', message: `缺少微信支付环境变量：${missing.join(', ')}` };
+    return { ok: false, code: 'missing_wxpay_config', message: `Missing WeChat Pay env: ${missing.join(', ')}` };
   }
 
   const orderNo = createOrderNo();
@@ -127,12 +127,12 @@ exports.main = async (event) => {
   const body = JSON.stringify({
     appid: config.appid,
     mchid: config.mchid,
-    description: product.name || '赛小蜂篮球 Pro 功能',
+    description: product.name || 'Saixiaofeng Basketball paid feature',
     out_trade_no: orderNo,
     notify_url: config.notifyUrl,
     amount: { total, currency: 'CNY' },
     payer: { openid: wxContext.OPENID },
-    attach: JSON.stringify({ productId: product.id || '', feature: 'pro' })
+    attach: JSON.stringify({ productId: product.id || '', feature: product.featureSummary || '' })
   });
 
   const now = db.serverDate();
@@ -163,6 +163,6 @@ exports.main = async (event) => {
     await db.collection('sx_orders').where({ orderNo }).update({
       data: { status: 'pay_create_failed', errorCode: error.code || '', errorMessage: error.message || '', updatedAt: db.serverDate() }
     });
-    return { ok: false, code: error.code || 'wxpay_create_failed', message: error.message || '微信支付下单失败' };
+    return { ok: false, code: error.code || 'wxpay_create_failed', message: error.message || 'WeChat Pay order failed' };
   }
 };
