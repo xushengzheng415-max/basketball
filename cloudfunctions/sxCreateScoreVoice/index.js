@@ -42,11 +42,25 @@ async function hasEntitlement(openid, feature) {
 }
 
 function buildVoiceConfig(style) {
-  const baseVoiceType = Number(process.env.TTS_VOICE_TYPE || 101001);
   const styleMap = {
-    standard: { voiceType: Number(process.env.TTS_VOICE_STANDARD || baseVoiceType), speed: 0, volume: 2 },
-    live: { voiceType: Number(process.env.TTS_VOICE_LIVE || baseVoiceType), speed: 0.8, volume: 4 },
-    kids: { voiceType: Number(process.env.TTS_VOICE_KIDS || baseVoiceType), speed: -0.4, volume: 2 }
+    standard: {
+      voiceType: Number(process.env.TTS_VOICE_STANDARD || process.env.TTS_VOICE_TYPE || 101001),
+      voiceName: '赛小瑜',
+      speed: 0,
+      volume: 2
+    },
+    live: {
+      voiceType: Number(process.env.TTS_VOICE_LIVE || 101054),
+      voiceName: '赛小智',
+      speed: 0.8,
+      volume: 4
+    },
+    kids: {
+      voiceType: Number(process.env.TTS_VOICE_KIDS || 101015),
+      voiceName: '赛小萌',
+      speed: -0.4,
+      volume: 2
+    }
   };
   return styleMap[style] || styleMap.standard;
 }
