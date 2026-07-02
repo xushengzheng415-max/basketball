@@ -83,38 +83,30 @@
         <view class="drawer-close" bindtap="closeMcPanel">×</view>
       </view>
       <view class="quick-custom">
-        <text class="quick-title">快捷自定义</text>
+        <view class="quick-head">
+          <text class="quick-title">快捷自定义</text>
+          <view class="quick-edit">编辑</view>
+        </view>
         <view class="quick-strip">
-          <view class="quick-chip active">进攻</view>
           <view class="quick-chip active">欢呼</view>
-          <view class="quick-chip active">播报</view>
-          <view class="quick-chip">暂停乐</view>
+          <view class="quick-chip empty">空</view>
+          <view class="quick-chip empty">空</view>
+          <view class="quick-chip empty">空</view>
         </view>
       </view>
       <view class="pad-row">
-        <view class="pad-btn attack" bindtap="playAttackMusic">进攻</view>
-        <view class="pad-btn defense" bindtap="playDefenseMusic">防守</view>
+        <view class="pad-btn attack {{bgmType == 'attack' ? 'playing' : ''}}" bindtap="playAttackMusic">进攻</view>
+        <view class="pad-btn defense {{bgmType == 'defense' ? 'playing' : ''}}" bindtap="playDefenseMusic">防守</view>
       </view>
       <view class="pad-grid">
         <view class="pad-btn" bindtap="playTwoSound">2分有效</view>
         <view class="pad-btn" bindtap="playMissSound">投篮未进</view>
         <view class="pad-btn" bindtap="playCheerSound">欢呼声</view>
       </view>
-      <view class="voice-drawer">
-        <view class="voice-tabs">
-          <view wx:for="{{voiceStyles}}" wx:key="id" class="voice-style {{voiceStyle == item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="setVoiceStyle">{{item.name}}</view>
-        </view>
-        <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
-      </view>
     </view>
     <view class="mc-edge-tab" bindtap="toggleMcPanel">
       <view class="tab-signal"></view>
       <text>MC</text>
-    </view>
-    <view wx:if="{{!mcPanelOpen}}" class="quick-float">
-      <view class="quick-dot attack" bindtap="playAttackMusic">攻</view>
-      <view class="quick-dot cheer" bindtap="playCheerSound">呼</view>
-      <view class="quick-dot voice" bindtap="announceScore">播</view>
     </view>
   </view>
 
@@ -140,6 +132,12 @@
       <text class="vs">VS</text>
       <view class="undo" bindtap="undo">撤销</view>
       <view class="reset" bindtap="resetMatch">重开</view>
+      <view class="voice-center">
+        <view class="voice-tabs">
+          <view wx:for="{{voiceStyles}}" wx:key="id" class="voice-style {{voiceStyle == item.id ? 'active' : ''}}" data-id="{{item.id}}" bindtap="setVoiceStyle">{{item.name}}</view>
+        </view>
+        <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
+      </view>
     </view>
 
     <view class="team-card">

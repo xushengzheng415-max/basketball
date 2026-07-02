@@ -2,17 +2,23 @@
 const { checkEntitlement } = require('../../utils/entitlement');
 const { voiceStyles, buildScoreVoice } = require('../../utils/scoreVoice');
 
-const cloudAudioPrefix = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/';
-const audioFile = (name) => `${cloudAudioPrefix}${name}`;
+const cloudAudioPrefixes = [
+  'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/',
+  'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/636c-cloudbase-d4g93f0re5f3274c1-1446269281mc-mp3/'
+];
+const audioFiles = (names) => {
+  const list = Array.isArray(names) ? names : [names];
+  return cloudAudioPrefixes.reduce((all, prefix) => all.concat(list.map((name) => `${prefix}${name}`)), []);
+};
 
 const defaultAudioMap = {
-  buzzer: [audioFile('蜂鸣器.mp3'), audioFile('buzzer.mp3')],
-  three: [audioFile('三分球.mp3'), audioFile('three-pointer.mp3')],
-  two: [audioFile('2分进球音效.mp3'), audioFile('two-pointer.mp3')],
-  miss: [audioFile('投篮未进音效.mp3'), audioFile('miss.mp3')],
-  cheer: [audioFile('欢呼声.mp3'), audioFile('cheer.mp3')],
-  attack: [audioFile('进攻音效1.mp3'), audioFile('attack-1.mp3')],
-  defense: [audioFile('防守音效1.mp3'), audioFile('defense-1.mp3')]
+  buzzer: audioFiles(['蜂鸣器.mp3', 'buzzer.mp3']),
+  three: audioFiles(['三分球.mp3', 'three-pointer.mp3']),
+  two: audioFiles(['2分进球音效.mp3', 'two-pointer.mp3']),
+  miss: audioFiles(['投篮未进音效.mp3', 'miss.mp3']),
+  cheer: audioFiles(['欢呼声.mp3', 'cheer.mp3']),
+  attack: audioFiles(['进攻音效1.mp3', '进攻音乐1.mp3', 'attack-1.mp3']),
+  defense: audioFiles(['防守音效1.mp3', '防守音乐1.mp3', 'defense-1.mp3'])
 };
 
 function formatClock(totalSeconds) {
@@ -59,6 +65,7 @@ async function getPlayableAudioSrc(srcOrList) {
     const src = await getTempAudioSrc(list[i]);
     if (src) return src;
   }
+  console.warn('MC 音效全部候选均不可用', list);
   return '';
 }
 
@@ -96,6 +103,7 @@ Page({
     voiceText: '',
     voiceLoading: false,
     mcPanelOpen: false,
+    bgmType: '',
     longPressActive: false,
     longPressProgress: 0,
     longPressText: ''
@@ -125,6 +133,7 @@ Page({
   stopAudio() {
     if (this.sound) this.sound.stop();
     if (this.bgm) this.bgm.stop();
+    if (this.data.bgmType) this.setData({ bgmType: '' });
   },
   ensureMc(silent) {
     if (this.data.mcUnlocked) return true;
@@ -145,15 +154,23 @@ Page({
   },
   async playRandomBgm(type) {
     if (!this.ensureMc(false)) return;
+    if (this.data.bgmType === type) {
+      if (this.bgm) this.bgm.stop();
+      this.setData({ bgmType: '' });
+      wx.showToast({ title: '音乐已暂停', icon: 'none' });
+      return;
+    }
     const list = getAudioMap()[type] || [];
-    const src = await getPlayableAudioSrc(randomItem(list));
+    const src = await getPlayableAudioSrc(list);
     if (!src || !this.bgm) {
       wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
       return;
     }
     this.bgm.stop();
+    this.bgm.loop = true;
     this.bgm.src = src;
     this.bgm.play();
+    this.setData({ bgmType: type });
     wx.showToast({ title: type === 'attack' ? '进攻音乐' : '防守音乐', icon: 'none' });
   },
   playAttackMusic() { this.playRandomBgm('attack'); },
@@ -378,5 +395,3 @@ Page({
     setTimeout(() => wx.switchTab({ url: '/pages/home/index' }), 500);
   }
 });
-
-
