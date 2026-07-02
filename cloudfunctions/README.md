@@ -56,3 +56,27 @@
 - `expiresAt`: 月卡到期时间，买断可不填
 
 请在云开发工具中上传并部署 `sxCheckEntitlement`。微信支付正式接入前，`sxCreateOrder` 仍保留原型模拟支付逻辑。
+
+## 2026-07-02 新增腾讯云 TTS 比分播报
+
+新增云函数：
+
+- `sxCreateScoreVoice`：校验 `mc_system` 权益后，调用腾讯云语音合成 `TextToVoice`，将播报文案生成 mp3，并上传到云存储 `score-voice/`。
+
+需要新增集合：
+
+- `sx_voice_logs`：记录 AI 播报文案、风格、音色、云存储 fileID、腾讯云 requestId。
+
+云函数环境变量：
+
+- `TENCENTCLOUD_SECRET_ID`：腾讯云 CAM API 密钥 SecretId
+- `TENCENTCLOUD_SECRET_KEY`：腾讯云 CAM API 密钥 SecretKey
+- `TTS_REGION`：建议 `ap-guangzhou`
+- `TTS_VOICE_TYPE`：默认音色 ID，例如先用腾讯云控制台试听后选择
+- `TTS_VOICE_STANDARD`：可选，标准播报音色 ID
+- `TTS_VOICE_LIVE`：可选，现场 MC 音色 ID
+- `TTS_VOICE_KIDS`：可选，儿童友好音色 ID
+- `TTS_CODEC`：默认 `mp3`
+- `TTS_SAMPLE_RATE`：默认 `16000`
+
+说明：密钥只放云函数环境变量，不能写进小程序前端代码。

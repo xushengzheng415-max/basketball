@@ -1,0 +1,9 @@
+{
+  "name": "sx-create-score-voice",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "wx-server-sdk": "latest",
+    "tencentcloud-sdk-nodejs-tts": "latest"
+  }
+}

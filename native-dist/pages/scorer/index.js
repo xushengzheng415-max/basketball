@@ -117,8 +117,8 @@ Page({
     const style = event.currentTarget.dataset.id || 'standard';
     this.setData({ voiceStyle: style });
   },
-  announceScore() {
-    if (!this.ensureMc(false)) return;
+  async announceScore() {
+    if (!this.ensureMc(false) || this.data.voiceLoading) return;
     const text = buildScoreVoice({
       homeName: this.data.homeName,
       awayName: this.data.awayName,
@@ -131,13 +131,34 @@ Page({
       timerMode: this.data.timerMode,
       latestEvent: this.data.latestEvent
     }, this.data.voiceStyle);
-    this.setData({ voiceText: text });
-    wx.showModal({
-      title: 'AI 比分播报',
-      content: text,
-      confirmText: '确定',
-      showCancel: false
-    });
+
+    this.setData({ voiceText: text, voiceLoading: true, voiceButtonText: '生成中' });
+    wx.showLoading({ title: '生成播报' });
+    const result = await callCloud('sxCreateScoreVoice', { text, style: this.data.voiceStyle });
+    wx.hideLoading();
+    this.setData({ voiceLoading: false, voiceButtonText: '播报比分' });
+
+    if (!result || !result.ok) {
+      wx.showModal({
+        title: 'AI 比分播报',
+        content: result && result.message ? `${result.message}\n\n${text}` : text,
+        confirmText: '确定',
+        showCancel: false
+      });
+      return;
+    }
+
+    this.playVoiceFile(result.tempFileURL || result.fileID, text);
+  },
+  playVoiceFile(src, fallbackText) {
+    if (!src || !this.sound) {
+      wx.showModal({ title: 'AI 比分播报', content: fallbackText, showCancel: false });
+      return;
+    }
+    this.sound.stop();
+    this.sound.src = src;
+    this.sound.play();
+    wx.showToast({ title: '正在播报', icon: 'none' });
   },
   askBreakMusic(title) {
     if (!this.data.mcUnlocked) return;
