@@ -57,13 +57,13 @@ async function findVoiceCredit(openid) {
   return (result.data || []).find((item) => (
     isFeatureEnabled(item, 'score_voice')
     && isNotExpired(item)
-    && (Number(item.voiceCredits || 0) > 0 || Number(item.shareCredits || 0) > 0)
+    && Number(item.voiceCredits || 0) > 0
   ));
 }
 
 async function consumeVoiceCredit(entitlement) {
   if (!entitlement || !entitlement._id) return null;
-  const field = Number(entitlement.voiceCredits || 0) > 0 ? 'voiceCredits' : 'shareCredits';
+  const field = 'voiceCredits';
   const current = Number(entitlement[field] || 0);
   if (current <= 0) return null;
   await db.collection('sx_entitlements').doc(entitlement._id).update({
@@ -82,19 +82,19 @@ function buildVoiceConfig(style) {
   const styleMap = {
     standard: {
       voiceType: Number(process.env.TTS_VOICE_STANDARD || process.env.TTS_VOICE_TYPE || 101001),
-      voiceName: '赛小瑜',
+      voiceName: 'Saixiaoyu',
       speed: 0,
       volume: 2
     },
     live: {
       voiceType: Number(process.env.TTS_VOICE_LIVE || 101054),
-      voiceName: '赛小智',
+      voiceName: 'Saixiaozhi',
       speed: 0.8,
       volume: 4
     },
     kids: {
       voiceType: Number(process.env.TTS_VOICE_KIDS || 101015),
-      voiceName: '赛小萌',
+      voiceName: 'Saixiaomeng',
       speed: -0.4,
       volume: 2
     }
@@ -204,12 +204,12 @@ exports.main = async (event) => {
   const text = String(event.text || '').trim();
   const style = event.style || 'standard';
 
-  if (!text) return { ok: false, code: 'empty_text', message: '播报文案不能为空' };
-  if (text.length > 500) return { ok: false, code: 'text_too_long', message: '播报文案过长' };
+  if (!text) return { ok: false, code: 'empty_text', message: '鎾姤鏂囨涓嶈兘涓虹┖' };
+  if (text.length > 500) return { ok: false, code: 'text_too_long', message: '鎾姤鏂囨杩囬暱' };
 
   const voiceEntitlement = await findVoiceCredit(openid);
   if (!voiceEntitlement) {
-    return { ok: false, code: 'no_voice_credit', message: 'AI 播报额度不足，请通过分享或购买语音播报包获取额度' };
+    return { ok: false, code: 'no_voice_credit', message: 'AI 鎾姤棰濆害涓嶈冻锛岃閫氳繃鍒嗕韩鎴栬喘涔拌闊虫挱鎶ュ寘鑾峰彇棰濆害' };
   }
 
   const voice = buildVoiceConfig(style);
@@ -228,7 +228,7 @@ exports.main = async (event) => {
   try {
     const response = await postTencentTts(params);
     const audioBase64 = response.Audio;
-    if (!audioBase64) return { ok: false, code: 'empty_audio', message: '腾讯云未返回音频' };
+    if (!audioBase64) return { ok: false, code: 'empty_audio', message: '鑵捐浜戞湭杩斿洖闊抽' };
 
     const cloudPath = `score-voice/${openid}/${sessionId}.mp3`;
     const upload = await cloud.uploadFile({
@@ -268,6 +268,6 @@ exports.main = async (event) => {
     };
   } catch (error) {
     console.error('[sxCreateScoreVoice] tts failed', error);
-    return { ok: false, code: error.code || 'tts_failed', message: error.message || '语音合成失败' };
+    return { ok: false, code: error.code || 'tts_failed', message: error.message || '璇煶鍚堟垚澶辫触' };
   }
 };

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>赛小蜂篮球 PC 后台</title>
+  <title>璧涘皬铚傜鐞?PC 鍚庡彴</title>
   <style>
     :root { --ink: #101820; --muted: #667085; --line: #e5eaf0; --bg: #f4f7fa; --orange: #f05a28; --yellow: #ffd65a; --card: #fff; --green: #0f9f6e; }
     * { box-sizing: border-box; }
@@ -61,73 +61,73 @@
 <body>
   <div class="shell">
     <aside class="side">
-      <div class="brand">赛小蜂篮球</div>
-      <div class="brand-title">运营后台</div>
+      <div class="brand">璧涘皬铚傜鐞?/div>
+      <div class="brand-title">杩愯惀鍚庡彴</div>
       <nav class="nav">
-        <button class="active" data-tab="overview">数据概览</button>
-        <button data-tab="users">用户资料</button>
-        <button data-tab="feedback">反馈信息</button>
-        <button data-tab="redeem">会员码</button>
-        <button data-tab="strategy">定价策略</button>
-        <button data-tab="audio">MC 音乐库</button>
+        <button class="active" data-tab="overview">鏁版嵁姒傝</button>
+        <button data-tab="users">鐢ㄦ埛璧勬枡</button>
+        <button data-tab="feedback">鍙嶉淇℃伅</button>
+        <button data-tab="redeem">浼氬憳鐮?/button>
+        <button data-tab="strategy">瀹氫环绛栫暐</button>
+        <button data-tab="audio">MC 闊充箰搴?/button>
       </nav>
     </aside>
     <main class="main">
       <div class="topbar">
         <div>
-          <h1>小程序数据看板</h1>
-          <div class="muted">查看用户、反馈、权益，并生成测试会员码和维护 MC 音乐库。</div>
+          <h1>灏忕▼搴忔暟鎹湅鏉?/h1>
+          <div class="muted">鏌ョ湅鐢ㄦ埛銆佸弽棣堛€佹潈鐩婏紝骞剁敓鎴愭祴璇曚細鍛樼爜鍜岀淮鎶?MC 闊充箰搴撱€?/div>
         </div>
         <div class="tools">
-          <label class="upload-label" for="dataFile">导入 JSON</label>
+          <label class="upload-label" for="dataFile">瀵煎叆 JSON</label>
           <input id="dataFile" type="file" accept="application/json" />
-          <button class="btn" id="loadSample">加载示例</button>
-          <button class="btn primary" id="loadCloud">读取云端</button>
+          <button class="btn" id="loadSample">鍔犺浇绀轰緥</button>
+          <button class="btn primary" id="loadCloud">璇诲彇浜戠</button>
         </div>
       </div>
 
       <div class="config">
-        <input id="gatewayBase" placeholder="云函数 HTTP 网关域名，例如：https://xxx.app.tcloudbase.com" />
-        <input id="adminToken" placeholder="后台口令 SXF_ADMIN_TOKEN" />
+        <input id="gatewayBase" placeholder="浜戝嚱鏁?HTTP 缃戝叧鍩熷悕锛屼緥濡傦細https://xxx.app.tcloudbase.com" />
+        <input id="adminToken" placeholder="鍚庡彴鍙ｄ护 SXF_ADMIN_TOKEN" />
       </div>
 
       <section class="stats">
-        <div class="stat"><span>用户数</span><strong id="userCount">0</strong></div>
-        <div class="stat"><span>反馈数</span><strong id="feedbackCount">0</strong></div>
-        <div class="stat"><span>订单数</span><strong id="orderCount">0</strong></div>
-        <div class="stat"><span>权益数</span><strong id="entitlementCount">0</strong></div>
-        <div class="stat"><span>会员码</span><strong id="redeemCount">0</strong></div>
-        <div class="stat"><span>赛果数</span><strong id="matchCount">0</strong></div>
+        <div class="stat"><span>鐢ㄦ埛鏁?/span><strong id="userCount">0</strong></div>
+        <div class="stat"><span>鍙嶉鏁?/span><strong id="feedbackCount">0</strong></div>
+        <div class="stat"><span>璁㈠崟鏁?/span><strong id="orderCount">0</strong></div>
+        <div class="stat"><span>鏉冪泭鏁?/span><strong id="entitlementCount">0</strong></div>
+        <div class="stat"><span>浼氬憳鐮?/span><strong id="redeemCount">0</strong></div>
+        <div class="stat"><span>璧涙灉鏁?/span><strong id="matchCount">0</strong></div>
       </section>
 
       <section class="panel" data-panel="overview">
-        <div class="panel-head"><div class="panel-title">最近反馈</div></div>
+        <div class="panel-head"><div class="panel-title">鏈€杩戝弽棣?/div></div>
         <div id="overviewContent"></div>
       </section>
 
       <section class="panel hidden" data-panel="users">
-        <div class="panel-head"><div class="panel-title">用户资料</div><input id="userSearch" placeholder="搜索昵称、openid、手机号" /></div>
+        <div class="panel-head"><div class="panel-title">鐢ㄦ埛璧勬枡</div><input id="userSearch" placeholder="鎼滅储鏄电О銆乷penid銆佹墜鏈哄彿" /></div>
         <div id="usersTable"></div>
       </section>
 
       <section class="panel hidden" data-panel="feedback">
-        <div class="panel-head"><div class="panel-title">反馈信息</div><input id="feedbackSearch" placeholder="搜索反馈内容、联系方式" /></div>
+        <div class="panel-head"><div class="panel-title">鍙嶉淇℃伅</div><input id="feedbackSearch" placeholder="鎼滅储鍙嶉鍐呭銆佽仈绯绘柟寮? /></div>
         <div id="feedbackTable"></div>
       </section>
 
       <section class="panel hidden" data-panel="redeem">
-        <div class="panel-head"><div class="panel-title">生成会员码</div></div>
+        <div class="panel-head"><div class="panel-title">鐢熸垚浼氬憳鐮?/div></div>
         <div class="panel-body">
           <div class="grid-3">
-            <div class="field"><label>生成数量</label><input id="redeemCountInput" type="number" min="1" max="100" value="5" /></div>
-            <div class="field"><label>有效天数，0 为买断</label><input id="redeemDays" type="number" min="0" value="31" /></div>
-            <div class="field"><label>会员类型</label><select id="redeemPlan"><option value="pro_share_month">分享试用 Pro 31 天</option><option value="voice_credits_50">AI 播报包 50 次</option><option value="share_points_10">分享奖励 10 积分</option><option value="pro_month">月度 Pro</option><option value="pro_single">单场 Pro</option><option value="pro_lifetime">买断 Pro</option></select></div>
+            <div class="field"><label>鐢熸垚鏁伴噺</label><input id="redeemCountInput" type="number" min="1" max="100" value="5" /></div>
+            <div class="field"><label>鏈夋晥澶╂暟锛? 涓轰拱鏂?/label><input id="redeemDays" type="number" min="0" value="1" /></div>
+            <div class="field"><label>浼氬憳绫诲瀷</label><select id="redeemPlan"><option value="mc_share_day">朋友圈兑换 MC VIP 1 天</option><option value="mc_paid_day">MC 日卡 9.9</option><option value="mc_paid_month">MC 月卡 19.9</option><option value="mc_paid_lifetime">MC 永久 99</option><option value="voice_credits_50">AI 播报包 50 次</option><option value="voice_credits_150">AI 播报包 150 次</option><option value="voice_credits_400">AI 播报包 400 次</option></select></div>
           </div>
           <div class="form-row" style="margin-top:14px;">
-            <button class="btn primary" id="createRedeem">生成会员码</button>
-            <button class="btn" id="copyRedeem">复制结果</button>
+            <button class="btn primary" id="createRedeem">鐢熸垚浼氬憳鐮?/button>
+            <button class="btn" id="copyRedeem">澶嶅埗缁撴灉</button>
           </div>
-          <div class="result-box" id="redeemResult">生成结果会显示在这里。</div>
+          <div class="result-box" id="redeemResult">鐢熸垚缁撴灉浼氭樉绀哄湪杩欓噷銆?/div>
         </div>
       </section>
 
@@ -137,51 +137,51 @@
           <div class="strategy-grid">
             <div class="strategy-card">
               <strong>免费版</strong>
-              <p>基础计分、犯规、暂停、赛果保存继续免费，先让用户自然完成第一场比赛。</p>
+              <p>基础计分继续免费，先让用户自然完成第一场比赛。</p>
             </div>
             <div class="strategy-card">
-              <strong>分享换 Pro 试用</strong>
-              <p>用户转发小程序或朋友圈后，发放 31 天 Pro 试用。后台可用 pro_share_month 会员码给朋友测试。</p>
+              <strong>分享换 1 天 MC VIP</strong>
+              <p>用户发朋友圈或转发小程序后，发放当天 MC 音效权限。后台用 mc_share_day 会员码给朋友测试；不愿分享的用户走隐藏付费入口。</p>
             </div>
             <div class="strategy-card">
-              <strong>AI 语音单独计量</strong>
-              <p>每个账号默认 10 次 AI 播报体验额度。额度用完后，可购买播报包，或分享换积分继续消耗。</p>
+              <strong>AI 语音播报包</strong>
+              <p>AI 比分播报包单独售卖，不再使用积分制。后台可生成 50/150/400 次播报包兑换码。</p>
             </div>
           </div>
-          <div class="result-box">首版建议：Pro 解锁 MC 系统和球员数据统计；AI 比分播报不包含在无限 Pro 内，按“次数/积分”消耗，避免 TTS 流量成本不可控。</div>
+          <div class="result-box">当前只展示 MC 分享解锁和 AI 播报包。球员数据 2.0 暂未上线先隐藏；单场、月度、买断 Pro 暂不展示。</div>
         </div>
       </section>
 
       <section class="panel hidden" data-panel="audio">
         <div class="panel-head">
-          <div class="panel-title">MC 音乐库</div>
+          <div class="panel-title">MC 闊充箰搴?/div>
           <div class="tools">
-            <button class="btn" id="initAudio">初始化默认音效</button>
-            <button class="btn" id="refreshAudio">刷新列表</button>
+            <button class="btn" id="initAudio">鍒濆鍖栭粯璁ら煶鏁?/button>
+            <button class="btn" id="refreshAudio">鍒锋柊鍒楄〃</button>
           </div>
         </div>
         <div class="panel-body">
           <div class="grid-3">
             <div class="field">
-              <label>音频类型</label>
+              <label>闊抽绫诲瀷</label>
               <select id="audioChannel">
-                <option value="cheer">欢呼声</option>
-                <option value="attack">进攻音乐</option>
-                <option value="defense">防守音乐</option>
-                <option value="rest">暂停休息音乐</option>
-                <option value="two">2分有效</option>
-                <option value="miss">投篮未进</option>
-                <option value="three">三分球</option>
-                <option value="buzzer">蜂鸣器</option>
+                <option value="cheer">娆㈠懠澹?/option>
+                <option value="attack">杩涙敾闊充箰</option>
+                <option value="defense">闃插畧闊充箰</option>
+                <option value="rest">鏆傚仠浼戞伅闊充箰</option>
+                <option value="two">2鍒嗘湁鏁?/option>
+                <option value="miss">鎶曠鏈繘</option>
+                <option value="three">涓夊垎鐞?/option>
+                <option value="buzzer">铚傞福鍣?/option>
               </select>
             </div>
-            <div class="field"><label>音频名称</label><input id="audioName" placeholder="例如：Remember the Name" /></div>
-            <div class="field"><label>云存储 fileID</label><input id="audioFileID" placeholder="cloud://.../mc-mp3/..." /></div>
+            <div class="field"><label>闊抽鍚嶇О</label><input id="audioName" placeholder="渚嬪锛歊emember the Name" /></div>
+            <div class="field"><label>浜戝瓨鍌?fileID</label><input id="audioFileID" placeholder="cloud://.../mc-mp3/..." /></div>
           </div>
           <div class="form-row" style="margin-top:14px;">
-            <button class="btn green" id="saveAudio">保存到音乐库</button>
+            <button class="btn green" id="saveAudio">淇濆瓨鍒伴煶涔愬簱</button>
           </div>
-          <div class="result-box" id="audioResult">音乐库结果会显示在这里。</div>
+          <div class="result-box" id="audioResult">闊充箰搴撶粨鏋滀細鏄剧ず鍦ㄨ繖閲屻€?/div>
           <div class="audio-list" id="audioList"></div>
         </div>
       </section>
@@ -202,7 +202,7 @@
     }
     function functionUrl(name) {
       const base = getGatewayBase();
-      if (!base) throw new Error('请先填写云函数 HTTP 网关域名');
+      if (!base) throw new Error('璇峰厛濉啓浜戝嚱鏁?HTTP 缃戝叧鍩熷悕');
       return `${base}/${name}`;
     }
     async function postFunction(name, payload = {}) {
@@ -226,27 +226,27 @@
       const keyword = state.userKeyword.trim().toLowerCase();
       const users = state.users.filter((user) => [user.nickName, authId(user), phone(user)].join(' ').toLowerCase().includes(keyword));
       $('usersTable').innerHTML = users.length ? `
-        <table><thead><tr><th>昵称</th><th>授权标识</th><th>手机号</th><th>来源</th><th>更新时间</th></tr></thead>
-        <tbody>${users.map((user) => `<tr><td><strong>${escapeHtml(user.nickName || '未填写')}</strong></td><td class="mono">${escapeHtml(authId(user) || '-')}</td><td>${escapeHtml(phone(user) || '-')}</td><td><span class="tag">${escapeHtml(user.source || user.mode || '-')}</span></td><td>${escapeHtml(user.updatedAt || user.createdAt || '-')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">暂无用户资料</div>';
+        <table><thead><tr><th>鏄电О</th><th>鎺堟潈鏍囪瘑</th><th>鎵嬫満鍙?/th><th>鏉ユ簮</th><th>鏇存柊鏃堕棿</th></tr></thead>
+        <tbody>${users.map((user) => `<tr><td><strong>${escapeHtml(user.nickName || '鏈～鍐?)}</strong></td><td class="mono">${escapeHtml(authId(user) || '-')}</td><td>${escapeHtml(phone(user) || '-')}</td><td><span class="tag">${escapeHtml(user.source || user.mode || '-')}</span></td><td>${escapeHtml(user.updatedAt || user.createdAt || '-')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">鏆傛棤鐢ㄦ埛璧勬枡</div>';
     }
     function renderFeedback(targetId = 'feedbackTable', limit = null) {
       const keyword = state.feedbackKeyword.trim().toLowerCase();
       let list = state.feedback.filter((item) => [item.type, item.content, item.contact, item.user?.nickName, authId(item.user), phone(item.user)].join(' ').toLowerCase().includes(keyword));
       if (limit) list = list.slice(0, limit);
       $(targetId).innerHTML = list.length ? `
-        <table><thead><tr><th>类型</th><th>反馈内容</th><th>用户资料</th><th>联系方式</th><th>提交时间</th></tr></thead>
-        <tbody>${list.map((item) => `<tr><td><span class="tag">${escapeHtml(item.type || '未分类')}</span></td><td>${escapeHtml(item.content || '')}</td><td><strong>${escapeHtml(item.user?.nickName || item.nickName || '未知用户')}</strong><div class="muted mono">${escapeHtml(authId(item.user || item) || '-')}</div></td><td>${escapeHtml(item.contact || '-')}</td><td>${escapeHtml(item.createdAt || '-')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">暂无反馈信息</div>';
+        <table><thead><tr><th>绫诲瀷</th><th>鍙嶉鍐呭</th><th>鐢ㄦ埛璧勬枡</th><th>鑱旂郴鏂瑰紡</th><th>鎻愪氦鏃堕棿</th></tr></thead>
+        <tbody>${list.map((item) => `<tr><td><span class="tag">${escapeHtml(item.type || '鏈垎绫?)}</span></td><td>${escapeHtml(item.content || '')}</td><td><strong>${escapeHtml(item.user?.nickName || item.nickName || '鏈煡鐢ㄦ埛')}</strong><div class="muted mono">${escapeHtml(authId(item.user || item) || '-')}</div></td><td>${escapeHtml(item.contact || '-')}</td><td>${escapeHtml(item.createdAt || '-')}</td></tr>`).join('')}</tbody></table>` : '<div class="empty">鏆傛棤鍙嶉淇℃伅</div>';
     }
     function renderAudioList(items = state.audioItems) {
       state.audioItems = Array.isArray(items) ? items : [];
       $('audioList').innerHTML = state.audioItems.length ? state.audioItems.map((item) => `
         <div class="audio-item">
           <span class="tag">${escapeHtml(item.channel || '-')}</span>
-          <strong>${escapeHtml(item.name || '未命名音效')}</strong>
+          <strong>${escapeHtml(item.name || '鏈懡鍚嶉煶鏁?)}</strong>
           <span class="file-id mono">${escapeHtml(item.fileID || item.fileId || '-')}</span>
           <span>${escapeHtml(item.status || 'active')}</span>
         </div>
-      `).join('') : '<div class="empty">音乐库暂无数据。可以先点“初始化默认音效”。</div>';
+      `).join('') : '<div class="empty">闊充箰搴撴殏鏃犳暟鎹€傚彲浠ュ厛鐐光€滃垵濮嬪寲榛樿闊虫晥鈥濄€?/div>';
     }
     function setData(data) {
       state.users = Array.isArray(data.users) ? data.users : [];
@@ -284,7 +284,7 @@
       try {
         const result = await postFunction('sxCreateRedeemCode', {
           count: Number($('redeemCountInput').value || 1),
-          durationDays: Number($('redeemDays').value || 31),
+          durationDays: Number($("redeemDays").value || 1),
           plan: $('redeemPlan').value
         });
         setResult('redeemResult', result.ok ? result.codes.map((item) => item.code).join('\n') : result);

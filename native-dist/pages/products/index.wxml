@@ -1,35 +1,51 @@
 <view class="products">
   <view class="hero">
-    <text class="kicker">赛小蜂篮球 Pro</text>
-    <text class="title">先免费打起来，再解锁现场能力</text>
-    <text class="desc">基础计分永久免费。Pro 用来解锁 MC 音效和球员数据，AI 比分播报因为有语音合成成本，单独按额度使用。</text>
+    <text class="kicker">赛小蜂篮球</text>
+    <text class="title">基础计分先用起来，现场播报单独购买</text>
+    <text class="desc">MC 音效控制优先通过分享兑换当天 VIP，不在主页面强调收费。AI 比分播报包单独计费。</text>
   </view>
 
-  <text class="section-title">Pro 功能</text>
+  <text class="section-title">分享可解锁</text>
   <view wx:for="{{proFeatures}}" wx:key="id" class="feature-card">
     <view class="feature-head">
       <view>
         <text class="feature-tag">{{item.tag}}</text>
         <text class="feature-name">{{item.name}}</text>
       </view>
-      <view class="preview" data-id="{{item.id}}" catchtap="previewFeature">预览</view>
+      <view class="preview" catchtap="previewFeature">预览</view>
     </view>
     <text class="feature-desc">{{item.desc}}</text>
     <view class="point" wx:for="{{item.points}}" wx:for-item="point" wx:key="*this">{{point}}</view>
   </view>
 
-  <text class="section-title">Pro 获取方式</text>
-  <view wx:for="{{proPlans}}" wx:key="id" class="plan-card" data-id="{{item.id}}" bindtap="selectProPlan">
+  <view wx:for="{{sharePlans}}" wx:key="id" class="plan-card" bindtap="selectSharePlan">
     <view class="plan-main">
       <view class="plan-top">
         <text class="plan-name">{{item.name}}</text>
-        <text wx:if="{{item.badge || item.promo}}" class="promo">{{item.badge || item.promo}}</text>
+        <text class="promo">{{item.badge}}</text>
       </view>
       <text class="plan-desc">{{item.desc}}</text>
     </view>
     <view class="price-block">
-      <text class="price">{{item.price == '0' ? '免费' : '¥' + item.price}}</text>
+      <text class="price">{{item.price}}</text>
       <text class="buy">{{item.action}}</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showMcPay}}" class="hidden-pay">
+    <view class="hidden-head">
+      <view>
+        <text class="hidden-kicker">不方便分享？</text>
+        <text class="hidden-title">直接解锁 MC 音效</text>
+      </view>
+      <view class="hidden-close" bindtap="closeMcPay">收起</view>
+    </view>
+    <view wx:for="{{mcPaidPlans}}" wx:key="id" class="hidden-plan" data-id="{{item.id}}" bindtap="selectMcPaidPlan">
+      <view>
+        <view class="hidden-line"><text class="hidden-name">{{item.name}}</text><text class="hidden-badge">{{item.badge}}</text></view>
+        <text class="hidden-desc">{{item.desc}}</text>
+      </view>
+      <text class="hidden-price">{{item.priceText}}</text>
     </view>
   </view>
 
@@ -37,14 +53,14 @@
   <view class="voice-grid">
     <view wx:for="{{voicePlans}}" wx:key="id" class="voice-card" data-id="{{item.id}}" bindtap="selectVoicePlan">
       <text class="voice-name">{{item.name}}</text>
-      <text class="voice-price">{{item.price}}</text>
+      <text class="voice-price">{{item.priceText}}</text>
       <text class="voice-desc">{{item.desc}}</text>
       <text class="voice-action">{{item.action}}</text>
     </view>
   </view>
 
   <view class="notice">
-    <text>首版运营规则</text>
-    <text>分享可换 Pro 试用或积分；AI 播报按次数/积分消耗。这样用户能先体验，平台也能控制语音成本。</text>
+    <text>当前策略</text>
+    <text>MC 音效主推分享换 1 天 VIP；用户不想分享时，可在弹窗里直接付费解锁。球员数据 2.0 上线前不展示。</text>
   </view>
 </view>

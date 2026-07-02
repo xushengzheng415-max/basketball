@@ -1,4 +1,4 @@
-﻿const { callCloud } = require('../../utils/cloud');
+const { callCloud } = require('../../utils/cloud');
 const { checkEntitlement } = require('../../utils/entitlement');
 const { voiceStyles, buildScoreVoice } = require('../../utils/scoreVoice');
 
@@ -133,7 +133,7 @@ Page({
     clockText: '10:00',
     clockRunning: false,
     mcUnlocked: false,
-    mcStatus: '购买后解锁 MC 音效',
+    mcStatus: '分享后解锁 MC 音效',
     voiceStyles,
     voiceStyle: 'standard',
     voiceButtonText: '播报比分',
@@ -155,7 +155,7 @@ Page({
     const mcUnlocked = !!entitlement.active;
     this.setData({
       mcUnlocked,
-      mcStatus: mcUnlocked ? 'MC 音效已解锁' : '购买后解锁 MC 音效'
+      mcStatus: mcUnlocked ? 'MC 音效已解锁' : '分享后解锁 MC 音效'
     });
     this.loadAudioLibrary();
   },
@@ -175,7 +175,7 @@ Page({
   },
   ensureMc(silent) {
     if (this.data.mcUnlocked) return true;
-    if (!silent) wx.showToast({ title: '购买 Pro 后解锁 MC 系统', icon: 'none' });
+    if (!silent) wx.showToast({ title: '分享朋友圈可解锁当天 MC 系统', icon: 'none' });
     return false;
   },
   async loadAudioLibrary() {

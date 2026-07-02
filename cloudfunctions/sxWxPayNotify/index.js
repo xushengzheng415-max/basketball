@@ -4,6 +4,16 @@ const crypto = require('crypto');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
+const DAY = 24 * 60 * 60 * 1000;
+const VOICE_CREDITS = {
+  voice_light: 50,
+  voice_standard: 150,
+  voice_team: 400,
+  voice_credits_50: 50,
+  voice_credits_150: 150,
+  voice_credits_400: 400
+};
+
 function getBody(event) {
   if (!event) return {};
   if (typeof event.body === 'string') {
@@ -35,7 +45,7 @@ function buildEntitlement(product, orderNo, paidAt) {
     orderNo,
     productId,
     productName: product.name || '',
-    features: ['mc_system', 'stats_scorer_2'],
+    features: [],
     status: 'active',
     source: 'wechat_pay',
     startedAt: paidAt,
@@ -43,17 +53,35 @@ function buildEntitlement(product, orderNo, paidAt) {
     updatedAt: paidAt
   };
 
-  if (productId === 'single') {
+  if (productId === 'mc_day') {
+    data.features = ['mc_system'];
+    data.scope = 'day';
+    data.expiresAt = new Date(Date.now() + DAY);
+  } else if (productId === 'mc_month') {
+    data.features = ['mc_system'];
+    data.scope = 'monthly';
+    data.expiresAt = new Date(Date.now() + 30 * DAY);
+  } else if (productId === 'mc_lifetime') {
+    data.features = ['mc_system'];
+    data.scope = 'lifetime';
+  } else if (VOICE_CREDITS[productId]) {
+    data.features = ['score_voice'];
+    data.scope = 'voice_pack';
+    data.voiceCredits = VOICE_CREDITS[productId];
+  } else if (productId === 'single') {
+    data.features = ['mc_system'];
     data.scope = 'single_match';
     data.usageLimit = 1;
     data.remainingUses = 1;
-  }
-  if (productId === 'monthly') {
+  } else if (productId === 'monthly') {
+    data.features = ['mc_system'];
     data.scope = 'monthly';
-    data.expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-  }
-  if (productId === 'lifetime') {
+    data.expiresAt = new Date(Date.now() + 30 * DAY);
+  } else if (productId === 'lifetime') {
+    data.features = ['mc_system'];
     data.scope = 'lifetime';
+  } else {
+    data.features = Array.isArray(product.features) && product.features.length ? product.features : ['mc_system'];
   }
   return data;
 }
@@ -81,16 +109,14 @@ exports.main = async (event) => {
     const orders = await db.collection('sx_orders').where({ orderNo }).limit(1).get();
     if (!orders.data || !orders.data.length) return { code: 'FAIL', message: 'order not found' };
     const order = orders.data[0];
-
     const paid = transaction.trade_state === 'SUCCESS';
+
     await db.collection('sx_orders').doc(order._id).update({
       data: {
-        status: paid ? 'paid' : 'pay_not_success',
+        status: paid ? 'paid' : (transaction.trade_state || 'unknown'),
         transactionId: transaction.transaction_id || '',
-        tradeState: transaction.trade_state || '',
-        payerOpenid: transaction.payer && transaction.payer.openid ? transaction.payer.openid : '',
         paidAt: paid ? db.serverDate() : null,
-        wxpayNotify: transaction,
+        wxpayRaw: transaction,
         updatedAt: db.serverDate()
       }
     });
