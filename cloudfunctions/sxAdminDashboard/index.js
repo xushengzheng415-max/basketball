@@ -3,6 +3,22 @@ const cloud = require('wx-server-sdk');
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Content-Type': 'application/json'
+};
+
+function isHttpEvent(event) {
+  return !!(event && (event.httpMethod || event.headers || event.requestContext || typeof event.body === 'string'));
+}
+
+function httpResponse(event, data, statusCode = 200) {
+  if (!isHttpEvent(event)) return data;
+  return { statusCode, headers: CORS_HEADERS, body: JSON.stringify(data) };
+}
+
 async function getList(collection, limit = 50) {
   try {
     const res = await db.collection(collection).orderBy('createdAt', 'desc').limit(limit).get();
@@ -13,7 +29,11 @@ async function getList(collection, limit = 50) {
   }
 }
 
-exports.main = async () => {
+exports.main = async (event) => {
+  if (event && event.httpMethod === 'OPTIONS') {
+    return httpResponse(event, { ok: true });
+  }
+
   const [users, feedback, orders, matchResults, entitlements, redeemCodes] = await Promise.all([
     getList('sx_users'),
     getList('sx_feedback'),
@@ -23,7 +43,7 @@ exports.main = async () => {
     getList('sx_redeem_codes')
   ]);
 
-  return {
+  return httpResponse(event, {
     ok: true,
     users,
     feedback,
@@ -39,5 +59,5 @@ exports.main = async () => {
       entitlements: entitlements.length,
       redeemCodes: redeemCodes.length
     }
-  };
+  });
 };

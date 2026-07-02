@@ -35,3 +35,15 @@ npm run admin:serve
 - `sxSaveAudioLibrary`
 
 如果暂时不配置口令，函数会允许调用，但只适合开发测试。
+
+## 绑定 54football.top
+
+推荐把 `54football.top` 或 `admin.54football.top` 指向云开发静态网站托管：
+
+1. 在云开发控制台打开“静态网站托管”。
+2. 上传 `admin/` 目录里的文件。
+3. 在“自定义域名”里绑定 `54football.top` 或 `admin.54football.top`。
+4. 按控制台提示到域名 DNS 添加 CNAME 解析。
+5. 等 HTTPS 证书签发完成后，用 `https://54football.top` 访问后台。
+
+更推荐使用 `admin.54football.top` 做后台域名，主域名 `54football.top` 后面还能留给官网或下载介绍页。

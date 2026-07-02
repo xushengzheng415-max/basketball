@@ -4,6 +4,21 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 
 const CHANNELS = ['buzzer', 'three', 'two', 'miss', 'cheer', 'attack', 'defense', 'rest'];
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+  'Content-Type': 'application/json'
+};
+
+function isHttpEvent(event) {
+  return !!(event && (event.httpMethod || event.headers || event.requestContext || typeof event.body === 'string'));
+}
+
+function httpResponse(event, data, statusCode = 200) {
+  if (!isHttpEvent(event)) return data;
+  return { statusCode, headers: CORS_HEADERS, body: JSON.stringify(data) };
+}
 
 function parsePayload(event) {
   if (!event) return {};
@@ -30,17 +45,21 @@ function normalizeItem(item) {
 }
 
 exports.main = async (event) => {
+  if (event && event.httpMethod === 'OPTIONS') {
+    return httpResponse(event, { ok: true });
+  }
+
   const payload = parsePayload(event);
   const adminToken = process.env.SXF_ADMIN_TOKEN || '';
 
   if (adminToken && payload.adminToken !== adminToken) {
-    return { ok: false, message: '后台口令不正确' };
+    return httpResponse(event, { ok: false, message: '后台口令不正确' }, 403);
   }
 
   const rawItems = Array.isArray(payload.items) ? payload.items : [payload];
   const items = rawItems.map(normalizeItem).filter(Boolean);
   if (!items.length) {
-    return { ok: false, message: '请填写正确的音频类型和 cloud:// 文件 ID' };
+    return httpResponse(event, { ok: false, message: '请填写正确的音频类型和 cloud:// 文件 ID' }, 400);
   }
 
   const wxContext = cloud.getWXContext();
@@ -58,9 +77,9 @@ exports.main = async (event) => {
     saved.push(Object.assign({ _id: created._id }, item));
   }
 
-  return {
+  return httpResponse(event, {
     ok: true,
     warning: adminToken ? '' : '当前未配置 SXF_ADMIN_TOKEN，建议上线前设置后台口令。',
     saved
-  };
+  });
 };
