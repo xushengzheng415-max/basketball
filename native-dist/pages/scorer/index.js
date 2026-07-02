@@ -65,10 +65,19 @@ function getTempAudioSrc(src) {
   });
 }
 
+async function getTempAudioSrcByCloudFunction(src) {
+  if (!src || !src.startsWith('cloud://')) return '';
+  const result = await callCloud('sxGetAudioUrl', { fileID: src });
+  if (result && result.ok && result.tempFileURL) return result.tempFileURL;
+  console.warn('MC 音效云函数临时地址失败', src, result);
+  return '';
+}
+
 async function getPlayableAudioSrc(srcOrList) {
   const list = Array.isArray(srcOrList) ? srcOrList : [srcOrList];
   for (let i = 0; i < list.length; i += 1) {
-    const src = await getTempAudioSrc(list[i]);
+    let src = await getTempAudioSrc(list[i]);
+    if (!src) src = await getTempAudioSrcByCloudFunction(list[i]);
     if (src) return src;
   }
   console.warn('MC 音效全部候选均不可用', list);
@@ -85,6 +94,8 @@ Page({
     awayName: '客队',
     homeScore: 0,
     awayScore: 0,
+    homeScorePulse: false,
+    awayScorePulse: false,
     homeFouls: 0,
     awayFouls: 0,
     started: false,
@@ -333,6 +344,7 @@ Page({
     this.longPressSide = side;
     const team = side === 'home' ? this.data.homeName : this.data.awayName;
     this.setData({ longPressActive: true, longPressProgress: 0, longPressText: `${team} 三分确认中` });
+    this.playSound('three', true);
     let progress = 0;
     this.longPressTimer = setInterval(() => {
       progress += 10;
@@ -343,7 +355,6 @@ Page({
         const confirmedSide = this.longPressSide;
         this.longPressSide = '';
         this.setData({ longPressActive: false, longPressProgress: 0, longPressText: '' });
-        this.playSound('three', true);
         this.addScore(confirmedSide, 3);
       }
     }, 80);
@@ -357,7 +368,16 @@ Page({
     const team = isHome ? this.data.homeName : this.data.awayName;
     const event = { type: 'score', side, points, text: `${team} +${points}` };
     const nextEvents = [event].concat(this.data.events);
-    this.setData({ homeScore: isHome ? this.data.homeScore + points : this.data.homeScore, awayScore: isHome ? this.data.awayScore : this.data.awayScore + points, events: nextEvents, latestEvent: event.text });
+    const pulseKey = isHome ? 'homeScorePulse' : 'awayScorePulse';
+    this.setData({
+      homeScore: isHome ? this.data.homeScore + points : this.data.homeScore,
+      awayScore: isHome ? this.data.awayScore : this.data.awayScore + points,
+      events: nextEvents,
+      latestEvent: event.text,
+      [pulseKey]: false
+    });
+    setTimeout(() => this.setData({ [pulseKey]: true }), 20);
+    setTimeout(() => this.setData({ [pulseKey]: false }), 520);
   },
   addFoul(side, delta) {
     const isHome = side === 'home';

@@ -113,7 +113,7 @@
   <view class="main">
     <view class="team-card">
       <text class="team-name">{{homeName}}</text>
-      <text class="team-score">{{homeScore}}</text>
+      <text class="team-score {{homeScorePulse ? 'pulse' : ''}}">{{homeScore}}</text>
       <view class="foul-line">
         <text>犯规 {{homeFouls}}</text>
         <view class="foul-actions">
@@ -142,7 +142,7 @@
 
     <view class="team-card">
       <text class="team-name">{{awayName}}</text>
-      <text class="team-score">{{awayScore}}</text>
+      <text class="team-score {{awayScorePulse ? 'pulse' : ''}}">{{awayScore}}</text>
       <view class="foul-line">
         <text>犯规 {{awayFouls}}</text>
         <view class="foul-actions">

@@ -66,7 +66,13 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
 .main { display: grid; grid-template-columns: minmax(0, 1fr) 92px minmax(0, 1fr); gap: 10px; min-height: 0; }
 .team-card { display: grid; grid-template-rows: 22px minmax(0, 1fr) 32px 38px; align-items: center; min-height: 0; box-sizing: border-box; padding: 8px 10px; border-radius: 10px; color: #101820; background: #fff; }
 .team-name { max-width: 100%; overflow: hidden; font-size: 17px; font-weight: 900; line-height: 1; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
-.team-score { align-self: center; color: #f05a28; font-family: DIN Alternate, Arial, sans-serif; font-size: 52px; font-weight: 900; line-height: 0.92; text-align: center; }
+.team-score { align-self: center; color: #f05a28; font-family: DIN Alternate, Arial, sans-serif; font-size: 68px; font-weight: 900; line-height: 0.9; text-align: center; text-shadow: 0 8px 18px rgba(240,90,40,0.18); transform-origin: center; }
+.team-score.pulse { animation: score-pop 0.5s ease-out both; }
+@keyframes score-pop {
+  0% { transform: scale(0.92); color: #f8d568; text-shadow: 0 0 0 rgba(248,213,104,0); }
+  42% { transform: scale(1.22); color: #ff3d00; text-shadow: 0 0 22px rgba(248,213,104,0.78), 0 0 42px rgba(240,90,40,0.48); }
+  100% { transform: scale(1); color: #f05a28; text-shadow: 0 8px 18px rgba(240,90,40,0.18); }
+}
 .foul-line { display: grid; grid-template-columns: minmax(58px, 1fr) 76px; gap: 8px; align-items: center; color: #18212f; font-size: 14px; font-weight: 900; }
 .foul-actions { display: grid; grid-template-columns: 34px 34px; gap: 8px; justify-content: end; }
 .foul-btn { height: 28px; font-size: 15px; }
@@ -85,7 +91,7 @@ page { height: 100vh; overflow: hidden; background: #f4f7fa; }
   .clock-card { grid-template-columns: minmax(110px, 1fr) 104px 210px; padding: 5px 9px; }
   .clock { font-size: 30px; }
   .team-card { grid-template-rows: 20px minmax(0, 1fr) 29px 33px; }
-  .team-score { font-size: 44px; }
+  .team-score { font-size: 58px; }
   .score-btn { height: 31px; font-size: 16px; }
   .foul-line { grid-template-columns: minmax(54px, 1fr) 70px; font-size: 13px; }
   .foul-btn { height: 25px; }
