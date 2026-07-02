@@ -6,19 +6,25 @@ const cloudAudioPrefixes = [
   'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/',
   'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/636c-cloudbase-d4g93f0re5f3274c1-1446269281mc-mp3/'
 ];
-const audioFiles = (names) => {
+const audioFiles = (names, folders) => {
   const list = Array.isArray(names) ? names : [names];
-  return cloudAudioPrefixes.reduce((all, prefix) => all.concat(list.map((name) => `${prefix}${name}`)), []);
+  const dirs = folders || [''];
+  return cloudAudioPrefixes.reduce((all, prefix) => (
+    all.concat(dirs.reduce((items, dir) => (
+      items.concat(list.map((name) => `${prefix}${dir}${name}`))
+    ), []))
+  ), []);
 };
 
 const defaultAudioMap = {
-  buzzer: audioFiles(['蜂鸣器.mp3', 'buzzer.mp3']),
-  three: audioFiles(['三分球.mp3', 'three-pointer.mp3']),
-  two: audioFiles(['2分进球音效.mp3', 'two-pointer.mp3']),
-  miss: audioFiles(['投篮未进音效.mp3', 'miss.mp3']),
-  cheer: audioFiles(['欢呼声.mp3', 'cheer.mp3']),
-  attack: audioFiles(['进攻音效1.mp3', '进攻音乐1.mp3', 'attack-1.mp3']),
-  defense: audioFiles(['防守音效1.mp3', '防守音乐1.mp3', 'defense-1.mp3'])
+  buzzer: audioFiles(['蜂鸣器.mp3', 'buzzer.mp3'], ['比赛音效/', '']),
+  three: audioFiles(['三分球.mp3', 'three-pointer.mp3'], ['比赛音效/', '']),
+  two: audioFiles(['2分进球音效.mp3', 'two-pointer.mp3'], ['比赛音效/', '']),
+  miss: audioFiles(['投篮未进音效.mp3', 'miss.mp3'], ['比赛音效/', '']),
+  cheer: audioFiles(['欢呼声.mp3', 'cheer.mp3'], ['比赛音效/', '']),
+  attack: audioFiles(['进攻音效1.mp3', '进攻音乐1.mp3', 'attack-1.mp3'], ['进攻防守音乐/', '']),
+  defense: audioFiles(['防守音效1.mp3', '防守音乐1.mp3', 'defense-1.mp3'], ['进攻防守音乐/', '']),
+  rest: audioFiles(['暂停休息音乐.mp3', '暂停休息音乐1.mp3', '休息音乐.mp3', '休息音乐1.mp3'], ['暂停休息音乐/', ''])
 };
 
 function formatClock(totalSeconds) {
@@ -171,7 +177,7 @@ Page({
     this.bgm.src = src;
     this.bgm.play();
     this.setData({ bgmType: type });
-    wx.showToast({ title: type === 'attack' ? '进攻音乐' : '防守音乐', icon: 'none' });
+    wx.showToast({ title: type === 'attack' ? '进攻音乐' : type === 'defense' ? '防守音乐' : '休息音乐', icon: 'none' });
   },
   playAttackMusic() { this.playRandomBgm('attack'); },
   playDefenseMusic() { this.playRandomBgm('defense'); },
@@ -235,7 +241,7 @@ Page({
       confirmText: '播放',
       cancelText: '不用',
       success: (res) => {
-        if (res.confirm) this.playRandomBgm('attack');
+        if (res.confirm) this.playRandomBgm('rest');
       }
     });
   },
