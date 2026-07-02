@@ -24,7 +24,14 @@ const defaultAudioMap = {
   cheer: audioFiles(['欢呼声.mp3', 'cheer.mp3'], ['比赛音效/', '']),
   attack: audioFiles(['进攻音效1.mp3', '进攻音乐1.mp3', 'attack-1.mp3'], ['进攻防守音乐/', '']),
   defense: audioFiles(['防守音效1.mp3', '防守音乐1.mp3', 'defense-1.mp3'], ['进攻防守音乐/', '']),
-  rest: audioFiles(['暂停休息音乐.mp3', '暂停休息音乐1.mp3', '休息音乐.mp3', '休息音乐1.mp3'], ['暂停休息音乐/', ''])
+  rest: audioFiles([
+    'Fort Minor - Remember the Name_L.mp3',
+    'Studio 99 - Its My Life_L.mp3',
+    '暂停休息音乐.mp3',
+    '暂停休息音乐1.mp3',
+    '休息音乐.mp3',
+    '休息音乐1.mp3'
+  ], ['暂停休息音乐/', ''])
 };
 
 function formatClock(totalSeconds) {
