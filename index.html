@@ -1,0 +1,440 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>赛小蜂篮球 - 篮球比赛计分与现场 MC 工具</title>
+  <meta name="description" content="赛小蜂篮球，为草根篮球、校园赛事和训练赛提供快速计分、赛事管理、球员库、MC 音效和 AI 比分播报工具。" />
+  <style>
+    :root {
+      --ink: #101820;
+      --paper: #f5f7fa;
+      --muted: #647084;
+      --orange: #f05a28;
+      --yellow: #ffd65a;
+      --green: #18c993;
+      --line: rgba(16, 24, 32, 0.12);
+      --card: #ffffff;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+    a { color: inherit; text-decoration: none; }
+    .topbar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 10;
+      display: flex;
+      height: 72px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 clamp(18px, 5vw, 72px);
+      color: #fff;
+      background: rgba(16, 24, 32, 0.84);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 900;
+    }
+    .brand img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+    .brand span { font-size: 20px; }
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 800;
+    }
+    .nav a {
+      display: inline-flex;
+      height: 38px;
+      align-items: center;
+      justify-content: center;
+      padding: 0 14px;
+      border-radius: 6px;
+      color: rgba(255,255,255,0.82);
+    }
+    .nav a:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .nav .admin-link {
+      border: 1px solid rgba(255,255,255,0.26);
+      color: #fff;
+      background: rgba(255,255,255,0.08);
+    }
+    .hero {
+      position: relative;
+      display: grid;
+      min-height: 92vh;
+      align-items: end;
+      padding: 112px clamp(18px, 5vw, 72px) 56px;
+      overflow: hidden;
+      color: #fff;
+      background:
+        linear-gradient(90deg, rgba(16,24,32,0.92) 0%, rgba(16,24,32,0.7) 48%, rgba(16,24,32,0.38) 100%),
+        url("native-dist/assets/home/home-bg.jpg") center / cover no-repeat;
+    }
+    .hero-inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+      gap: clamp(28px, 6vw, 72px);
+      align-items: center;
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+    .hero-copy { max-width: 700px; }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 12px;
+      border-radius: 999px;
+      color: var(--yellow);
+      background: rgba(255, 214, 90, 0.12);
+      font-size: 13px;
+      font-weight: 900;
+    }
+    h1 {
+      margin: 18px 0 0;
+      font-size: clamp(42px, 8vw, 84px);
+      line-height: 0.98;
+      letter-spacing: 0;
+    }
+    .hero-copy p {
+      max-width: 620px;
+      margin: 24px 0 0;
+      color: rgba(255,255,255,0.84);
+      font-size: clamp(17px, 2.3vw, 24px);
+      line-height: 1.55;
+      font-weight: 700;
+    }
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 34px;
+    }
+    .button {
+      display: inline-flex;
+      min-width: 156px;
+      height: 52px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      padding: 0 22px;
+      font-size: 16px;
+      font-weight: 900;
+    }
+    .button.primary { color: #fff; background: var(--orange); }
+    .button.secondary { color: #101820; background: var(--yellow); }
+    .hero-logo {
+      display: grid;
+      justify-items: center;
+      gap: 16px;
+      padding: 26px;
+      border-radius: 8px;
+      background: rgba(16,24,32,0.46);
+      border: 1px solid rgba(255,255,255,0.14);
+    }
+    .hero-logo img {
+      width: min(320px, 78vw);
+      object-fit: contain;
+      filter: drop-shadow(0 18px 28px rgba(0,0,0,0.35));
+    }
+    .hero-logo strong {
+      color: var(--yellow);
+      font-size: 18px;
+    }
+    .section {
+      padding: 72px clamp(18px, 5vw, 72px);
+    }
+    .section-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+    }
+    .section-title {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .section-title h2 {
+      margin: 0;
+      font-size: clamp(30px, 5vw, 48px);
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+    .section-title p {
+      max-width: 460px;
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.7;
+      font-weight: 700;
+    }
+    .features {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .feature {
+      min-height: 178px;
+      padding: 22px;
+      border-radius: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      box-shadow: 0 10px 30px rgba(16,24,32,0.06);
+    }
+    .feature b {
+      display: block;
+      color: var(--orange);
+      font-size: 14px;
+      font-weight: 900;
+    }
+    .feature strong {
+      display: block;
+      margin-top: 12px;
+      font-size: 22px;
+      line-height: 1.2;
+    }
+    .feature p {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.65;
+      font-weight: 700;
+    }
+    .workflow {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+    .workflow-main {
+      padding: 32px;
+      border-radius: 8px;
+      color: #fff;
+      background: var(--ink);
+    }
+    .workflow-main h2 {
+      margin: 0;
+      color: var(--yellow);
+      font-size: clamp(30px, 5vw, 52px);
+      line-height: 1.05;
+    }
+    .workflow-main p {
+      margin: 18px 0 0;
+      color: rgba(255,255,255,0.76);
+      font-size: 17px;
+      line-height: 1.7;
+      font-weight: 700;
+    }
+    .steps {
+      display: grid;
+      gap: 12px;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      gap: 14px;
+      align-items: center;
+      padding: 18px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .step span {
+      display: flex;
+      width: 52px;
+      height: 52px;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      color: #101820;
+      background: var(--yellow);
+      font-size: 20px;
+      font-weight: 900;
+    }
+    .step strong { display: block; font-size: 18px; }
+    .step p { margin: 6px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; font-weight: 700; }
+    .plans {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+    .plan {
+      padding: 24px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .plan.highlight {
+      color: #fff;
+      background: var(--ink);
+      border-color: var(--ink);
+    }
+    .plan h3 { margin: 0; font-size: 22px; }
+    .price {
+      margin-top: 16px;
+      color: var(--orange);
+      font-size: 36px;
+      font-weight: 900;
+    }
+    .highlight .price { color: var(--yellow); }
+    .plan p { margin: 12px 0 0; color: var(--muted); line-height: 1.65; font-weight: 700; }
+    .highlight p { color: rgba(255,255,255,0.74); }
+    .footer {
+      padding: 38px clamp(18px, 5vw, 72px);
+      color: rgba(255,255,255,0.72);
+      background: var(--ink);
+    }
+    .footer-inner {
+      display: flex;
+      width: min(1180px, 100%);
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin: 0 auto;
+      font-size: 14px;
+      font-weight: 700;
+    }
+    .footer a { color: #fff; font-weight: 900; }
+    @media (max-width: 860px) {
+      .topbar { height: 64px; padding: 0 16px; }
+      .brand span { font-size: 17px; }
+      .nav a:not(.admin-link) { display: none; }
+      .hero { min-height: auto; padding-top: 96px; }
+      .hero-inner, .workflow, .features, .plans { grid-template-columns: 1fr; }
+      .hero-logo { justify-items: start; }
+      .section-title { align-items: start; flex-direction: column; }
+      .footer-inner { align-items: start; flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/">
+      <img src="native-dist/assets/home/basketball-icon.png" alt="赛小蜂篮球图标" />
+      <span>赛小蜂篮球</span>
+    </a>
+    <nav class="nav">
+      <a href="#features">功能</a>
+      <a href="#workflow">流程</a>
+      <a href="#plans">Pro</a>
+      <a class="admin-link" href="admin/index.html">管理后台</a>
+    </nav>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-copy">
+          <span class="eyebrow">草根篮球 / 校园赛事 / 训练赛现场</span>
+          <h1>篮球比赛计分与现场 MC 工具</h1>
+          <p>快速开赛、横屏计分、犯规记录、赛事场次、球员库、MC 音效和 AI 比分播报，帮一场小比赛也有正式比赛的现场感。</p>
+          <div class="actions">
+            <a class="button primary" href="#features">了解功能</a>
+            <a class="button secondary" href="admin/index.html">进入管理后台</a>
+          </div>
+        </div>
+        <div class="hero-logo">
+          <img src="native-dist/assets/home/main-logo.png" alt="赛小蜂篮球 Logo" />
+          <strong>热爱上场 · 蜂行无畏</strong>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-inner">
+        <div class="section-title">
+          <h2>比赛现场需要的东西，先放到手边。</h2>
+          <p>第一版聚焦“马上能用”：开一场比赛、记清比分、管好球员、把结果留下来。</p>
+        </div>
+        <div class="features">
+          <article class="feature">
+            <b>01</b>
+            <strong>快速比赛</strong>
+            <p>输入主客队，设置节数和时间，直接进入横屏计分盘。</p>
+          </article>
+          <article class="feature">
+            <b>02</b>
+            <strong>赛事场次</strong>
+            <p>先建赛事，再建场次，再给主客队分配球员，结构清楚。</p>
+          </article>
+          <article class="feature">
+            <b>03</b>
+            <strong>球员库</strong>
+            <p>管理球员姓名和球衣号，避免重复号码，组队时快速选择。</p>
+          </article>
+          <article class="feature">
+            <b>04</b>
+            <strong>MC 音效</strong>
+            <p>进攻、防守、欢呼、蜂鸣器、休息音乐和比分播报，Pro 解锁。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="workflow">
+      <div class="section-inner workflow">
+        <div class="workflow-main">
+          <h2>从开赛到赛果，一条线跑完。</h2>
+          <p>赛小蜂篮球不是做复杂系统堆功能，而是把比赛当天最常用、最容易手忙脚乱的环节变得更稳。</p>
+        </div>
+        <div class="steps">
+          <div class="step"><span>1</span><div><strong>创建比赛</strong><p>主队、客队、节数、时长、正计时或倒计时。</p></div></div>
+          <div class="step"><span>2</span><div><strong>现场计分</strong><p>加分、犯规、撤销、重开、下一节和结束比赛。</p></div></div>
+          <div class="step"><span>3</span><div><strong>生成赛果</strong><p>结束后自动留下比分、犯规和时间，方便复盘与展示。</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="plans">
+      <div class="section-inner">
+        <div class="section-title">
+          <h2>免费计分够用，Pro 负责现场感。</h2>
+          <p>免费版保留基础计分和赛事流程；Pro 增加 MC 音效、AI 播报和后续球员数据统计。</p>
+        </div>
+        <div class="plans">
+          <article class="plan">
+            <h3>单场体验</h3>
+            <div class="price">9.9</div>
+            <p>适合临时比赛、活动试用和朋友局。</p>
+          </article>
+          <article class="plan highlight">
+            <h3>月度会员</h3>
+            <div class="price">39.9</div>
+            <p>适合训练营、校园联赛、固定场馆每月使用。</p>
+          </article>
+          <article class="plan">
+            <h3>买断会员</h3>
+            <div class="price">199</div>
+            <p>适合长期组织比赛的球队、教练和赛事运营者。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+      <span>© 2026 赛小蜂篮球</span>
+      <span><a href="admin/index.html">管理后台入口</a></span>
+    </div>
+  </footer>
+</body>
+</html>
