@@ -96,3 +96,29 @@
 ### 包体说明
 
 `sxCreateScoreVoice` 当前不依赖腾讯云 Node SDK，而是用 Node.js 内置 `https` 和 `crypto` 直接调用腾讯云 `TextToVoice` API，避免自动真机调试时云函数源码包超过 2MB。
+
+## 2026-07-02 微信支付 JSAPI 骨架
+
+新增云函数：
+
+- `sxCreateWxPayOrder`：创建微信支付 JSAPI 预支付订单，返回小程序 `wx.requestPayment` 所需参数。
+- `sxWxPayNotify`：微信支付回调占位，负责解密 API v3 通知、更新订单状态、写入 Pro 权益。
+
+需要新增集合：
+
+- 沿用 `sx_orders` 和 `sx_entitlements`，不需要新增支付专用集合。
+
+微信支付云函数环境变量：
+
+- `SXF_WXPAY_APPID`：小程序 AppID，当前为 `wx06d735da15276acd`
+- `SXF_WXPAY_MCHID`：微信支付商户号，当前为 `1114763686`
+- `SXF_WXPAY_SERIAL_NO`：商户 API 证书序列号
+- `SXF_WXPAY_PRIVATE_KEY`：商户 API 私钥内容，换行可写成 `\n`
+- `SXF_WXPAY_API_V3_KEY`：你在商户平台设置的 32 位 APIv3 密钥
+- `SXF_WXPAY_NOTIFY_URL`：`sxWxPayNotify` 的 HTTP 触发访问地址
+
+说明：
+
+- `sxCreateWxPayOrder` 需要 `SXF_WXPAY_SERIAL_NO`、`SXF_WXPAY_PRIVATE_KEY`、`SXF_WXPAY_NOTIFY_URL`。
+- `sxWxPayNotify` 需要 `SXF_WXPAY_API_V3_KEY`。
+- 不要把证书、私钥、APIv3 密钥提交到代码仓库。
