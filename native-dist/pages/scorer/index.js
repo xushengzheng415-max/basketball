@@ -1,116 +1,102 @@
-const { callCloud } = require('../../utils/cloud');
-const { checkEntitlement } = require('../../utils/entitlement');
-const { voiceStyles, buildScoreVoice } = require('../../utils/scoreVoice');
-
-const cloudAudioPrefixes = [
-  'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/',
-  'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/636c-cloudbase-d4g93f0re5f3274c1-1446269281mc-mp3/'
-];
-const audioFiles = (names, folders) => {
-  const list = Array.isArray(names) ? names : [names];
-  const dirs = folders || [''];
-  return cloudAudioPrefixes.reduce((all, prefix) => (
-    all.concat(dirs.reduce((items, dir) => (
-      items.concat(list.map((name) => `${prefix}${dir}${name}`))
-    ), []))
-  ), []);
-};
-
-const defaultAudioMap = {
-  buzzer: audioFiles(['蜂鸣器.mp3', 'buzzer.mp3'], ['比赛音效/', '']),
-  three: audioFiles(['三分球.mp3', 'three-pointer.mp3'], ['比赛音效/', '']),
-  two: audioFiles(['2分进球音效.mp3', 'two-pointer.mp3'], ['比赛音效/', '']),
-  miss: audioFiles(['投篮未进音效.mp3', 'miss.mp3'], ['比赛音效/', '']),
-  cheer: audioFiles(['欢呼声.mp3', 'cheer.mp3'], ['比赛音效/', '']),
-  attack: audioFiles(['进攻音效1.mp3', '进攻音乐1.mp3', 'attack-1.mp3'], ['进攻防守音乐/', '']),
-  defense: audioFiles(['防守音效1.mp3', '防守音乐1.mp3', 'defense-1.mp3'], ['进攻防守音乐/', '']),
-  rest: audioFiles([
-    'Fort Minor - Remember the Name_L.mp3',
-    'Studio 99 - Its My Life_L.mp3',
-    '暂停休息音乐.mp3',
-    '暂停休息音乐1.mp3',
-    '休息音乐.mp3',
-    '休息音乐1.mp3'
-  ], ['暂停休息音乐/', ''])
-};
-
 function formatClock(totalSeconds) {
-  const safe = Math.max(0, totalSeconds);
+  const safe = Math.max(0, totalSeconds || 0);
   const minutes = String(Math.floor(safe / 60)).padStart(2, '0');
   const seconds = String(safe % 60).padStart(2, '0');
   return `${minutes}:${seconds}`;
 }
 
-function randomItem(list) {
-  if (!list || !list.length) return '';
-  return list[Math.floor(Math.random() * list.length)];
+function nowText() {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
 }
 
-function getAudioMap() {
-  const saved = wx.getStorageSync('sx_mc_audio_map') || {};
-  return Object.assign({}, defaultAudioMap, saved);
-}
-
-function oppositeSide(side) {
-  return side === 'home' ? 'away' : 'home';
-}
-
-function describeEvent(event, homeName, awayName) {
-  const team = event.side === 'home' ? homeName : awayName;
-  if (event.type === 'score') return `${team} +${event.points}`;
-  if (event.type === 'foul') return event.delta > 0 ? `${team} 犯规 +1` : `${team} 犯规 -1`;
-  if (event.type === 'timeout') return event.delta > 0 ? `${team} 暂停 +1` : `${team} 暂停 -1`;
-  return event.text || '暂无记录';
-}
-
-function getTempAudioSrc(src) {
-  if (!src || typeof src !== 'string') return Promise.resolve('');
-  if (!src.startsWith('cloud://')) return Promise.resolve(src);
-  if (!wx.cloud || !wx.cloud.getTempFileURL) return Promise.resolve('');
-  return new Promise((resolve) => {
-    wx.cloud.getTempFileURL({
-      fileList: [src],
-      success(res) {
-        const item = res.fileList && res.fileList[0];
-        if (item && item.status === 0 && item.tempFileURL) {
-          resolve(item.tempFileURL);
-        } else {
-          console.warn('MC 音效云文件不可用', src, item);
-          resolve('');
-        }
-      },
-      fail(err) { console.warn('MC 音效临时地址失败', src, err); resolve(''); }
-    });
-  });
-}
-
-async function getTempAudioSrcByCloudFunction(src) {
-  if (!src || !src.startsWith('cloud://')) return '';
-  const result = await callCloud('sxGetAudioUrl', { fileID: src });
-  if (result && result.ok && result.tempFileURL) return result.tempFileURL;
-  console.warn('MC 音效云函数临时地址失败', src, result);
-  return '';
-}
-
-async function getPlayableAudioSrc(srcOrList) {
-  const list = Array.isArray(srcOrList) ? srcOrList : [srcOrList];
-  for (let i = 0; i < list.length; i += 1) {
-    let src = await getTempAudioSrc(list[i]);
-    if (!src) src = await getTempAudioSrcByCloudFunction(list[i]);
-    if (src) return src;
-  }
-  console.warn('MC 音效全部候选均不可用', list);
-  return '';
+function defaultPlayers(side) {
+  const base = side === 'home'
+    ? [
+      ['23', '\u6797\u6d69', 'PG', 'avatar-left-23.png'],
+      ['7', '\u5f20\u5b50\u8f69', 'SG', 'avatar-left-7.png'],
+      ['11', '\u674e\u5965\u7136', 'SF', 'avatar-left-11.png'],
+      ['34', '\u5218\u5b87\u8fb0', 'PF', 'avatar-left-34.png'],
+      ['30', '\u8d75\u5b50\u58a8', 'C', 'avatar-left-30.png']
+    ]
+    : [
+      ['7', '\u738b\u5b50\u8f69', 'PG', 'avatar-right-7.png'],
+      ['11', '\u674e\u5965\u7136', 'SG', 'avatar-right-11.png'],
+      ['9', '\u9648\u5b50\u777f', 'SF', 'avatar-right-9.png'],
+      ['24', '\u5468\u5b87\u822a', 'PF', 'avatar-right-24.png'],
+      ['33', '\u5434\u5929\u4f51', 'C', 'avatar-right-33.png']
+    ];
+  return base.map((item, index) => ({
+    id: `${side}-${index}`,
+    number: item[0],
+    name: item[1],
+    position: item[2],
+    avatar: `/assets/pages/scorer-v2/teams/${item[3]}`
+  }));
 }
 
 Page({
   timer: null,
+  resizeHandler: null,
   longPressTimer: null,
+  longPressTick: null,
   longPressSide: '',
-  audio: null,
   data: {
-    homeName: '主队',
-    awayName: '客队',
+    started: false,
+    isLandscape: true,
+    layoutMode: '',
+    layoutSwitchText: '\u7ad6\u7248',
+    titleText: 'PAD横屏比分板',
+    text: {
+      back: '\u2039',
+      appName: '赛小蜂篮球',
+      quickStart: '快速开始比赛',
+      setupDesc: '设置队伍、节次和时长，自动进入新版计分板。',
+      startMatch: '开始比赛',
+      homeName: '主队名称',
+      awayName: '客队名称',
+      homePlaceholder: '请输入主队名称',
+      awayPlaceholder: '请输入客队名称',
+      periodMinutes: '每节时长',
+      minute: '分钟',
+      minuteShort: '分',
+      totalPeriods: '比赛节数',
+      periodUnit: '节',
+      timerMode: '计时方式',
+      countdown: '倒计时',
+      countup: '正计时',
+      periodPrefix: '第',
+      networkGood: '网络良好',
+      synced: '已同步',
+      starter: '首发',
+      bench: '替补',
+      totalFouls: '累计犯规',
+      timeout: '暂停',
+      foul: '犯规',
+      substitution: '换人',
+      pause: '暂停',
+      start: '开始',
+      reset: '重置',
+      prevPeriod: '上一节',
+      nextPeriod: '下一节',
+      swapCourt: '交换场地',
+      recentActions: '最近操作',
+      clear: '清空',
+      mcManager: 'MC音效管理',
+      currentPlaying: '当前播放：',
+      attackSound: '进攻音效',
+      defenseSound: '防守音效',
+      scoreVoice: '得分播报',
+      restMusic: '暂停音乐',
+      subSound: '换人提示',
+      mvpSound: 'MVP音效',
+      volume: '音量控制',
+      stopAudio: '停止播放'
+    },    matchName: 'U10\u7ec4 \u51b3\u8d5b',
+    homeName: '\u4e3b\u961f',
+    awayName: '\u5ba2\u961f',
+    homeLogo: '/assets/pages/scorer-v2/teams/team-logo-left.png',
+    awayLogo: '/assets/pages/scorer-v2/teams/team-logo-right.png',
     homeScore: 0,
     awayScore: 0,
     homeScorePulse: false,
@@ -119,398 +105,249 @@ Page({
     awayFouls: 0,
     homeTimeouts: 0,
     awayTimeouts: 0,
-    started: false,
-    events: [],
-    latestEvent: '暂无记录',
     period: 1,
     totalPeriods: 4,
-    periodOptions: [2, 4, 6],
     periodMinutes: 10,
     durationOptions: [6, 8, 10, 12],
+    periodOptions: [2, 4, 6],
     timerMode: 'down',
-    timerModeText: '倒计时',
     clockSeconds: 600,
     clockText: '10:00',
     clockRunning: false,
-    mcUnlocked: false,
-    mcStatus: '分享后解锁 MC 音效',
-    voiceStyles,
-    voiceStyle: 'standard',
-    voiceButtonText: '播报比分',
-    voiceText: '',
-    voiceLoading: false,
-    mcPanelOpen: false,
-    audioMap: getAudioMap(),
-    bgmType: '',
-    bgmLabel: '',
+    homeStarters: [],
+    awayStarters: [],
+    homeBench: [
+      { id: 'hb-1', number: '2', name: '\u738b\u6893\u8c6a' },
+      { id: 'hb-2', number: '8', name: '\u9648\u5929\u5b87' }
+    ],
+    awayBench: [
+      { id: 'ab-1', number: '5', name: '\u5f90\u660e\u8f69' },
+      { id: 'ab-2', number: '12', name: '\u8d75\u4e00\u822a' }
+    ],
+    events: [],
+    currentAudioName: '',
+    noAudioText: '\u65e0',
+    playingType: '',
+    volume: 80,
     longPressActive: false,
+    longPressText: '',
     longPressProgress: 0,
-    longPressText: ''
+    techActions: [
+      { key: 'score', name: '\u5f97\u5206', icon: '/assets/pages/scorer-v2/icons/icon-tech-score-clean.png' },
+      { key: 'rebound', name: '\u7bee\u677f', icon: '/assets/pages/scorer-v2/icons/icon-tech-rebound-clean.png' },
+      { key: 'assist', name: '\u52a9\u653b', icon: '/assets/pages/scorer-v2/icons/icon-tech-assist-clean.png' },
+      { key: 'steal', name: '\u62a2\u65ad', icon: '/assets/pages/scorer-v2/icons/icon-tech-steal-clean.png' },
+      { key: 'block', name: '\u76d6\u5e3d', icon: '/assets/pages/scorer-v2/icons/icon-tech-block-clean.png' },
+      { key: 'turnover', name: '\u5931\u8bef', icon: '/assets/pages/scorer-v2/icons/icon-tech-turnover-clean.png' }
+    ]
   },
+
   onLoad() {
-    this.audio = wx.createInnerAudioContext();
+    this.detectOrientation();
+    this.setData({ homeStarters: defaultPlayers('home'), awayStarters: defaultPlayers('away') });
+    if (wx.onWindowResize) {
+      this.resizeHandler = () => this.detectOrientation();
+      wx.onWindowResize(this.resizeHandler);
+    }
   },
-  async onShow() {
-    const entitlement = await checkEntitlement('mc_system');
-    const mcUnlocked = !!entitlement.active;
-    this.setData({
-      mcUnlocked,
-      mcStatus: mcUnlocked ? 'MC 音效已解锁' : '分享后解锁 MC 音效'
-    });
-    this.loadAudioLibrary();
-  },
+
   onUnload() {
-    this.stopClock();
-    this.stopLongPress();
-    this.stopAudio();
+    this.clearClock();
+    this.clearLongPress();
+    if (wx.offWindowResize && this.resizeHandler) wx.offWindowResize(this.resizeHandler);
   },
-  onHide() {
-    this.stopClock();
-    this.stopLongPress();
-    this.stopAudio();
-  },
-  stopAudio() {
-    if (this.audio) this.audio.stop();
-    if (this.data.bgmType) this.setData({ bgmType: '', bgmLabel: '' });
-  },
-  ensureMc(silent) {
-    if (this.data.mcUnlocked) return true;
-    if (!silent) wx.showToast({ title: '分享朋友圈可解锁当天 MC 系统', icon: 'none' });
-    return false;
-  },
-  async loadAudioLibrary() {
-    const result = await callCloud('sxGetAudioLibrary', {});
-    if (!result || !result.ok || !result.audioMap) return;
-    const merged = Object.assign({}, defaultAudioMap, result.audioMap);
-    wx.setStorageSync('sx_mc_audio_map', result.audioMap);
-    this.setData({ audioMap: merged });
-  },
-  async playSound(key, silent) {
-    if (!this.ensureMc(silent)) return false;
-    const src = await getPlayableAudioSrc(this.data.audioMap[key]);
-    if (!src || !this.audio) {
-      if (!silent) wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
-      return false;
-    }
-    this.audio.stop();
-    this.audio.loop = false;
-    this.audio.src = src;
-    this.audio.play();
-    if (this.data.bgmType) this.setData({ bgmType: '' });
-    return true;
-  },
-  async playRandomBgm(type) {
-    if (!this.ensureMc(false)) return;
-    if (this.data.bgmType === type) {
-      if (this.audio) this.audio.stop();
-      this.setData({ bgmType: '', bgmLabel: '' });
-      wx.showToast({ title: '音乐已暂停', icon: 'none' });
-      return;
-    }
-    const list = this.data.audioMap[type] || [];
-    const src = await getPlayableAudioSrc(list);
-    if (!src || !this.audio) {
-      wx.showToast({ title: 'MC 音效待配置', icon: 'none' });
-      return;
-    }
-    this.audio.stop();
-    this.audio.loop = true;
-    this.audio.src = src;
-    this.audio.play();
-    const label = this.getBgmLabel(type);
-    this.setData({ bgmType: type, bgmLabel: label });
-    wx.showToast({ title: label, icon: 'none' });
-  },
-  playAttackMusic() { this.playRandomBgm('attack'); },
-  playDefenseMusic() { this.playRandomBgm('defense'); },
-  stopBgm() { this.stopAudio(); wx.showToast({ title: '音乐已停止', icon: 'none' }); },
-  getBgmLabel(type) {
-    if (type === 'attack') return '进攻音乐';
-    if (type === 'defense') return '防守音乐';
-    if (type === 'rest') return '休息音乐';
-    return '音乐';
-  },
-  playTwoSound() { this.playSound('two', false); },
-  playMissSound() { this.playSound('miss', false); },
-  playCheerSound() { this.playSound('cheer', false); },
-  toggleMcPanel() { this.setData({ mcPanelOpen: !this.data.mcPanelOpen }); },
-  closeMcPanel() { this.setData({ mcPanelOpen: false }); },
-  setVoiceStyle(event) {
-    const style = event.currentTarget.dataset.id || 'standard';
-    this.setData({ voiceStyle: style });
-  },
-  async announceScore() {
-    if (this.data.voiceLoading) return;
-    const text = buildScoreVoice({
-      homeName: this.data.homeName,
-      awayName: this.data.awayName,
-      homeScore: this.data.homeScore,
-      awayScore: this.data.awayScore,
-      period: this.data.period,
-      totalPeriods: this.data.totalPeriods,
-      clockText: this.data.clockText,
-      clockSeconds: this.data.clockSeconds,
-      timerMode: this.data.timerMode,
-      latestEvent: this.data.latestEvent
-    }, this.data.voiceStyle);
 
-    this.setData({ voiceText: text, voiceLoading: true, voiceButtonText: '生成中' });
-    wx.showLoading({ title: '生成播报' });
-    const result = await callCloud('sxCreateScoreVoice', { text, style: this.data.voiceStyle });
-    wx.hideLoading();
-    this.setData({ voiceLoading: false, voiceButtonText: '播报比分' });
+  detectOrientation() {
+    const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+    const isLandscape = info.windowWidth >= info.windowHeight;
+    this.setData({ isLandscape, layoutMode: isLandscape ? 'landscape' : 'portrait', layoutSwitchText: isLandscape ? '\u7ad6\u7248' : '\u6a2a\u7248', titleText: isLandscape ? 'PAD\u6a2a\u5c4f\u6bd4\u5206\u677f' : '\u88c1\u5224\u6bd4\u5206\u677f' });
+  },
 
-    if (!result || !result.ok) {
-      wx.showModal({
-        title: 'AI 比分播报',
-        content: result && result.message ? `${result.message}\n\n${text}` : text,
-        confirmText: '确定',
-        showCancel: false
-      });
-      return;
-    }
+  toggleLayoutMode() {
+    const isLandscape = !this.data.isLandscape;
+    this.setData({ isLandscape, layoutMode: isLandscape ? 'landscape' : 'portrait', layoutSwitchText: isLandscape ? '\u7ad6\u7248' : '\u6a2a\u7248', titleText: isLandscape ? 'PAD\u6a2a\u5c4f\u6bd4\u5206\u677f' : '\u88c1\u5224\u6bd4\u5206\u677f' });
+  },
 
-    this.playVoiceFile(result.tempFileURL || result.fileID, text);
-  },
-  playVoiceFile(src, fallbackText) {
-    if (!src || !this.audio) {
-      wx.showModal({ title: 'AI 比分播报', content: fallbackText, showCancel: false });
-      return;
-    }
-    this.audio.stop();
-    this.audio.loop = false;
-    this.audio.src = src;
-    this.audio.play();
-    if (this.data.bgmType) this.setData({ bgmType: '' });
-    wx.showToast({ title: '正在播报', icon: 'none' });
-  },
-  askBreakMusic(title) {
-    if (!this.data.mcUnlocked) return;
-    wx.showModal({
-      title,
-      content: '要播放暂停/休息音乐吗？',
-      confirmText: '播放',
-      cancelText: '不用',
-      success: (res) => {
-        if (res.confirm) this.playRandomBgm('rest');
-      }
-    });
-  },
   onHomeInput(event) { this.setData({ homeName: event.detail.value }); },
   onAwayInput(event) { this.setData({ awayName: event.detail.value }); },
-  applyPeriodMinutes(value) {
-    const minutes = Math.min(60, Math.max(1, Number(value) || 10));
-    const seconds = this.data.timerMode === 'down' ? minutes * 60 : 0;
-    this.stopClock();
-    this.setData({ periodMinutes: minutes, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
-  },
-  setPeriodPreset(event) { this.applyPeriodMinutes(event.currentTarget.dataset.value); },
-  decreasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes - 1); },
-  increasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes + 1); },
-  applyTotalPeriods(value) {
-    const totalPeriods = Math.min(12, Math.max(1, Number(value) || 4));
-    this.setData({ totalPeriods, period: Math.min(this.data.period, totalPeriods) });
-  },
-  setPeriodCountPreset(event) { this.applyTotalPeriods(event.currentTarget.dataset.value); },
-  decreasePeriodCount() { this.applyTotalPeriods(this.data.totalPeriods - 1); },
-  increasePeriodCount() { this.applyTotalPeriods(this.data.totalPeriods + 1); },
   setTimerMode(event) {
     const timerMode = event.currentTarget.dataset.mode;
-    const seconds = timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.stopClock();
-    this.setData({ timerMode, timerModeText: timerMode === 'down' ? '倒计时' : '正计时', clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
+    const clockSeconds = timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
+    this.setData({ timerMode, clockSeconds, clockText: formatClock(clockSeconds), clockRunning: false });
+    this.clearClock();
   },
+  applyPeriodMinutes(value) {
+    const periodMinutes = Math.max(1, Math.min(60, Number(value) || 10));
+    const clockSeconds = this.data.timerMode === 'down' ? periodMinutes * 60 : 0;
+    this.setData({ periodMinutes, clockSeconds, clockText: formatClock(clockSeconds), clockRunning: false });
+    this.clearClock();
+  },
+  decreasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes - 1); },
+  increasePeriodMinutes() { this.applyPeriodMinutes(this.data.periodMinutes + 1); },
+  setPeriodPreset(event) { this.applyPeriodMinutes(Number(event.currentTarget.dataset.value)); },
+  applyPeriodCount(value) {
+    const totalPeriods = Math.max(1, Math.min(12, Number(value) || 4));
+    this.setData({ totalPeriods, period: Math.min(this.data.period, totalPeriods) });
+  },
+  decreasePeriodCount() { this.applyPeriodCount(this.data.totalPeriods - 1); },
+  increasePeriodCount() { this.applyPeriodCount(this.data.totalPeriods + 1); },
+  setPeriodCountPreset(event) { this.applyPeriodCount(Number(event.currentTarget.dataset.value)); },
+
   startMatch() {
-    const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    const homeName = (this.data.homeName || '').trim() || '主队';
-    const awayName = (this.data.awayName || '').trim() || '客队';
-    this.setData({ homeName, awayName, started: true, period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
+    const homeName = (this.data.homeName || '').trim() || '\u4e3b\u961f';
+    const awayName = (this.data.awayName || '').trim() || '\u5ba2\u961f';
+    const clockSeconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
+    this.setData({ started: true, homeName, awayName, period: 1, clockSeconds, clockText: formatClock(clockSeconds), clockRunning: false });
+    this.detectOrientation();
+  },
+
+  clearClock() {
+    if (this.timer) clearInterval(this.timer);
+    this.timer = null;
   },
   toggleClock() {
     if (this.data.clockRunning) {
-      this.stopClock();
-      this.playSound('buzzer', true);
-      this.askBreakMusic('比赛暂停');
+      this.clearClock();
+      this.setData({ clockRunning: false });
       return;
     }
     this.setData({ clockRunning: true });
     this.timer = setInterval(() => {
-      const next = this.data.timerMode === 'down' ? this.data.clockSeconds - 1 : this.data.clockSeconds + 1;
+      let next = this.data.timerMode === 'down' ? this.data.clockSeconds - 1 : this.data.clockSeconds + 1;
       if (this.data.timerMode === 'down' && next <= 0) {
-        this.setData({ clockSeconds: 0, clockText: '00:00' });
-        this.stopClock();
-        this.playSound('buzzer', true);
-        this.askBreakMusic('本节结束');
-        wx.showToast({ title: '本节时间到', icon: 'none' });
-        return;
+        next = 0;
+        this.clearClock();
+        this.setData({ clockRunning: false });
       }
       this.setData({ clockSeconds: next, clockText: formatClock(next) });
     }, 1000);
   },
-  stopClock() {
-    if (this.timer) clearInterval(this.timer);
-    this.timer = null;
-    if (this.data.clockRunning) this.setData({ clockRunning: false });
-  },
   resetClock() {
-    const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.stopClock();
-    this.setData({ clockSeconds: seconds, clockText: formatClock(seconds) });
+    const clockSeconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
+    this.clearClock();
+    this.setData({ clockRunning: false, clockSeconds, clockText: formatClock(clockSeconds) });
   },
-  nextPeriod() {
-    if (this.data.period >= this.data.totalPeriods) {
-      wx.showToast({ title: '已到最后一节', icon: 'none' });
-      return;
-    }
-    const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.stopClock();
-    this.playSound('buzzer', true);
-    this.askBreakMusic('本节结束');
-    this.setData({ period: this.data.period + 1, clockSeconds: seconds, clockText: formatClock(seconds) });
+  prevPeriod() { this.setData({ period: Math.max(1, this.data.period - 1) }); this.resetClock(); },
+  nextPeriod() { this.setData({ period: Math.min(this.data.totalPeriods, this.data.period + 1) }); this.resetClock(); },
+  selectPeriod() {
+    const list = Array.from({ length: this.data.totalPeriods }, (_, index) => `Q${index + 1}`);
+    wx.showActionSheet({ itemList: list, success: (res) => { this.setData({ period: res.tapIndex + 1 }); this.resetClock(); } });
   },
+
   addHome1() { this.addScore('home', 1); },
-  addHome2() { this.addScore('home', 2); this.playSound('two', true); },
+  addHome2() { this.addScore('home', 2); this.playMcAudio('two', '2\u5206\u97f3\u6548'); },
+  addHome3() { this.addScore('home', 3); },
   addAway1() { this.addScore('away', 1); },
-  addAway2() { this.addScore('away', 2); this.playSound('two', true); },
+  addAway2() { this.addScore('away', 2); this.playMcAudio('two', '2\u5206\u97f3\u6548'); },
+  addAway3() { this.addScore('away', 3); },
+
   startHome3Press() { this.startLongPress('home'); },
   startAway3Press() { this.startLongPress('away'); },
-  stopLongPress() {
-    if (this.longPressTimer) clearInterval(this.longPressTimer);
-    this.longPressTimer = null;
-    this.longPressSide = '';
-    if (this.data.longPressActive) this.setData({ longPressActive: false, longPressProgress: 0, longPressText: '' });
-  },
   startLongPress(side) {
-    this.stopLongPress();
+    this.clearLongPress();
     this.longPressSide = side;
-    const team = side === 'home' ? this.data.homeName : this.data.awayName;
-    this.setData({ longPressActive: true, longPressProgress: 0, longPressText: `${team} 三分确认中` });
-    this.playSound('three', true);
+    this.playMcAudio('three', '3\u5206\u97f3\u6548');
+    this.setData({ longPressActive: true, longPressText: '\u957f\u6309\u4e09\u5206\u786e\u8ba4\u4e2d', longPressProgress: 0 });
     let progress = 0;
-    this.longPressTimer = setInterval(() => {
-      progress += 10;
+    this.longPressTick = setInterval(() => {
+      progress = Math.min(100, progress + 8);
       this.setData({ longPressProgress: progress });
-      if (progress >= 100) {
-        clearInterval(this.longPressTimer);
-        this.longPressTimer = null;
-        const confirmedSide = this.longPressSide;
-        this.longPressSide = '';
-        this.setData({ longPressActive: false, longPressProgress: 0, longPressText: '' });
-        this.addScore(confirmedSide, 3);
-      }
-    }, 80);
+    }, 50);
+    this.longPressTimer = setTimeout(() => {
+      this.addScore(side, 3);
+      this.clearLongPress();
+    }, 650);
   },
-  addHomeFoul() { this.addFoul('home', 1); },
-  addAwayFoul() { this.addFoul('away', 1); },
-  subtractHomeFoul() { this.addFoul('home', -1); },
-  subtractAwayFoul() { this.addFoul('away', -1); },
-  addHomeTimeout() { this.addTimeout('home', 1); },
-  addAwayTimeout() { this.addTimeout('away', 1); },
-  subtractHomeTimeout() { this.addTimeout('home', -1); },
-  subtractAwayTimeout() { this.addTimeout('away', -1); },
+  stopLongPress() { this.clearLongPress(); },
+  clearLongPress() {
+    if (this.longPressTimer) clearTimeout(this.longPressTimer);
+    if (this.longPressTick) clearInterval(this.longPressTick);
+    this.longPressTimer = null;
+    this.longPressTick = null;
+    this.longPressSide = '';
+    this.setData({ longPressActive: false, longPressProgress: 0 });
+  },
+
   addScore(side, points) {
-    const isHome = side === 'home';
-    const event = { type: 'score', side, points };
-    event.text = describeEvent(event, this.data.homeName, this.data.awayName);
-    const nextEvents = [event].concat(this.data.events);
-    const pulseKey = isHome ? 'homeScorePulse' : 'awayScorePulse';
-    this.setData({
-      homeScore: isHome ? this.data.homeScore + points : this.data.homeScore,
-      awayScore: isHome ? this.data.awayScore : this.data.awayScore + points,
-      events: nextEvents,
-      latestEvent: event.text,
-      [pulseKey]: false
+    const scoreKey = side === 'home' ? 'homeScore' : 'awayScore';
+    const pulseKey = side === 'home' ? 'homeScorePulse' : 'awayScorePulse';
+    const team = side === 'home' ? this.data.homeName : this.data.awayName;
+    const nextHome = side === 'home' ? this.data.homeScore + points : this.data.homeScore;
+    const nextAway = side === 'away' ? this.data.awayScore + points : this.data.awayScore;
+    const patch = {};
+    patch[scoreKey] = this.data[scoreKey] + points;
+    patch[pulseKey] = true;
+    patch.events = [{ id: Date.now(), time: nowText(), team, action: `\u5f97\u5206 +${points}`, score: `${nextHome}-${nextAway}` }].concat(this.data.events).slice(0, 8);
+    this.setData(patch);
+    setTimeout(() => { const reset = {}; reset[pulseKey] = false; this.setData(reset); }, 420);
+  },
+  addHomeFoul() { this.addCounter('homeFouls', this.data.homeName, '\u72af\u89c4'); },
+  addAwayFoul() { this.addCounter('awayFouls', this.data.awayName, '\u72af\u89c4'); },
+  addHomeTimeout() { this.addCounter('homeTimeouts', this.data.homeName, '\u6682\u505c'); },
+  addAwayTimeout() { this.addCounter('awayTimeouts', this.data.awayName, '\u6682\u505c'); },
+  addCounter(key, team, action) {
+    const patch = {};
+    patch[key] = this.data[key] + 1;
+    patch.events = [{ id: Date.now(), time: nowText(), team, action, score: `${this.data.homeScore}-${this.data.awayScore}` }].concat(this.data.events).slice(0, 8);
+    this.setData(patch);
+  },
+
+  confirmReset() {
+    wx.showModal({
+      title: '\u786e\u8ba4\u91cd\u7f6e',
+      content: '\u662f\u5426\u6e05\u7a7a\u5f53\u524d\u6bd4\u5206\u5e76\u91cd\u5f00\u672c\u573a\u6bd4\u8d5b\uff1f',
+      success: (res) => {
+        if (!res.confirm) return;
+        this.clearClock();
+        const clockSeconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
+        this.setData({ homeScore: 0, awayScore: 0, homeFouls: 0, awayFouls: 0, homeTimeouts: 0, awayTimeouts: 0, events: [], period: 1, clockRunning: false, clockSeconds, clockText: formatClock(clockSeconds) });
+      }
     });
-    setTimeout(() => this.setData({ [pulseKey]: true }), 20);
-    setTimeout(() => this.setData({ [pulseKey]: false }), 520);
   },
-  addFoul(side, delta) {
-    const isHome = side === 'home';
-    const current = isHome ? this.data.homeFouls : this.data.awayFouls;
-    const next = Math.max(0, current + delta);
-    if (next === current) return;
-    const event = { type: 'foul', side, delta };
-    event.text = describeEvent(event, this.data.homeName, this.data.awayName);
-    const nextEvents = [event].concat(this.data.events);
-    this.setData({ homeFouls: isHome ? next : this.data.homeFouls, awayFouls: isHome ? this.data.awayFouls : next, events: nextEvents, latestEvent: event.text });
-  },
-  addTimeout(side, delta) {
-    const isHome = side === 'home';
-    const current = isHome ? this.data.homeTimeouts : this.data.awayTimeouts;
-    const next = Math.max(0, current + delta);
-    if (next === current) return;
-    const event = { type: 'timeout', side, delta };
-    event.text = describeEvent(event, this.data.homeName, this.data.awayName);
-    const nextEvents = [event].concat(this.data.events);
-    this.setData({ homeTimeouts: isHome ? next : this.data.homeTimeouts, awayTimeouts: isHome ? this.data.awayTimeouts : next, events: nextEvents, latestEvent: event.text });
-  },
-  swapTeams() {
-    const homeName = this.data.awayName;
-    const awayName = this.data.homeName;
-    const events = this.data.events.map((event) => {
-      const next = Object.assign({}, event, { side: oppositeSide(event.side) });
-      next.text = describeEvent(next, homeName, awayName);
-      return next;
-    });
+  swapSides() {
     this.setData({
-      homeName,
-      awayName,
+      homeName: this.data.awayName,
+      awayName: this.data.homeName,
       homeScore: this.data.awayScore,
       awayScore: this.data.homeScore,
       homeFouls: this.data.awayFouls,
       awayFouls: this.data.homeFouls,
       homeTimeouts: this.data.awayTimeouts,
       awayTimeouts: this.data.homeTimeouts,
-      events,
-      latestEvent: events[0] ? events[0].text : '暂无记录'
+      homeLogo: this.data.awayLogo,
+      awayLogo: this.data.homeLogo,
+      homeStarters: this.data.awayStarters,
+      awayStarters: this.data.homeStarters,
+      homeBench: this.data.awayBench,
+      awayBench: this.data.homeBench
     });
   },
-  undo() {
-    const events = this.data.events.slice();
-    const latest = events.shift();
-    if (!latest) return;
-    const isHome = latest.side === 'home';
-    const patch = { events, latestEvent: events[0] ? events[0].text : '暂无记录' };
-    if (latest.type === 'score') {
-      patch.homeScore = isHome ? Math.max(0, this.data.homeScore - latest.points) : this.data.homeScore;
-      patch.awayScore = isHome ? this.data.awayScore : Math.max(0, this.data.awayScore - latest.points);
-    }
-    if (latest.type === 'foul') {
-      patch.homeFouls = isHome ? Math.max(0, this.data.homeFouls - latest.delta) : this.data.homeFouls;
-      patch.awayFouls = isHome ? this.data.awayFouls : Math.max(0, this.data.awayFouls - latest.delta);
-    }
-    if (latest.type === 'timeout') {
-      patch.homeTimeouts = isHome ? Math.max(0, this.data.homeTimeouts - latest.delta) : this.data.homeTimeouts;
-      patch.awayTimeouts = isHome ? this.data.awayTimeouts : Math.max(0, this.data.awayTimeouts - latest.delta);
-    }
-    this.setData(patch);
+  clearEvents() { this.setData({ events: [] }); },
+
+  playAttack() { this.toggleMcAudio('attack', '\u8fdb\u653b\u97f3\u6548'); },
+  playDefense() { this.toggleMcAudio('defense', '\u9632\u5b88\u97f3\u6548'); },
+  playRestMusic() { this.toggleMcAudio('rest', '\u6682\u505c\u97f3\u4e50'); },
+  playSubSound() { this.playMcAudio('sub', '\u6362\u4eba\u63d0\u793a'); },
+  playMvpSound() { this.playMcAudio('mvp', 'MVP\u97f3\u6548'); },
+  announceScore() { this.playMcAudio('voice', `${this.data.homeName || '\u4e3b\u961f'} ${this.data.homeScore} \u6bd4 ${this.data.awayScore} ${this.data.awayName || '\u5ba2\u961f'}`); },
+  toggleMcAudio(type, name) {
+    if (this.data.playingType === type) return this.stopAudio();
+    this.playMcAudio(type, name);
   },
-  resetMatch() {
-    wx.showModal({
-      title: '重新比赛',
-      content: '确定要清空当前比分、犯规、暂停和记录吗？',
-      confirmText: '重开',
-      cancelText: '取消',
-      confirmColor: '#d83b01',
-      success: (res) => {
-        if (res.confirm) this.doResetMatch();
-      }
-    });
+  playMcAudio(type, name) { this.setData({ playingType: type, currentAudioName: name }); },
+  stopAudio() { this.setData({ playingType: '', currentAudioName: '' }); },
+  setVolume(event) { this.setData({ volume: event.detail.value }); },
+  recordTech(event) { wx.showToast({ title: '\u8bb0\u5f55' + event.currentTarget.dataset.key, icon: 'none' }); },
+
+  goBack() {
+    const pages = getCurrentPages ? getCurrentPages() : [];
+    if (pages.length > 1) {
+      wx.navigateBack();
+      return;
+    }
+    wx.reLaunch({ url: '/pages/home/index' });
   },
-  doResetMatch() {
-    this.stopClock();
-    this.stopLongPress();
-    const seconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
-    this.setData({ homeScore: 0, awayScore: 0, homeFouls: 0, awayFouls: 0, homeTimeouts: 0, awayTimeouts: 0, started: false, events: [], latestEvent: '暂无记录', period: 1, clockSeconds: seconds, clockText: formatClock(seconds), clockRunning: false });
-  },
-  finishMatch() {
-    this.stopClock();
-    this.stopLongPress();
-    this.playSound('buzzer', true);
-    const result = { homeName: this.data.homeName, awayName: this.data.awayName, homeScore: this.data.homeScore, awayScore: this.data.awayScore, homeFouls: this.data.homeFouls, awayFouls: this.data.awayFouls, homeTimeouts: this.data.homeTimeouts, awayTimeouts: this.data.awayTimeouts, period: this.data.period, totalPeriods: this.data.totalPeriods, clockText: this.data.clockText, endedAt: new Date().toLocaleString() };
-    wx.setStorageSync('latestMatchResult', result);
-    callCloud('sxSaveMatchResult', { result });
-    wx.showToast({ title: '赛果已生成', icon: 'success' });
-    setTimeout(() => wx.switchTab({ url: '/pages/home/index' }), 500);
-  }
+  goSettings() { wx.navigateTo({ url: '/pages/mc-settings/index' }); },
+  openHomeSub() { wx.showToast({ title: '\u6362\u4eba\u529f\u80fd\u5f85\u63a5\u5165\u7403\u5458\u5e93', icon: 'none' }); },
+  openAwaySub() { wx.showToast({ title: '\u6362\u4eba\u529f\u80fd\u5f85\u63a5\u5165\u7403\u5458\u5e93', icon: 'none' }); }
 });

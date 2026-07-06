@@ -1,4 +1,4 @@
-﻿export default defineAppConfig({
+export default defineAppConfig({
   pages: [
     'pages/login/index',
     'pages/home/index',
@@ -13,26 +13,5 @@
     navigationBarTitleText: '赛小蜂篮球',
     navigationBarTextStyle: 'white',
     backgroundColor: '#F4F7FA'
-  },
-  tabBar: {
-    color: '#6B7280',
-    selectedColor: '#F05A28',
-    backgroundColor: '#FFFFFF',
-    borderStyle: 'black',
-    list: [
-      {
-        pagePath: 'pages/home/index',
-        text: '首页'
-      },
-      {
-        pagePath: 'pages/tournament/index',
-        text: '赛事'
-      },
-      {
-        pagePath: 'pages/team/index',
-        text: '球员'
-      }
-    ]
   }
 });
-

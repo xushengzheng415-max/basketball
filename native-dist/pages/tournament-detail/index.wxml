@@ -1,15 +1,35 @@
 <view class="page-wrap" wx:if="{{tournament}}">
   <view class="hero">
-    <text class="eyebrow">当前赛事</text>
-    <text class="title">{{tournament.name}}</text>
-    <text class="desc">{{tournament.location || '未填写地点'}} · {{tournament.date || '未选择日期'}}</text>
+    <view class="hero-head">
+      <view>
+        <text class="eyebrow">当前赛事</text>
+        <text class="title">{{tournament.name}}</text>
+        <text class="desc">{{tournament.metaText}}</text>
+      </view>
+      <view class="hero-actions">
+        <view class="small-btn" bindtap="startEditTournament">编辑</view>
+        <view class="small-btn danger" bindtap="deleteTournament">删除</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{isEditingTournament}}" class="form-card edit-card">
+    <input value="{{editName}}" placeholder="赛事名称" bindinput="onEditNameInput" />
+    <input value="{{editLocation}}" placeholder="比赛地点" bindinput="onEditLocationInput" />
+    <picker mode="date" value="{{editDate}}" bindchange="onEditDateChange">
+      <view class="date-picker {{editDateClass}}">{{editDateText}}</view>
+    </picker>
+    <view class="form-actions">
+      <view class="primary" bindtap="saveTournamentEdit">保存赛事</view>
+      <view class="secondary" bindtap="cancelEditTournament">取消</view>
+    </view>
   </view>
 
   <text class="section">创建场次</text>
   <view class="form-card">
     <input value="{{gameName}}" placeholder="场次名称，例如：小组赛第 1 场" bindinput="onGameNameInput" />
     <picker mode="date" value="{{gameDate}}" bindchange="onGameDateChange">
-      <view class="date-picker {{gameDate ? 'has-value' : ''}}">{{gameDate || '选择场次日期'}}</view>
+      <view class="date-picker {{gameDateClass}}">{{gameDateText}}</view>
     </picker>
     <view class="team-grid">
       <input value="{{homeTeamName}}" placeholder="主队名称" bindinput="onHomeTeamInput" />
@@ -19,12 +39,12 @@
   </view>
 
   <text class="section">赛事场次</text>
-  <view wx:if="{{games.length === 0}}" class="empty">暂无场次，先创建一场。</view>
+  <view wx:if="{{emptyGames}}" class="empty">暂无场次，先创建一场。</view>
   <view wx:for="{{games}}" wx:key="id" class="item" data-id="{{item.id}}" bindtap="openGame">
     <view>
       <text class="item-title">{{item.name}}</text>
       <text class="item-desc">{{item.homeTeamName}} vs {{item.awayTeamName}}</text>
-      <text class="item-desc">{{item.date || '未选择日期'}} · 已选 {{item.homePlayers.length + item.awayPlayers.length}} 人</text>
+      <text class="item-desc">{{item.dateText}} · {{item.playerText}}</text>
     </view>
     <text class="item-action">添加球员</text>
   </view>

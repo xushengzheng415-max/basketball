@@ -1,0 +1,47 @@
+<view class="education-page">
+  <view class="hero-section">
+    <image class="hero-bg" src="/assets/pages/education/education-top-bg-clean.png" mode="aspectFill" />
+    <text class="page-title">教务中心</text>
+    <view class="version-badge">1.0介绍页</view>
+    <view class="hero-title">
+      <text class="title-hot">教务管理</text>
+      <text class="title-light">能力规划</text>
+    </view>
+    <text class="hero-subtitle">课程、学员、课消、教练薪酬将在后续版本开放</text>
+  </view>
+
+  <view class="support-panel">
+    <view class="section-head">
+      <view class="orange-line"></view>
+      <text class="section-title">后续将支持</text>
+    </view>
+    <view class="feature-grid">
+      <view wx:for="{{features}}" wx:key="key" class="feature-card" data-key="{{item.key}}" bindtap="onFeatureTap">
+        <image class="feature-icon" src="{{item.icon}}" mode="aspectFit" />
+        <text class="feature-title">{{item.title}}</text>
+        <view class="planning-pill">规划中</view>
+      </view>
+    </view>
+    <view class="planning-notice">
+      <text class="notice-icon">i</text>
+      <text class="notice-copy">以上功能正在规划中，敬请期待后续版本上线。</text>
+    </view>
+  </view>
+
+  <view class="current-panel">
+    <view class="clipboard-icon">
+      <view class="clip-top"></view>
+      <view class="clip-line"></view>
+      <view class="clip-line short"></view>
+      <view class="clip-line"></view>
+    </view>
+    <text class="current-title">当前版本请先使用赛事与计分功能</text>
+    <text class="current-desc">我们会不断优化产品，带来更好的教务管理体验。</text>
+    <view class="event-button" bindtap="goTournament">
+      <text>查看赛事功能</text>
+      <view class="button-ball"></view>
+    </view>
+  </view>
+
+  <sxf-tabbar active="education" />
+</view>

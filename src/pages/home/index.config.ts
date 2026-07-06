@@ -1,3 +1,3 @@
 export default definePageConfig({
-  navigationBarTitleText: '赛小蜂篮球'
+  navigationBarTitleText: '工作台'
 });

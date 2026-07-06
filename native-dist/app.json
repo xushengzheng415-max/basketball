@@ -5,6 +5,8 @@
     "pages/scorer/index",
     "pages/products/index",
     "pages/mc-system/index",
+    "pages/data/index",
+    "pages/education/index",
     "pages/stats-scorer/index",
     "pages/order/index",
     "pages/pay-result/index",
@@ -12,25 +14,14 @@
     "pages/tournament-detail/index",
     "pages/game-detail/index",
     "pages/team/index",
+    "pages/mc-settings/index",
     "pages/mine/index"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#101820",
-    "navigationBarTitleText": "赛小蜂篮球",
+    "navigationBarTitleText": "\u8d5b\u5c0f\u8702\u7bee\u7403",
     "navigationBarTextStyle": "white",
-    "backgroundColor": "#F4F7FA"
-  },
-  "tabBar": {
-    "color": "#6B7280",
-    "selectedColor": "#F05A28",
-    "backgroundColor": "#FFFFFF",
-    "borderStyle": "black",
-    "list": [
-      { "pagePath": "pages/home/index", "text": "首页" },
-      { "pagePath": "pages/tournament/index", "text": "赛事" },
-      { "pagePath": "pages/team/index", "text": "球员" },
-      { "pagePath": "pages/mine/index", "text": "我的" }
-    ]
+    "backgroundColor": "#05080b"
   }
 }

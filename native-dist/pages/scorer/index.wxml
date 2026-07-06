@@ -1,184 +1,122 @@
-﻿<view wx:if="{{!started}}" class="setup">
+<view wx:if="{{!started}}" class="setup-page">
+  <image class="setup-bg" src="/assets/pages/scorer-v2/background/pad-scoreboard-bg-clean.png" mode="aspectFill" />
+  <view class="setup-nav">
+    <view class="setup-back" bindtap="goBack">{{text.back}}</view>
+  </view>
   <view class="setup-card">
-    <view class="setup-head">
+    <view class="setup-title-row">
       <view>
-        <text class="setup-title">快速开始比赛</text>
-        <text class="setup-desc">设置主客队、比赛节数、每节时长和计时方式。</text>
+        <text class="setup-eyebrow">{{text.appName}}</text>
+        <text class="setup-title">{{text.quickStart}}</text>
+        <text class="setup-desc">{{text.setupDesc}}</text>
       </view>
-      <view class="start" bindtap="startMatch">开始比赛</view>
+      <view class="setup-start" bindtap="startMatch">{{text.startMatch}}</view>
     </view>
-
-    <view class="form-grid">
-      <view class="field">
-        <text>主队名称</text>
-        <input value="{{homeName}}" placeholder="主队" bindinput="onHomeInput" adjust-position="{{true}}" cursor-spacing="90" />
+    <view class="setup-grid">
+      <view class="setup-field">
+        <text>{{text.homeName}}</text>
+        <input value="{{homeName}}" placeholder="{{text.homePlaceholder}}" bindinput="onHomeInput" adjust-position="{{true}}" cursor-spacing="120" />
       </view>
-      <view class="field">
-        <text>客队名称</text>
-        <input value="{{awayName}}" placeholder="客队" bindinput="onAwayInput" adjust-position="{{true}}" cursor-spacing="90" />
+      <view class="setup-field">
+        <text>{{text.awayName}}</text>
+        <input value="{{awayName}}" placeholder="{{text.awayPlaceholder}}" bindinput="onAwayInput" adjust-position="{{true}}" cursor-spacing="120" />
       </view>
-      <view class="field mode-field">
-        <text>计时方式</text>
-        <view class="mode-row">
-          <view class="mode {{timerMode == 'down' ? 'active' : ''}}" data-mode="down" bindtap="setTimerMode">倒计时</view>
-          <view class="mode {{timerMode == 'up' ? 'active' : ''}}" data-mode="up" bindtap="setTimerMode">正计时</view>
-        </view>
-      </view>
-      <view class="field duration-field">
-        <text>每节时长</text>
-        <view class="number-control">
-          <view class="step-btn" bindtap="decreasePeriodMinutes">-</view>
-          <text class="number-value">{{periodMinutes}} 分钟</text>
-          <view class="step-btn" bindtap="increasePeriodMinutes">+</view>
+      <view class="setup-field">
+        <text>{{text.periodMinutes}}</text>
+        <view class="stepper">
+          <view bindtap="decreasePeriodMinutes">-</view>
+          <text>{{periodMinutes}} {{text.minute}}</text>
+          <view bindtap="increasePeriodMinutes">+</view>
         </view>
         <view class="preset-row">
-          <view wx:for="{{durationOptions}}" wx:key="*this" class="preset {{periodMinutes == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodPreset">{{item}}分</view>
+          <view wx:for="{{durationOptions}}" wx:key="*this" class="preset {{periodMinutes == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodPreset">{{item}}{{text.minuteShort}}</view>
         </view>
       </view>
-      <view class="field period-count-field">
-        <text>比赛节数</text>
-        <view class="number-control">
-          <view class="step-btn" bindtap="decreasePeriodCount">-</view>
-          <text class="number-value">{{totalPeriods}} 节</text>
-          <view class="step-btn" bindtap="increasePeriodCount">+</view>
+      <view class="setup-field">
+        <text>{{text.totalPeriods}}</text>
+        <view class="stepper">
+          <view bindtap="decreasePeriodCount">-</view>
+          <text>{{totalPeriods}} {{text.periodUnit}}</text>
+          <view bindtap="increasePeriodCount">+</view>
         </view>
-        <view class="preset-row period-preset-row">
-          <view wx:for="{{periodOptions}}" wx:key="*this" class="preset {{totalPeriods == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodCountPreset">{{item}}节</view>
+        <view class="preset-row">
+          <view wx:for="{{periodOptions}}" wx:key="*this" class="preset {{totalPeriods == item ? 'active' : ''}}" data-value="{{item}}" bindtap="setPeriodCountPreset">{{item}}{{text.periodUnit}}</view>
+        </view>
+      </view>
+      <view class="setup-field wide">
+        <text>{{text.timerMode}}</text>
+        <view class="mode-row">
+          <view class="mode {{timerMode == 'down' ? 'active' : ''}}" data-mode="down" bindtap="setTimerMode">{{text.countdown}}</view>
+          <view class="mode {{timerMode == 'up' ? 'active' : ''}}" data-mode="up" bindtap="setTimerMode">{{text.countup}}</view>
         </view>
       </view>
     </view>
   </view>
 </view>
 
-<view wx:else class="scoreboard">
-  <view class="topbar">
-    <text>赛小蜂篮球计分盘</text>
-    <view class="mc-status {{mcUnlocked ? 'unlocked' : ''}}">{{mcStatus}}</view>
-    <view class="finish" bindtap="finishMatch">结束比赛</view>
+<view wx:else class="score-page {{isLandscape ? 'landscape' : 'portrait'}}">
+  <image class="score-bg" src="/assets/pages/scorer-v2/background/pad-scoreboard-bg-clean.png" mode="aspectFill" />
+  <view class="top-bar">
+    <view class="top-icon" bindtap="goBack">{{text.back}}</view>
+    <text class="page-title">{{titleText}}</text>
+    <view class="top-meta">
+      <text class="live-badge">LIVE</text>
+      <text>{{matchName}}</text>
+      <text class="period-text">{{text.periodPrefix}}{{period}}{{text.periodUnit}}</text>
+      <text>{{clockText}}</text>
+    </view>
+    <view class="top-pill">{{text.networkGood}}</view>
+    <view class="top-pill">{{text.synced}}</view>
+    <view class="top-icon" bindtap="goSettings">SET</view>
   </view>
 
-  <view class="clock-card">
-    <view>
-      <text class="period">第 {{period}} / {{totalPeriods}} 节</text>
-      <text class="clock-mode">{{timerModeText}} · {{periodMinutes}} 分钟</text>
+  <view class="board-grid">
+    <view class="lineup-drawer left">
+      <view class="drawer-title">{{homeName}}{{text.starter}}</view>
+      <view wx:for="{{homeStarters}}" wx:key="id" class="player-card">
+        <image src="{{item.avatar}}" mode="aspectFill" />
+        <view><text class="number">#{{item.number}}</text><text class="player-name">{{item.name}}</text><text class="position">{{item.position}}</text></view>
+      </view>
+      <view class="bench-list"><text>{{homeName}}{{text.bench}}</text><text wx:for="{{homeBench}}" wx:key="id">#{{item.number}} {{item.name}}</text></view>
     </view>
-    <text class="clock">{{clockText}}</text>
-    <view class="clock-actions">
-      <view class="clock-btn primary-clock" bindtap="toggleClock">{{clockRunning ? '暂停' : '开始'}}</view>
-      <view class="clock-btn" bindtap="resetClock">复位</view>
-      <view class="clock-btn" bindtap="nextPeriod">下一节</view>
-    </view>
-  </view>
 
-  <view wx:if="{{longPressActive}}" class="three-progress">
-    <text>{{longPressText}}</text>
-    <view class="progress-track"><view class="progress-bar" style="width: {{longPressProgress}}%;"></view></view>
-  </view>
-
-  <view wx:if="{{mcPanelOpen}}" class="mc-shade" bindtap="closeMcPanel"></view>
-  <view class="mc-sidebar {{mcPanelOpen ? 'open' : ''}}">
-    <view class="mc-drawer">
-      <view class="drawer-head">
-        <text>MC 控制台</text>
-        <view class="drawer-close" bindtap="closeMcPanel">×</view>
-      </view>
-      <view class="quick-custom">
-        <view class="quick-head">
-          <text class="quick-title">快捷自定义</text>
-          <view class="quick-edit">编辑</view>
-        </view>
-        <view class="quick-strip">
-          <view class="quick-chip active">欢呼</view>
-          <view class="quick-chip empty">空</view>
-          <view class="quick-chip empty">空</view>
-          <view class="quick-chip empty">空</view>
-        </view>
-      </view>
-      <view class="pad-row">
-        <view class="pad-btn attack {{bgmType == 'attack' ? 'playing' : ''}}" bindtap="playAttackMusic">进攻</view>
-        <view class="pad-btn defense {{bgmType == 'defense' ? 'playing' : ''}}" bindtap="playDefenseMusic">防守</view>
-      </view>
-      <view class="pad-grid">
-        <view class="pad-btn" bindtap="playTwoSound">2分有效</view>
-        <view class="pad-btn" bindtap="playMissSound">投篮未进</view>
-        <view class="pad-btn" bindtap="playCheerSound">欢呼声</view>
-      </view>
+    <view class="team-panel home">
+      <view class="team-head"><image class="team-logo" src="{{homeLogo}}" mode="aspectFit" /><text class="team-name">{{homeName}}</text></view>
+      <text class="big-score {{homeScorePulse ? 'pulse' : ''}}">{{homeScore}}</text>
+      <view class="team-meta"><text>{{text.totalFouls}} <text class="orange">{{homeFouls}}</text></text><text>{{text.timeout}} <text class="orange">{{homeTimeouts}}</text></text></view>
+      <view class="score-grid"><view bindtap="addHome1">+1</view><view bindtap="addHome2">+2</view><view bindtouchstart="startHome3Press" bindtouchend="stopLongPress" bindtouchcancel="stopLongPress">+3</view><view bindtap="addHomeFoul">{{text.foul}}</view><view bindtap="addHomeTimeout">{{text.timeout}}</view><view bindtap="openHomeSub">{{text.substitution}}</view></view>
     </view>
-    <view class="mc-edge-tab" bindtap="toggleMcPanel">
-      <view class="tab-signal"></view>
-      <text>MC</text>
+
+    <view class="center-panel">
+      <text class="main-clock">{{clockText}}</text>
+      <view class="center-actions"><view class="primary" bindtap="toggleClock">{{clockRunning ? text.pause : text.start}}</view><view bindtap="confirmReset">{{text.reset}}</view></view>
+      <view class="quarter-row"><view bindtap="prevPeriod">{{text.prevPeriod}}</view><view bindtap="selectPeriod">Q{{period}}</view><view bindtap="nextPeriod">{{text.nextPeriod}}</view></view>
+      <view class="swap-btn" bindtap="swapSides">{{text.swapCourt}}</view>
+      <view class="recent-list"><view class="recent-head"><text>{{text.recentActions}}</text><text bindtap="clearEvents">{{text.clear}}</text></view><view wx:for="{{events}}" wx:key="id" class="event-row"><text>{{item.time}}</text><text>{{item.team}}</text><text>{{item.action}}</text><text>{{item.score}}</text></view></view>
+    </view>
+
+    <view class="team-panel away">
+      <view class="team-head"><image class="team-logo" src="{{awayLogo}}" mode="aspectFit" /><text class="team-name">{{awayName}}</text></view>
+      <text class="big-score {{awayScorePulse ? 'pulse' : ''}}">{{awayScore}}</text>
+      <view class="team-meta"><text>{{text.totalFouls}} <text class="orange">{{awayFouls}}</text></text><text>{{text.timeout}} <text class="orange">{{awayTimeouts}}</text></text></view>
+      <view class="score-grid away-score-grid"><view bindtap="addAway1">+1</view><view bindtap="addAway2">+2</view><view bindtouchstart="startAway3Press" bindtouchend="stopLongPress" bindtouchcancel="stopLongPress">+3</view><view bindtap="addAwayFoul">{{text.foul}}</view><view bindtap="addAwayTimeout">{{text.timeout}}</view><view bindtap="openAwaySub">{{text.substitution}}</view></view>
+    </view>
+
+    <view class="lineup-drawer right">
+      <view class="drawer-title">{{awayName}}{{text.starter}}</view>
+      <view wx:for="{{awayStarters}}" wx:key="id" class="player-card"><image src="{{item.avatar}}" mode="aspectFill" /><view><text class="number">#{{item.number}}</text><text class="player-name">{{item.name}}</text><text class="position">{{item.position}}</text></view></view>
+      <view class="bench-list"><text>{{awayName}}{{text.bench}}</text><text wx:for="{{awayBench}}" wx:key="id">#{{item.number}} {{item.name}}</text></view>
     </view>
   </view>
 
-  <view class="main">
-    <view class="team-card">
-      <text class="team-name">{{homeName}}</text>
-      <text class="team-score {{homeScorePulse ? 'pulse' : ''}}">{{homeScore}}</text>
-      <view class="stat-line">
-        <view class="team-stat">
-          <text>犯规 {{homeFouls}}</text>
-          <view class="stat-actions">
-            <view class="stat-btn" bindtap="subtractHomeFoul">-</view>
-            <view class="stat-btn add" bindtap="addHomeFoul">+</view>
-          </view>
-        </view>
-        <view class="team-stat">
-          <text>暂停 {{homeTimeouts}}</text>
-          <view class="stat-actions">
-            <view class="stat-btn" bindtap="subtractHomeTimeout">-</view>
-            <view class="stat-btn add" bindtap="addHomeTimeout">+</view>
-          </view>
-        </view>
-      </view>
-      <view class="score-buttons">
-        <view class="score-btn" bindtap="addHome1">+1</view>
-        <view class="score-btn" bindtap="addHome2">+2</view>
-        <view class="score-btn hold" bindtouchstart="startHome3Press" bindtouchend="stopLongPress" bindtouchcancel="stopLongPress">长按+3</view>
-      </view>
+  <view wx:if="{{longPressActive}}" class="three-progress"><text>{{longPressText}}</text><view class="progress-track"><view class="progress-bar" style="width: {{longPressProgress}}%;"></view></view></view>
+
+  <view class="bottom-panels">
+    <view class="tech-panel"><view wx:for="{{techActions}}" wx:key="key" class="tech-btn" data-key="{{item.key}}" bindtap="recordTech"><image src="{{item.icon}}" mode="aspectFit" /><text>{{item.name}}</text></view></view>
+    <view class="mc-panel">
+      <view class="mc-title"><text>{{text.mcManager}}</text><text>{{text.currentPlaying}}{{currentAudioName ? currentAudioName : noAudioText}}</text></view>
+      <view class="mc-actions"><view class="{{playingType == 'attack' ? 'active' : ''}}" bindtap="playAttack">{{text.attackSound}}</view><view class="{{playingType == 'defense' ? 'active' : ''}}" bindtap="playDefense">{{text.defenseSound}}</view><view bindtap="announceScore">{{text.scoreVoice}}</view><view class="{{playingType == 'rest' ? 'active' : ''}}" bindtap="playRestMusic">{{text.restMusic}}</view><view bindtap="playSubSound">{{text.subSound}}</view><view bindtap="playMvpSound">{{text.mvpSound}}</view></view>
+      <view class="volume-row"><text>{{text.volume}}</text><slider value="{{volume}}" min="0" max="100" bindchange="setVolume" /><view bindtap="stopAudio">{{text.stopAudio}}</view></view>
     </view>
-
-    <view class="center">
-      <text class="vs">VS</text>
-      <view class="swap" bindtap="swapTeams">换边</view>
-      <view class="undo" bindtap="undo">撤销</view>
-      <view class="reset" bindtap="resetMatch">重开</view>
-      <view class="voice-btn" bindtap="announceScore">{{voiceButtonText}}</view>
-    </view>
-
-    <view class="team-card">
-      <text class="team-name">{{awayName}}</text>
-      <text class="team-score {{awayScorePulse ? 'pulse' : ''}}">{{awayScore}}</text>
-      <view class="stat-line">
-        <view class="team-stat">
-          <text>犯规 {{awayFouls}}</text>
-          <view class="stat-actions">
-            <view class="stat-btn" bindtap="subtractAwayFoul">-</view>
-            <view class="stat-btn add" bindtap="addAwayFoul">+</view>
-          </view>
-        </view>
-        <view class="team-stat">
-          <text>暂停 {{awayTimeouts}}</text>
-          <view class="stat-actions">
-            <view class="stat-btn" bindtap="subtractAwayTimeout">-</view>
-            <view class="stat-btn add" bindtap="addAwayTimeout">+</view>
-          </view>
-        </view>
-      </view>
-      <view class="score-buttons">
-        <view class="score-btn" bindtap="addAway1">+1</view>
-        <view class="score-btn" bindtap="addAway2">+2</view>
-        <view class="score-btn hold" bindtouchstart="startAway3Press" bindtouchend="stopLongPress" bindtouchcancel="stopLongPress">长按+3</view>
-      </view>
-    </view>
-  </view>
-
-  <view wx:if="{{bgmType}}" class="music-bar">
-    <text>{{bgmLabel}}播放中</text>
-    <view class="music-stop" bindtap="stopBgm">停止</view>
-  </view>
-
-  <view class="events">
-    <text>最近记录</text>
-    <text>{{latestEvent}}</text>
   </view>
 </view>

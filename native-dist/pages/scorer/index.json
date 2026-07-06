@@ -1,4 +1,6 @@
 {
   "navigationBarTitleText": "比赛计分",
-  "pageOrientation": "landscape"
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "usingComponents": {}
 }

@@ -1,21 +1,95 @@
-<view class="page-wrap">
-  <text class="title">球员库</text>
-  <text class="desc">添加常用球员姓名和唯一球衣号码，创建场次时可从球员库选择。</text>
+<view class="player-page">
+  <image class="page-bg" src="{{assets.bg}}" mode="aspectFill" />
 
-  <view class="form-card">
-    <input value="{{name}}" placeholder="球员姓名" bindinput="onNameInput" />
-    <input value="{{number}}" type="number" placeholder="球衣号码，例如：8" bindinput="onNumberInput" />
-    <text class="number-hint">已占用号码：{{usedNumbersText}}</text>
-    <view class="primary" bindtap="addPlayer">添加球员</view>
+  <view class="page-content">
+    <image class="status-bar" src="{{assets.statusBar}}" mode="aspectFit" />
+
+    <view class="top-header">
+      <image class="brand-title" src="{{assets.logoTitle}}" mode="aspectFit" />
+      <image class="add-player" src="{{assets.addButton}}" mode="aspectFit" bindtap="openAddModal" />
+    </view>
+
+    <view class="search-row">
+      <view class="search-box">
+        <image class="search-icon" src="{{assets.searchIcon}}" mode="aspectFit" />
+        <input class="search-input" value="{{keyword}}" placeholder="搜索姓名/号码" placeholder-class="search-placeholder" bindinput="onKeywordInput" />
+      </view>
+      <view class="filter-button" bindtap="toggleFilter">
+        <image class="filter-icon" src="{{assets.filterIcon}}" mode="aspectFit" />
+        <text>筛选</text>
+      </view>
+    </view>
+
+    <view class="chip-row">
+      <view wx:for="{{filters}}" wx:key="key" class="filter-chip {{item.activeClass}}" data-key="{{item.key}}" bindtap="onFilterTap">
+        <text>{{item.label}}</text>
+      </view>
+    </view>
+
+    <view class="summary-card">
+      <view class="summary-item">
+        <image class="summary-icon total" src="{{assets.summaryTotal}}" mode="aspectFit" />
+        <view class="summary-copy">
+          <text class="summary-label">球员总数</text>
+          <text class="summary-number orange">{{stats.total}}</text>
+        </view>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item">
+        <image class="summary-icon assigned" src="{{assets.summaryAssigned}}" mode="aspectFit" />
+        <view class="summary-copy">
+          <text class="summary-label">已分队</text>
+          <text class="summary-number">{{stats.assigned}}</text>
+        </view>
+      </view>
+      <view class="summary-divider"></view>
+      <view class="summary-item compact">
+        <image class="summary-icon unassigned" src="{{assets.summaryUnassigned}}" mode="aspectFit" />
+        <view class="summary-copy">
+          <text class="summary-label">未分队</text>
+          <text class="summary-number muted">{{stats.unassigned}}</text>
+        </view>
+      </view>
+    </view>
+
+    <scroll-view class="player-list" scroll-y="true" enhanced="true" show-scrollbar="false">
+      <view wx:if="{{isEmptyVisible}}" class="empty-state">没有找到匹配球员</view>
+      <view wx:for="{{visiblePlayers}}" wx:key="id" class="player-card">
+        <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
+        <view class="player-main">
+          <view class="name-row">
+            <text class="jersey">#{{item.number}}</text>
+            <text class="player-name">{{item.name}}</text>
+          </view>
+          <view class="team-row">
+            <image class="team-logo" src="{{item.teamLogo}}" mode="aspectFit" />
+            <text class="team-name">{{item.team}}</text>
+          </view>
+          <view class="tag-row">
+            <text wx:for="{{item.tags}}" wx:key="*this" class="player-tag">{{item}}</text>
+          </view>
+        </view>
+        <view class="card-actions">
+          <image class="edit-icon" src="{{assets.editIcon}}" mode="aspectFit" data-id="{{item.id}}" bindtap="onEditPlayer" />
+          <text class="chevron">›</text>
+        </view>
+      </view>
+      <view class="loaded-text">— 已全部加载 —</view>
+    </scroll-view>
   </view>
 
-  <text class="section">当前球员库</text>
-  <view wx:if="{{players.length === 0}}" class="empty">暂无球员</view>
-  <view wx:for="{{players}}" wx:key="id" class="player">
-    <view class="player-info">
-      <text class="number">#{{item.number || '--'}}</text>
-      <text class="name">{{item.name}}</text>
+  <sxf-tabbar active="player" />
+
+  <view wx:if="{{showAddModal}}" class="modal-mask" catchtap="closeAddModal">
+    <view class="add-modal" catchtap="noop">
+      <text class="modal-title">添加球员</text>
+      <input class="modal-input" value="{{name}}" placeholder="球员姓名" bindinput="onNameInput" />
+      <input class="modal-input" value="{{number}}" type="number" placeholder="球衣号码，例如：8" bindinput="onNumberInput" />
+      <text class="number-hint">已占用号码：{{usedNumbersText}}</text>
+      <view class="modal-actions">
+        <view class="modal-cancel" bindtap="closeAddModal">取消</view>
+        <view class="modal-confirm" bindtap="addPlayer">保存</view>
+      </view>
     </view>
-    <view class="delete-btn" data-id="{{item.id}}" catchtap="deletePlayer">删除</view>
   </view>
 </view>

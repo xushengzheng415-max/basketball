@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "创建赛事"
+  "navigationBarTitleText": "\u8d5b\u4e8b",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "sxf-tabbar": "/components/sxf-tabbar/index"
+  }
 }

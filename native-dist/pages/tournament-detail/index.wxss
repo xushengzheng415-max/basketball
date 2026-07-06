@@ -108,3 +108,53 @@ input,
   font-size: 24rpx;
   font-weight: 900;
 }
+
+.hero-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18rpx;
+}
+.hero-head > view:first-child {
+  min-width: 0;
+}
+.hero-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 10rpx;
+}
+.small-btn {
+  display: flex;
+  min-width: 88rpx;
+  height: 50rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8rpx;
+  background: rgba(255,255,255,0.14);
+  color: #fff;
+  font-size: 22rpx;
+  font-weight: 900;
+}
+.small-btn.danger {
+  background: rgba(240,90,40,0.95);
+}
+.edit-card {
+  margin-top: 18rpx;
+}
+.form-actions {
+  display: grid;
+  grid-template-columns: 1fr 160rpx;
+  gap: 14rpx;
+}
+.secondary {
+  display: flex;
+  height: 84rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid #d7dee8;
+  border-radius: 10rpx;
+  color: #344054;
+  background: #fff;
+  font-size: 28rpx;
+  font-weight: 900;
+}

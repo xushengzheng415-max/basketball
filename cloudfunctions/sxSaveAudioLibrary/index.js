@@ -4,16 +4,16 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
-const CHANNELS = ['buzzer', 'three', 'two', 'miss', 'cheer', 'attack', 'defense', 'rest'];
+const CHANNELS = ['buzzer', 'three', 'two', 'miss', 'cheer', 'applause', 'attack', 'defense', 'rest', 'start', 'voice', 'ambience'];
 const DEFAULT_BUCKET_PREFIX = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3';
 const DEFAULT_AUDIO_ITEMS = [
-  { channel: 'buzzer', name: '蜂鸣器', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/蜂鸣器.mp3`, sort: 10 },
-  { channel: 'three', name: '三分球', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/三分球.mp3`, sort: 20 },
-  { channel: 'two', name: '2分进球有效', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/2分进球音效.mp3`, sort: 30 },
-  { channel: 'miss', name: '投篮未进', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/投篮未进音效.mp3`, sort: 40 },
-  { channel: 'cheer', name: '欢呼声', fileID: `${DEFAULT_BUCKET_PREFIX}/比赛音效/欢呼声.mp3`, sort: 50 },
-  { channel: 'rest', name: 'Remember the Name', fileID: `${DEFAULT_BUCKET_PREFIX}/暂停休息音乐/Fort Minor - Remember the Name_L.mp3`, sort: 60 },
-  { channel: 'rest', name: 'Its My Life', fileID: `${DEFAULT_BUCKET_PREFIX}/暂停休息音乐/Studio 99 - Its My Life_L.mp3`, sort: 70 }
+  { channel: 'buzzer', name: '\u8702\u9e23\u5668', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/\u8702\u9e23\u5668.mp3`, sort: 10 },
+  { channel: 'three', name: '\u4e09\u5206\u7403', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/\u4e09\u5206\u7403.mp3`, sort: 20 },
+  { channel: 'two', name: '2\u5206\u8fdb\u7403\u6709\u6548', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/2\u5206\u8fdb\u7403\u97f3\u6548.mp3`, sort: 30 },
+  { channel: 'miss', name: '\u6295\u7bee\u672a\u8fdb', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/\u6295\u7bee\u672a\u8fdb\u97f3\u6548.mp3`, sort: 40 },
+  { channel: 'cheer', name: '\u6b22\u547c\u58f0', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/\u6b22\u547c\u58f0.mp3`, sort: 50 },
+  { channel: 'rest', name: 'Remember the Name', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6682\u505c\u4f11\u606f\u97f3\u4e50/Fort Minor - Remember the Name_L.mp3`, sort: 60 },
+  { channel: 'rest', name: 'Its My Life', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6682\u505c\u4f11\u606f\u97f3\u4e50/Studio 99 - Its My Life_L.mp3`, sort: 70 }
 ];
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',

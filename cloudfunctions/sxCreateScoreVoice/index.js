@@ -204,12 +204,12 @@ exports.main = async (event) => {
   const text = String(event.text || '').trim();
   const style = event.style || 'standard';
 
-  if (!text) return { ok: false, code: 'empty_text', message: '鎾姤鏂囨涓嶈兘涓虹┖' };
-  if (text.length > 500) return { ok: false, code: 'text_too_long', message: '鎾姤鏂囨杩囬暱' };
+  if (!text) return { ok: false, code: 'empty_text', message: '\u8bf7\u5148\u751f\u6210\u9700\u8981\u64ad\u62a5\u7684\u6587\u6848' };
+  if (text.length > 500) return { ok: false, code: 'text_too_long', message: '\u64ad\u62a5\u6587\u6848\u8fc7\u957f\uff0c\u8bf7\u7f29\u77ed\u540e\u518d\u8bd5' };
 
   const voiceEntitlement = await findVoiceCredit(openid);
   if (!voiceEntitlement) {
-    return { ok: false, code: 'no_voice_credit', message: 'AI 鎾姤棰濆害涓嶈冻锛岃閫氳繃鍒嗕韩鎴栬喘涔拌闊虫挱鎶ュ寘鑾峰彇棰濆害' };
+    return { ok: false, code: 'no_voice_credit', message: '\u5f53\u524d\u6ca1\u6709\u53ef\u7528\u7684 AI \u64ad\u62a5\u6b21\u6570\u3002\u53ef\u8ba2\u8d2d 50/150/400 \u6b21\u64ad\u62a5\u5305\uff0c\u7528\u5b8c\u518d\u8865\u5145\u3002' };
   }
 
   const voice = buildVoiceConfig(style);
@@ -228,7 +228,7 @@ exports.main = async (event) => {
   try {
     const response = await postTencentTts(params);
     const audioBase64 = response.Audio;
-    if (!audioBase64) return { ok: false, code: 'empty_audio', message: '鑵捐浜戞湭杩斿洖闊抽' };
+    if (!audioBase64) return { ok: false, code: 'empty_audio', message: '\u8bed\u97f3\u751f\u6210\u6210\u529f\u4f46\u672a\u8fd4\u56de\u97f3\u9891' };
 
     const cloudPath = `score-voice/${openid}/${sessionId}.mp3`;
     const upload = await cloud.uploadFile({
@@ -268,6 +268,6 @@ exports.main = async (event) => {
     };
   } catch (error) {
     console.error('[sxCreateScoreVoice] tts failed', error);
-    return { ok: false, code: error.code || 'tts_failed', message: error.message || '璇煶鍚堟垚澶辫触' };
+    return { ok: false, code: error.code || 'tts_failed', message: error.message || '\u817e\u8baf\u4e91 TTS \u751f\u6210\u5931\u8d25' };
   }
 };

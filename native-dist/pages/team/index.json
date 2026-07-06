@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "球员库"
+  "navigationBarTitleText": "\u7403\u5458\u5e93",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "sxf-tabbar": "/components/sxf-tabbar/index"
+  }
 }

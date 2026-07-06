@@ -1,61 +1,118 @@
-<view class="home">
-  <image class="home-bg" src="/assets/home/home-bg.jpg" mode="aspectFill" />
-  <view class="home-content">
-    <view class="hero" bindtap="goScorer">
-      <image class="hero-logo" src="/assets/home/main-logo.png" mode="aspectFit" />
-      <view class="hero-copy">
-        <text class="brand">赛小蜂篮球</text>
-        <text class="title">快速开始一场比赛</text>
-        <text class="desc">设置主队、客队和比赛时间，横屏计分，结束后自动生成赛果。</text>
-        <view class="hero-action">开始设置</view>
+<view class="home-page">
+  <view class="top-hero">
+    <view class="brand-row">
+      <view class="brand-left">
+        <image class="brand-logo" src="/assets/home/brand-horizontal-logo.png" mode="aspectFit" />
+      </view>
+
+      <view class="campus-pill" bindtap="openCampusRole">
+        <text>{{currentRole}}</text>
+        <text class="campus-arrow">▾</text>
       </view>
     </view>
 
-    <view class="pay-entry" bindtap="goProducts">
-      <image class="entry-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
-      <view class="entry-copy">
-        <text class="pay-title">升级 Pro 功能</text>
-        <text class="pay-desc">MC 音频系统、计分板 2.0 球员数据统计</text>
-      </view>
-      <text class="pay-arrow">›</text>
+    <view class="section-label light">
+      <view class="section-line"></view>
+      <text>快速比赛</text>
     </view>
 
-    <view class="section-title">最近赛果</view>
-    <view wx:if="{{latestResult}}" class="result-swipe">
-      <view class="delete-action" bindtap="deleteLatestResult">删除</view>
-      <view class="result-card {{showResultDelete ? 'show-delete' : ''}}" bindtouchstart="onResultTouchStart" bindtouchend="onResultTouchEnd">
-        <view class="result-row">
-          <text>{{latestResult.homeName}}</text>
-          <text class="score">{{latestResult.homeScore}}</text>
-        </view>
-        <view class="result-row">
-          <text>{{latestResult.awayName}}</text>
-          <text class="score">{{latestResult.awayScore}}</text>
-        </view>
-        <view class="result-fouls">
-          <text>犯规 {{latestResult.homeFouls || 0}}</text>
-          <text>犯规 {{latestResult.awayFouls || 0}}</text>
-        </view>
-        <text class="time">{{latestResult.endedAt}}</text>
+    <view class="quick-card">
+      <image class="quick-card-bg" src="/assets/home/quick-match/home-hero-bg.png" mode="aspectFill" />
+      <view class="quick-copy">
+        <text class="quick-title">快速开始一场比赛</text>
+        <text class="quick-desc">设置队伍、节次和时长，立即进入计分</text>
+        <button class="primary-btn" bindtap="goQuickMatch">开始设置</button>
       </view>
-    </view>
-    <view wx:else class="empty">暂无赛果，先开始一场比赛吧。</view>
 
-    <view class="shortcuts">
-      <view class="shortcut" bindtap="goTournament">
-        <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
-        <view>
-          <text class="shortcut-title">创建赛事</text>
-          <text class="shortcut-desc">赛事名称、地点、场次</text>
+
+      <view class="quick-stats">
+        <view class="stat-item">
+          <image class="stat-icon" src="/assets/home/quick-match/stat-today.png" mode="aspectFit" />
+          <view>
+            <text class="stat-label">今日比赛</text>
+            <text class="stat-number">{{todayStats.total}}</text>
+          </view>
         </view>
-      </view>
-      <view class="shortcut" bindtap="goTeam">
-        <image class="shortcut-icon" src="/assets/home/basketball-icon.png" mode="aspectFit" />
-        <view>
-          <text class="shortcut-title">球员库</text>
-          <text class="shortcut-desc">添加球员与号码</text>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <image class="stat-icon" src="/assets/home/quick-match/stat-pending.png" mode="aspectFit" />
+          <view>
+            <text class="stat-label">待开始</text>
+            <text class="stat-number">{{todayStats.pending}}</text>
+          </view>
+        </view>
+        <view class="stat-divider"></view>
+        <view class="stat-item">
+          <image class="stat-icon" src="/assets/home/quick-match/stat-finished.png" mode="aspectFit" />
+          <view>
+            <text class="stat-label">已完成</text>
+            <text class="stat-number">{{todayStats.finished}}</text>
+          </view>
         </view>
       </view>
     </view>
   </view>
+
+  <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="panel shortcut-panel">
+      <view class="section-label">
+        <view class="section-line"></view>
+        <text>快捷功能</text>
+      </view>
+
+      <view class="shortcut-grid">
+        <view wx:for="{{shortcutItems}}" wx:key="key" class="shortcut-card {{item.cardClass}}" data-key="{{item.key}}" bindtap="onShortcutTap">
+          <image class="shortcut-icon {{item.iconClass}}" src="{{item.icon}}" mode="aspectFit" />
+          <text class="shortcut-title">{{item.title}}</text>
+          <text class="shortcut-desc">{{item.desc}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="panel match-panel">
+      <view class="section-label">
+        <view class="section-line"></view>
+        <text>最近对阵比分</text>
+      </view>
+
+      <view class="match-list" wx:if="{{hasRecentMatches}}">
+        <view wx:for="{{recentMatches}}" wx:key="id" class="match-row" data-id="{{item.id}}" bindtap="goMatchDetail">
+          <view class="team-side">
+            <view class="team-logo {{item.homeLogoClass}}"></view>
+            <text class="team-name">{{item.homeName}}</text>
+          </view>
+
+          <view class="score-side">
+            <view class="score-line">
+              <text class="score-main">{{item.homeScore}}</text>
+              <text class="score-split">-</text>
+              <text class="score-away">{{item.awayScore}}</text>
+            </view>
+            <text class="match-meta">{{item.time}}  {{item.venue}}</text>
+          </view>
+
+          <view class="team-side right">
+            <view class="team-logo {{item.awayLogoClass}}"></view>
+            <text class="team-name">{{item.awayName}}</text>
+          </view>
+
+          <view class="status-pill {{item.statusClass}}">{{item.statusText}}</view>
+          <text class="row-arrow">›</text>
+        </view>
+
+        <view class="more-link" bindtap="goMoreMatches">
+          <text>查看更多</text>
+          <text>›</text>
+        </view>
+      </view>
+
+      <view class="empty-card" wx:else>
+        <text>暂无最近对阵比分</text>
+      </view>
+    </view>
+
+    <view class="bottom-safe"></view>
+  </scroll-view>
+
+  <sxf-tabbar active="home" />
 </view>

@@ -3,46 +3,46 @@
     <view class="profile-main">
       <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
         <image wx:if="{{profile.avatarUrl}}" class="avatar" src="{{profile.avatarUrl}}" mode="aspectFill" />
-        <text wx:else class="avatar-placeholder">蜂</text>
+        <text wx:else class="avatar-placeholder">S</text>
       </button>
       <view class="profile-info">
         <text class="eyebrow">我的账号</text>
-        <text class="title">{{profile.nickName}}</text>
-        <text class="desc">{{profile.loggedIn ? '已登录，可编辑头像和昵称' : '登录后可保存个人资料'}}</text>
+        <input class="nickname-input" type="nickname" value="{{draftNickName}}" placeholder="点击修改昵称" bindinput="onNicknameInput" />
+        <text wx:if="{{profile.loggedIn}}" class="desc">已登录，可编辑头像和昵称</text>
+        <text wx:else class="desc">登录后可保存账号信息</text>
       </view>
     </view>
-    <view wx:if="{{!profile.loggedIn}}" class="login-btn" bindtap="login">微信授权登录</view>
-    <view wx:else class="logout-btn" bindtap="logout">退出登录</view>
+    <view class="profile-auth">
+      <view class="profile-auth-row"><text>授权手机号</text><text>{{profile.phoneNumberText}}</text></view>
+      <view class="profile-auth-row"><text>微信授权标识</text><text>{{profile.wxOpenIdText}}</text></view>
+    </view>
+    <view class="profile-actions">
+      <view class="save-nickname" bindtap="saveProfile">保存昵称</view>
+      <view wx:if="{{!profile.loggedIn}}" class="login-btn" bindtap="login">微信授权登录</view>
+      <view wx:else class="logout-btn" bindtap="logout">退出登录</view>
+    </view>
   </view>
 
   <view class="settings-card">
     <view class="section-head">
       <text class="section-title no-margin">会员兑换</text>
-      <text class="count">{{membership ? '已解锁' : '未兑换'}}</text>
+      <text wx:if="{{membership}}" class="count">已解锁</text>
+      <text wx:else class="count">未兑换</text>
     </view>
     <view wx:if="{{membership}}" class="member-status">
-      <text>{{membership.productName || '赛小蜂 Pro 会员'}}</text>
-      <text>{{membership.expiresAt ? '有效期内' : '长期有效'}}</text>
+      <text>{{membership.productName}}</text>
+      <text>{{membership.expiresAt}}</text>
     </view>
     <input value="{{redeemCode}}" placeholder="请输入会员兑换码" bindinput="onRedeemInput" />
-    <view class="primary" bindtap="redeemMembership">{{redeemLoading ? '兑换中...' : '兑换会员'}}</view>
+    <view class="primary" bindtap="redeemMembership">兑换会员</view>
   </view>
 
-  <view class="settings-card">
-    <text class="section-title">个人资料</text>
-    <view class="field">
-      <text class="label">昵称</text>
-      <input type="nickname" value="{{draftNickName}}" placeholder="请输入昵称" bindinput="onNicknameInput" />
+  <view class="settings-card" bindtap="goMcSettings">
+    <view class="section-head">
+      <text class="section-title no-margin">MC 音效设置</text>
+      <text class="count">快捷键 / 本机音效</text>
     </view>
-    <view class="auth-row">
-      <text>微信授权标识</text>
-      <text>{{profile.wxOpenId || profile.wxUnionId ? '已授权' : '登录后由系统获取'}}</text>
-    </view>
-    <view class="auth-row">
-      <text>授权手机号</text>
-      <text>{{profile.phoneNumber || '登录授权后同步'}}</text>
-    </view>
-    <view class="primary" bindtap="saveProfile">确认修改</view>
+    <text class="desc dark">管理 2 分、3 分音效、进攻防守音乐和 6 键快捷键。</text>
   </view>
 
   <view class="settings-card">
@@ -51,7 +51,7 @@
       <text class="count">已提交 {{feedbackCount}} 条</text>
     </view>
     <view class="type-row">
-      <view wx:for="{{feedbackTypes}}" wx:key="*this" class="type-pill {{feedbackType == item ? 'active' : ''}}" data-type="{{item}}" bindtap="setFeedbackType">{{item}}</view>
+      <view wx:for="{{feedbackTypeOptions}}" wx:key="name" class="type-pill {{item.activeClass}}" data-type="{{item.name}}" bindtap="setFeedbackType">{{item.name}}</view>
     </view>
     <textarea value="{{feedbackContent}}" placeholder="告诉我们哪里不好用，或者你希望增加什么功能" maxlength="300" bindinput="onFeedbackInput" />
     <input value="{{contact}}" placeholder="联系方式（选填）" bindinput="onContactInput" />
@@ -60,13 +60,8 @@
 
   <view class="settings-card">
     <text class="section-title">关于赛小蜂篮球</text>
-    <view class="info-row">
-      <text>当前版本</text>
-      <text>原型版 0.1.0</text>
-    </view>
-    <view class="info-row">
-      <text>服务内容</text>
-      <text>赛事、计分、球员管理</text>
-    </view>
+    <view class="info-row"><text>当前版本</text><text>原型版 0.1.0</text></view>
+    <view class="info-row"><text>服务内容</text><text>赛事、计分、球员管理</text></view>
   </view>
+  <sxf-tabbar active="mine" />
 </view>
