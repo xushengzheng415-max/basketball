@@ -36,8 +36,8 @@ function openOrder(plan, featureSummary) {
 Page({
   data: { copy, sharePlan, mcPaidPlans, voicePlans, showMcPay: false, mode: 'mc' },
   onLoad(options) { this.setData({ mode: options && options.type === 'voice' ? 'voice' : 'mc' }); },
-  onShareAppMessage() { return { title: shareTitle, path: '/pages/login/index?from=share_mc', imageUrl: '/assets/home/basketball-icon.png' }; },
-  onShareTimeline() { return { title: shareTitle, query: 'from=timeline_mc', imageUrl: '/assets/home/basketball-icon.png' }; },
+  onShareAppMessage() { return { title: shareTitle, path: '/pages/login/index?from=share_mc', imageUrl: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/basketball-icon.png' }; },
+  onShareTimeline() { return { title: shareTitle, query: 'from=timeline_mc', imageUrl: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/basketball-icon.png' }; },
   selectSharePlan() {
     wx.showShareMenu({ withShareTicket: true, menus: ['shareAppMessage', 'shareTimeline'] });
     wx.showModal({

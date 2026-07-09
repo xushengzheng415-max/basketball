@@ -20,12 +20,12 @@ Page({
     visibleTournaments: [],
     hasVisibleTournaments: false,
     tabItems: [
-      { key: 'home', text: '工作台', iconClass: 'home', icon: '/assets/tabbar/tab-home.png', activeClass: '' },
-      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: '/assets/tabbar/tab-tournament-selected.png', activeClass: 'active' },
-      { key: 'team', text: '球员', iconClass: 'user', icon: '/assets/tabbar/tab-team.png', activeClass: '' },
-      { key: 'education', text: '教务', iconClass: 'edu', icon: '/assets/tabbar/tab-education.png', activeClass: '' },
-      { key: 'data', text: '数据', iconClass: 'data', icon: '/assets/tabbar/tab-data.png', activeClass: '' },
-      { key: 'mine', text: '我的', iconClass: 'mine', icon: '/assets/tabbar/tab-mine.png', activeClass: '' }
+      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home.png', activeClass: '' },
+      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament-selected.png', activeClass: 'active' },
+      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
+      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-education.png', activeClass: '' },
+      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
+      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
     ]
   },
 
@@ -59,7 +59,7 @@ Page({
         status: 'running',
         teams: 12,
         games: 36,
-        cardImage: '/assets/tournament/tournament-card-elite-u10.png'
+        cardImage: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-elite-u10.png'
       },
       {
         id: 'seed-u12-weekend',
@@ -69,7 +69,7 @@ Page({
         status: 'draft',
         teams: 16,
         games: 48,
-        cardImage: '/assets/tournament/tournament-card-u12-weekend.png'
+        cardImage: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-u12-weekend.png'
       },
       {
         id: 'seed-training-internal',
@@ -79,7 +79,7 @@ Page({
         status: 'ended',
         teams: 8,
         games: 12,
-        cardImage: '/assets/tournament/tournament-card-training-internal.png'
+        cardImage: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-training-internal.png'
       }
     ];
   },
@@ -95,14 +95,14 @@ Page({
 
   normalizeTournament(tournament, index) {
     const covers = [
-      '/assets/tournament/cover-elite-u10.png',
-      '/assets/tournament/cover-u12-weekend.png',
-      '/assets/tournament/cover-training-internal.png'
+      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/cover-elite-u10.png',
+      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/cover-u12-weekend.png',
+      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/cover-training-internal.png'
     ];
     const cardImages = [
-      '/assets/tournament/tournament-card-elite-u10.png',
-      '/assets/tournament/tournament-card-u12-weekend.png',
-      '/assets/tournament/tournament-card-training-internal.png'
+      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-elite-u10.png',
+      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-u12-weekend.png',
+      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-training-internal.png'
     ];
     const status = tournament.status || 'draft';
     const statusMeta = this.getStatusMeta(status);
@@ -157,8 +157,8 @@ Page({
     });
   },
 
-  showCreateTournament() {
-    this.setData({ showCreatePanel: true });
+  goCreateTournament() {
+    wx.navigateTo({ url: '/pages/tournament-create/index?from=tournament' });
   },
 
   hideCreateTournament() {
@@ -219,8 +219,16 @@ Page({
   },
 
   openTournament(event) {
-    const id = event.currentTarget.dataset.id;
-    wx.navigateTo({ url: `/pages/tournament-detail/index?id=${id}` });
+    const id = event.currentTarget.dataset.id || event.target.dataset.id;
+    if (!id) {
+      wx.showToast({ title: '璧涗簨淇℃伅缂哄け', icon: 'none' });
+      return;
+    }
+    wx.navigateTo({
+      url: '/pages/tournament-detail/index?id=' + encodeURIComponent(String(id)),
+      fail: () => wx.showToast({ title: '璧涗簨璇︽儏鎵撳紑澶辫触', icon: 'none' })
+    });
   }
 });
+
 

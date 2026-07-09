@@ -1,118 +1,200 @@
+page {
+  min-height: 100%;
+  background: #04080b;
+}
+
 .page-wrap {
+  box-sizing: border-box;
+  min-height: 100vh;
   padding: 28rpx;
+  background: linear-gradient(180deg, #0b151e 0%, #04080b 72%);
 }
+
 .hero {
-  padding: 28rpx;
+  padding: 26rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
   border-radius: 12rpx;
-  background: #101820;
+  color: #fff;
+  background: #101b24;
+  box-shadow: 0 14rpx 34rpx rgba(0, 0, 0, 0.28);
 }
+
 .eyebrow,
-.title,
-.desc,
-.section,
-.roster-title,
-.player-name {
+.title {
   display: block;
 }
+
 .eyebrow {
-  color: #ffd65a;
+  color: #f5c542;
   font-size: 22rpx;
   font-weight: 900;
 }
+
 .title {
-  margin-top: 12rpx;
-  color: #fff;
-  font-size: 44rpx;
+  margin-top: 10rpx;
+  font-size: 38rpx;
   font-weight: 900;
 }
-.desc {
-  margin-top: 10rpx;
-  color: #cbd5e1;
-  font-size: 26rpx;
-}
-.roster-grid {
+
+.matchup {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
+  grid-template-columns: minmax(0, 1fr) 60rpx minmax(0, 1fr);
+  align-items: center;
+  gap: 12rpx;
   margin-top: 22rpx;
 }
-.roster-card {
-  min-height: 180rpx;
-  padding: 20rpx;
-  border-radius: 12rpx;
-  background: #fff;
-}
-.roster-title {
-  color: #18212f;
-  font-size: 26rpx;
+
+.match-team {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 12rpx;
+  font-size: 25rpx;
   font-weight: 900;
 }
-.mini-empty {
-  margin-top: 18rpx;
-  color: #98a2b3;
-  font-size: 24rpx;
+
+.match-team.away {
+  flex-direction: row-reverse;
+  text-align: right;
 }
-.selected-player {
+
+.hero-logo {
+  width: 64rpx;
+  height: 64rpx;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.hero-vs {
+  color: #ff5a1f;
+  font-size: 22rpx;
+  font-weight: 900;
+  text-align: center;
+}
+
+.team-section {
+  margin-top: 22rpx;
+}
+
+.section-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 14rpx;
+  color: #fff;
+}
+
+.section-team {
+  display: flex;
+  align-items: center;
   gap: 12rpx;
-  margin-top: 12rpx;
-  padding: 14rpx;
-  border-radius: 8rpx;
-  color: #18212f;
-  background: #f8fafc;
-  font-size: 24rpx;
+  font-size: 29rpx;
+  font-weight: 900;
+}
+
+.section-logo {
+  width: 46rpx;
+  height: 46rpx;
+  border-radius: 50%;
+  background: #fff;
+}
+
+.starter-count {
+  color: #f5c542;
+  font-size: 22rpx;
   font-weight: 800;
 }
-.remove {
-  flex-shrink: 0;
-  color: #d83b01;
-  font-size: 22rpx;
-}
-.section {
-  margin: 32rpx 0 16rpx;
-  color: #18212f;
-  font-size: 30rpx;
-  font-weight: 900;
-}
+
 .empty,
 .player-row {
-  padding: 24rpx;
-  border-radius: 10rpx;
+  box-sizing: border-box;
+  padding: 20rpx;
+  border-radius: 9rpx;
   background: #fff;
-  color: #667085;
-  font-size: 26rpx;
 }
+
+.empty {
+  color: #98a2b3;
+  font-size: 25rpx;
+}
+
 .player-row {
   display: flex;
+  min-height: 82rpx;
   align-items: center;
   justify-content: space-between;
-  gap: 16rpx;
-  margin-bottom: 14rpx;
+  gap: 14rpx;
+  margin-bottom: 12rpx;
+  border-left: 6rpx solid transparent;
 }
-.player-name {
-  color: #18212f;
-  font-size: 28rpx;
-  font-weight: 900;
+
+.player-row.starter {
+  border-left-color: #ff5a1f;
+  background: #fff8f4;
 }
-.player-actions {
+
+.player-info {
   display: flex;
-  flex-shrink: 0;
+  min-width: 0;
+  align-items: center;
   gap: 10rpx;
 }
-.player-actions view {
-  display: flex;
-  min-width: 112rpx;
-  height: 56rpx;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8rpx;
-  color: #fff;
-  background: #344054;
-  font-size: 22rpx;
+
+.player-number {
+  color: #667085;
+  font-size: 23rpx;
   font-weight: 900;
 }
-.player-actions view:first-child {
-  background: #f05a28;
+
+.player-name {
+  overflow: hidden;
+  color: #18212f;
+  font-size: 26rpx;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.role-tag {
+  flex-shrink: 0;
+  padding: 4rpx 10rpx;
+  border-radius: 999rpx;
+  color: #ff5a1f;
+  background: #fff0e9;
+  font-size: 19rpx;
+  font-weight: 800;
+}
+
+.role-actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: 8rpx;
+}
+
+.role-btn {
+  display: flex;
+  width: 78rpx;
+  height: 52rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 7rpx;
+  color: #ff5a1f;
+  background: #fff0e9;
+  font-size: 21rpx;
+  font-weight: 900;
+}
+
+.role-btn.dark {
+  color: #344054;
+  background: #eef1f5;
+}
+
+.role-btn.active {
+  color: #fff;
+  background: #ff5a1f;
+}
+
+.role-btn.active.dark {
+  background: #344054;
 }

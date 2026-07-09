@@ -17,12 +17,12 @@ Page({
     },
     hasRecentMatches: true,
     shortcutItems: [
-      { key: 'createTournament', title: '创建赛事', desc: '创建并发布赛事', icon: '/assets/home/workbench/icon-create-event.png', iconClass: 'event', cardClass: '' },
-      { key: 'createTeam', title: '创建球队', desc: '创建并管理球队', icon: '/assets/home/workbench/icon-create-team.png', iconClass: 'team', cardClass: '' },
-      { key: 'createPlayer', title: '创建球员', desc: '添加球员资料', icon: '/assets/home/workbench/icon-create-player.png', iconClass: 'player', cardClass: '' },
-      { key: 'quickMatch', title: '快捷比赛', desc: '单场临时计分', icon: '/assets/home/workbench/icon-quick-match.png', iconClass: 'quick', cardClass: '' },
-      { key: 'lessonStats', title: '销课统计', desc: '待开发', icon: '/assets/home/workbench/icon-lesson-stats.png', iconClass: 'stats', cardClass: '' },
-      { key: 'lessonReview', title: '课后评价', desc: '待开发', icon: '/assets/home/workbench/icon-after-review.png', iconClass: 'review', cardClass: '' }
+      { key: 'createTournament', title: '创建赛事', desc: '创建并发布赛事', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-create-event.png', iconClass: 'event', cardClass: '' },
+      { key: 'createTeam', title: '球队管理', desc: '创建并管理球队', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-create-team.png', iconClass: 'team', cardClass: '' },
+      { key: 'createPlayer', title: '球员管理', desc: '添加球员资料', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-create-player.png', iconClass: 'player', cardClass: '' },
+      { key: 'quickMatch', title: '快捷比赛', desc: '单场临时计分', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-quick-match.png', iconClass: 'quick', cardClass: '' },
+      { key: 'lessonStats', title: '销课统计', desc: '待开发', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-lesson-stats.png', iconClass: 'stats', cardClass: '' },
+      { key: 'lessonReview', title: '课后评价', desc: '待开发', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-after-review.png', iconClass: 'review', cardClass: '' }
     ],
     recentMatches: [
       {
@@ -66,12 +66,12 @@ Page({
       }
     ],
     tabItems: [
-      { key: 'home', text: '工作台', iconClass: 'home', icon: '/assets/tabbar/tab-home-selected.png', activeClass: 'active' },
-      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: '/assets/tabbar/tab-tournament.png', activeClass: '' },
-      { key: 'team', text: '球员', iconClass: 'user', icon: '/assets/tabbar/tab-team.png', activeClass: '' },
-      { key: 'education', text: '教务', iconClass: 'edu', icon: '/assets/tabbar/tab-education.png', activeClass: '' },
-      { key: 'data', text: '数据', iconClass: 'data', icon: '/assets/tabbar/tab-data.png', activeClass: '' },
-      { key: 'mine', text: '我的', iconClass: 'mine', icon: '/assets/tabbar/tab-mine.png', activeClass: '' }
+      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home-selected.png', activeClass: 'active' },
+      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament.png', activeClass: '' },
+      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
+      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-education.png', activeClass: '' },
+      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
+      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
     ]
   },
 
@@ -86,24 +86,29 @@ Page({
   },
 
   goQuickMatch() {
-    wx.navigateTo({ url: '/pages/scorer/index' });
+    wx.navigateTo({ url: '/pages/scorer/index?from=homeHero' });
   },
 
   onShortcutTap(event) {
     const key = event.currentTarget.dataset.key;
 
     if (key === 'quickMatch') {
-      this.goQuickMatch();
+      wx.navigateTo({ url: '/pages/quick-match/index?from=shortcut' });
       return;
     }
 
     if (key === 'createTournament') {
-      wx.reLaunch({ url: mainRoutes.tournament });
+      wx.navigateTo({ url: '/pages/tournament-create/index?from=home' });
       return;
     }
 
-    if (key === 'createTeam' || key === 'createPlayer') {
-      wx.reLaunch({ url: mainRoutes.team });
+    if (key === 'createPlayer') {
+      wx.navigateTo({ url: '/pages/player-add/index?from=home' });
+      return;
+    }
+
+    if (key === 'createTeam') {
+      wx.navigateTo({ url: '/pages/team-create/index?from=home' });
       return;
     }
 
@@ -118,7 +123,7 @@ Page({
   },
 
   goMoreMatches() {
-    wx.reLaunch({ url: mainRoutes.tournament });
+    wx.redirectTo({ url: mainRoutes.tournament });
   },
 
   onTabTap(event) {
@@ -128,3 +133,6 @@ Page({
     wx.redirectTo({ url });
   }
 });
+
+
+

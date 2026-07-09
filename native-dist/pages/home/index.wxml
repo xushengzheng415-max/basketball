@@ -2,7 +2,7 @@
   <view class="top-hero">
     <view class="brand-row">
       <view class="brand-left">
-        <image class="brand-logo" src="/assets/home/brand-horizontal-logo.png" mode="aspectFit" />
+        <image class="brand-logo" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/brand-horizontal-logo.png" mode="aspectFit" />
       </view>
 
       <view class="campus-pill" bindtap="openCampusRole">
@@ -17,7 +17,7 @@
     </view>
 
     <view class="quick-card">
-      <image class="quick-card-bg" src="/assets/home/quick-match/home-hero-bg.png" mode="aspectFill" />
+      <image class="quick-card-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/quick-match/home-hero-bg.png" mode="aspectFill" />
       <view class="quick-copy">
         <text class="quick-title">快速开始一场比赛</text>
         <text class="quick-desc">设置队伍、节次和时长，立即进入计分</text>
@@ -27,7 +27,7 @@
 
       <view class="quick-stats">
         <view class="stat-item">
-          <image class="stat-icon" src="/assets/home/quick-match/stat-today.png" mode="aspectFit" />
+          <image class="stat-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/quick-match/stat-today.png" mode="aspectFit" />
           <view>
             <text class="stat-label">今日比赛</text>
             <text class="stat-number">{{todayStats.total}}</text>
@@ -35,7 +35,7 @@
         </view>
         <view class="stat-divider"></view>
         <view class="stat-item">
-          <image class="stat-icon" src="/assets/home/quick-match/stat-pending.png" mode="aspectFit" />
+          <image class="stat-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/quick-match/stat-pending.png" mode="aspectFit" />
           <view>
             <text class="stat-label">待开始</text>
             <text class="stat-number">{{todayStats.pending}}</text>
@@ -43,7 +43,7 @@
         </view>
         <view class="stat-divider"></view>
         <view class="stat-item">
-          <image class="stat-icon" src="/assets/home/quick-match/stat-finished.png" mode="aspectFit" />
+          <image class="stat-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/quick-match/stat-finished.png" mode="aspectFit" />
           <view>
             <text class="stat-label">已完成</text>
             <text class="stat-number">{{todayStats.finished}}</text>

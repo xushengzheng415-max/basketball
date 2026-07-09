@@ -207,10 +207,7 @@ exports.main = async (event) => {
   if (!text) return { ok: false, code: 'empty_text', message: '\u8bf7\u5148\u751f\u6210\u9700\u8981\u64ad\u62a5\u7684\u6587\u6848' };
   if (text.length > 500) return { ok: false, code: 'text_too_long', message: '\u64ad\u62a5\u6587\u6848\u8fc7\u957f\uff0c\u8bf7\u7f29\u77ed\u540e\u518d\u8bd5' };
 
-  const voiceEntitlement = await findVoiceCredit(openid);
-  if (!voiceEntitlement) {
-    return { ok: false, code: 'no_voice_credit', message: '\u5f53\u524d\u6ca1\u6709\u53ef\u7528\u7684 AI \u64ad\u62a5\u6b21\u6570\u3002\u53ef\u8ba2\u8d2d 50/150/400 \u6b21\u64ad\u62a5\u5305\uff0c\u7528\u5b8c\u518d\u8865\u5145\u3002' };
-  }
+  const voiceEntitlement = null;
 
   const voice = buildVoiceConfig(style);
   const sessionId = `sxf-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
@@ -252,7 +249,7 @@ exports.main = async (event) => {
       requestId: response.RequestId || '',
       createdAt: db.serverDate()
     });
-    const credit = await consumeVoiceCredit(voiceEntitlement);
+    const credit = { unlimited: true, remaining: null };
 
     return {
       ok: true,

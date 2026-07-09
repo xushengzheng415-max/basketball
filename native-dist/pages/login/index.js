@@ -3,7 +3,27 @@ const { callCloud } = require('../../utils/cloud');
 Page({
   data: {
     agreed: true,
-    loggingIn: false
+    loggingIn: false,
+    hasSavedWechat: false
+  },
+
+  onShow() {
+    this.refreshSavedWechat();
+    const savedProfile = this.getSavedWechatProfile();
+    if (savedProfile) {
+      setTimeout(() => this.loginWithSavedWechat(), 120);
+    }
+  },
+
+  getSavedWechatProfile() {
+    const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
+    if (!profile || !profile.loggedIn || profile.mode !== 'wechat') return null;
+    if (!profile.userId && !profile.wxOpenId && !profile.phoneNumber) return null;
+    return profile;
+  },
+
+  refreshSavedWechat() {
+    this.setData({ hasSavedWechat: !!this.getSavedWechatProfile() });
   },
 
   toggleAgreement() {
@@ -36,6 +56,26 @@ Page({
         this.finishWechatLogin({ phoneCode, userInfo: {} });
       }
     });
+  },
+
+  loginWithSavedWechat() {
+    if (!this.ensureAgreed() || this.data.loggingIn) return;
+
+    const savedProfile = this.getSavedWechatProfile();
+    if (!savedProfile) {
+      this.refreshSavedWechat();
+      wx.showToast({ title: '请重新授权登录', icon: 'none' });
+      return;
+    }
+
+    const profile = Object.assign({}, savedProfile, {
+      loggedIn: true,
+      mode: 'wechat',
+      loggedAt: Date.now()
+    });
+    wx.setStorageSync('loginProfile', profile);
+    wx.setStorageSync('userProfile', profile);
+    wx.reLaunch({ url: '/pages/home/index' });
   },
 
   async finishWechatLogin(options) {

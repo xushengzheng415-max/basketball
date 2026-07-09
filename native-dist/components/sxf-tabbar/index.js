@@ -1,4 +1,4 @@
-const TAB_BASE = '/assets/common/tabbar/';
+const TAB_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/tabbar/';
 
 const TAB_ITEMS = [
   { key: 'home', label: '\u5de5\u4f5c\u53f0', icon: TAB_BASE + 'workbench.png', activeIcon: TAB_BASE + 'workbench-active.png', url: '/pages/home/index' },

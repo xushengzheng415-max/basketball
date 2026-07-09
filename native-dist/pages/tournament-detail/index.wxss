@@ -1,11 +1,56 @@
-.page-wrap {
-  padding: 28rpx;
+page {
+  min-height: 100%;
+  background: #050505 url('/assets/pages/tournament-detail/court-background.png') center bottom / 100% auto no-repeat fixed;
 }
+
+.page-wrap {
+  box-sizing: border-box;
+  min-height: 100vh;
+  padding: 28rpx 28rpx 48rpx;
+  background: rgba(3, 6, 8, 0.34);
+}
+
+.game-card {
+  border: 1rpx solid rgba(240, 90, 40, 0.18);
+  box-shadow: 0 12rpx 30rpx rgba(0, 0, 0, 0.28);
+}
+
+.logo-versus {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58rpx minmax(0, 1fr);
+  align-items: center;
+  gap: 12rpx;
+  margin-top: 14rpx;
+}
+
+.logo-team {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 10rpx;
+}
+
+.logo-team.away {
+  flex-direction: row-reverse;
+  text-align: right;
+}
+
+.team-crest {
+  width: 54rpx;
+  height: 54rpx;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #f4f6f8;
+}
+
 .hero {
   padding: 28rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.06);
   border-radius: 12rpx;
   background: #101820;
+  box-shadow: 0 12rpx 30rpx rgba(0, 0, 0, 0.22);
 }
+
 .eyebrow,
 .title,
 .desc,
@@ -14,29 +59,48 @@
 .item-desc {
   display: block;
 }
+
 .eyebrow {
   color: #ffd65a;
   font-size: 22rpx;
   font-weight: 900;
 }
+
 .title {
   margin-top: 12rpx;
   color: #fff;
   font-size: 44rpx;
   font-weight: 900;
+  line-height: 1.15;
 }
+
 .desc {
   margin-top: 10rpx;
   color: #cbd5e1;
   font-size: 26rpx;
   line-height: 1.45;
 }
-.section {
+
+.section-row {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18rpx;
   margin: 32rpx 0 16rpx;
-  color: #18212f;
+}
+
+.section {
+  color: #ffffff;
   font-size: 30rpx;
   font-weight: 900;
 }
+
+.section-tip {
+  color: #667085;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
 .form-card {
   display: grid;
   gap: 18rpx;
@@ -44,13 +108,16 @@
   border-radius: 12rpx;
   background: #fff;
 }
+
 .team-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 16rpx;
 }
+
 input,
-.date-picker {
+.date-picker,
+.team-picker {
   box-sizing: border-box;
   width: 100%;
   height: 78rpx;
@@ -58,13 +125,43 @@ input,
   border: 1rpx solid #d7dee8;
   border-radius: 10rpx;
   background: #f8fafc;
-  color: #98a2b3;
+  color: #18212f;
   font-size: 26rpx;
   line-height: 78rpx;
 }
-.date-picker.has-value {
+
+input {
   color: #18212f;
 }
+
+.date-picker,
+.team-picker.placeholder {
+  color: #98a2b3;
+}
+
+.date-picker.has-value,
+.team-picker {
+  color: #18212f;
+}
+
+.team-picker {
+  position: relative;
+  padding-right: 44rpx;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-picker::after {
+  position: absolute;
+  top: 0;
+  right: 18rpx;
+  color: #98a2b3;
+  content: '⌄';
+  font-size: 28rpx;
+  line-height: 78rpx;
+}
+
 .primary {
   display: flex;
   height: 84rpx;
@@ -76,6 +173,7 @@ input,
   font-size: 28rpx;
   font-weight: 900;
 }
+
 .empty,
 .item {
   padding: 24rpx;
@@ -84,6 +182,24 @@ input,
   color: #667085;
   font-size: 26rpx;
 }
+
+.team-empty {
+  display: grid;
+  gap: 18rpx;
+}
+
+.outline-btn {
+  display: flex;
+  height: 72rpx;
+  align-items: center;
+  justify-content: center;
+  border: 1rpx solid rgba(240, 90, 40, 0.6);
+  border-radius: 10rpx;
+  color: #f05a28;
+  font-size: 26rpx;
+  font-weight: 900;
+}
+
 .item {
   display: flex;
   align-items: center;
@@ -91,17 +207,83 @@ input,
   gap: 18rpx;
   margin-bottom: 14rpx;
 }
+
+.item-main {
+  min-width: 0;
+  flex: 1;
+}
+
+.item-topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+  margin-bottom: 8rpx;
+}
+
+.item-order {
+  color: #98a2b3;
+  font-size: 22rpx;
+  font-weight: 800;
+}
+
+.item-status {
+  flex-shrink: 0;
+  padding: 4rpx 12rpx;
+  border-radius: 999rpx;
+  color: #f05a28;
+  background: rgba(240, 90, 40, 0.1);
+  font-size: 20rpx;
+  font-weight: 900;
+}
+
 .item-title {
   color: #18212f;
   font-size: 28rpx;
   font-weight: 900;
 }
+
+.versus-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 58rpx minmax(0, 1fr);
+  align-items: center;
+  gap: 10rpx;
+  margin-top: 14rpx;
+}
+
+.team-name {
+  min-width: 0;
+  overflow: hidden;
+  color: #18212f;
+  font-size: 25rpx;
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.team-name.away {
+  text-align: right;
+}
+
+.vs-text {
+  display: flex;
+  height: 38rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999rpx;
+  color: #fff;
+  background: #f05a28;
+  font-size: 18rpx;
+  font-weight: 900;
+}
+
 .item-desc {
-  margin-top: 8rpx;
+  margin-top: 10rpx;
   color: #667085;
   font-size: 24rpx;
   line-height: 1.35;
 }
+
 .item-action {
   flex-shrink: 0;
   color: #f05a28;
@@ -115,14 +297,17 @@ input,
   justify-content: space-between;
   gap: 18rpx;
 }
+
 .hero-head > view:first-child {
   min-width: 0;
 }
+
 .hero-actions {
   display: flex;
   flex-shrink: 0;
   gap: 10rpx;
 }
+
 .small-btn {
   display: flex;
   min-width: 88rpx;
@@ -130,22 +315,26 @@ input,
   align-items: center;
   justify-content: center;
   border-radius: 8rpx;
-  background: rgba(255,255,255,0.14);
+  background: rgba(255, 255, 255, 0.14);
   color: #fff;
   font-size: 22rpx;
   font-weight: 900;
 }
+
 .small-btn.danger {
-  background: rgba(240,90,40,0.95);
+  background: rgba(240, 90, 40, 0.95);
 }
+
 .edit-card {
   margin-top: 18rpx;
 }
+
 .form-actions {
   display: grid;
   grid-template-columns: 1fr 160rpx;
   gap: 14rpx;
 }
+
 .secondary {
   display: flex;
   height: 84rpx;
@@ -158,3 +347,30 @@ input,
   font-size: 28rpx;
   font-weight: 900;
 }
+
+
+.mode-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 14rpx; padding: 8rpx; border: 1rpx solid rgba(255,255,255,.08); border-radius: 12rpx; background: #0d151c; }
+.mode-option { display: flex; min-height: 94rpx; flex-direction: column; justify-content: center; padding: 0 20rpx; border-radius: 8rpx; color: #98a2b3; }
+.mode-option.active { color: #fff; background: #f05a28; }
+.mode-title, .mode-desc, .field-label, .field-help, .select-team-name, .select-team-meta, .preview-stage, .preview-date { display: block; }
+.mode-title { font-size: 27rpx; font-weight: 900; }
+.mode-desc { margin-top: 4rpx; font-size: 20rpx; }
+.regular-panel { margin-top: 20rpx; }
+.field-label-row { display: flex; align-items: center; justify-content: space-between; }
+.field-label { color: #18212f; font-size: 25rpx; font-weight: 900; }
+.field-count { color: #f05a28; font-size: 22rpx; font-weight: 800; }
+.field-help { margin-top: -8rpx; color: #98a2b3; font-size: 21rpx; line-height: 1.45; }
+.team-select-list { display: grid; grid-template-columns: 1fr 1fr; gap: 12rpx; }
+.team-select { display: flex; min-width: 0; height: 82rpx; align-items: center; gap: 12rpx; padding: 0 14rpx; border: 1rpx solid #d7dee8; border-radius: 8rpx; background: #f8fafc; }
+.team-select.selected { border-color: #f05a28; background: #fff3ed; }
+.select-check { display: flex; width: 34rpx; height: 34rpx; flex-shrink: 0; align-items: center; justify-content: center; border: 2rpx solid #c8d0da; border-radius: 50%; color: #fff; font-size: 22rpx; font-weight: 900; }
+.team-select.selected .select-check { border-color: #f05a28; background: #f05a28; }
+.select-team-info { min-width: 0; }
+.select-team-name { overflow: hidden; color: #18212f; font-size: 23rpx; font-weight: 900; text-overflow: ellipsis; white-space: nowrap; }
+.select-team-meta { margin-top: 3rpx; color: #98a2b3; font-size: 19rpx; }
+.preview-item { margin-bottom: 12rpx; padding: 20rpx; border-radius: 10rpx; background: #fff; }
+.preview-stage { color: #f05a28; font-size: 21rpx; font-weight: 900; }
+.preview-versus { display: grid; grid-template-columns: minmax(0,1fr) 54rpx minmax(0,1fr); align-items: center; gap: 10rpx; margin-top: 12rpx; color: #18212f; font-size: 24rpx; font-weight: 900; text-align: center; }
+.preview-vs { color: #f05a28; font-size: 20rpx; }
+.preview-date { margin-top: 10rpx; color: #98a2b3; font-size: 21rpx; text-align: center; }
+.publish-btn { display: flex; height: 84rpx; align-items: center; justify-content: center; margin-top: 16rpx; border-radius: 10rpx; color: #fff; background: #16a34a; font-size: 28rpx; font-weight: 900; }

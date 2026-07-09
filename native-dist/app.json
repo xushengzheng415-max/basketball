@@ -2,6 +2,7 @@
   "pages": [
     "pages/login/index",
     "pages/home/index",
+    "pages/quick-match/index",
     "pages/scorer/index",
     "pages/products/index",
     "pages/mc-system/index",
@@ -11,16 +12,19 @@
     "pages/order/index",
     "pages/pay-result/index",
     "pages/tournament/index",
+    "pages/tournament-create/index",
     "pages/tournament-detail/index",
     "pages/game-detail/index",
     "pages/team/index",
+    "pages/team-create/index",
+    "pages/player-add/index",
     "pages/mc-settings/index",
     "pages/mine/index"
   ],
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#101820",
-    "navigationBarTitleText": "\u8d5b\u5c0f\u8702\u7bee\u7403",
+    "navigationBarTitleText": "赛小蜂篮球",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#05080b"
   }

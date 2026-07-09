@@ -1,6 +1,6 @@
 <view class="education-page">
   <view class="hero-section">
-    <image class="hero-bg" src="/assets/pages/education/education-top-bg-clean.png" mode="aspectFill" />
+    <image class="hero-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/education-top-bg-clean.png" mode="aspectFill" />
     <text class="page-title">教务中心</text>
     <view class="version-badge">1.0介绍页</view>
     <view class="hero-title">

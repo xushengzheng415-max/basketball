@@ -1,67 +1,72 @@
-<view class="page-wrap">
-  <view class="profile-card">
-    <view class="profile-main">
+<view class="mine-profile-page">
+  <image class="page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/profile-bg.png" mode="aspectFill" />
+
+  <view class="top-area">
+    <image class="status-bar" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/status-bar.png" mode="aspectFit" />
+    <view class="nav-row">
+      <view class="back-hit" bindtap="goBack">
+        <image class="back-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/button-back.png" mode="aspectFit" />
+      </view>
+      <text class="nav-title">个人资料修改</text>
+      <image class="wechat-capsule" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/wechat-capsule.png" mode="aspectFit" />
+    </view>
+  </view>
+
+  <view class="content-area">
+    <view class="profile-card">
       <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
-        <image wx:if="{{profile.avatarUrl}}" class="avatar" src="{{profile.avatarUrl}}" mode="aspectFill" />
-        <text wx:else class="avatar-placeholder">S</text>
+        <image wx:if="{{draft.avatarUrl}}" class="avatar-img" src="{{draft.avatarUrl}}" mode="aspectFill" />
+        <image wx:else class="avatar-img" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/profile-avatar.png" mode="aspectFit" />
       </button>
-      <view class="profile-info">
-        <text class="eyebrow">我的账号</text>
-        <input class="nickname-input" type="nickname" value="{{draftNickName}}" placeholder="点击修改昵称" bindinput="onNicknameInput" />
-        <text wx:if="{{profile.loggedIn}}" class="desc">已登录，可编辑头像和昵称</text>
-        <text wx:else class="desc">登录后可保存账号信息</text>
+      <view class="profile-copy">
+        <input class="profile-name-input" type="nickname" value="{{draft.nickName}}" placeholder="校区管理员" bindinput="onDraftInput" data-field="nickName" />
+        <view class="change-avatar" bindtap="promptAvatar">更换头像</view>
       </view>
     </view>
-    <view class="profile-auth">
-      <view class="profile-auth-row"><text>授权手机号</text><text>{{profile.phoneNumberText}}</text></view>
-      <view class="profile-auth-row"><text>微信授权标识</text><text>{{profile.wxOpenIdText}}</text></view>
+
+    <view class="form-panel">
+      <view wx:for="{{formRows}}" wx:key="field" class="form-row" data-field="{{item.field}}" data-label="{{item.label}}" data-value="{{item.value}}" bindtap="onFormRowTap">
+        <image class="row-icon" src="{{item.icon}}" mode="aspectFit" />
+        <text class="row-label">{{item.label}}</text>
+        <input wx:if="{{item.editable}}" class="row-input" value="{{item.value}}" placeholder="{{item.placeholder}}" data-field="{{item.field}}" bindinput="onDraftInput" />
+        <text wx:else class="row-value {{item.valueClass}}">{{item.value}}</text>
+        <image wx:if="{{item.showChevron}}" class="row-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-chevron.png" mode="aspectFit" />
+      </view>
     </view>
-    <view class="profile-actions">
-      <view class="save-nickname" bindtap="saveProfile">保存昵称</view>
-      <view wx:if="{{!profile.loggedIn}}" class="login-btn" bindtap="login">微信授权登录</view>
-      <view wx:else class="logout-btn" bindtap="logout">退出登录</view>
+
+    <view class="settings-panel">
+      <view class="settings-title-row">
+        <view class="settings-title-mark"></view>
+        <text class="settings-title">常用设置</text>
+      </view>
+      <view class="settings-list">
+        <view wx:for="{{commonSettingRows}}" wx:key="key" class="settings-row" data-url="{{item.url}}" data-label="{{item.label}}" bindtap="onSettingTap">
+          <image class="settings-icon settings-icon-accent" src="{{item.icon}}" mode="aspectFit" />
+          <text class="settings-label">{{item.label}}</text>
+          <image class="settings-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-chevron.png" mode="aspectFit" />
+        </view>
+      </view>
+    </view>
+
+    <view class="settings-panel support-panel">
+      <view class="settings-title-row">
+        <view class="settings-title-mark"></view>
+        <text class="settings-title">服务支持</text>
+      </view>
+      <view class="settings-list">
+        <view wx:for="{{supportRows}}" wx:key="key" class="settings-row" data-url="{{item.url}}" data-label="{{item.label}}" bindtap="onSettingTap">
+          <image class="settings-icon" src="{{item.icon}}" mode="aspectFit" />
+          <text class="settings-label">{{item.label}}</text>
+          <image class="settings-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-chevron.png" mode="aspectFit" />
+        </view>
+      </view>
+    </view>
+
+    <view class="save-button" bindtap="saveProfile">
+      <image class="save-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-save-check.png" mode="aspectFit" />
+      <text>保存资料</text>
     </view>
   </view>
 
-  <view class="settings-card">
-    <view class="section-head">
-      <text class="section-title no-margin">会员兑换</text>
-      <text wx:if="{{membership}}" class="count">已解锁</text>
-      <text wx:else class="count">未兑换</text>
-    </view>
-    <view wx:if="{{membership}}" class="member-status">
-      <text>{{membership.productName}}</text>
-      <text>{{membership.expiresAt}}</text>
-    </view>
-    <input value="{{redeemCode}}" placeholder="请输入会员兑换码" bindinput="onRedeemInput" />
-    <view class="primary" bindtap="redeemMembership">兑换会员</view>
-  </view>
-
-  <view class="settings-card" bindtap="goMcSettings">
-    <view class="section-head">
-      <text class="section-title no-margin">MC 音效设置</text>
-      <text class="count">快捷键 / 本机音效</text>
-    </view>
-    <text class="desc dark">管理 2 分、3 分音效、进攻防守音乐和 6 键快捷键。</text>
-  </view>
-
-  <view class="settings-card">
-    <view class="section-head">
-      <text class="section-title no-margin">意见反馈</text>
-      <text class="count">已提交 {{feedbackCount}} 条</text>
-    </view>
-    <view class="type-row">
-      <view wx:for="{{feedbackTypeOptions}}" wx:key="name" class="type-pill {{item.activeClass}}" data-type="{{item.name}}" bindtap="setFeedbackType">{{item.name}}</view>
-    </view>
-    <textarea value="{{feedbackContent}}" placeholder="告诉我们哪里不好用，或者你希望增加什么功能" maxlength="300" bindinput="onFeedbackInput" />
-    <input value="{{contact}}" placeholder="联系方式（选填）" bindinput="onContactInput" />
-    <view class="primary" bindtap="submitFeedback">提交反馈</view>
-  </view>
-
-  <view class="settings-card">
-    <text class="section-title">关于赛小蜂篮球</text>
-    <view class="info-row"><text>当前版本</text><text>原型版 0.1.0</text></view>
-    <view class="info-row"><text>服务内容</text><text>赛事、计分、球员管理</text></view>
-  </view>
   <sxf-tabbar active="mine" />
 </view>

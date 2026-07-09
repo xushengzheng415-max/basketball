@@ -1,3 +1,4 @@
 {
-  "navigationBarTitleText": "音效设置"
+  "navigationStyle": "custom",
+  "disableScroll": true
 }

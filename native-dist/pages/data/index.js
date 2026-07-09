@@ -1,5 +1,5 @@
-const featureBase = '/assets/pages/data/';
-const tabBase = '/assets/common/tabbar/';
+const featureBase = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/';
+const tabBase = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/tabbar/';
 
 const features = [
   { title: '赛事数据', icon: `${featureBase}icon-event-data.png`, status: '规划中' },

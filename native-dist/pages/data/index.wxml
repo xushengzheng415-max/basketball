@@ -1,8 +1,8 @@
 <view class="data-center">
-  <image class="page-bg" src="/assets/pages/data/data-center-bg.png" mode="aspectFill" />
+  <image class="page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/data-center-bg.png" mode="aspectFill" />
 
   <view class="hero">
-    <image class="status-bar" src="/assets/pages/data/status-bar.png" mode="aspectFit" />
+    <image class="status-bar" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/status-bar.png" mode="aspectFit" />
     <view class="nav-row">
       <view class="nav-spacer"></view>
       <text class="nav-title">数据中心</text>
@@ -58,7 +58,7 @@
             <text class="range-title">{{item.title}}</text>
             <text class="range-desc">{{item.desc}}</text>
           </view>
-          <image class="range-chevron" src="/assets/pages/data/icon-chevron.png" mode="aspectFit" />
+          <image class="range-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/icon-chevron.png" mode="aspectFit" />
         </view>
       </view>
 

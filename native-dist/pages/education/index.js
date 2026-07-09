@@ -10,20 +10,20 @@ const mainRoutes = {
 Page({
   data: {
     features: [
-      { key: 'multi-campus', title: '多校区管理', icon: '/assets/pages/education/icon-multi-campus.png' },
-      { key: 'course-schedule', title: '课程排课', icon: '/assets/pages/education/icon-course-schedule.png' },
-      { key: 'student-checkin', title: '学员签到', icon: '/assets/pages/education/icon-student-checkin.png' },
-      { key: 'lesson-consume-stats', title: '课消统计', icon: '/assets/pages/education/icon-lesson-consume-stats.png' },
-      { key: 'after-class-review', title: '课后评价', icon: '/assets/pages/education/icon-after-class-review.png' },
-      { key: 'coach-salary', title: '教练工资', icon: '/assets/pages/education/icon-coach-salary.png' }
+      { key: 'multi-campus', title: '多校区管理', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/icon-multi-campus.png' },
+      { key: 'course-schedule', title: '课程排课', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/icon-course-schedule.png' },
+      { key: 'student-checkin', title: '学员签到', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/icon-student-checkin.png' },
+      { key: 'lesson-consume-stats', title: '课消统计', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/icon-lesson-consume-stats.png' },
+      { key: 'after-class-review', title: '课后评价', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/icon-after-class-review.png' },
+      { key: 'coach-salary', title: '教练工资', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/icon-coach-salary.png' }
     ],
     tabItems: [
-      { key: 'home', text: '工作台', iconClass: 'home', icon: '/assets/tabbar/tab-home.png', activeClass: '' },
-      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: '/assets/tabbar/tab-tournament.png', activeClass: '' },
-      { key: 'team', text: '球员', iconClass: 'user', icon: '/assets/tabbar/tab-team.png', activeClass: '' },
-      { key: 'education', text: '教务', iconClass: 'edu', icon: '/assets/tabbar/tab-education-selected.png', activeClass: 'active' },
-      { key: 'data', text: '数据', iconClass: 'data', icon: '/assets/tabbar/tab-data.png', activeClass: '' },
-      { key: 'mine', text: '我的', iconClass: 'mine', icon: '/assets/tabbar/tab-mine.png', activeClass: '' }
+      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home.png', activeClass: '' },
+      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament.png', activeClass: '' },
+      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
+      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-education-selected.png', activeClass: 'active' },
+      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
+      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
     ]
   },
   goTournament() {

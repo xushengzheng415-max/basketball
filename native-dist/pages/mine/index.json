@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "\u6211\u7684",
+  "navigationBarTitleText": "我的",
   "navigationStyle": "custom",
   "usingComponents": {
     "sxf-tabbar": "/components/sxf-tabbar/index"

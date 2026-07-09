@@ -6,7 +6,6 @@
 
     <view class="top-header">
       <image class="brand-title" src="{{assets.logoTitle}}" mode="aspectFit" />
-      <image class="add-player" src="{{assets.addButton}}" mode="aspectFit" bindtap="openAddModal" />
     </view>
 
     <view class="search-row">
@@ -20,11 +19,27 @@
       </view>
     </view>
 
-    <view class="chip-row">
-      <view wx:for="{{filters}}" wx:key="key" class="filter-chip {{item.activeClass}}" data-key="{{item.key}}" bindtap="onFilterTap">
-        <text>{{item.label}}</text>
+    <view class="quick-actions">
+      <view class="quick-action primary-action" bindtap="openAddModal">
+        <image class="quick-add-icon" src="{{assets.addIcon}}" mode="aspectFit" />
+        <text>添加球员</text>
+      </view>
+      <view class="quick-action" bindtap="openTeamManager">
+        <text>球队管理</text>
+      </view>
+      <view class="quick-action" bindtap="openCategoryManager">
+        <text>类别管理</text>
       </view>
     </view>
+
+    <scroll-view class="category-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="category-track">
+        <view wx:for="{{categories}}" wx:key="key" class="category-chip {{item.activeClass}}" data-key="{{item.key}}" bindtap="onFilterTap">
+          <text>{{item.label}}</text>
+          <text class="category-count">{{item.countText}}</text>
+        </view>
+      </view>
+    </scroll-view>
 
     <view class="summary-card">
       <view class="summary-item">
@@ -71,7 +86,7 @@
         </view>
         <view class="card-actions">
           <image class="edit-icon" src="{{assets.editIcon}}" mode="aspectFit" data-id="{{item.id}}" bindtap="onEditPlayer" />
-          <text class="chevron">›</text>
+          <text class="chevron" data-id="{{item.id}}" bindtap="onEditPlayer">›</text>
         </view>
       </view>
       <view class="loaded-text">— 已全部加载 —</view>
@@ -89,6 +104,27 @@
       <view class="modal-actions">
         <view class="modal-cancel" bindtap="closeAddModal">取消</view>
         <view class="modal-confirm" bindtap="addPlayer">保存</view>
+      </view>
+    </view>
+  </view>
+
+  <view wx:if="{{showManagerModal}}" class="modal-mask" catchtap="closeManagerModal">
+    <view class="manager-modal" catchtap="noop">
+      <view class="manager-head">
+        <view>
+          <text class="modal-title">{{managerTitle}}</text>
+          <text class="manager-desc">{{managerDesc}}</text>
+        </view>
+        <text class="manager-close" bindtap="closeManagerModal">×</text>
+      </view>
+      <view class="manager-list">
+        <view wx:for="{{managerItems}}" wx:key="key" class="manager-row" data-key="{{item.key}}" bindtap="onManagerItemTap">
+          <view>
+            <text class="manager-name">{{item.title}}</text>
+            <text class="manager-meta">{{item.desc}}</text>
+          </view>
+          <text class="manager-badge">{{item.badge}}</text>
+        </view>
       </view>
     </view>
   </view>

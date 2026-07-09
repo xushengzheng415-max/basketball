@@ -1,0 +1,192 @@
+<view class="quick-page">
+  <image class="page-bg" src="{{assets.bg}}" mode="aspectFill" />
+
+  <view class="top-nav">
+    <view class="back-hit" bindtap="goBack">
+      <image class="back-icon" src="{{assets.back}}" mode="aspectFit" />
+    </view>
+    <text class="nav-title">快捷比赛设置</text>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="notice-chip">
+      <image class="notice-icon" src="{{assets.info}}" mode="aspectFit" />
+      <text>单场临时数据，不入正式球员库</text>
+    </view>
+
+    <view class="panel basic-panel">
+      <view class="section-title-row">
+        <view class="section-mark"></view>
+        <text class="section-title">比赛基础设置</text>
+      </view>
+
+      <view class="form-row">
+        <text class="form-label">比赛名称 <text class="required">*</text></text>
+        <view class="field-box">
+          <input class="field-input" value="{{matchName}}" placeholder="请输入比赛名称" bindinput="onMatchNameInput" />
+          <image class="field-icon close" src="{{assets.close}}" mode="aspectFit" bindtap="clearMatchName" />
+        </view>
+      </view>
+
+      <view class="form-row">
+        <text class="form-label">比赛日期 <text class="required">*</text></text>
+        <view class="field-box date-box">
+          <image class="field-leading" src="{{assets.calendar}}" mode="aspectFit" />
+          <picker mode="date" value="{{matchDate}}" bindchange="onDateChange">
+            <view class="date-value">{{matchDate}}</view>
+          </picker>
+          <picker mode="time" value="{{matchTime}}" bindchange="onTimeChange">
+            <view class="time-value">{{matchTime}}</view>
+          </picker>
+          <image class="field-icon" src="{{assets.chevron}}" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view class="form-row">
+        <text class="form-label">比赛场馆 <text class="required">*</text></text>
+        <picker class="field-box venue-box" mode="selector" range="{{venues}}" value="{{venueIndex}}" bindchange="onVenueChange">
+          <view class="picker-inner">
+            <image class="field-leading" src="{{assets.location}}" mode="aspectFit" />
+            <text class="field-text">{{venue}}</text>
+            <image class="field-icon" src="{{assets.chevron}}" mode="aspectFit" />
+          </view>
+        </picker>
+      </view>
+
+      <view class="form-row">
+        <text class="form-label">节数 <text class="required">*</text></text>
+        <view class="stepper-box">
+          <view class="step-button" data-delta="-1" bindtap="changePeriods"><image src="{{assets.minus}}" mode="aspectFit" /></view>
+          <text class="step-value">{{periods}}节</text>
+          <view class="step-button" data-delta="1" bindtap="changePeriods"><image src="{{assets.plus}}" mode="aspectFit" /></view>
+        </view>
+      </view>
+
+      <view class="form-row last">
+        <text class="form-label">每节时长 <text class="required">*</text></text>
+        <view class="stepper-box">
+          <view class="step-button" data-delta="-1" bindtap="changePeriodMinutes"><image src="{{assets.minus}}" mode="aspectFit" /></view>
+          <text class="step-value">{{periodMinutes}}分钟</text>
+          <view class="step-button" data-delta="1" bindtap="changePeriodMinutes"><image src="{{assets.plus}}" mode="aspectFit" /></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="panel teams-panel">
+      <view class="section-title-row">
+        <view class="section-mark"></view>
+        <text class="section-title">创建临时球队</text>
+      </view>
+      <view class="team-grid">
+        <view class="team-box">
+          <text class="team-label">A队球队名</text>
+          <view class="team-input-box">
+            <input value="{{homeTeam.name}}" bindinput="onHomeNameInput" />
+            <image src="{{assets.close}}" mode="aspectFit" bindtap="clearHomeName" />
+          </view>
+          <text class="team-label color-label">队伍颜色</text>
+          <view class="color-row">
+            <view wx:for="{{homeColors}}" wx:key="key" class="color-dot {{item.activeClass}}" style="background: {{item.value}};" data-side="home" data-color="{{item.key}}" data-value="{{item.value}}" bindtap="selectColor">
+              <image wx:if="{{item.activeClass}}" src="{{assets.check}}" mode="aspectFit" />
+            </view>
+          </view>
+        </view>
+        <view class="vs-badge">VS</view>
+        <view class="team-box">
+          <text class="team-label">B队球队名</text>
+          <view class="team-input-box">
+            <input value="{{awayTeam.name}}" bindinput="onAwayNameInput" />
+            <image src="{{assets.close}}" mode="aspectFit" bindtap="clearAwayName" />
+          </view>
+          <text class="team-label color-label">队伍颜色</text>
+          <view class="color-row">
+            <view wx:for="{{awayColors}}" wx:key="key" class="color-dot {{item.activeClass}}" style="background: {{item.value}};" data-side="away" data-color="{{item.key}}" data-value="{{item.value}}" bindtap="selectColor">
+              <image wx:if="{{item.activeClass}}" src="{{assets.check}}" mode="aspectFit" />
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="panel players-panel">
+      <view class="section-title-row">
+        <view class="section-mark"></view>
+        <text class="section-title">录入临时球员</text>
+      </view>
+      <view class="team-tabs">
+        <view class="team-tab {{homeTabClass}}" data-team="home" bindtap="switchTeam">A队</view>
+        <view class="team-tab {{awayTabClass}}" data-team="away" bindtap="switchTeam">B队</view>
+      </view>
+      <view class="players-table">
+        <view class="table-head">
+          <text>姓名</text>
+          <text>号码</text>
+          <text>操作</text>
+        </view>
+        <view wx:for="{{visiblePlayers}}" wx:key="id" class="player-row">
+          <view class="player-name-cell">
+            <text class="number-prefix">#{{item.number}}</text>
+            <input value="{{item.name}}" data-id="{{item.id}}" bindinput="onPlayerNameInput" />
+          </view>
+          <view class="number-stepper">
+            <view data-id="{{item.id}}" data-delta="-1" bindtap="changePlayerNumber"><image src="{{assets.minus}}" mode="aspectFit" /></view>
+            <text>{{item.number}}</text>
+            <view data-id="{{item.id}}" data-delta="1" bindtap="changePlayerNumber"><image src="{{assets.plus}}" mode="aspectFit" /></view>
+          </view>
+          <view class="delete-hit" data-id="{{item.id}}" bindtap="deletePlayer"><image src="{{assets.trash}}" mode="aspectFit" /></view>
+        </view>
+      </view>
+      <view class="add-player-button" bindtap="addPlayer">
+        <image src="{{assets.plus}}" mode="aspectFit" />
+        <text>添加临时球员</text>
+      </view>
+    </view>
+
+    <view class="panel stats-panel">
+      <view class="section-title-row compact-title">
+        <view class="section-mark"></view>
+        <text class="section-title">数据统计范围</text>
+      </view>
+      <view class="stat-row">
+        <view wx:for="{{statItems}}" wx:key="key" class="stat-item" data-key="{{item.key}}" bindtap="toggleStat">
+          <text>{{item.label}}</text>
+          <view class="switch {{item.activeClass}}"><view></view></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="primary-action" bindtap="startQuickScoring">开始快捷计分</view>
+    <view class="lineup-action-row">
+      <view class="secondary-action half" bindtap="saveLineup">保存阵容</view>
+      <view class="secondary-action half" bindtap="openLineupPicker">导入阵容</view>
+    </view>
+    <view class="scroll-safe"></view>
+  </scroll-view>
+
+  <sxf-tabbar active="home" />
+
+  <view wx:if="{{showLineupModal}}" class="lineup-mask" catchtap="closeLineupPicker">
+    <view class="lineup-modal" catchtap="noop">
+      <view class="lineup-head">
+        <view>
+          <text class="lineup-title">导入阵容</text>
+          <text class="lineup-subtitle">选择之前保存的临时阵容</text>
+        </view>
+        <text class="lineup-close" bindtap="closeLineupPicker">×</text>
+      </view>
+      <view wx:if="{{isLineupEmpty}}" class="lineup-empty">暂无已保存阵容</view>
+      <scroll-view wx:else class="lineup-list" scroll-y enhanced show-scrollbar="{{false}}">
+        <view wx:for="{{lineupList}}" wx:key="id" class="lineup-row">
+          <view class="lineup-info">
+            <text class="lineup-name">{{item.title}}</text>
+            <text class="lineup-meta">{{item.meta}}</text>
+          </view>
+          <view class="lineup-actions">
+            <text class="lineup-delete" data-id="{{item.id}}" catchtap="deleteLineup">删除</text>
+            <text class="lineup-import" data-id="{{item.id}}" catchtap="importLineup">导入</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

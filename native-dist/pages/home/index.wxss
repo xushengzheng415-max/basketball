@@ -501,18 +501,18 @@ page {
   background-size: contain;
 }
 
-.tab-icon.home { background-image: url('/assets/tabbar/tab-home.png'); }
-.tab-item.active .tab-icon.home { background-image: url('/assets/tabbar/tab-home-selected.png'); }
-.tab-icon.trophy { background-image: url('/assets/tabbar/tab-tournament.png'); }
-.tab-item.active .tab-icon.trophy { background-image: url('/assets/tabbar/tab-tournament-selected.png'); }
-.tab-icon.user { background-image: url('/assets/tabbar/tab-team.png'); }
-.tab-item.active .tab-icon.user { background-image: url('/assets/tabbar/tab-team-selected.png'); }
-.tab-icon.edu { background-image: url('/assets/tabbar/tab-education.png'); }
-.tab-item.active .tab-icon.edu { background-image: url('/assets/tabbar/tab-education-selected.png'); }
-.tab-icon.data { background-image: url('/assets/tabbar/tab-data.png'); }
-.tab-item.active .tab-icon.data { background-image: url('/assets/tabbar/tab-data-selected.png'); }
-.tab-icon.mine { background-image: url('/assets/tabbar/tab-mine.png'); }
-.tab-item.active .tab-icon.mine { background-image: url('/assets/tabbar/tab-mine-selected.png'); }
+.tab-icon.home { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home.png'); }
+.tab-item.active .tab-icon.home { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home-selected.png'); }
+.tab-icon.trophy { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament.png'); }
+.tab-item.active .tab-icon.trophy { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament-selected.png'); }
+.tab-icon.user { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-team.png'); }
+.tab-item.active .tab-icon.user { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-team-selected.png'); }
+.tab-icon.edu { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-education.png'); }
+.tab-item.active .tab-icon.edu { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-education-selected.png'); }
+.tab-icon.data { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data.png'); }
+.tab-item.active .tab-icon.data { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data-selected.png'); }
+.tab-icon.mine { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine.png'); }
+.tab-item.active .tab-icon.mine { background-image: url('cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine-selected.png'); }
 .quick-card {
   background: #05080b;
 }

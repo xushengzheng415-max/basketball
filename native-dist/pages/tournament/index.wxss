@@ -31,18 +31,28 @@ page {
   transform-origin: top right;
 }
 
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  padding: 108rpx 24rpx 0;
+  background: linear-gradient(180deg, rgba(6, 8, 9, 0.36) 0%, rgba(6, 8, 9, 0.18) 100%);
+}
+
 .page-content {
   position: relative;
   z-index: 1;
   min-height: 100vh;
-  padding: 96rpx 24rpx 184rpx;
+  padding: 268rpx 24rpx 184rpx;
 }
 
 .topbar {
   display: grid;
   grid-template-columns: 202rpx 1fr 202rpx;
   align-items: center;
-  min-height: 82rpx;
+  min-height: 72rpx;
 }
 
 .page-title,
@@ -60,9 +70,17 @@ page {
   text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.45);
 }
 
+.create-row {
+  display: flex;
+  justify-content: flex-start;
+  min-height: 64rpx;
+  margin-top: 8rpx;
+  padding-left: 4rpx;
+}
+
 .create-entry {
   display: flex;
-  justify-content: flex-end;
+  justify-content: flex-start;
 }
 
 .create-img {
@@ -73,7 +91,7 @@ page {
 .tabs-panel {
   position: relative;
   height: 116rpx;
-  margin-top: 28rpx;
+  margin-top: 0;
   overflow: hidden;
   border: 1rpx solid rgba(255, 255, 255, 0.1);
   border-bottom: 1rpx solid rgba(255, 255, 255, 0.18);
@@ -250,4 +268,19 @@ input,
   background: #ff5a00;
   font-size: 28rpx;
   font-weight: 900;
+}
+
+
+.event-card {
+  position: relative;
+}
+
+.detail-hit {
+  position: absolute;
+  right: 22rpx;
+  bottom: 22rpx;
+  z-index: 2;
+  width: 142rpx;
+  height: 58rpx;
+  opacity: 0;
 }

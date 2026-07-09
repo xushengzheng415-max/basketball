@@ -1,84 +1,161 @@
 <view class="page">
-  <view class="hero">
-    <text class="title">MC 音效设置</text>
-    <text class="desc">管理计分盘音效、外设快捷键和微信文件导入。</text>
+  <image class="page-bg" src="{{assetBase}}background-mc-settings-clean.png" mode="aspectFill" />
+
+  <view class="nav">
+    <view class="back-button" bindtap="goBack">
+      <image src="{{assetBase}}icon-back-common.png" mode="aspectFit" />
+    </view>
+    <text class="nav-title">MC音效设置</text>
+    <view class="nav-space"></view>
   </view>
 
-  <view class="card">
-    <text class="section-title">基础开关</text>
-    <view class="switch-row">
-      <view><text>2分音效</text><text class="hint">关闭后，加 2 分不再播放音效。</text></view>
-      <switch checked="{{settings.twoEnabled}}" data-key="twoEnabled" bindchange="toggleSetting" />
-    </view>
-    <view class="switch-row">
-      <view><text>3分音效</text><text class="hint">关闭后，长按 3 分不再播放音效。</text></view>
-      <switch checked="{{settings.threeEnabled}}" data-key="threeEnabled" bindchange="toggleSetting" />
-    </view>
-    <view class="switch-row">
-      <view><text>本机音效串联</text><text class="hint">开启后优先播放你导入的微信文件音效；没有导入时使用云端音乐库。</text></view>
-      <switch checked="{{settings.localAudioEnabled}}" data-key="localAudioEnabled" bindchange="toggleSetting" />
-    </view>
-  </view>
+  <scroll-view class="content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="master-panel">
+      <view class="master-row">
+        <text class="master-title">播放总开关</text>
+        <switch class="orange-switch" color="#ff4b0b" checked="{{settings.masterEnabled}}" data-key="masterEnabled" bindchange="updateSetting" />
+      </view>
 
-  <view class="card">
-    <view class="section-head">
-      <text class="section-title inline-title">音效类型与播放策略</text>
-      <view class="refresh-btn" bindtap="loadCloudAudioLibrary">刷新云端</view>
+      <view class="master-row volume-row">
+        <image class="master-icon" src="{{assetBase}}icon-volume-common.png" mode="aspectFit" />
+        <text class="master-label">全局音量</text>
+        <slider class="volume-slider" min="0" max="100" value="{{settings.volume}}" activeColor="#ff4b0b" backgroundColor="#e6e6e6" block-color="#ffffff" block-size="22" bindchange="updateVolume" />
+        <text class="volume-value">{{settings.volume}}%</text>
+      </view>
+
+      <view class="master-row package-row" bindtap="openPackageModal">
+        <image class="master-icon" src="{{assetBase}}icon-package-common.png" mode="aspectFit" />
+        <text class="master-label">当前音效包</text>
+        <text class="package-value">{{packageName}}</text>
+        <image class="chevron" src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+      </view>
     </view>
-    <text class="hint import-tip">微信小程序不能直接读取手机音乐文件夹。个人音效需从微信聊天文件、文件传输助手或最近文件中选择；统一音乐建议在后台上传到云端音乐库。</text>
-    <view wx:for="{{categories}}" wx:key="key" class="category-row">
-      <view class="cat-main">
-        <view class="cat-top">
-          <view class="cat-copy">
-            <text class="cat-name">{{item.label}}</text>
-            <text class="hint">{{item.hint}}</text>
-            <text wx:if="{{!item.isVoice}}" class="local-text">{{item.localText}}</text>
-          </view>
-          <view class="cat-tools">
-            <view wx:if="{{item.isVoice}}" class="voice-package-list">
-              <view wx:for="{{voicePackageOptions}}" wx:for-item="voice" wx:key="id" class="voice-package {{voice.activeClass}}" data-id="{{voice.id}}" bindtap="setVoiceStyle">{{voice.name}}</view>
-            </view>
-            <view wx:elif="{{item.hasMode}}" class="seg">
-              <view class="seg-btn {{item.randomClass}}" data-key="{{item.key}}" data-mode="random" bindtap="setMode">随机</view>
-              <view class="seg-btn {{item.fixedClass}}" data-key="{{item.key}}" data-mode="fixed" bindtap="setMode">固定</view>
-            </view>
-            <view wx:if="{{!item.isVoice}}" class="local-actions">
-              <view class="local-btn" data-key="{{item.key}}" bindtap="importLocalAudio">微信文件导入</view>
-              <view wx:if="{{item.localCount}}" class="clear-btn" data-key="{{item.key}}" bindtap="clearLocalAudio">清除</view>
-            </view>
+
+    <view class="dark-panel voice-panel">
+      <view class="section-title"><view class="title-mark"></view><text>播报设置</text></view>
+      <view class="sound-row">
+        <view class="icon-tile"><image src="{{assetBase}}icon-music-common.png" mode="aspectFit" /></view>
+        <view class="sound-copy">
+          <text class="sound-name">得分播报</text>
+          <view class="select-trigger" bindtap="openVoiceModal">
+            <text>{{voiceName}}</text>
+            <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
           </view>
         </view>
+        <view class="play-button" bindtap="playVoicePreview">
+          <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+        </view>
+      </view>
+      <text class="voice-copy">试听：你好，我是赛小蜂播报员，很高兴为您服务</text>
+    </view>
 
-        <view wx:if="{{!item.isVoice}}" class="audio-panel">
-          <text class="current-text">{{item.currentAudioText}}</text>
-          <view wx:if="{{item.hasAudioItems}}" class="audio-list">
-            <view wx:for="{{item.audioItems}}" wx:for-item="audio" wx:key="id" class="audio-item {{audio.currentClass}}">
-              <text class="source-tag {{audio.sourceClass}}">{{audio.sourceText}}</text>
-              <text wx:if="{{audio.channelText}}" class="channel-tag">{{audio.channelText}}</text>
-              <text class="audio-name">{{audio.name}}</text>
-              <text wx:if="{{audio.currentText}}" class="current-tag">{{audio.currentText}}</text>
-            </view>
-            <text wx:if="{{item.audioMoreText}}" class="audio-more">{{item.audioMoreText}}</text>
+    <view class="dark-panel category-panel">
+      <view class="section-title"><view class="title-mark"></view><text>常用音效</text></view>
+      <view wx:for="{{categories}}" wx:key="key" class="sound-row category-row">
+        <view class="icon-tile"><image src="{{item.iconUrl}}" mode="aspectFit" /></view>
+        <view class="sound-copy">
+          <text class="sound-name">{{item.name}}</text>
+          <view class="select-trigger" data-key="{{item.key}}" bindtap="openAudioModal">
+            <text>{{item.selectedName}}</text>
+            <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
           </view>
-          <text wx:else class="audio-empty">暂无音频。可以先从微信文件导入，或在 PC 后台把音乐保存到云端音乐库。</text>
+        </view>
+        <view class="play-button" data-key="{{item.key}}" bindtap="playCategory">
+          <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+        </view>
+        <view class="mode-button" data-key="{{item.key}}" bindtap="changeMode">
+          <image src="{{assetBase}}icon-replace-common.png" mode="aspectFit" />
+          <text>{{item.modeText}}</text>
+        </view>
+        <switch class="row-switch" color="#ff4b0b" checked="{{item.enabled}}" data-key="{{item.key}}" bindchange="toggleCategory" />
+      </view>
+    </view>
+
+    <view class="dark-panel rules-panel">
+      <view class="section-title"><view class="title-mark"></view><text>播放规则</text></view>
+      <view class="rule-row">
+        <view class="icon-tile small"><text>2</text></view>
+        <text class="rule-name">2分音效播放</text>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.twoEnabled}}" data-key="twoEnabled" bindchange="updateSetting" />
+      </view>
+      <view class="rule-row">
+        <view class="icon-tile small"><text>3</text></view>
+        <text class="rule-name">3分音效播放</text>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.threeEnabled}}" data-key="threeEnabled" bindchange="updateSetting" />
+      </view>
+      <view class="rule-row">
+        <view class="icon-tile small"><image src="{{assetBase}}icon-whistle-common.png" mode="aspectFit" /></view>
+        <text class="rule-name">蜂鸣器开关</text>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.buzzerEnabled}}" data-key="buzzerEnabled" bindchange="updateSetting" />
+      </view>
+      <view class="rule-row">
+        <view class="icon-tile small"><image src="{{assetBase}}icon-pause-common.png" mode="aspectFit" /></view>
+        <view class="rule-copy">
+          <text class="rule-name">暂停音乐自动播放</text>
+          <text class="rule-hint">关闭后，节间不提示也不播放暂停音乐</text>
+        </view>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.pauseAutoEnabled}}" data-key="pauseAutoEnabled" bindchange="updateSetting" />
+      </view>
+    </view>
+
+    <view class="dark-panel custom-panel">
+      <view class="section-title">
+        <view class="title-mark"></view>
+        <text>自定义音效设置</text>
+        <text class="section-badge">6选4</text>
+      </view>
+      <view class="custom-grid">
+        <view wx:for="{{customSlots}}" wx:key="position" class="custom-slot">
+          <view class="slot-topline">
+            <text class="slot-number">{{item.position}}</text>
+            <view class="slot-play" data-index="{{index}}" bindtap="playCustomSlot">
+              <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+            </view>
+          </view>
+          <text class="custom-name">{{item.name}}</text>
+          <view class="slot-actions">
+            <view class="move-button" data-index="{{index}}" data-direction="-1" bindtap="moveCustomSlot">←</view>
+            <view class="replace-button" data-index="{{index}}" bindtap="replaceCustomSlot">替换</view>
+            <view class="move-button" data-index="{{index}}" data-direction="1" bindtap="moveCustomSlot">→</view>
+          </view>
         </view>
       </view>
     </view>
-  </view>
 
-  <view class="card">
-    <text class="section-title">外设快捷键设置</text>
-    <text class="hint block">点击下方键位可替换外设触发的音效；具体键值请在计分盘右侧外设快捷键里点“监听”后绑定。</text>
-    <view class="slot-grid">
-      <view wx:for="{{quickSlots}}" wx:key="id" class="slot" data-id="{{item.id}}" bindtap="editSlot">
-        <text class="slot-key">{{item.key}}</text>
-        <text>{{item.label}}</text>
+    <view class="dark-panel shortcut-panel">
+      <view class="section-title">
+        <view class="title-mark"></view>
+        <text>外设快捷键设置</text>
+        <text class="section-badge pending">待联动</text>
+      </view>
+      <view class="shortcut-grid">
+        <view wx:for="{{quickSlots}}" wx:key="id" class="shortcut-slot" data-id="{{item.id}}" data-key="{{item.key}}" bindtap="editShortcut">
+          <text class="shortcut-key">{{item.key}}</text>
+          <text class="shortcut-name">{{item.name}}</text>
+          <text class="shortcut-edit">映射</text>
+        </view>
       </view>
     </view>
-    <view wx:if="{{editingSlotId}}" class="action-sheet">
-      <view wx:for="{{actionOptions}}" wx:key="key" class="action-option" data-action="{{item.key}}" bindtap="chooseSlotAction">{{item.label}}</view>
+
+    <view class="save-button" bindtap="saveSettings">保存设置</view>
+    <view class="bottom-safe"></view>
+  </scroll-view>
+
+  <view wx:if="{{modalVisible}}" class="modal-mask" bindtap="closeModal">
+    <view class="modal-sheet" catchtap="stopPropagation">
+      <view class="modal-head">
+        <text>{{modalTitle}}</text>
+        <view class="modal-close" bindtap="closeModal">×</view>
+      </view>
+      <scroll-view class="modal-list" scroll-y>
+        <view wx:for="{{modalOptions}}" wx:key="id" class="modal-option" data-id="{{item.id}}" bindtap="chooseModalOption">
+          <view>
+            <text class="modal-option-name">{{item.name}}</text>
+            <text wx:if="{{item.note}}" class="modal-option-note">{{item.note}}</text>
+          </view>
+          <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+        </view>
+      </scroll-view>
     </view>
   </view>
-
-  <view class="primary" bindtap="saveSettings">保存设置</view>
 </view>

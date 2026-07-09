@@ -1,4 +1,4 @@
-﻿# AGENTS.md — 赛小蜂篮球项目记忆系统
+# AGENTS.md — 赛小蜂篮球项目记忆系统
 
 > 用途：为 Codex / Claude Code / Cursor 等 AI 编程助手提供赛小蜂篮球项目上下文。
 > AI 在开始任何代码修改前，必须先阅读本文档。
@@ -12,7 +12,8 @@
 |------|-----|
 | 项目名称 | 赛小蜂篮球 |
 | 产品形态 | 微信小程序 + PC 管理后台原型 + 云函数 |
-| 本地路径 | `C:\Users\Frank\Documents\赛小蜂篮球` |
+| 本地路径 | `C:\Users\Frank\Documents\sxf-basketball` |
+| 兼容路径 | `C:\Users\Frank\Documents\赛小蜂篮球` 是指向最终路径的 Junction 桥接路径 |
 | GitHub | `https://github.com/xushengzheng415-max/basketball.git` |
 | Gitee | `https://gitee.com/saixiaofeng/basketball.git` |
 | 当前主分支 | `main` |
@@ -20,6 +21,51 @@
 
 ---
 
+## 1.5 Worktree Routing, Daily Logs, and Encoding Rules
+
+> Shared notice for all future worktrees, sub-tasks, and AI assistants. Read it before starting code changes.
+
+### Source Path
+
+- Canonical project path: `C:\Users\Frank\Documents\sxf-basketball`.
+- The legacy Chinese project path is only a Junction bridge to the canonical path.
+- WeChat DevTools, cloud functions, admin deployment, local builds, and repo sync should use the canonical path.
+
+### Main Project Scope
+
+- The main basketball project owns global product structure, navigation, six-tab bottom menu, visual rules, login, membership, payment, cloud functions, cloud storage, admin backend, home/workbench, core scoring flow, shared components, shared assets, release builds, and repo sync.
+- Any change that affects multiple modules, multiple pages, or the main user journey must be handled in the main project first.
+
+### Module Worktree Scope
+
+- Module worktrees only change their own page areas: PC admin, scorer, workbench, tournament, team/player, education, data, or mine.
+- Module worktrees must not change global membership strategy, payment strategy, cloud environment variables, project paths, or remote configuration without main-project approval.
+
+### Daily Development Logs and Remote Sync
+
+- Before ending each workday, update `DEVELOPMENT_LOG.md` or the daily log with completed work, changed files, verification, unresolved issues, branch name, and next steps.
+- Before commit, run `git status` and stage only files related to the current module/task.
+- Commit messages should include the module and task, for example: `feat(scorer): update scoreboard layout`.
+- Validated work should be pushed to both GitHub `origin` and Gitee `gitee`.
+- If a branch cannot be committed or pushed that day, write the blocker and current state into the development log.
+
+### Chinese Encoding Rules
+
+- All Chinese-facing files should be UTF-8 without BOM.
+- Prefer Node.js `fs.readFileSync/writeFileSync(..., "utf8")` for reading/writing Chinese text.
+- If PowerShell or terminal output shows mojibake, verify the real file bytes/content with Node before changing the file.
+- User-facing UI and admin pages must display Chinese. Internal variable names, enums, API fields, and data keys can stay in English.
+- If real file content becomes `????`, `&#x...;`, or mojibake, restore it from Git, backup, prototype text, or explicit user confirmation.
+
+### Shared Constraints
+
+- Current mini program source of truth is `native-dist/`; do not only edit `src/`.
+- Bottom menu is unified as six tabs: workbench, tournament, player, education, data, mine.
+- Reuse `native-dist/components/sxf-tabbar` for the bottom menu instead of page-specific duplicate tab bars.
+- Large images/icons should use cloud storage under `ui-assets/assets/`; local `native-dist/assets` is only source/backup to avoid the 2MB preview limit.
+- If a module worktree conflicts with this file, the canonical-path `AGENTS.md` wins.
+
+---
 ## 二、技术栈
 
 ### 小程序
