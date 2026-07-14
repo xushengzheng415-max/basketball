@@ -1,11 +1,12 @@
 const ASSET_BASE = '/assets/pages/player-add/';
-const { pullRoster, scheduleRosterPush } = require('../../utils/roster-sync');
+const { pullRoster, pushRoster, resolveImageUrl } = require('../../utils/roster-sync');
 const DATA_RESET_VERSION = 'player-real-data-20260708';
 const TEAM_ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
 
 const DEFAULT_CATEGORIES = [
   { key: 'unassigned', label: '未分队', system: true }
 ];
+const NO_TEAM_OPTION = { key: 'unassigned', label: '无', value: '' };
 
 function ensureRealDataReset() {
   if (wx.getStorageSync('playerDataResetVersion') === DATA_RESET_VERSION) return;
@@ -62,7 +63,8 @@ function getTeams() {
   (Array.isArray(teams) ? teams : []).forEach(addTeam);
   (Array.isArray(drafts) ? drafts : []).forEach(addTeam);
   const source = Object.keys(map).length ? Object.keys(map).map((key) => map[key]) : DEFAULT_CATEGORIES;
-  return source.filter((item) => item.key !== 'all');
+  const availableTeams = source.filter((item) => item.key !== 'all' && item.key !== 'unassigned');
+  return [NO_TEAM_OPTION].concat(availableTeams);
 }
 
 function makeSimpleTeamKey(label) {
@@ -70,9 +72,9 @@ function makeSimpleTeamKey(label) {
 }
 
 function makeKey(label) {
+  if (!normalizeText(label) || label === '无' || label === '未分队') return 'unassigned';
   const map = getTeams().filter((team) => team.label === label)[0];
   if (map) return map.key;
-  if (label === '未分队') return 'unassigned';
   return `team-${Date.now()}`;
 }
 
@@ -126,14 +128,15 @@ Page({
     saveText: '保存球员',
     mode: 'add',
     editId: '',
+    editStorageIndex: -1,
     avatar: '',
     avatarSrc: '/assets/pages/player-add/avatar-placeholder-player.png',
     name: '',
     number: '',
     team: '',
-    teamText: '请选择所属球队',
-    teamPlaceholderClass: 'placeholder',
-    teamIndex: -1,
+    teamText: '无',
+    teamPlaceholderClass: '',
+    teamIndex: 0,
     teams: [],
     positions: [
       { key: 'PG', activeClass: 'active' },
@@ -178,7 +181,7 @@ Page({
     pullRoster().then(() => {
       const syncedTeams = getTeams();
       this.setData({ teams: syncedTeams });
-      if (options && options.mode === 'edit' && options.id) {
+      if (options && options.mode === 'edit' && options.id && !this.avatarChanged) {
         this.loadPlayerForEdit(options.id, syncedTeams);
       }
     }).catch((error) => console.warn('[player-add] pull roster failed', error));
@@ -242,11 +245,12 @@ Page({
   onTeamChange(event) {
     const index = Number(event.detail.value);
     const team = this.data.teams[index];
+    const teamValue = team && team.key !== 'unassigned' ? team.label : '';
     this.setData({
       teamIndex: index,
-      team: team ? team.label : '',
-      teamText: team ? team.label : '请选择所属球队',
-      teamPlaceholderClass: team ? '' : 'placeholder'
+      team: teamValue,
+      teamText: team ? team.label : '无',
+      teamPlaceholderClass: ''
     });
   },
 
@@ -281,19 +285,22 @@ Page({
 
   loadPlayerForEdit(id, teams) {
     const storedPlayers = wx.getStorageSync('players') || [];
-    const player = storedPlayers.filter((item) => String(item.id) === String(id))[0];
+    const playerIndex = storedPlayers.findIndex((item, index) =>
+      String(item.id || `stored-${index}`) === String(id));
+    const player = playerIndex >= 0 ? storedPlayers[playerIndex] : null;
     if (!player) {
       wx.showToast({ title: '球员不存在', icon: 'none' });
       return;
     }
 
-    const teamLabel = player.team || '未分队';
+    const teamLabel = normalizeText(player.team);
     let nextTeams = teams;
-    let teamIndex = nextTeams.findIndex((team) => team.label === teamLabel);
-    if (teamIndex < 0) {
+    let teamIndex = nextTeams.findIndex((team) => (team.key === 'unassigned' ? '' : team.label) === teamLabel);
+    if (teamIndex < 0 && teamLabel) {
       nextTeams = nextTeams.concat({ key: player.filter || makeKey(teamLabel), label: teamLabel });
       teamIndex = nextTeams.length - 1;
     }
+    if (teamIndex < 0) teamIndex = 0;
 
     const position = parsePosition(player);
     const positions = this.data.positions.map((item) => ({
@@ -311,13 +318,14 @@ Page({
       saveText: '保存修改',
       mode: 'edit',
       editId: String(id),
+      editStorageIndex: playerIndex,
       teams: nextTeams,
-      avatar: player.avatar || '',
-      avatarSrc: player.avatar || this.data.assets.avatarPlaceholder,
+      avatar: player.avatarFileID || player.avatar || '',
+      avatarSrc: resolveImageUrl(player.avatar || this.data.assets.avatarPlaceholder),
       name: player.name || '',
       number: normalizeNumber(player.number),
       team: teamLabel,
-      teamText: teamLabel,
+      teamText: teamLabel || '无',
       teamPlaceholderClass: '',
       teamIndex,
       position,
@@ -593,7 +601,7 @@ Page({
   },
 
   isStableAvatarPath(path) {
-    return /^(cloud:\/\/|https?:\/\/)/.test(String(path || ''));
+    return String(path || '').startsWith('cloud://');
   },
 
   saveAvatarToLocal(tempFilePath) {
@@ -639,6 +647,7 @@ Page({
   finishCropWithAvatar(tempFilePath, toastTitle) {
     this.persistAvatarFile(tempFilePath)
       .then((avatarPath) => {
+        this.avatarChanged = true;
         this.setData({
           avatar: avatarPath,
           avatarSrc: avatarPath || this.data.assets.avatarPlaceholder,
@@ -675,8 +684,7 @@ Page({
     if (!name) return '请输入球员姓名';
     if (!number) return '请输入球衣号码';
     if (Number(number) < 1 || Number(number) > 99) return '球衣号码为 1-99';
-    if (!team) return '请选择所属球队';
-    const numberUsedInSameTeam = storedPlayers.some((player) => {
+    const numberUsedInSameTeam = !!team && storedPlayers.some((player) => {
       if (String(player.id) === String(this.data.editId)) return false;
       return normalizeNumber(player.number) === number && normalizeText(player.team) === team;
     });
@@ -695,7 +703,7 @@ Page({
     const teamKey = makeKey(this.data.team);
     wx.showLoading({ title: '保存球员' });
     this.persistAvatarFile(this.data.avatar || '')
-      .then((avatarPath) => {
+      .then(async (avatarPath) => {
         const storedPlayers = wx.getStorageSync('players') || [];
         const player = {
           id: this.data.editId || `player-${Date.now()}`,
@@ -703,7 +711,9 @@ Page({
           number: normalizeNumber(this.data.number),
           team: normalizeText(this.data.team),
           filter: teamKey,
+          avatarFileID: avatarPath || this.data.assets.avatarPlaceholder,
           avatar: avatarPath || this.data.assets.avatarPlaceholder,
+          teamLogoFileID: getTeamLogo(teamKey),
           teamLogo: getTeamLogo(teamKey),
           position: this.data.position,
           tags: [this.data.position, `${this.data.height}cm`, `${this.data.weight}kg`, `${normalizeNumber(this.data.age)}岁`],
@@ -719,7 +729,8 @@ Page({
         };
 
         if (this.data.mode === 'edit') {
-          wx.setStorageSync('players', storedPlayers.map((item) => (String(item.id) === String(this.data.editId) ? {
+          wx.setStorageSync('players', storedPlayers.map((item, index) =>
+            (index === this.data.editStorageIndex || String(item.id) === String(this.data.editId) ? {
             ...item,
             ...player,
             createdAt: item.createdAt || player.createdAt,
@@ -728,7 +739,7 @@ Page({
         } else {
           wx.setStorageSync('players', storedPlayers.concat(player));
         }
-        scheduleRosterPush(0);
+        await pushRoster();
         wx.showToast({ title: this.data.mode === 'edit' ? '已更新' : '已保存', icon: 'success' });
         setTimeout(() => {
           wx.navigateBack({ fail: () => wx.redirectTo({ url: '/pages/team/index' }) });

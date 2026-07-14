@@ -13,6 +13,9 @@
         <text>{{game.awayTeamName}}</text>
       </view>
     </view>
+    <view class="match-actions">
+      <view class="primary-action" bindtap="startScorer">进入计分板</view>
+    </view>
   </view>
 
   <view class="team-section">

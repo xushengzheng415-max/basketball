@@ -1,4 +1,4 @@
-const { pullRoster, scheduleRosterPush } = require('../../utils/roster-sync');
+const { pullRoster, resolveImageUrl, scheduleRosterPush } = require('../../utils/roster-sync');
 const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
 const DEFAULT_TEAM_LOGO = `${ASSET_BASE}mini-logo-unassigned.png`;
 const DATA_RESET_VERSION = 'player-real-data-20260708';
@@ -71,7 +71,7 @@ function getPlayerTeamLogo(player, teamLogoMap) {
   if (player && player.filter === 'unassigned') return DEFAULT_TEAM_LOGO;
   const byKey = teamLogoMap && player ? teamLogoMap[player.filter] : '';
   const byName = teamLogoMap && player ? teamLogoMap[player.team] : '';
-  return byKey || byName || player.teamLogo || DEFAULT_TEAM_LOGO;
+  return resolveImageUrl(byKey || byName || player.teamLogo || DEFAULT_TEAM_LOGO);
 }
 
 function isDemoPlayer(player) {
@@ -85,7 +85,7 @@ function buildStoredPlayer(player, index, teamLogoMap) {
     number: normalizeNumber(player.number) || '--',
     team: player.team || '未分队',
     filter: player.filter || 'unassigned',
-    avatar: player.avatar || `${ASSET_BASE}avatar-liuyuchen.png`,
+    avatar: resolveImageUrl(player.avatar || `${ASSET_BASE}avatar-liuyuchen.png`),
     teamLogo: getPlayerTeamLogo(player, teamLogoMap),
     tags: player.tags || ['待定', '身高', '年龄']
   };
@@ -166,6 +166,9 @@ Page({
     activeFilter: 'all',
     showAddModal: false,
     showManagerModal: false,
+    showDeleteConfirm: false,
+    pendingDeleteId: '',
+    pendingDeleteName: '',
     managerTitle: '',
     managerDesc: '',
     managerItems: [],
@@ -334,5 +337,37 @@ Page({
       return;
     }
     wx.navigateTo({ url: `/pages/player-add/index?mode=edit&id=${id}` });
-  }
-});
+  },
+
+  onDeletePlayer(event) {
+    const id = event.currentTarget.dataset.id;
+    const player = this.data.players.filter((item) => String(item.id) === String(id))[0];
+    if (!player) {
+      wx.showToast({ title: '未找到球员', icon: 'none' });
+      return;
+    }
+    this.setData({
+      showDeleteConfirm: true,
+      pendingDeleteId: String(id),
+      pendingDeleteName: player.name || '该球员'
+    });
+  },
+
+  cancelDeletePlayer() {
+    this.setData({ showDeleteConfirm: false, pendingDeleteId: '', pendingDeleteName: '' });
+  },
+
+  confirmDeletePlayer() {
+    const id = this.data.pendingDeleteId;
+    if (!id) {
+      this.cancelDeletePlayer();
+      return;
+    }
+    const storedPlayers = wx.getStorageSync('players') || [];
+    const nextPlayers = storedPlayers.filter((item) => String(item.id) !== String(id));
+    wx.setStorageSync('players', nextPlayers);
+    scheduleRosterPush(0);
+    this.setData({ showDeleteConfirm: false, pendingDeleteId: '', pendingDeleteName: '' });
+    this.refreshPlayers();
+    wx.showToast({ title: '已删除', icon: 'success' });
+  }});

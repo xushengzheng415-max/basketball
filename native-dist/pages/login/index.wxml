@@ -1,5 +1,5 @@
 <view class="login-page">
-  <image class="login-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/home-bg.jpg" mode="aspectFill" />
+  <image class="login-bg" src="./home-bg.jpg" mode="aspectFill" />
   <view class="login-mask"></view>
 
   <view class="login-content">

@@ -2,12 +2,12 @@ const featureBase = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0r
 const tabBase = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/tabbar/';
 
 const features = [
-  { title: '赛事数据', icon: `${featureBase}icon-event-data.png`, status: '规划中' },
-  { title: '球员技术统计', icon: `${featureBase}icon-player-stats.png`, status: '规划中' },
-  { title: '球队对比', icon: `${featureBase}icon-team-compare.png`, status: '规划中' },
-  { title: '成长趋势', icon: `${featureBase}icon-growth-trend.png`, status: '规划中' },
-  { title: '家长端同步', icon: `${featureBase}icon-parent-sync.png`, status: '规划中' },
-  { title: '数据海报', icon: `${featureBase}icon-data-poster.png`, status: '规划中' }
+  { title: '赛事数据', icon: `${featureBase}icon-event-data.png`, status: '规划中', statusClass: '', cardClass: 'feature-card' },
+  { title: '球员技术统计', icon: `${featureBase}icon-player-stats.png`, status: '规划中', statusClass: '', cardClass: 'feature-card' },
+  { title: '球队对比', icon: `${featureBase}icon-team-compare.png`, status: '已开放', statusClass: 'open', cardClass: 'feature-card open', url: '/pages/team-data/index' },
+  { title: '成长趋势', icon: `${featureBase}icon-growth-trend.png`, status: '规划中', statusClass: '', cardClass: 'feature-card' },
+  { title: '家长端同步', icon: `${featureBase}icon-parent-sync.png`, status: '规划中', statusClass: '', cardClass: 'feature-card' },
+  { title: '数据海报', icon: `${featureBase}icon-data-poster.png`, status: '规划中', statusClass: '', cardClass: 'feature-card' }
 ];
 
 const rangeItems = [
@@ -62,6 +62,10 @@ Page({
   },
 
   goRangeItem(event) {
+    openUrl(event.currentTarget.dataset.url);
+  },
+
+  goFeature(event) {
     openUrl(event.currentTarget.dataset.url);
   },
 

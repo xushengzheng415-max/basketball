@@ -30,6 +30,31 @@ function readPreferences() {
   });
 }
 
+function isCloudFile(filePath) {
+  return String(filePath || '').startsWith('cloud://');
+}
+
+function uploadProfileAvatar(filePath) {
+  if (!filePath || isCloudFile(filePath)) return Promise.resolve(filePath || '');
+  if (!wx.cloud || !wx.cloud.uploadFile) return Promise.reject(new Error('\u4e91\u5b58\u50a8\u672a\u521d\u59cb\u5316'));
+  const random = Math.random().toString(36).slice(2, 8);
+  return wx.cloud.uploadFile({
+    cloudPath: `user-avatars/${Date.now()}-${random}.jpg`,
+    filePath
+  }).then((result) => {
+    if (!result || !result.fileID) throw new Error('\u5934\u50cf\u4e0a\u4f20\u672a\u8fd4\u56de\u4e91\u6587\u4ef6 ID');
+    return result.fileID;
+  });
+}
+
+function getAvatarDisplayUrl(fileID) {
+  if (!isCloudFile(fileID) || !wx.cloud || !wx.cloud.getTempFileURL) return Promise.resolve(fileID || '');
+  return wx.cloud.getTempFileURL({ fileList: [fileID] }).then((result) => {
+    const item = result && result.fileList && result.fileList[0];
+    return (item && item.tempFileURL) || fileID;
+  }).catch(() => fileID);
+}
+
 function getPhoneText(profile) {
   return profile.phoneNumber || '微信授权获取';
 }
@@ -73,6 +98,18 @@ Page({
     const profile = readProfile();
     const preferences = readPreferences();
     this.refresh(profile, preferences);
+    callCloud('sxSyncRoster', { action: 'profile' }).then((result) => {
+      if (!result || !result.ok || !result.profile) return;
+      const cloudProfile = result.profile;
+      const rawProfile = Object.assign({}, profile, cloudProfile, {
+        avatarFileID: cloudProfile.avatarUrl || '',
+        avatarUrl: cloudProfile.avatarUrl || ''
+      });
+      wx.setStorageSync('userProfile', rawProfile);
+      this.refresh(Object.assign({}, rawProfile, {
+        avatarUrl: cloudProfile.avatarDisplayUrl || cloudProfile.avatarUrl || ''
+      }), preferences);
+    });
   },
 
   refresh(profile, preferences) {
@@ -101,8 +138,21 @@ Page({
 
   onChooseAvatar(event) {
     const avatarUrl = event.detail.avatarUrl;
-    const draft = Object.assign({}, this.data.draft, { avatarUrl });
-    this.setData({ draft, formRows: buildFormRows(draft) });
+    if (!avatarUrl) return;
+    wx.showLoading({ title: '\u4e0a\u4f20\u5934\u50cf' });
+    uploadProfileAvatar(avatarUrl)
+      .then((avatarFileID) => getAvatarDisplayUrl(avatarFileID)
+        .then((displayUrl) => ({ avatarFileID, displayUrl })))
+      .then(({ avatarFileID, displayUrl }) => {
+        const draft = Object.assign({}, this.data.draft, { avatarFileID, avatarUrl: displayUrl });
+        this.setData({ draft, formRows: buildFormRows(draft) });
+        wx.showToast({ title: '\u5934\u50cf\u5df2\u4e0a\u4f20', icon: 'success' });
+      })
+      .catch((error) => {
+        console.warn('[mine] upload avatar failed', error);
+        wx.showToast({ title: '\u5934\u50cf\u4e0a\u4f20\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5', icon: 'none' });
+      })
+      .finally(() => wx.hideLoading());
   },
 
   onDraftInput(event) {
@@ -137,9 +187,12 @@ Page({
 
   saveProfile() {
     const draft = this.data.draft;
+    const avatarFileID = draft.avatarFileID || this.data.profile.avatarFileID ||
+      (isCloudFile(draft.avatarUrl) ? draft.avatarUrl : '');
     const profile = Object.assign({}, this.data.profile, {
       loggedIn: true,
-      avatarUrl: draft.avatarUrl || this.data.profile.avatarUrl || '',
+      avatarFileID,
+      avatarUrl: avatarFileID,
       nickName: (draft.nickName || '').trim() || DEFAULT_PROFILE.nickName,
       phoneNumber: this.data.profile.phoneNumber || '',
       orgName: this.data.profile.orgName || DEFAULT_PROFILE.orgName,
@@ -148,17 +201,29 @@ Page({
       userId: this.data.profile.userId || this.data.profile.wxOpenId || `user-${Date.now()}`
     });
     const preferences = Object.assign({}, this.data.preferences, {
-      defaultHome: 'MC设置',
-      scorerMode: '球队列表'
+      defaultHome: 'MC\u8bbe\u7f6e',
+      scorerMode: '\u7403\u961f\u5217\u8868'
     });
-    wx.setStorageSync('userProfile', profile);
-    const loginProfile = wx.getStorageSync('loginProfile') || null;
-    if (loginProfile && loginProfile.mode === 'wechat') {
-      wx.setStorageSync('loginProfile', Object.assign({}, loginProfile, profile));
-    }
-    wx.setStorageSync('minePreferences', preferences);
-    callCloud('sxSaveUser', { profile, preferences });
-    this.refresh(profile, preferences);
-    wx.showToast({ title: '资料已保存', icon: 'success' });
+    wx.showLoading({ title: '\u4fdd\u5b58\u8d44\u6599' });
+    callCloud('sxSaveUser', { profile, preferences })
+      .then((result) => {
+        if (!result || !result.ok) throw new Error('\u4e91\u7aef\u8d44\u6599\u4fdd\u5b58\u5931\u8d25');
+        wx.setStorageSync('userProfile', profile);
+        const loginProfile = wx.getStorageSync('loginProfile') || null;
+        if (loginProfile && loginProfile.mode === 'wechat') {
+          wx.setStorageSync('loginProfile', Object.assign({}, loginProfile, profile));
+        }
+        wx.setStorageSync('minePreferences', preferences);
+        return getAvatarDisplayUrl(avatarFileID);
+      })
+      .then((displayUrl) => {
+        this.refresh(Object.assign({}, profile, { avatarUrl: displayUrl || avatarFileID }), preferences);
+        wx.showToast({ title: '\u8d44\u6599\u5df2\u4fdd\u5b58', icon: 'success' });
+      })
+      .catch((error) => {
+        console.warn('[mine] save profile failed', error);
+        wx.showToast({ title: '\u8d44\u6599\u540c\u6b65\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5', icon: 'none' });
+      })
+      .finally(() => wx.hideLoading());
   }
 });

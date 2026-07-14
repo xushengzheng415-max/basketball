@@ -129,7 +129,7 @@
               <text>{{item.label}}</text>
             </view>
             <view class="field-control">
-              <input wx:if="{{item.isInput}}" class="field-input" type="{{item.inputType}}" value="{{item.value}}" placeholder="{{item.placeholder}}" placeholder-class="placeholder" data-key="{{item.key}}" bindinput="onFieldInput" />
+              <input wx:if="{{item.isInput}}" class="field-input" type="{{item.inputType}}" value="{{item.value}}" maxlength="{{item.maxLength}}" placeholder="{{item.placeholder}}" placeholder-class="placeholder" data-key="{{item.key}}" bindinput="onFieldInput" />
               <picker wx:if="{{item.isPicker}}" mode="selector" range="{{item.options}}" data-key="{{item.key}}" bindchange="onPickerChange">
                 <view class="picker-inner {{item.valueClass}}">
                   <text>{{item.displayValue}}</text>

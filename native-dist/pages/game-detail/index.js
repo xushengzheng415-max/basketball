@@ -61,6 +61,17 @@ function buildRoster(players, starterIds, benchIds) {
   });
 }
 
+function scorerPlayers(roster) {
+  return (roster || []).map((player) => ({
+    id: player.id,
+    number: player.number,
+    name: player.name,
+    position: player.position || player.roleText || '',
+    avatar: player.avatar || player.avatarUrl || player.photo || player.photoUrl || player.teamLogo || '',
+    stats: player.stats || {}
+  }));
+}
+
 Page({
   data: {
     tournamentId: '',
@@ -159,5 +170,42 @@ Page({
       event.currentTarget.dataset.id,
       event.currentTarget.dataset.role
     );
+  },
+
+  startScorer() {
+    const game = this.data.game;
+    if (!game) return;
+    const homeStarters = this.data.homeRoster.filter((player) => player.role === 'starter');
+    const awayStarters = this.data.awayRoster.filter((player) => player.role === 'starter');
+    const homeBench = this.data.homeRoster.filter((player) => player.role !== 'starter');
+    const awayBench = this.data.awayRoster.filter((player) => player.role !== 'starter');
+
+    if (!homeStarters.length || !awayStarters.length) {
+      wx.showToast({ title: '请先设置双方首发', icon: 'none' });
+      return;
+    }
+
+    wx.setStorageSync('quickMatchActiveConfig', {
+      mode: 'quick',
+      source: 'tournament-game',
+      tournamentId: this.data.tournamentId,
+      gameId: this.data.gameId,
+      matchName: game.name || (this.data.tournament && this.data.tournament.name) || '赛事场次',
+      homeTeam: {
+        id: game.homeTeamId,
+        key: game.homeTeamKey,
+        name: game.homeTeamName
+      },
+      awayTeam: {
+        id: game.awayTeamId,
+        key: game.awayTeamKey,
+        name: game.awayTeamName
+      },
+      homePlayers: scorerPlayers(homeStarters.concat(homeBench)),
+      awayPlayers: scorerPlayers(awayStarters.concat(awayBench)),
+      periodMinutes: Number((this.data.tournament && this.data.tournament.periodMinutes) || game.periodMinutes || 10),
+      periods: Number((this.data.tournament && this.data.tournament.periods) || game.periods || 4)
+    });
+    wx.navigateTo({ url: '/pages/scorer/index?mode=quick&tournamentId=' + this.data.tournamentId + '&gameId=' + this.data.gameId });
   }
 });

@@ -73,6 +73,25 @@ page {
   text-align: center;
 }
 
+.match-actions {
+  display: flex;
+  margin-top: 24rpx;
+}
+
+.primary-action {
+  display: flex;
+  width: 100%;
+  min-height: 76rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10rpx;
+  color: #fff;
+  background: linear-gradient(135deg, #ff7a00 0%, #ff3d00 100%);
+  box-shadow: 0 10rpx 22rpx rgba(255, 88, 20, 0.28);
+  font-size: 28rpx;
+  font-weight: 900;
+}
+
 .team-section {
   margin-top: 22rpx;
 }

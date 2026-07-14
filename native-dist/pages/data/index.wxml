@@ -32,16 +32,16 @@
       </view>
 
       <view class="feature-grid">
-        <view wx:for="{{features}}" wx:key="title" class="feature-card">
+        <view wx:for="{{features}}" wx:key="title" class="{{item.cardClass}}" data-url="{{item.url}}" bindtap="goFeature">
           <image class="feature-icon" src="{{item.icon}}" mode="aspectFit" />
           <text class="feature-title">{{item.title}}</text>
-          <text class="feature-status">{{item.status}}</text>
+          <text class="feature-status {{item.statusClass}}">{{item.status}}</text>
         </view>
       </view>
 
       <view class="notice-row">
         <text class="notice-icon">i</text>
-        <text class="notice-text">以上功能正在规划中，敬请期待后续版本上线。</text>
+        <text class="notice-text">球队数据已开放，其余功能正在规划中。</text>
       </view>
     </view>
 

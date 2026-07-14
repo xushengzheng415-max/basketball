@@ -21,7 +21,7 @@
       <view class="quick-copy">
         <text class="quick-title">快速开始一场比赛</text>
         <text class="quick-desc">设置队伍、节次和时长，立即进入计分</text>
-        <button class="primary-btn" bindtap="goQuickMatch">开始设置</button>
+        <button class="primary-btn" bindtap="goQuickMatch">开始比赛</button>
       </view>
 
 
@@ -54,17 +54,39 @@
   </view>
 
   <scroll-view class="content-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="panel shortcut-panel">
-      <view class="section-label">
-        <view class="section-line"></view>
-        <text>快捷功能</text>
-      </view>
+    <view class="version-panel">
+      <view class="version-ad">
+        <view class="version-orbit orbit-one"></view>
+        <view class="version-orbit orbit-two"></view>
+        <text class="version-watermark">2.0</text>
 
-      <view class="shortcut-grid">
-        <view wx:for="{{shortcutItems}}" wx:key="key" class="shortcut-card {{item.cardClass}}" data-key="{{item.key}}" bindtap="onShortcutTap">
-          <image class="shortcut-icon {{item.iconClass}}" src="{{item.icon}}" mode="aspectFit" />
-          <text class="shortcut-title">{{item.title}}</text>
-          <text class="shortcut-desc">{{item.desc}}</text>
+        <view class="version-ad-head">
+          <view class="version-badge">赛小蜂 2.0</view>
+          <text class="version-status">COMING SOON</text>
+        </view>
+
+        <text class="version-kicker">全新教务系统</text>
+        <text class="version-title">即将上线</text>
+        <text class="version-desc">连接校区、课程与学员成长，让日常教务管理更简单、更高效。</text>
+
+        <view class="version-features">
+          <view class="version-feature">
+            <view class="feature-dot"></view>
+            <text>智能排课</text>
+          </view>
+          <view class="version-feature">
+            <view class="feature-dot"></view>
+            <text>销课统计</text>
+          </view>
+          <view class="version-feature">
+            <view class="feature-dot"></view>
+            <text>课后评价</text>
+          </view>
+        </view>
+
+        <view class="version-footer">
+          <text>TEACHING MANAGEMENT</text>
+          <text class="version-expect">敬请期待</text>
         </view>
       </view>
     </view>
@@ -77,26 +99,34 @@
 
       <view class="match-list" wx:if="{{hasRecentMatches}}">
         <view wx:for="{{recentMatches}}" wx:key="id" class="match-row" data-id="{{item.id}}" bindtap="goMatchDetail">
-          <view class="team-side">
-            <view class="team-logo {{item.homeLogoClass}}"></view>
-            <text class="team-name">{{item.homeName}}</text>
-          </view>
+          <view class="match-content">
+            <view class="match-main">
+              <view class="team-side home">
+                <text class="team-name">{{item.homeName}}</text>
+                <image class="team-logo" src="{{item.homeLogo}}" mode="aspectFit" />
+              </view>
 
-          <view class="score-side">
-            <view class="score-line">
-              <text class="score-main">{{item.homeScore}}</text>
-              <text class="score-split">-</text>
-              <text class="score-away">{{item.awayScore}}</text>
+              <view class="score-side">
+                <view class="score-line">
+                  <text class="score-main">{{item.homeScore}}</text>
+                  <text class="score-split">-</text>
+                  <text class="score-away">{{item.awayScore}}</text>
+                </view>
+              </view>
+
+              <view class="team-side right">
+                <image class="team-logo" src="{{item.awayLogo}}" mode="aspectFit" />
+                <text class="team-name">{{item.awayName}}</text>
+              </view>
             </view>
+
             <text class="match-meta">{{item.time}}  {{item.venue}}</text>
           </view>
 
-          <view class="team-side right">
-            <view class="team-logo {{item.awayLogoClass}}"></view>
-            <text class="team-name">{{item.awayName}}</text>
+          <view class="row-actions">
+            <view class="status-pill {{item.statusClass}}">{{item.statusText}}</view>
+            <button class="delete-match-btn" data-id="{{item.id}}" catchtap="deleteRecentMatch">删除</button>
           </view>
-
-          <view class="status-pill {{item.statusClass}}">{{item.statusText}}</view>
           <text class="row-arrow">›</text>
         </view>
 

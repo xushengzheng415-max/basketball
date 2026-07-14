@@ -10,7 +10,13 @@ const AUDIO_SETTINGS_KEY = 'sx_mc_audio_settings';
 const CLOUD_AUDIO_MAP_KEY = 'sx_mc_audio_map';
 const CLOUD_AUDIO_ITEMS_KEY = 'sx_mc_audio_items';
 const CUSTOM_SLOTS_KEY = 'sx_mc_custom_slots';
+const CUSTOM_SLOT_DETAILS_KEY = 'sx_mc_custom_slot_details';
 const VOICE_STYLE_KEY = 'sx_score_voice_style';
+const VOICE_MODE_KEY = 'sx_score_voice_mode';
+const AUDIO_CACHE_STORAGE_KEY = 'sx_local_audio_cache_v1';
+const AUDIO_CACHE_ORDER_KEY = 'sx_local_audio_cache_order_v1';
+const AUDIO_CACHE_CONSENT_KEY = 'sx_local_audio_cache_consent_v1';
+const AUDIO_CACHE_LIMIT = 48;
 const RECENT_MATCHES_KEY = 'sx_recent_matches';
 const RECENT_MATCHES_LIMIT = 30;
 const HID_SERVICE_UUID = '00001812-0000-1000-8000-00805F9B34FB';
@@ -101,16 +107,28 @@ function formatClock(totalSeconds) {
   return minutes + ':' + seconds;
 }
 
-function formatAudioTime(totalSeconds) {
-  const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
-  const minutes = String(Math.floor(safe / 60)).padStart(2, '0');
-  const seconds = String(safe % 60).padStart(2, '0');
-  return minutes + ':' + seconds;
+function buildSimpleScoreVoice(data) {
+  const period = Math.max(1, Number(data.period) || 1);
+  const timePrefix = data.timerMode === 'down' ? '还剩' : '已经进行';
+  const parts = String(data.clockText || '00:00').split(':');
+  const minutes = Math.max(0, Number(parts[0]) || 0);
+  const seconds = Math.max(0, Number(parts[1]) || 0);
+  const durationText = minutes > 0
+    ? `${minutes}分${seconds > 0 ? seconds + '秒' : ''}`
+    : `${seconds}秒`;
+  return `第${period}节，比赛${timePrefix}${durationText}。${data.homeName || '主队'}对${data.awayName || '客队'}，${Number(data.homeScore) || 0}比${Number(data.awayScore) || 0}。`;
 }
 
 function cloneUndoValue(value) {
   if (value === undefined) return undefined;
   return JSON.parse(JSON.stringify(value));
+}
+
+function formatAudioTime(totalSeconds) {
+  const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const minutes = String(Math.floor(safe / 60)).padStart(2, '0');
+  const seconds = String(safe % 60).padStart(2, '0');
+  return minutes + ':' + seconds;
 }
 
 function nowText() {
@@ -249,20 +267,27 @@ const DEFAULT_CUSTOM_SOUND_META = [
 
 function buildConfiguredCustomSounds() {
   const saved = wx.getStorageSync(CUSTOM_SLOTS_KEY);
-  const savedSlots = Array.isArray(saved) ? saved.filter((source) => source && String(source).indexOf('placeholder-') !== 0) : [];
+  const savedSlots = Array.isArray(saved) ? saved : [];
+  const savedDetails = wx.getStorageSync(CUSTOM_SLOT_DETAILS_KEY);
+  const slotDetails = Array.isArray(savedDetails) ? savedDetails : [];
   const audioItems = wx.getStorageSync(CLOUD_AUDIO_ITEMS_KEY) || [];
   return Array.from({ length: 6 }, (_, index) => {
     const savedValue = savedSlots[index] || '';
+    const detail = slotDetails[index] || {};
     const stored = audioItems.find((item) => item && (
       item.id === savedValue || item.key === savedValue ||
       (item.fileID || item.fileId || item.src) === savedValue
     )) || {};
-    const fallback = DEFAULT_CUSTOM_SOUND_META[index] || {};
-    const source = stored.fileID || stored.fileId || stored.src || (String(savedValue).indexOf('cloud://') === 0 ? savedValue : '') || fallback.source || '';
-    const channel = stored.channel === 'shout' ? 'horn' : (stored.channel || fallback.type || ('custom-' + index));
+    const detailChannel = detail.channel === 'shout' ? 'horn' : detail.channel;
+    const indexFallback = DEFAULT_CUSTOM_SOUND_META[index] || {};
+    const savedFallback = DEFAULT_CUSTOM_SOUND_META.find((item) => item.source === savedValue);
+    const fallback = DEFAULT_CUSTOM_SOUND_META.find((item) => item.type === detailChannel) || savedFallback || indexFallback;
+    const source = detail.source || stored.fileID || stored.fileId || stored.src || (String(savedValue).indexOf('cloud://') === 0 ? savedValue : '') || fallback.source || '';
+    const storedChannel = stored.channel === 'shout' ? 'horn' : stored.channel;
+    const channel = detailChannel || storedChannel || fallback.type || ('custom-' + index);
     return {
       type: channel,
-      name: stored.name || fallback.name || ('自定义音效' + (index + 1)),
+      name: detail.name || stored.name || fallback.name || ('自定义音效' + (index + 1)),
       icon: ICON_ASSET + 'icon-mc-mvp-clean.png',
       glyph: SOUND_GLYPHS[channel] || '\u266a',
       source,
@@ -331,13 +356,33 @@ function buildQuickPlayers(side, players) {
   return (Array.isArray(players) ? players : []).map((player, index) => ({
     id: side + '-quick-' + (player.id || index),
     number: String(player.number || index + 1),
-    name: player.name || '????',
-    position: player.position || '??',
+    name: player.name || '未命名',
+    position: player.position || '未知',
     avatar: getPlayerAvatar(player, side),
     cardClass: '',
     tagText: '',
     stats: cloneStats(player.stats)
   }));
+}
+
+function playerTeamGroup(player) {
+  return String((player && player.team) || '').trim() || '无球队';
+}
+
+function playerAgeGroup(player) {
+  const source = player || {};
+  const directGroup = [source.ageGroup, source.group, source.category].find((value) => /U\s*\d{1,2}/i.test(String(value || '')));
+  if (directGroup) {
+    const match = String(directGroup).match(/U\s*(\d{1,2})/i);
+    if (match) return 'U' + Number(match[1]);
+  }
+  let age = Number(source.age) || 0;
+  if (!age && Array.isArray(source.tags)) {
+    const ageTag = source.tags.find((tag) => /\d{1,2}\s*岁/.test(String(tag || '')));
+    const match = ageTag && String(ageTag).match(/(\d{1,2})\s*岁/);
+    age = match ? Number(match[1]) : 0;
+  }
+  return age > 0 ? 'U' + age : '年龄未填';
 }
 Page({
   timer: null,
@@ -359,6 +404,11 @@ Page({
   restAudioSeeking: false,
   restAudioTrackRect: null,
   audioUrlCache: {},
+  persistentAudioCache: {},
+  persistentAudioConsent: '',
+  audioConsentPromptOpen: false,
+  audioPreloadStarted: false,
+  audioPreloadStopped: false,
   matchRecordId: '',
   matchRecordCreatedAt: 0,
   matchRecordSaveTimer: null,
@@ -368,10 +418,14 @@ Page({
   matchShotClockWasRunning: false,
   undoStack: [],
   data: {
-    started: false,
+    started: true,
     bgImage: BG,
     setupBgImage: SETUP_BG,
     scorePageClass: 'score-page landscape-board tablet-board',
+    rosterDrawerToggleVisible: true,
+    rosterDrawerClass: 'roster-collapsed',
+    rosterDrawerButtonClass: '',
+    rosterDrawerButtonText: '显示阵容',
     setupPresetMinutes: [6, 8, 10, 12],
     setupPresetPeriods: [2, 4, 6],
     homeName: '蜂巢U10A',
@@ -401,8 +455,6 @@ Page({
     totalPeriods: 4,
     periodMinutes: 10,
     timerMode: 'down',
-    timerModeDownClass: 'active',
-    timerModeUpClass: '',
     clockSeconds: 600,
     clockText: '10:00',
     clockRunning: false,
@@ -413,13 +465,25 @@ Page({
     awayBench: [],
     homeHasRoster: false,
     awayHasRoster: false,
-    teamEventPanelsVisible: true,
+    teamEventPanelsVisible: false,
     rosterPickerVisible: false,
+    rosterBatchVisible: true,
     rosterPickerSide: 'home',
     rosterPickerTarget: 'starter',
     rosterPickerTeamText: '主队',
     rosterPickerQuery: '',
     rosterPickerPlayers: [],
+    rosterPickerGroupMode: 'team',
+    rosterPickerSelectedGroups: [],
+    rosterPickerSelectedPlayerIds: [],
+    rosterPickerNumberMap: {},
+    rosterPickerGroupOptions: [],
+    rosterBatchSelecting: false,
+    rosterTeamModeClass: 'active',
+    rosterAgeModeClass: '',
+    rosterBatchButtonClass: 'disabled',
+    rosterBatchButtonText: '请选择球队',
+    rosterBatchAvailableCount: 0,
     rosterPickerStarterCount: 0,
     rosterPickerBenchCount: 0,
     rosterStarterTargetClass: 'active',
@@ -443,7 +507,7 @@ Page({
     homeEvents: [],
     awayEvents: [],
     currentAudioName: '无',
-    mcVoiceIcon: ICON_ASSET + 'icon-mc-score-voice-clean.png',
+    mcVoiceIcon: ICON_ASSET + 'icon-mc-attack-clean.png',
     mcSoundIcon: ICON_ASSET + 'icon-mc-attack-clean.png',
     playingType: '',
     showRestAudioControls: false,
@@ -464,9 +528,8 @@ Page({
     showPlayerStats: false,
     voiceOptions: [
       { id: 'standard', name: '赛小智', icon: ICON_ASSET + 'icon-mc-score-voice-clean.png', activeClass: 'active' },
-      { id: 'live', name: '赛小瑾', icon: ICON_ASSET + 'icon-mc-score-voice-clean.png', activeClass: '' },
-      { id: 'kids', name: '赛小萌', icon: ICON_ASSET + 'icon-mc-score-voice-clean.png', activeClass: '' },
-      { id: 'other', name: '其他', icon: ICON_ASSET + 'icon-mc-score-voice-clean.png', activeClass: '' }
+      { id: 'live', name: '赛小锦', icon: ICON_ASSET + 'icon-mc-score-voice-clean.png', activeClass: '' },
+      { id: 'kids', name: '赛小萌', icon: ICON_ASSET + 'icon-mc-score-voice-clean.png', activeClass: '' }
     ],
     commonSounds: [
       { type: 'attack', name: '进攻音效', icon: ICON_ASSET + 'icon-tech-score-clean.png', glyph: SOUND_GLYPHS.attack, audioIds: AUDIO_FILE_IDS.attack, activeClass: '' },
@@ -506,7 +569,8 @@ Page({
   },
 
   onLoad(options) {
-    this.boardOnly = !!(options && options.boardOnly === '1');
+    this.boardOnly = true;
+    this.loadPersistentAudioCache();
     if (options && options.mode === 'quick' && !this.boardOnly) {
       wx.redirectTo({ url: '/pages/scorer-board/index?mode=quick&boardOnly=1' });
       return;
@@ -515,7 +579,14 @@ Page({
       if (this.rosterInitialized) return;
       this.rosterInitialized = true;
       this.loadTeamOptions();
-      this.applyQuickMatchConfig(options);
+      const resumeId = options && options.resumeId ? decodeURIComponent(String(options.resumeId)) : '';
+      const restored = resumeId ? this.restoreMatchRecord(resumeId) : false;
+      if (resumeId && !restored) {
+        wx.showToast({ title: '\u672a\u627e\u5230\u53ef\u6062\u590d\u7684\u6bd4\u8d5b', icon: 'none' });
+        setTimeout(() => wx.reLaunch({ url: '/pages/home/index' }), 500);
+        return;
+      }
+      if (!restored) this.applyQuickMatchConfig(options);
       this.updateDigital();
       this.detectBoardSize();
       if (wx.onWindowResize) {
@@ -529,7 +600,7 @@ Page({
       .then((result) => result || pullRoster())
       .then(initialize)
       .catch((error) => {
-        console.warn('[scorer] pull roster failed', error);
+        console.warn('[scorer-board] pull roster failed', error);
         initialize();
       });
   },
@@ -538,6 +609,7 @@ Page({
     this.detectBoardSize();
     this.syncVoiceStyle();
     this.syncCustomSounds();
+    this.preloadCommonAudio();
     if (this.data.started && this.matchHiddenAt) {
       const elapsedSeconds = Math.max(0, Math.floor((Date.now() - this.matchHiddenAt) / 1000));
       this.resumeElapsedMatchClock(elapsedSeconds, this.matchClockWasRunning, this.matchShotClockWasRunning);
@@ -556,6 +628,7 @@ Page({
 
 
   onUnload() {
+    this.audioPreloadStopped = true;
     if (this.matchRecordSaveTimer) clearTimeout(this.matchRecordSaveTimer);
     if (this.data.started) this.persistMatchRecord(this.matchEnded);
     this.clearClock();
@@ -582,9 +655,17 @@ Page({
   },
 
   syncVoiceStyle() {
-    const voiceStyle = wx.getStorageSync(VOICE_STYLE_KEY) || 'standard';
+    const storedStyle = wx.getStorageSync(VOICE_STYLE_KEY) || 'standard';
+    const voiceStyle = this.data.voiceOptions.some((item) => item.id === storedStyle) ? storedStyle : 'standard';
+    if (voiceStyle !== storedStyle) wx.setStorageSync(VOICE_STYLE_KEY, voiceStyle);
     const voiceOptions = this.data.voiceOptions.map((item) => Object.assign({}, item, { activeClass: item.id === voiceStyle ? 'active' : '' }));
     this.setData({ voiceOptions });
+  },
+
+  setVoiceButtonActive(active) {
+    const classes = String(this.data.scorePageClass || '').split(/\s+/).filter(Boolean).filter((item) => item !== 'voice-active');
+    if (active) classes.push('voice-active');
+    this.setData({ scorePageClass: classes.join(' ') });
   },
 
   updateDigital() {
@@ -650,15 +731,7 @@ Page({
     const timerMode = event.currentTarget.dataset.mode;
     const clockSeconds = timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
     this.clearClock();
-    this.setData({
-      timerMode,
-      timerModeDownClass: timerMode === 'down' ? 'active' : '',
-      timerModeUpClass: timerMode === 'up' ? 'active' : '',
-      clockSeconds,
-      clockText: formatClock(clockSeconds),
-      clockRunning: false,
-      clockButtonText: '开始'
-    }, () => this.updateDigital());
+    this.setData({ timerMode, clockSeconds, clockText: formatClock(clockSeconds), clockRunning: false, clockButtonText: '开始' }, () => this.updateDigital());
   },
 
   applyPeriodMinutes(value) {
@@ -693,7 +766,7 @@ Page({
     const awayPlayers = buildQuickPlayers('away', config.awayPlayers);
     this.setData({
       started: true,
-      matchName: config.matchName || '????',
+      matchName: config.matchName || '未命名比赛',
       homeName,
       awayName,
       homeLogo: getTeamLogo(config.homeTeam, 'home'),
@@ -705,7 +778,7 @@ Page({
       clockSeconds,
       clockText: formatClock(clockSeconds),
       clockRunning: false,
-      clockButtonText: '??',
+      clockButtonText: '开始',
       homeStarters: homePlayers.slice(0, 5),
       awayStarters: awayPlayers.slice(0, 5),
       homeBench: homePlayers.slice(5).map((player) => Object.assign({}, player, { chipClass: '' })),
@@ -739,6 +812,14 @@ Page({
       createdAt: Date.now()
     });
     wx.navigateTo({ url: '/pages/scorer-board/index?mode=quick&boardOnly=1' });
+  },
+  toggleRosterDrawer() {
+    const open = this.data.rosterDrawerClass !== 'roster-open';
+    this.setData({
+      rosterDrawerClass: open ? 'roster-open' : 'roster-collapsed',
+      rosterDrawerButtonClass: open ? 'active' : '',
+      rosterDrawerButtonText: open ? '收起阵容' : '显示阵容'
+    });
   },
   clearShotClock() {
     if (this.shotTimer) clearInterval(this.shotTimer);
@@ -954,7 +1035,7 @@ Page({
   },
 
   addScore(side, points, playerId) {
-    this.pushUndoSnapshot(points < 0 ? '减分' : '得分');
+    this.pushUndoSnapshot(points < 0 ? '减分' : '得分', side);
     const scoreKey = side === 'home' ? 'homeScore' : 'awayScore';
     const pulseKey = side === 'home' ? 'homeScorePulseClass' : 'awayScorePulseClass';
     const team = side === 'home' ? this.data.homeName : this.data.awayName;
@@ -986,10 +1067,13 @@ Page({
     };
     patch.events = [scoreEvent].concat(this.data.events).slice(0, 12);
     patch[side + 'Events'] = [scoreEvent].concat(this.data[side + 'Events']).slice(0, 8);
-    if (playerId) this.bumpPlayerStat(side, playerId, 'score', points, patch);
+    if (playerId) {
+      this.bumpPlayerStat(side, playerId, 'score', points, patch);
+      patch.selectedPlayer = null;
+      patch.showPlayerStats = false;
+    }
     this.setData(patch, () => {
       this.updateDigital();
-      if (playerId) this.refreshSelectedPlayer(side, playerId);
       this.scheduleMatchRecordSave();
     });
     setTimeout(() => { const reset = {}; reset[pulseKey] = ''; this.setData(reset); }, 420);
@@ -1008,7 +1092,7 @@ Page({
   addHomeTimeout() { this.handleTeamTimeout('home', 'homeTimeouts', this.data.homeName); },
   addAwayTimeout() { this.handleTeamTimeout('away', 'awayTimeouts', this.data.awayName); },
   addCounter(side, key, team, action) {
-    this.pushUndoSnapshot(action);
+    this.pushUndoSnapshot(action, side);
     const patch = {};
     const item = { id: Date.now(), time: this.eventTimeText(), team, action, score: this.data.homeScore + '-' + this.data.awayScore };
     patch[key] = this.data[key] + 1;
@@ -1122,7 +1206,7 @@ Page({
     });
   },
 
-  pushUndoSnapshot(label) {
+  pushUndoSnapshot(label, side) {
     const keys = [
       'homeName', 'awayName', 'homeLogo', 'awayLogo',
       'homeScore', 'awayScore', 'homeFouls', 'awayFouls', 'homeTimeouts', 'awayTimeouts',
@@ -1134,7 +1218,7 @@ Page({
       'homeSubButtonText', 'awaySubButtonText', 'homeSubButtonClass', 'awaySubButtonClass',
       'possession', 'leftPossessionClass', 'rightPossessionClass'
     ];
-    const snapshot = { label: label || '上一操作', data: {} };
+    const snapshot = { label: label || '上一操作', side: side || '', data: {} };
     keys.forEach((key) => { snapshot.data[key] = cloneUndoValue(this.data[key]); });
     this.undoStack = (this.undoStack || []).concat(snapshot).slice(-30);
   },
@@ -1143,16 +1227,34 @@ Page({
     const stack = this.undoStack || [];
     const snapshot = stack.pop();
     this.undoStack = stack;
-    if (!snapshot) {
-      wx.showToast({ title: '暂无可撤销操作', icon: 'none' });
-      return;
+    if (!snapshot) return;
+    const restored = Object.assign({}, snapshot.data, {
+      selectedPlayer: null,
+      showPlayerStats: false
+    });
+    const side = snapshot.side;
+    const baseEvent = {
+      id: Date.now(),
+      time: this.eventTimeText(),
+      team: side === 'away' ? restored.awayName : (side === 'home' ? restored.homeName : '双方'),
+      action: '撤销' + snapshot.label,
+      score: restored.homeScore + '-' + restored.awayScore
+    };
+    restored.events = [baseEvent].concat(restored.events || []).slice(0, 12);
+    if (side === 'home' || side === 'both') {
+      const homeEvent = Object.assign({}, baseEvent, { id: Date.now() + 1, team: restored.homeName });
+      restored.homeEvents = [homeEvent].concat(restored.homeEvents || []).slice(0, 8);
     }
-    this.setData(snapshot.data, () => {
+    if (side === 'away' || side === 'both') {
+      const awayEvent = Object.assign({}, baseEvent, { id: Date.now() + 2, team: restored.awayName });
+      restored.awayEvents = [awayEvent].concat(restored.awayEvents || []).slice(0, 8);
+    }
+    this.setData(restored, () => {
       this.updateDigital();
       this.scheduleMatchRecordSave();
-      wx.showToast({ title: '已撤销' + snapshot.label, icon: 'none' });
     });
   },
+
   swapSides() {
     wx.showModal({
       title: '确认交换场地',
@@ -1160,7 +1262,7 @@ Page({
       confirmText: '确认交换',
       success: (result) => {
         if (!result.confirm) return;
-        this.pushUndoSnapshot('交换场地');
+        this.pushUndoSnapshot('交换场地', 'both');
         this.setData({
           homeName: this.data.awayName,
           awayName: this.data.homeName,
@@ -1213,8 +1315,14 @@ Page({
     }
     this.rosterPickerAllPlayers = players.map((player, index) => ({
       pickerId: String(player.id || ('player-' + index)),
-      raw: player
+      raw: player,
+      teamGroup: playerTeamGroup(player),
+      ageGroup: playerAgeGroup(player)
     }));
+    const numberMap = {};
+    this.rosterPickerAllPlayers.forEach((entry) => {
+      numberMap[entry.pickerId] = String((entry.raw && entry.raw.number) || '').replace(/[^0-9]/g, '').slice(0, 2);
+    });
     const starterCount = (this.data[side + 'Starters'] || []).length;
     const target = starterCount < 5 ? 'starter' : 'bench';
     this.setData({
@@ -1222,19 +1330,87 @@ Page({
       rosterPickerSide: side,
       rosterPickerTarget: target,
       rosterPickerTeamText: side === 'home' ? '主队' : '客队',
-      rosterPickerQuery: ''
-    }, () => this.refreshRosterPickerPlayers());
+      rosterPickerQuery: '',
+      rosterPickerGroupMode: 'team',
+      rosterPickerSelectedGroups: [],
+      rosterPickerSelectedPlayerIds: [],
+      rosterPickerNumberMap: numberMap,
+      rosterBatchSelecting: false,
+      rosterTeamModeClass: 'active',
+      rosterAgeModeClass: ''
+    }, () => {
+      this.refreshRosterPickerGroups();
+      this.refreshRosterPickerPlayers();
+    });
   },
   closeRosterPlayerPicker() {
     this.rosterPickerAllPlayers = [];
-    this.setData({ rosterPickerVisible: false, rosterPickerQuery: '', rosterPickerPlayers: [] });
+    this.setData({ rosterPickerVisible: false, rosterPickerQuery: '', rosterPickerPlayers: [], rosterPickerSelectedGroups: [], rosterPickerSelectedPlayerIds: [], rosterPickerNumberMap: {}, rosterPickerGroupOptions: [], rosterBatchSelecting: false });
   },
   switchRosterPickerTarget(event) {
     const target = event.currentTarget.dataset.target === 'bench' ? 'bench' : 'starter';
-    this.setData({ rosterPickerTarget: target }, () => this.refreshRosterPickerPlayers());
+    const side = this.data.rosterPickerSide === 'away' ? 'away' : 'home';
+    const listKey = side + (target === 'bench' ? 'Bench' : 'Starters');
+    const limit = target === 'bench' ? 6 : 5;
+    const remaining = Math.max(0, limit - ((this.data[listKey] || []).length));
+    const selectedIds = (this.data.rosterPickerSelectedPlayerIds || []).slice(0, remaining);
+    this.setData({ rosterPickerTarget: target, rosterPickerSelectedPlayerIds: selectedIds }, () => this.refreshRosterPickerPlayers());
   },
   filterRosterPickerPlayers(event) {
     this.setData({ rosterPickerQuery: String((event.detail && event.detail.value) || '').trim() }, () => this.refreshRosterPickerPlayers());
+  },
+  switchRosterGroupMode(event) {
+    const mode = event.currentTarget.dataset.mode === 'age' ? 'age' : 'team';
+    this.setData({
+      rosterPickerGroupMode: mode,
+      rosterPickerSelectedGroups: [],
+      rosterPickerSelectedPlayerIds: [],
+      rosterBatchSelecting: false,
+      rosterTeamModeClass: mode === 'team' ? 'active' : '',
+      rosterAgeModeClass: mode === 'age' ? 'active' : ''
+    }, () => {
+      this.refreshRosterPickerGroups();
+      this.refreshRosterPickerPlayers();
+    });
+  },
+  toggleRosterPickerGroup(event) {
+    const key = String(event.currentTarget.dataset.key || '');
+    if (!key) return;
+    const selected = Array.isArray(this.data.rosterPickerSelectedGroups) ? this.data.rosterPickerSelectedGroups.slice() : [];
+    const index = selected.indexOf(key);
+    if (index >= 0) selected.splice(index, 1);
+    else selected.push(key);
+    this.setData({ rosterPickerSelectedGroups: selected, rosterPickerSelectedPlayerIds: [], rosterBatchSelecting: false }, () => {
+      this.refreshRosterPickerGroups();
+      this.refreshRosterPickerPlayers();
+    });
+  },
+  refreshRosterPickerGroups() {
+    const mode = this.data.rosterPickerGroupMode === 'age' ? 'age' : 'team';
+    const selected = Array.isArray(this.data.rosterPickerSelectedGroups) ? this.data.rosterPickerSelectedGroups : [];
+    const counts = {};
+    (this.rosterPickerAllPlayers || []).forEach((entry) => {
+      const key = mode === 'age' ? entry.ageGroup : entry.teamGroup;
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    const keys = Object.keys(counts).sort((left, right) => {
+      if (mode === 'age') {
+        const leftAge = Number(String(left).replace(/[^0-9]/g, '')) || 999;
+        const rightAge = Number(String(right).replace(/[^0-9]/g, '')) || 999;
+        return leftAge - rightAge;
+      }
+      if (left === '无球队') return 1;
+      if (right === '无球队') return -1;
+      return left.localeCompare(right, 'zh-CN');
+    });
+    this.setData({
+      rosterPickerGroupOptions: keys.map((key) => ({
+        key,
+        label: key,
+        count: counts[key],
+        activeClass: selected.indexOf(key) >= 0 ? 'active' : ''
+      }))
+    });
   },
   refreshRosterPickerPlayers() {
     const side = this.data.rosterPickerSide === 'away' ? 'away' : 'home';
@@ -1242,12 +1418,20 @@ Page({
     const bench = Array.isArray(this.data[side + 'Bench']) ? this.data[side + 'Bench'] : [];
     const usedIds = starters.concat(bench).map((item) => String(item.sourcePlayerId || ''));
     const query = String(this.data.rosterPickerQuery || '').toLowerCase();
+    const mode = this.data.rosterPickerGroupMode === 'age' ? 'age' : 'team';
+    const selectedGroups = Array.isArray(this.data.rosterPickerSelectedGroups) ? this.data.rosterPickerSelectedGroups : [];
+    const selectedPlayerIds = Array.isArray(this.data.rosterPickerSelectedPlayerIds) ? this.data.rosterPickerSelectedPlayerIds : [];
+    const numberMap = this.data.rosterPickerNumberMap || {};
     const players = (this.rosterPickerAllPlayers || []).filter((entry) => {
       const player = entry.raw || {};
-      return !query || String(player.name || '').toLowerCase().includes(query) || String(player.number || '').toLowerCase().includes(query);
+      const group = mode === 'age' ? entry.ageGroup : entry.teamGroup;
+      const matchesGroup = !selectedGroups.length || selectedGroups.indexOf(group) >= 0;
+      const matchesQuery = !query || String(player.name || '').toLowerCase().includes(query) || String(player.number || '').toLowerCase().includes(query);
+      return matchesGroup && matchesQuery;
     }).map((entry) => {
       const player = entry.raw || {};
-      const disabled = usedIds.indexOf(String(player.id || '')) >= 0;
+      const disabled = usedIds.indexOf(String(player.id || entry.pickerId)) >= 0;
+      const checked = selectedPlayerIds.indexOf(entry.pickerId) >= 0;
       return {
         pickerId: entry.pickerId,
         name: player.name || '未命名',
@@ -1255,15 +1439,120 @@ Page({
         position: player.position || (player.tags && player.tags[0]) || '球员',
         avatar: getPlayerAvatar(player, side),
         disabledClass: disabled ? 'disabled' : '',
-        actionText: disabled ? '已添加' : '添加'
+        checkedClass: checked ? 'checked' : '',
+        checkText: checked ? '✓' : '',
+        rowClass: this.data.rosterBatchSelecting ? (checked ? 'batch-selecting number-visible' : 'batch-selecting') : '',
+        showNumberInput: !!this.data.rosterBatchSelecting && checked,
+        matchNumber: numberMap[entry.pickerId] || '',
+        actionText: disabled ? '已添加' : (this.data.rosterBatchSelecting ? (checked ? '已选' : '选择') : '添加')
       };
     });
+    const batchCount = selectedGroups.length ? (this.rosterPickerAllPlayers || []).filter((entry) => {
+      const player = entry.raw || {};
+      const group = mode === 'age' ? entry.ageGroup : entry.teamGroup;
+      return selectedGroups.indexOf(group) >= 0 && usedIds.indexOf(String(player.id || entry.pickerId)) < 0;
+    }).length : 0;
     this.setData({
       rosterPickerPlayers: players,
       rosterPickerStarterCount: starters.length,
       rosterPickerBenchCount: bench.length,
       rosterStarterTargetClass: this.data.rosterPickerTarget === 'starter' ? 'active' : '',
-      rosterBenchTargetClass: this.data.rosterPickerTarget === 'bench' ? 'active' : ''
+      rosterBenchTargetClass: this.data.rosterPickerTarget === 'bench' ? 'active' : '',
+      rosterBatchButtonClass: selectedGroups.length && (this.data.rosterBatchSelecting ? selectedPlayerIds.length : batchCount > 0) ? '' : 'disabled',
+      rosterBatchButtonText: this.data.rosterBatchSelecting
+        ? ('添加所选到' + (this.data.rosterPickerTarget === 'bench' ? '替补' : '首发') + '（' + selectedPlayerIds.length + '）')
+        : (selectedGroups.length ? ('批量选择（' + batchCount + '人）') : (mode === 'age' ? '请选择年龄组' : '请选择球队')),
+      rosterBatchAvailableCount: batchCount
+    });
+  },
+  updateBatchRosterNumber(event) {
+    const pickerId = String(event.currentTarget.dataset.id || '');
+    const value = String((event.detail && event.detail.value) || '').replace(/[^0-9]/g, '').slice(0, 2);
+    const numberMap = Object.assign({}, this.data.rosterPickerNumberMap || {});
+    numberMap[pickerId] = value;
+    this.setData({ rosterPickerNumberMap: numberMap });
+    return value;
+  },
+  batchAddRosterPlayers() {
+    const selectedGroups = Array.isArray(this.data.rosterPickerSelectedGroups) ? this.data.rosterPickerSelectedGroups : [];
+    if (!selectedGroups.length) {
+      wx.showToast({ title: this.data.rosterPickerGroupMode === 'age' ? '请先选择年龄组' : '请先选择球队', icon: 'none' });
+      return;
+    }
+    if (!this.data.rosterBatchSelecting) {
+      if (Number(this.data.rosterBatchAvailableCount) <= 0) {
+        wx.showToast({ title: '所选分组暂无可添加球员', icon: 'none' });
+        return;
+      }
+      this.setData({ rosterBatchSelecting: true, rosterPickerSelectedPlayerIds: [] }, () => this.refreshRosterPickerPlayers());
+      return;
+    }
+    const selectedPlayerIds = Array.isArray(this.data.rosterPickerSelectedPlayerIds) ? this.data.rosterPickerSelectedPlayerIds : [];
+    if (!selectedPlayerIds.length) {
+      wx.showToast({ title: '请勾选需要添加的球员', icon: 'none' });
+      return;
+    }
+    const side = this.data.rosterPickerSide === 'away' ? 'away' : 'home';
+    const target = this.data.rosterPickerTarget === 'bench' ? 'bench' : 'starter';
+    const listKey = side + (target === 'bench' ? 'Bench' : 'Starters');
+    const current = Array.isArray(this.data[listKey]) ? this.data[listKey] : [];
+    const limit = target === 'bench' ? 6 : 5;
+    const availableSlots = Math.max(0, limit - current.length);
+    if (!availableSlots) {
+      wx.showToast({ title: target === 'bench' ? '替补名额已满' : '首发名额已满', icon: 'none' });
+      return;
+    }
+    const allSelected = (this.data[side + 'Starters'] || []).concat(this.data[side + 'Bench'] || []);
+    const usedIds = allSelected.map((item) => String(item.sourcePlayerId || ''));
+    const candidates = (this.rosterPickerAllPlayers || []).filter((entry) => {
+      const player = entry.raw || {};
+      return selectedPlayerIds.indexOf(entry.pickerId) >= 0 && usedIds.indexOf(String(player.id || entry.pickerId)) < 0;
+    });
+    const adding = candidates.slice(0, availableSlots);
+    if (!adding.length) {
+      wx.showToast({ title: '所选球员均已在阵容中', icon: 'none' });
+      return;
+    }
+    const numberMap = this.data.rosterPickerNumberMap || {};
+    const occupiedNumbers = {};
+    allSelected.forEach((item) => { occupiedNumbers[String(item.number || '')] = true; });
+    for (let index = 0; index < adding.length; index += 1) {
+      const entry = adding[index];
+      const player = entry.raw || {};
+      const number = String(numberMap[entry.pickerId] || '').trim();
+      if (!/^\d{1,2}$/.test(number)) {
+        wx.showToast({ title: '请填写' + (player.name || '球员') + '的本场号码', icon: 'none' });
+        return;
+      }
+      if (occupiedNumbers[number]) {
+        wx.showToast({ title: '本队号码 #' + number + ' 重复', icon: 'none' });
+        return;
+      }
+      occupiedNumbers[number] = true;
+    }
+    this.pushUndoSnapshot('批量添加球员', side);
+    const next = current.concat(adding.map((entry, index) => {
+      const player = entry.raw || {};
+      return {
+        id: side + '-' + target + '-' + (player.id || (Date.now() + index)),
+        sourcePlayerId: player.id || entry.pickerId,
+        number: String(numberMap[entry.pickerId]),
+        name: player.name || '未命名',
+        position: player.position || (player.tags && player.tags[0]) || '球员',
+        avatar: getPlayerAvatar(player, side),
+        cardClass: '',
+        chipClass: '',
+        tagText: '',
+        stats: cloneStats(player.stats)
+      };
+    }));
+    const patch = {};
+    patch[listKey] = next;
+    patch[side + 'HasRoster'] = true;
+    this.setData(patch, () => {
+      this.scheduleMatchRecordSave();
+      this.setData({ rosterBatchSelecting: false, rosterPickerSelectedPlayerIds: [] }, () => this.refreshRosterPickerPlayers());
+      wx.showToast({ title: '已批量添加' + adding.length + '人', icon: 'success' });
     });
   },
   addRosterPlayerFromPicker(event) {
@@ -1281,15 +1570,69 @@ Page({
     }
     const player = entry.raw || {};
     const allSelected = (this.data[side + 'Starters'] || []).concat(this.data[side + 'Bench'] || []);
-    if (allSelected.some((item) => String(item.sourcePlayerId || '') === String(player.id || ''))) {
+    if (allSelected.some((item) => String(item.sourcePlayerId || '') === String(player.id || entry.pickerId))) {
       wx.showToast({ title: '该球员已在本队阵容中', icon: 'none' });
       return;
     }
-    this.pushUndoSnapshot('添加球员');
+    if (this.data.rosterBatchSelecting) {
+      const selectedIds = Array.isArray(this.data.rosterPickerSelectedPlayerIds) ? this.data.rosterPickerSelectedPlayerIds.slice() : [];
+      const selectedIndex = selectedIds.indexOf(pickerId);
+      if (selectedIndex >= 0) selectedIds.splice(selectedIndex, 1);
+      else {
+        const remaining = Math.max(0, limit - current.length);
+        if (selectedIds.length >= remaining) {
+          wx.showToast({ title: target === 'bench' ? '替补最多6人' : '首发最多5人', icon: 'none' });
+          return;
+        }
+        selectedIds.push(pickerId);
+      }
+      this.setData({ rosterPickerSelectedPlayerIds: selectedIds }, () => this.refreshRosterPickerPlayers());
+      return;
+    }
+    const defaultNumber = String(player.number || '').replace(/[^0-9]/g, '').slice(0, 2);
+    wx.showModal({
+      title: '设置本场球衣号码',
+      content: (player.name || '该球员') + ' · 球员库号码 #' + (defaultNumber || '未设置'),
+      editable: true,
+      placeholderText: defaultNumber ? ('输入本场号码，默认 ' + defaultNumber) : '请输入本场号码 0-99',
+      confirmText: '加入阵容',
+      confirmColor: '#ff6400',
+      success: (result) => {
+        if (!result.confirm) return;
+        const inputNumber = String(result.content || '').replace(/[^0-9]/g, '').slice(0, 2);
+        const number = inputNumber || defaultNumber;
+        if (!/^\d{1,2}$/.test(number)) {
+          wx.showToast({ title: '请输入本场球衣号码', icon: 'none' });
+          return;
+        }
+        this.commitRosterPlayer(entry, side, target, number);
+      }
+    });
+  },
+
+  commitRosterPlayer(entry, side, target, number) {
+    const listKey = side + (target === 'bench' ? 'Bench' : 'Starters');
+    const limit = target === 'bench' ? 6 : 5;
+    const current = Array.isArray(this.data[listKey]) ? this.data[listKey] : [];
+    if (current.length >= limit) {
+      wx.showToast({ title: target === 'bench' ? '替补最多6人' : '首发最多5人', icon: 'none' });
+      return;
+    }
+    const player = entry.raw || {};
+    const allSelected = (this.data[side + 'Starters'] || []).concat(this.data[side + 'Bench'] || []);
+    if (allSelected.some((item) => String(item.sourcePlayerId || '') === String(player.id || entry.pickerId))) {
+      wx.showToast({ title: '该球员已在本队阵容中', icon: 'none' });
+      return;
+    }
+    if (allSelected.some((item) => String(item.number) === String(number))) {
+      wx.showToast({ title: '本队已有 #' + number, icon: 'none' });
+      return;
+    }
+    this.pushUndoSnapshot('添加球员', side);
     const next = current.concat({
       id: side + '-' + target + '-' + (player.id || Date.now()),
-      sourcePlayerId: player.id || '',
-      number: String(player.number || '--'),
+      sourcePlayerId: player.id || entry.pickerId,
+      number: String(number),
       name: player.name || '未命名',
       position: player.position || (player.tags && player.tags[0]) || '球员',
       avatar: getPlayerAvatar(player, side),
@@ -1323,7 +1666,7 @@ Page({
       confirmColor: '#e64340',
       success: (result) => {
         if (!result.confirm) return;
-        this.pushUndoSnapshot('删除球员');
+        this.pushUndoSnapshot('删除球员', side);
         const next = current.filter((item) => String(item.id) !== id);
         const otherKey = side + (target === 'bench' ? 'Starters' : 'Bench');
         const patch = {};
@@ -1366,7 +1709,7 @@ Page({
     if (starterIndex < 0 || benchIndex < 0) return;
     const out = starters[starterIndex];
     const incoming = bench[benchIndex];
-    this.pushUndoSnapshot('换人');
+    this.pushUndoSnapshot('换人', side);
     starters[starterIndex] = Object.assign({}, out, { number: incoming.number, name: incoming.name, position: incoming.position || out.position, avatar: incoming.avatar || out.avatar, stats: cloneStats(incoming.stats) });
     bench[benchIndex] = Object.assign({}, incoming, { number: out.number, name: out.name, position: out.position || incoming.position, avatar: out.avatar || incoming.avatar, stats: cloneStats(out.stats) });
     const readyStarters = starters.map((item) => Object.assign({}, item, {
@@ -1387,7 +1730,7 @@ Page({
     const subEvent = { id: Date.now(), time: this.eventTimeText(), team, action: out.name + ' ⇄ ' + incoming.name, score: this.data.homeScore + '-' + this.data.awayScore };
     patch.events = [subEvent].concat(this.data.events).slice(0, 12);
     patch[side + 'Events'] = [subEvent].concat(this.data[side + 'Events']).slice(0, 8);
-    this.setData(patch);
+    this.setData(patch, () => this.scheduleMatchRecordSave());
   },
   openHomeSub() { this.toggleSubMode('home'); },
   openAwaySub() { this.toggleSubMode('away'); },
@@ -1524,7 +1867,7 @@ Page({
     patch[listKey] = list;
   },
   bumpSelectedPlayerStat(side, id, key, actionLabel) {
-    this.pushUndoSnapshot(actionLabel || key);
+    this.pushUndoSnapshot(actionLabel || '球员数据', side);
     const patch = {};
     const team = side === 'home' ? this.data.homeName : this.data.awayName;
     const selected = this.data.selectedPlayer;
@@ -1540,10 +1883,112 @@ Page({
     };
     patch.events = [statEvent].concat(this.data.events).slice(0, 12);
     patch[side + 'Events'] = [statEvent].concat(this.data[side + 'Events']).slice(0, 8);
+    patch.selectedPlayer = null;
+    patch.showPlayerStats = false;
     this.setData(patch, () => {
-      const latestPlayer = this.findPlayer(side, id);
-      if (latestPlayer) this.openPlayerStats(side, latestPlayer);
+      this.scheduleMatchRecordSave();
     });
+  },
+
+  restoreMatchRecord(recordId) {
+    const stored = wx.getStorageSync(RECENT_MATCHES_KEY);
+    const list = Array.isArray(stored) ? stored : [];
+    const record = list.find((item) => String(item.id) === String(recordId) && item.ended !== true && item.status !== 'finished');
+    if (!record) return false;
+    const active = wx.getStorageSync('quickMatchActiveConfig') || {};
+    const fallbackHome = buildQuickPlayers('home', active.homePlayers);
+    const fallbackAway = buildQuickPlayers('away', active.awayPlayers);
+    const homeStarters = Array.isArray(record.homeStarters) && record.homeStarters.length ? record.homeStarters : fallbackHome.slice(0, 5);
+    const awayStarters = Array.isArray(record.awayStarters) && record.awayStarters.length ? record.awayStarters : fallbackAway.slice(0, 5);
+    const homeBench = Array.isArray(record.homeBench) ? record.homeBench : fallbackHome.slice(5);
+    const awayBench = Array.isArray(record.awayBench) ? record.awayBench : fallbackAway.slice(5);
+    const clockParts = String(record.clockText || '').split(':');
+    const parsedClock = clockParts.length === 2 ? Number(clockParts[0] || 0) * 60 + Number(clockParts[1] || 0) : 0;
+    const elapsedSeconds = record.clockRunning || record.shotClockRunning
+      ? Math.max(0, Math.floor((Date.now() - Number(record.updatedAt || Date.now())) / 1000))
+      : 0;
+    let clockSeconds = record.clockSeconds !== undefined ? Number(record.clockSeconds || 0) : parsedClock;
+    let shotClock = record.shotClock !== undefined ? Number(record.shotClock || 0) : 24;
+    if (record.clockRunning && elapsedSeconds > 0) {
+      clockSeconds = record.timerMode === 'up'
+        ? Math.max(0, clockSeconds + elapsedSeconds)
+        : Math.max(0, clockSeconds - elapsedSeconds);
+    }
+    if (record.shotClockRunning && elapsedSeconds > 0) shotClock = Math.max(0, shotClock - elapsedSeconds);
+    const mainClockEnded = !!record.clockRunning && record.timerMode !== 'up' && clockSeconds <= 0;
+    const resumeMainClock = !!record.clockRunning && !mainClockEnded;
+    const resumeShotClock = !!record.shotClockRunning && record.shotClockEnabled !== false && shotClock > 0 && !mainClockEnded;
+    const possession = record.possession === 'right' ? 'right' : 'left';
+    this.matchRecordId = String(record.id);
+    this.matchRecordCreatedAt = Number(record.createdAt || Date.now());
+    this.matchEnded = false;
+    wx.setStorageSync('quickMatchActiveConfig', Object.assign({}, active, {
+      mode: 'quick',
+      source: record.source || active.source || 'resume',
+      recordId: this.matchRecordId,
+      createdAt: this.matchRecordCreatedAt,
+      tournamentId: record.tournamentId || '',
+      gameId: record.gameId || '',
+      matchName: record.matchName || '\u5feb\u6377\u6bd4\u8d5b',
+      homeTeam: { name: record.homeName, logoUrl: record.homeLogo || '' },
+      awayTeam: { name: record.awayName, logoUrl: record.awayLogo || '' },
+      homePlayers: homeStarters.concat(homeBench),
+      awayPlayers: awayStarters.concat(awayBench),
+      periodMinutes: Number(record.periodMinutes || 10),
+      periods: Number(record.totalPeriods || 4),
+      timerMode: record.timerMode || 'down'
+    }));
+    this.setData({
+      started: true,
+      matchName: record.matchName || '\u5feb\u6377\u6bd4\u8d5b',
+      homeName: record.homeName || '\u4e3b\u961f',
+      awayName: record.awayName || '\u5ba2\u961f',
+      homeLogo: record.homeLogo || getTeamLogo(null, 'home'),
+      awayLogo: record.awayLogo || getTeamLogo(null, 'away'),
+      homeScore: Number(record.homeScore || 0),
+      awayScore: Number(record.awayScore || 0),
+      homeFouls: Number(record.homeFouls || 0),
+      awayFouls: Number(record.awayFouls || 0),
+      homeTimeouts: Number(record.homeTimeouts || 0),
+      awayTimeouts: Number(record.awayTimeouts || 0),
+      periodScores: Array.isArray(record.periodScores) ? record.periodScores : [],
+      maxPeriodReached: Math.max(1, Number(record.maxPeriodReached || record.period || 1)),
+      period: Number(record.period || 1),
+      totalPeriods: Number(record.totalPeriods || 4),
+      periodMinutes: Number(record.periodMinutes || 10),
+      timerMode: record.timerMode || 'down',
+      clockSeconds,
+      clockText: formatClock(clockSeconds),
+      clockRunning: false,
+      clockButtonText: '\u5f00\u59cb',
+      shotClockEnabled: record.shotClockEnabled !== false,
+      shotClock,
+      shotClockDigits: buildDigitalItems(String(Math.max(0, shotClock)).padStart(2, '0'), 'shot'),
+      shotClockRunning: false,
+      shotClockButtonText: '\u5f00\u59cb',
+      possession,
+      leftPossessionClass: possession === 'left' ? 'active' : '',
+      rightPossessionClass: possession === 'right' ? 'active' : '',
+      homeStarters,
+      awayStarters,
+      homeBench,
+      awayBench,
+      homeHasRoster: record.homeHasRoster !== undefined ? !!record.homeHasRoster : homeStarters.length > 0,
+      awayHasRoster: record.awayHasRoster !== undefined ? !!record.awayHasRoster : awayStarters.length > 0,
+      events: Array.isArray(record.events) ? record.events : [],
+      homeEvents: Array.isArray(record.homeEvents) ? record.homeEvents : [],
+      awayEvents: Array.isArray(record.awayEvents) ? record.awayEvents : [],
+      showPlayerStats: false,
+      substitutionMode: '',
+      pendingOutId: ''
+    }, () => {
+      this.updateDigital();
+      if (resumeMainClock) this.toggleClock({ skipShotClock: true });
+      if (resumeShotClock) this.startShotClock();
+      if (mainClockEnded) this.handlePeriodEnd();
+      this.persistMatchRecord(false);
+    });
+    return true;
   },
 
   ensureMatchRecordIdentity() {
@@ -1767,6 +2212,7 @@ Page({
     this.playMcAudio(type, item.name, item.source);
   },
   playMcAudio(type, name, preferredSource) {
+    this.setVoiceButtonActive(false);
     const commonSounds = this.data.commonSounds.map((item) => Object.assign({}, item, { activeClass: item.type === type ? 'active' : '' }));
     const scoringSounds = this.data.scoringSounds.map((item) => Object.assign({}, item, { activeClass: item.type === type ? 'active' : '' }));
     const customSounds = this.data.customSounds.map((item) => Object.assign({}, item, { activeClass: item.type === type ? 'active' : '' }));
@@ -1774,6 +2220,7 @@ Page({
     this.playNativeAudio(type, preferredSource);
   },
   stopAudio() {
+    this.setVoiceButtonActive(false);
     const commonSounds = this.data.commonSounds.map((item) => Object.assign({}, item, { activeClass: '' }));
     const scoringSounds = this.data.scoringSounds.map((item) => Object.assign({}, item, { activeClass: '' }));
     const customSounds = this.data.customSounds.map((item) => Object.assign({}, item, { activeClass: '' }));
@@ -1883,6 +2330,149 @@ Page({
     if (categoryKey && settings.categoryEnabled && settings.categoryEnabled[categoryKey] === false) return false;
     return true;
   },
+  loadPersistentAudioCache() {
+    const saved = wx.getStorageSync(AUDIO_CACHE_STORAGE_KEY);
+    this.persistentAudioCache = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
+    const consent = wx.getStorageSync(AUDIO_CACHE_CONSENT_KEY);
+    this.persistentAudioConsent = consent === 'allowed' ? 'allowed' : '';
+    this.audioUrlCache = Object.assign({}, this.audioUrlCache || {});
+  },
+  audioFileExists(path) {
+    return new Promise((resolve) => {
+      if (!path || !wx.getFileSystemManager) return resolve(false);
+      const fs = wx.getFileSystemManager();
+      fs.access({ path, success: () => resolve(true), fail: () => resolve(false) });
+    });
+  },
+  savePersistentAudioCache() {
+    wx.setStorageSync(AUDIO_CACHE_STORAGE_KEY, this.persistentAudioCache || {});
+  },
+  recordPersistentAudio(cacheKey, savedFilePath) {
+    if (!cacheKey || !savedFilePath) return;
+    this.persistentAudioCache = Object.assign({}, this.persistentAudioCache || {}, { [cacheKey]: savedFilePath });
+    this.audioUrlCache[cacheKey] = savedFilePath;
+    let order = wx.getStorageSync(AUDIO_CACHE_ORDER_KEY);
+    order = Array.isArray(order) ? order.filter((item) => item !== cacheKey) : [];
+    order.push(cacheKey);
+    while (order.length > AUDIO_CACHE_LIMIT) {
+      const expiredKey = order.shift();
+      const expiredPath = this.persistentAudioCache[expiredKey];
+      delete this.persistentAudioCache[expiredKey];
+      delete this.audioUrlCache[expiredKey];
+      if (expiredPath && wx.removeSavedFile) wx.removeSavedFile({ filePath: expiredPath, fail: () => {} });
+    }
+    wx.setStorageSync(AUDIO_CACHE_ORDER_KEY, order);
+    this.savePersistentAudioCache();
+  },
+  async getPersistentAudioPath(cacheKey) {
+    const path = (this.persistentAudioCache || {})[cacheKey];
+    if (!path) return '';
+    if (await this.audioFileExists(path)) {
+      this.audioUrlCache[cacheKey] = path;
+      return path;
+    }
+    delete this.persistentAudioCache[cacheKey];
+    delete this.audioUrlCache[cacheKey];
+    this.savePersistentAudioCache();
+    return '';
+  },
+  downloadAudioToTemp(source) {
+    return new Promise((resolve) => {
+      const isCloudFile = source.indexOf('cloud://') === 0;
+      const download = isCloudFile && wx.cloud && wx.cloud.downloadFile
+        ? (options) => wx.cloud.downloadFile(Object.assign({ fileID: source }, options))
+        : !isCloudFile && wx.downloadFile
+          ? (options) => wx.downloadFile(Object.assign({ url: source }, options))
+          : null;
+      if (!download) return resolve('');
+      download({
+        success: (result) => resolve((result && result.tempFilePath) || ''),
+        fail: (error) => {
+          console.warn('[scorer] background audio download failed', source, error);
+          resolve('');
+        }
+      });
+    });
+  },
+  persistDownloadedAudio(cacheKey, tempFilePath) {
+    return new Promise((resolve) => {
+      if (!tempFilePath) return resolve('');
+      this.audioUrlCache[cacheKey] = tempFilePath;
+      if (!wx.saveFile) return resolve(tempFilePath);
+      wx.saveFile({
+        tempFilePath,
+        success: (result) => {
+          const savedFilePath = (result && result.savedFilePath) || '';
+          if (savedFilePath) this.recordPersistentAudio(cacheKey, savedFilePath);
+          resolve(savedFilePath || tempFilePath);
+        },
+        fail: (error) => {
+          console.warn('[scorer] persist audio cache failed', cacheKey, error);
+          resolve(tempFilePath);
+        }
+      });
+    });
+  },
+  async persistAudioItemsInBackground(items) {
+    const queue = Array.isArray(items) ? items : [];
+    for (let index = 0; index < queue.length; index += 1) {
+      if (this.audioPreloadStopped) break;
+      const item = queue[index];
+      if (!item || !item.source || !item.tempFilePath) continue;
+      if (await this.getPersistentAudioPath(item.source)) continue;
+      await this.persistDownloadedAudio(item.source, item.tempFilePath);
+    }
+  },
+  requestPersistentAudioConsent(items) {
+    const queue = Array.isArray(items) ? items : [];
+    if (!queue.length || this.persistentAudioConsent || this.audioConsentPromptOpen) return;
+    this.audioConsentPromptOpen = true;
+    wx.showModal({
+      title: '保存比赛音效',
+      content: '是否允许将已缓存的比赛音效保存到本地？保存后下次进入可直接使用，无需重新缓存。',
+      confirmText: '允许保存',
+      cancelText: '仅本次使用',
+      success: (result) => {
+        this.persistentAudioConsent = result.confirm ? 'allowed' : 'session-denied';
+        if (result.confirm) {
+          wx.setStorageSync(AUDIO_CACHE_CONSENT_KEY, 'allowed');
+          this.persistAudioItemsInBackground(queue);
+        }
+      },
+      complete: () => {
+        this.audioConsentPromptOpen = false;
+      }
+    });
+  },
+  async preloadCommonAudio() {
+    if (this.audioPreloadStarted) return;
+    this.audioPreloadStarted = true;
+    this.audioPreloadStopped = false;
+    const fixedTypes = ['attack', 'defense', 'rest', 'buzzer', 'countdown', 'two', 'three', 'freeThrowMade', 'freeThrowMiss'];
+    const configuredSources = (this.data.customSounds || []).reduce((list, item) => list.concat(item.source || '', item.audioIds || []), []);
+    const sources = fixedTypes
+      .reduce((list, type) => list.concat(collectStoredAudioSources(type), AUDIO_FILE_IDS[type] || []), configuredSources)
+      .filter((source, index, list) => source && /^(cloud|https?):\/\//.test(source) && list.indexOf(source) === index);
+    const pendingPersistence = [];
+    for (let index = 0; index < sources.length; index += 1) {
+      if (this.audioPreloadStopped) break;
+      const source = sources[index];
+      if (await this.getPersistentAudioPath(source)) continue;
+      if (this.audioUrlCache[source]) {
+        if (this.persistentAudioConsent === 'allowed') await this.persistDownloadedAudio(source, this.audioUrlCache[source]);
+        else if (!this.persistentAudioConsent) pendingPersistence.push({ source, tempFilePath: this.audioUrlCache[source] });
+        continue;
+      }
+      const tempFilePath = await this.downloadAudioToTemp(source);
+      if (this.audioPreloadStopped) break;
+      if (!tempFilePath) continue;
+      this.audioUrlCache[source] = tempFilePath;
+      if (this.persistentAudioConsent === 'allowed') await this.persistDownloadedAudio(source, tempFilePath);
+      else if (!this.persistentAudioConsent) pendingPersistence.push({ source, tempFilePath });
+    }
+    this.audioPreloadStarted = false;
+    if (!this.audioPreloadStopped && pendingPersistence.length) this.requestPersistentAudioConsent(pendingPersistence);
+  },
   playNativeAudio(type, preferredSource) {
     const fallbackIds = this.getAudioIds(type);
     const ids = preferredSource ? [preferredSource].concat(fallbackIds.filter((source) => source !== preferredSource)) : fallbackIds;
@@ -1960,6 +2550,13 @@ Page({
         }
       });
     };
+    if (!this.audioUrlCache[fileId] && this.persistentAudioCache[fileId]) {
+      this.getPersistentAudioPath(fileId).then((savedPath) => {
+        if (savedPath) playSrc(savedPath);
+        else this.playAudioSource(fileId, onFailure, type);
+      });
+      return;
+    }
     if (this.audioUrlCache[fileId]) {
       playSrc(this.audioUrlCache[fileId]);
       return;
@@ -2005,9 +2602,11 @@ Page({
       wx.showToast({ title: 'MC音效已关闭', icon: 'none' });
       return;
     }
-    const style = wx.getStorageSync(VOICE_STYLE_KEY) || 'standard';
+    const storedStyle = wx.getStorageSync(VOICE_STYLE_KEY) || 'standard';
+    const style = this.data.voiceOptions.some((item) => item.id === storedStyle) ? storedStyle : 'standard';
+    const voiceMode = wx.getStorageSync(VOICE_MODE_KEY) === 'full' ? 'full' : 'simple';
     const latestEvent = this.data.events && this.data.events[0] ? this.data.events[0].action : '';
-    const text = buildScoreVoice({
+    const voiceData = {
       homeName: this.data.homeName,
       awayName: this.data.awayName,
       homeScore: this.data.homeScore,
@@ -2018,8 +2617,10 @@ Page({
       clockSeconds: this.data.clockSeconds,
       timerMode: this.data.timerMode,
       latestEvent
-    }, style);
-    this.setData({ playingType: 'voice', currentAudioName: '播报当前比分' });
+    };
+    const text = voiceMode === 'full' ? buildScoreVoice(voiceData, style) : buildSimpleScoreVoice(voiceData);
+    this.setVoiceButtonActive(true);
+    this.setData({ playingType: 'voice', currentAudioName: '语音播报' });
     const result = await callCloud('sxCreateScoreVoice', {
       text,
       style,
@@ -2028,6 +2629,7 @@ Page({
     const source = result && (result.tempFileURL || result.fileID);
     if (!result || !result.ok || !source) {
       wx.showToast({ title: voiceToastText(result), icon: 'none' });
+      this.setVoiceButtonActive(false);
       this.setData({ playingType: '', currentAudioName: '无' });
       return;
     }

@@ -1,11 +1,12 @@
 const { cloudAsset } = require('../../utils/assets');
-const { pullRoster, scheduleRosterPush } = require('../../utils/roster-sync');
+const { pullRoster, pushRoster, resolveImageUrl, scheduleRosterPush } = require('../../utils/roster-sync');
 
 const ASSET_BASE = 'pages/team-create/';
 const STORAGE_KEYS = { teams: 'teams', drafts: 'teamDrafts', categories: 'teamCategories', players: 'players' };
+const TEAM_NAME_MAX_LENGTH = 5;
 const DEFAULT_FORM = { id: '', logoUrl: '', teamName: '', ageGroup: 'U10（8-10岁）', coachName: '', phone: '', intro: '', enabled: true, playerCount: 0 };
 const FIELD_ROWS = [
-  { key: 'teamName', label: '球队名称', required: true, type: 'input', placeholder: '请输入球队名称', clearable: true },
+  { key: 'teamName', label: '球队名称', required: true, type: 'input', placeholder: '请输入球队名称', clearable: true, maxLength: TEAM_NAME_MAX_LENGTH },
   { key: 'ageGroup', label: '年龄组', required: true, type: 'picker', rangeKey: 'ageGroups', placeholder: '请选择年龄组' },
   { key: 'coachName', label: '主教练姓名', required: true, type: 'input', placeholder: '请输入主教练姓名' },
   { key: 'phone', label: '联系电话', required: true, type: 'input', inputType: 'number', placeholder: '请输入联系电话' }
@@ -31,6 +32,10 @@ function normalizeText(value, fallback) {
   return text || fallback;
 }
 
+function limitTeamName(value) {
+  return String(value || '').trim().slice(0, TEAM_NAME_MAX_LENGTH);
+}
+
 function countPlayersByTeam(players, team) {
   return players.filter((player) => player && (player.team === team.name || player.team === team.label || player.filter === team.key)).length;
 }
@@ -42,7 +47,48 @@ function getImageExtension(filePath) {
 }
 
 function isCloudImagePath(filePath) {
-  return /^(cloud:\/\/|https?:\/\/)/.test(String(filePath || ''));
+  return String(filePath || '').startsWith('cloud://');
+}
+
+function repairLegacyTeamLogos() {
+  const logoMap = {};
+  readList(STORAGE_KEYS.categories).forEach((category) => {
+    if (!category) return;
+    const fileID = [category.logoFileID, category.logoUrl, category.teamLogo]
+      .map((value) => String(value || ''))
+      .find((value) => value.startsWith('cloud://'));
+    if (!fileID) return;
+    if (category.key) logoMap[String(category.key)] = fileID;
+    if (category.label) logoMap[String(category.label)] = fileID;
+  });
+
+  let changed = false;
+  const repairTeam = (team) => {
+    if (!team) return team;
+    const current = String(team.logoUrl || team.logoFileID || '');
+    if (current.startsWith('cloud://')) return team;
+    const fileID = logoMap[String(team.key || '')] ||
+      logoMap[String(team.label || team.name || team.teamName || '')];
+    if (!fileID) return team;
+    changed = true;
+    return Object.assign({}, team, { logoFileID: fileID, logoUrl: fileID });
+  };
+  const teams = readList(STORAGE_KEYS.teams).map(repairTeam);
+  const drafts = readList(STORAGE_KEYS.drafts).map(repairTeam);
+  const players = readList(STORAGE_KEYS.players).map((player) => {
+    if (!player) return player;
+    const current = String(player.teamLogo || player.teamLogoFileID || '');
+    if (current.startsWith('cloud://')) return player;
+    const fileID = logoMap[String(player.filter || '')] || logoMap[String(player.team || '')];
+    if (!fileID) return player;
+    changed = true;
+    return Object.assign({}, player, { teamLogoFileID: fileID, teamLogo: fileID });
+  });
+  if (!changed) return Promise.resolve(false);
+  wx.setStorageSync(STORAGE_KEYS.teams, teams);
+  wx.setStorageSync(STORAGE_KEYS.drafts, drafts);
+  wx.setStorageSync(STORAGE_KEYS.players, players);
+  return pushRoster().then(() => true);
 }
 
 function uploadTeamLogo(filePath) {
@@ -110,6 +156,7 @@ Page({
     if (wx.hideTabBar) wx.hideTabBar({ animation: false, fail: () => {} });
     this.refreshTeams();
     pullRoster()
+      .then(() => repairLegacyTeamLogos())
       .then(() => this.refreshTeams())
       .catch((error) => console.warn('[team-create] pull roster failed', error));
   },
@@ -121,6 +168,7 @@ Page({
         value,
         displayValue: value || row.placeholder || '请选择',
         inputType: row.inputType || 'text',
+        maxLength: row.maxLength || 140,
         isInput: row.type === 'input',
         isPicker: row.type === 'picker',
         showClear: !!row.clearable && !!value,
@@ -135,7 +183,7 @@ Page({
     this.setData({
       form: normalized,
       rows: this.buildRows(normalized),
-      logoDisplay: normalized.logoUrl || this.data.assets.logo,
+      logoDisplay: resolveImageUrl(normalized.logoUrl || this.data.assets.logo),
       introCountText: `${(normalized.intro || '').length}/100`,
       playerCountText: String(normalized.playerCount || 0),
       statusText: normalized.enabled ? '可参赛' : '已停用'
@@ -156,7 +204,8 @@ Page({
         key: team.key || slugify(name),
         name,
         label: name,
-        logoUrl: team.logoUrl || this.data.assets.logo,
+        logoFileID: team.logoUrl || '',
+        logoUrl: resolveImageUrl(team.logoUrl || this.data.assets.logo),
         ageGroup: normalizeText(team.ageGroup, '未设置年龄组'),
         coachName: normalizeText(team.coachName, '待补充'),
         playerCount,
@@ -240,7 +289,7 @@ Page({
     if (!team) return;
     this.syncForm({
       id: team.id,
-      logoUrl: team.logoUrl,
+      logoUrl: team.logoFileID || team.logoUrl,
       teamName: team.name,
       ageGroup: team.ageGroup,
       coachName: team.coachName === '待补充' ? '' : team.coachName,
@@ -278,7 +327,9 @@ Page({
 
   onFieldInput(event) {
     const key = event.currentTarget.dataset.key;
-    if (key) this.syncForm(Object.assign({}, this.data.form, { [key]: event.detail.value }));
+    if (!key) return;
+    const value = key === 'teamName' ? limitTeamName(event.detail.value) : event.detail.value;
+    this.syncForm(Object.assign({}, this.data.form, { [key]: value }));
   },
 
   clearTeamName() {
@@ -309,12 +360,16 @@ Page({
       wx.showToast({ title: `请填写${missing.label}`, icon: 'none' });
       return false;
     }
+    if (String(form.teamName || '').trim().length > TEAM_NAME_MAX_LENGTH) {
+      wx.showToast({ title: '球队名称最多5个字', icon: 'none' });
+      return false;
+    }
     return true;
   },
 
   buildTeamPayload(status) {
     const form = this.data.form;
-    const name = form.teamName.trim();
+    const name = limitTeamName(form.teamName);
     return {
       id: form.id || `team-${Date.now()}`,
       key: slugify(name),
@@ -324,6 +379,7 @@ Page({
       coachName: form.coachName.trim(),
       phone: form.phone.trim(),
       intro: form.intro.trim(),
+      logoFileID: form.logoUrl || this.data.assets.logo,
       logoUrl: form.logoUrl || this.data.assets.logo,
       playerCount: form.playerCount || 0,
       enabled: !!form.enabled,
@@ -335,7 +391,14 @@ Page({
   },
 
   upsertTeam(list, team) {
-    const index = list.findIndex((item) => item.id === team.id);
+    const index = list.findIndex((item) => {
+      if (!item) return false;
+      if (item.id && team.id && String(item.id) === String(team.id)) return true;
+      if (item.key && team.key && item.key === team.key) return true;
+      const itemName = normalizeText(item.name || item.label || item.teamName);
+      const teamName = normalizeText(team.name || team.label || team.teamName);
+      return !!itemName && itemName === teamName;
+    });
     if (index >= 0) {
       const next = list.slice();
       next[index] = Object.assign({}, next[index], team);
@@ -368,10 +431,10 @@ Page({
 
   saveDraft() {
     this.ensureFormLogoCloud()
-      .then(() => {
+      .then(async () => {
         const team = this.buildTeamPayload('draft');
         wx.setStorageSync(STORAGE_KEYS.drafts, this.upsertTeam(readList(STORAGE_KEYS.drafts), team));
-        scheduleRosterPush();
+        await pushRoster();
         wx.showToast({ title: '草稿已保存', icon: 'success' });
         this.closeForm();
         this.refreshTeams();
@@ -385,14 +448,14 @@ Page({
   saveTeam() {
     if (!this.validateForm()) return;
     this.ensureFormLogoCloud()
-      .then(() => {
+      .then(async () => {
         const team = this.buildTeamPayload('active');
         const categories = readList(STORAGE_KEYS.categories);
         const category = { key: team.key, label: team.label, logoUrl: team.logoUrl, common: true };
         wx.setStorageSync(STORAGE_KEYS.teams, this.upsertTeam(readList(STORAGE_KEYS.teams), team));
         wx.setStorageSync(STORAGE_KEYS.drafts, readList(STORAGE_KEYS.drafts).filter((item) => item.id !== team.id));
         wx.setStorageSync(STORAGE_KEYS.categories, this.upsertCategory(categories, category));
-        scheduleRosterPush();
+        await pushRoster();
         wx.showToast({ title: '球队已保存', icon: 'success' });
         this.closeForm();
         this.refreshTeams();

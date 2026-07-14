@@ -5,9 +5,14 @@ const CLOUD_AUDIO_MAP_KEY = 'sx_mc_audio_map';
 const CLOUD_AUDIO_ITEMS_KEY = 'sx_mc_audio_items';
 const VOICE_STYLE_KEY = 'sx_score_voice_style';
 const CUSTOM_SLOTS_KEY = 'sx_mc_custom_slots';
+const CUSTOM_SLOT_DETAILS_KEY = 'sx_mc_custom_slot_details';
 const QUICK_SLOTS_KEY = 'sx_mc_quick_slots';
+const VOICE_MODE_KEY = 'sx_score_voice_mode';
 const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mc-settings/';
-const VOICE_PREVIEW_TEXT = '你好，我是赛小蜂播报员，很高兴为您服务';
+const VOICE_PREVIEW_TEXT = {
+  simple: '第一节还剩八分二十六秒，蜂巢U10A对星火U10，十二比十。',
+  full: '第一节还剩八分二十六秒，蜂巢U10A十二比十领先星火U10。双方比分紧咬，比赛越来越精彩。'
+};
 
 const defaultSettings = {
   masterEnabled: true,
@@ -21,13 +26,15 @@ const defaultSettings = {
     attack: true,
     defense: true,
     pause: true,
-    buzzer: true
+    buzzer: true,
+    countdown: true
   },
   modes: {
     attack: 'fixed',
     defense: 'fixed',
     pause: 'random',
-    buzzer: 'fixed'
+    buzzer: 'fixed',
+    countdown: 'fixed'
   },
   selectedAudio: {}
 };
@@ -42,32 +49,47 @@ const defaultAudioItems = [
   { channel: 'pause', name: '暂停音乐1', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/暂停休息音乐/暂停音乐1.mp3' },
   { channel: 'pause', name: '暂停音乐2', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/暂停休息音乐/暂停音乐2.mp3' },
   { channel: 'buzzer', name: '蜂鸣器', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/蜂鸣器.mp3' },
+  { channel: 'countdown', name: '倒计时5秒', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/倒计时5秒.mp3' },
   { channel: 'miss', name: '投篮未进', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/投篮未进音效.mp3' },
   { channel: 'cheer', name: '欢呼声', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声.mp3' },
   { channel: 'shout', name: '冲锋号', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/冲锋号.mp3' },
   { channel: 'entry', name: '出场音乐', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/出场音乐.mp3' },
   { channel: 'anthem', name: '国歌', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3' },
-  { channel: 'other', name: '其他', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3' }
+  { channel: 'freeThrowMade', name: '罚进音效', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/罚进音效.mp3' },
+  { channel: 'freeThrowMiss', name: '罚球失误', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/罚球失误.mp3' }
 ];
 
 const voiceOptions = [
   { id: 'standard', name: '赛小智' },
-  { id: 'live', name: '赛小瑾' },
+  { id: 'live', name: '赛小锦' },
   { id: 'kids', name: '赛小萌' }
 ];
+
+const voiceModeOptions = [
+  { id: 'simple', name: '简约播报', note: '比分、节次和比赛时间' },
+  { id: 'full', name: '完整播报', note: '增加赛况和情绪表达' }
+];
+
+function buildVoiceModeOptions(activeId) {
+  return voiceModeOptions.map((item) => Object.assign({}, item, {
+    activeClass: item.id === activeId ? 'active' : ''
+  }));
+}
 
 const categorySeed = [
   { key: 'attack', name: '进攻音效', icon: 'icon-basketball-common.png', sourceKeys: ['attack'] },
   { key: 'defense', name: '防守音效', icon: 'icon-shield-common.png', sourceKeys: ['defense'] },
   { key: 'pause', name: '暂停音乐', icon: 'icon-pause-common.png', sourceKeys: ['rest', 'pause'] },
-  { key: 'buzzer', name: '蜂鸣器', icon: 'icon-whistle-common.png', sourceKeys: ['buzzer'] }
+  { key: 'buzzer', name: '蜂鸣器', icon: 'icon-whistle-common.png', sourceKeys: ['buzzer'] },
+  { key: 'countdown', name: '倒计时音效', icon: 'icon-pause-common.png', sourceKeys: ['countdown'] }
 ];
 
 const customCategory = {
   key: 'custom',
   name: '自定义音效',
-  sourceKeys: ['miss', 'cheer', 'shout', 'entry', 'anthem', 'other'],
-  fallbackNames: ['投篮未进', '欢呼声', '冲锋号', '出场音乐', '国歌', '其他']
+  sourceKeys: ['miss', 'cheer', 'shout', 'horn', 'entry', 'anthem', 'freeThrowMade', 'freeThrowMiss'],
+  fallbackNames: ['投篮未进', '欢呼声', '冲锋号', '出场音乐', '国歌', '罚进音效', '罚球失误'],
+  fallbackChannels: ['miss', 'cheer', 'horn', 'entry', 'anthem', 'freeThrowMade', 'freeThrowMiss']
 };
 
 const shortcutActions = [
@@ -133,7 +155,8 @@ function collectAudioOptions(category, audioMap, audioItems) {
     options.push({
       id: source,
       name: item.name || fileName(source) || category.name,
-      source
+      source,
+      channel: channel === 'shout' ? 'horn' : channel
     });
   });
 
@@ -141,13 +164,13 @@ function collectAudioOptions(category, audioMap, audioItems) {
     normalizeList((audioMap || {})[key]).forEach((source) => {
       if (!source || seen[source]) return;
       seen[source] = true;
-      options.push({ id: source, name: fileName(source) || category.name, source });
+      options.push({ id: source, name: fileName(source) || category.name, source, channel: key === 'shout' ? 'horn' : key });
     });
   });
 
   if (!options.length && category.fallbackNames) {
     category.fallbackNames.forEach((name, index) => {
-      options.push({ id: `placeholder-${category.key}-${index}`, name, source: '' });
+      options.push({ id: `placeholder-${category.key}-${index}`, name, source: '', channel: (category.fallbackChannels || [])[index] || '' });
     });
   }
 
@@ -175,9 +198,14 @@ function buildCategories(settings, audioMap, audioItems) {
 function buildCustomSlots(audioMap, audioItems) {
   const options = collectAudioOptions(customCategory, audioMap, audioItems);
   customCategory.fallbackNames.forEach((name, index) => {
-    if (options.length >= 6) return;
+    if (options.length >= customCategory.fallbackNames.length) return;
     if (!options.some((item) => item.name === name)) {
-      options.push({ id: `placeholder-custom-${index}`, name, source: '' });
+      options.push({
+        id: `placeholder-custom-${index}`,
+        name,
+        source: '',
+        channel: customCategory.fallbackChannels[index] || ''
+      });
     }
   });
   const saved = wx.getStorageSync(CUSTOM_SLOTS_KEY);
@@ -186,12 +214,23 @@ function buildCustomSlots(audioMap, audioItems) {
     .map((id) => options.find((item) => item.id === id))
     .filter(Boolean);
   options.forEach((option) => {
-    if (selected.length < 4 && !selected.some((item) => item.id === option.id)) selected.push(option);
+    if (selected.length < 6 && !selected.some((item) => item.id === option.id)) selected.push(option);
   });
   return {
     options,
-    slots: selected.slice(0, 4).map((item, index) => Object.assign({}, item, { position: index + 1 }))
+    slots: selected.slice(0, 6).map((item, index) => Object.assign({}, item, { position: index + 1 }))
   };
+}
+
+function saveCustomSlots(slots) {
+  const normalized = Array.isArray(slots) ? slots : [];
+  wx.setStorageSync(CUSTOM_SLOTS_KEY, normalized.map((item) => item.id));
+  wx.setStorageSync(CUSTOM_SLOT_DETAILS_KEY, normalized.map((item) => ({
+    id: item.id || '',
+    name: item.name || '',
+    source: item.source || '',
+    channel: item.channel || ''
+  })));
 }
 
 function getQuickSlots() {
@@ -210,7 +249,7 @@ function voiceToastText(result) {
   const messageMap = {
     empty_text: '请先生成需要播报的文案',
     text_too_long: '播报文案过长，请缩短后再试',
-    no_voice_credit: '当前没有可用的 AI 播报次数',
+    no_voice_credit: 'AI 播报暂不可用，请稍后重试',
     empty_audio: '语音生成成功但未返回音频',
     missing_tts_secret: '语音服务密钥未配置',
     tts_failed: '播报试听生成失败'
@@ -219,6 +258,10 @@ function voiceToastText(result) {
 }
 
 Page({
+  audioUrlCache: null,
+  audioRequestId: 0,
+  currentAudioSource: '',
+
   data: {
     assetBase: ASSET_BASE,
     settings: normalizeSettings(),
@@ -226,6 +269,9 @@ Page({
     voiceOptions,
     voiceStyle: 'standard',
     voiceName: '赛小智',
+    voiceMode: 'simple',
+    voiceModeOptions: buildVoiceModeOptions('simple'),
+    voicePreviewText: VOICE_PREVIEW_TEXT.simple,
     packageName: '默认音效包',
     modalVisible: false,
     modalTitle: '',
@@ -242,12 +288,20 @@ Page({
   },
 
   onLoad() {
+    this.audioUrlCache = Object.create(null);
     this.audio = wx.createInnerAudioContext();
-    this.audio.onEnded(() => this.setData({ playingKey: '' }));
-    this.audio.onStop(() => this.setData({ playingKey: '' }));
-    this.audio.onError(() => {
+    this.audio.onEnded(() => {
+      this.currentAudioSource = '';
       this.setData({ playingKey: '' });
-      wx.showToast({ title: '音效暂时无法播放', icon: 'none' });
+    });
+    this.audio.onStop(() => this.setData({ playingKey: '' }));
+    this.audio.onError((error) => {
+      const source = this.currentAudioSource;
+      if (source && this.audioUrlCache) delete this.audioUrlCache[source];
+      this.currentAudioSource = '';
+      console.warn('[mc-settings] audio preview failed', error);
+      this.setData({ playingKey: '' });
+      wx.showToast({ title: '音效加载失败，请重试', icon: 'none' });
     });
   },
 
@@ -257,6 +311,8 @@ Page({
   },
 
   onUnload() {
+    this.audioRequestId += 1;
+    this.currentAudioSource = '';
     if (this.audio) this.audio.destroy();
   },
 
@@ -264,15 +320,23 @@ Page({
     const settings = normalizeSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
     const audioMap = wx.getStorageSync(CLOUD_AUDIO_MAP_KEY) || {};
     const audioItems = wx.getStorageSync(CLOUD_AUDIO_ITEMS_KEY) || [];
-    const voiceStyle = wx.getStorageSync(VOICE_STYLE_KEY) || 'standard';
-    const voice = voiceOptions.find((item) => item.id === voiceStyle) || voiceOptions[0];
+    const storedVoiceStyle = wx.getStorageSync(VOICE_STYLE_KEY) || 'standard';
+    const voice = voiceOptions.find((item) => item.id === storedVoiceStyle) || voiceOptions[0];
+    const voiceStyle = voice.id;
+    if (voiceStyle !== storedVoiceStyle) wx.setStorageSync(VOICE_STYLE_KEY, voiceStyle);
+    const storedVoiceMode = wx.getStorageSync(VOICE_MODE_KEY);
+    const voiceMode = storedVoiceMode === 'full' ? 'full' : 'simple';
     const custom = buildCustomSlots(audioMap, audioItems);
+    saveCustomSlots(custom.slots);
     this.setData({
       settings,
       categories: buildCategories(settings, audioMap, audioItems),
       voiceStyle,
       voiceName: voice.name,
-      packageName: settings.soundPackage === 'custom' ? '自定义音效包（付费）' : '默认音效包',
+      voiceMode,
+      voiceModeOptions: buildVoiceModeOptions(voiceMode),
+      voicePreviewText: VOICE_PREVIEW_TEXT[voiceMode],
+      packageName: settings.soundPackage === 'custom' ? '自定义音效包' : '默认音效包',
       customSlots: custom.slots,
       customOptions: custom.options,
       quickSlots: getQuickSlots()
@@ -327,7 +391,7 @@ Page({
         wx.getStorageSync(CLOUD_AUDIO_MAP_KEY) || {},
         wx.getStorageSync(CLOUD_AUDIO_ITEMS_KEY) || []
       ),
-      packageName: settings.soundPackage === 'custom' ? '自定义音效包（付费）' : '默认音效包'
+      packageName: settings.soundPackage === 'custom' ? '自定义音效包' : '默认音效包'
     });
   },
 
@@ -339,7 +403,7 @@ Page({
       modalCategoryKey: '',
       modalOptions: [
         { id: 'default', name: '默认音效包', note: '免费使用' },
-        { id: 'custom', name: '自定义音效包', note: '付费功能' }
+        { id: 'custom', name: '自定义音效包', note: '可配置' }
       ]
     });
   },
@@ -351,6 +415,16 @@ Page({
       modalType: 'voice',
       modalCategoryKey: '',
       modalOptions: voiceOptions
+    });
+  },
+
+  selectVoiceMode(event) {
+    const id = event.currentTarget.dataset.id === 'full' ? 'full' : 'simple';
+    wx.setStorageSync(VOICE_MODE_KEY, id);
+    this.setData({
+      voiceMode: id,
+      voiceModeOptions: buildVoiceModeOptions(id),
+      voicePreviewText: VOICE_PREVIEW_TEXT[id]
     });
   },
 
@@ -368,14 +442,6 @@ Page({
   },
 
   replaceCustomSlot(event) {
-    if (this.data.settings.soundPackage !== 'custom') {
-      wx.showModal({
-        title: '自定义音效包',
-        content: '四宫格音效替换属于自定义音效包功能，请先选择自定义音效包。',
-        showCancel: false
-      });
-      return;
-    }
     this.setData({
       modalVisible: true,
       modalTitle: '替换自定义音效',
@@ -396,7 +462,7 @@ Page({
     slots[index] = slots[target];
     slots[target] = current;
     const normalized = slots.map((item, slotIndex) => Object.assign({}, item, { position: slotIndex + 1 }));
-    wx.setStorageSync(CUSTOM_SLOTS_KEY, normalized.map((item) => item.id));
+    saveCustomSlots(normalized);
     this.setData({ customSlots: normalized });
   },
 
@@ -425,19 +491,6 @@ Page({
     const id = event.currentTarget.dataset.id;
     const type = this.data.modalType;
     if (type === 'package') {
-      if (id === 'custom') {
-        wx.showModal({
-          title: '自定义音效包（付费）',
-          content: '当前版本暂未开通在线购买，选择后可预览自定义配置入口。',
-          confirmText: '继续选择',
-          success: (result) => {
-            if (!result.confirm) return;
-            this.applySettings(Object.assign({}, this.data.settings, { soundPackage: id }));
-            this.closeModal();
-          }
-        });
-        return;
-      }
       this.applySettings(Object.assign({}, this.data.settings, { soundPackage: id }));
     } else if (type === 'voice') {
       const voice = voiceOptions.find((item) => item.id === id) || voiceOptions[0];
@@ -461,7 +514,7 @@ Page({
           slots[index] = option;
         }
         const normalized = slots.map((item, slotIndex) => Object.assign({}, item, { position: slotIndex + 1 }));
-        wx.setStorageSync(CUSTOM_SLOTS_KEY, normalized.map((item) => item.id));
+        saveCustomSlots(normalized);
         this.setData({ customSlots: normalized });
       }
     } else if (type === 'shortcut') {
@@ -514,8 +567,9 @@ Page({
   async playVoicePreview() {
     wx.showLoading({ title: '生成试听中' });
     const result = await callCloud('sxCreateScoreVoice', {
-      text: VOICE_PREVIEW_TEXT,
-      style: this.data.voiceStyle
+      text: VOICE_PREVIEW_TEXT[this.data.voiceMode] || VOICE_PREVIEW_TEXT.simple,
+      style: this.data.voiceStyle,
+      skipCredit: true
     });
     wx.hideLoading();
     const source = result && (result.tempFileURL || result.fileID);
@@ -526,17 +580,105 @@ Page({
     this.playAudio(source, 'voice');
   },
 
-  playAudio(source, key) {
+  async resolveAudioSource(source) {
+    if (!source || source.indexOf('cloud://') !== 0) return source || '';
+    if (this.audioUrlCache[source]) return this.audioUrlCache[source];
+
+    const resolveTempUrl = () => new Promise((resolve, reject) => {
+      if (!wx.cloud || !wx.cloud.getTempFileURL) {
+        reject(new Error('client_cloud_audio_unavailable'));
+        return;
+      }
+      wx.cloud.getTempFileURL({
+        fileList: [source],
+        success: (result) => {
+          const item = result.fileList && result.fileList[0];
+          const url = item && item.tempFileURL;
+          const invalidStatus = item && typeof item.status === 'number' && item.status !== 0;
+          if (!item || !url || invalidStatus) {
+            reject(new Error((item && item.errMsg) || 'cloud_audio_url_unavailable'));
+            return;
+          }
+          resolve(url);
+        },
+        fail: reject
+      });
+    });
+    const downloadTempFile = () => new Promise((resolve, reject) => {
+      if (!wx.cloud || !wx.cloud.downloadFile) {
+        reject(new Error('client_cloud_audio_download_unavailable'));
+        return;
+      }
+      wx.cloud.downloadFile({
+        fileID: source,
+        success: (result) => {
+          const tempFilePath = result && result.tempFilePath;
+          if (!tempFilePath) {
+            reject(new Error('cloud_audio_download_failed'));
+            return;
+          }
+          resolve(tempFilePath);
+        },
+        fail: reject
+      });
+    });
+
+    let lastError = null;
+    try {
+      const url = await resolveTempUrl();
+      this.audioUrlCache[source] = url;
+      return url;
+    } catch (error) {
+      lastError = error;
+    }
+
+    try {
+      const tempFilePath = await downloadTempFile();
+      this.audioUrlCache[source] = tempFilePath;
+      return tempFilePath;
+    } catch (error) {
+      lastError = error;
+    }
+
+    const result = await callCloud('sxGetAudioUrl', { fileID: source });
+    const tempUrl = result && result.ok && result.tempFileURL;
+    if (!tempUrl) {
+      const message = (result && result.message) || (lastError && lastError.message) || 'cloud_audio_url_unavailable';
+      throw new Error(message);
+    }
+    this.audioUrlCache[source] = tempUrl;
+    return tempUrl;
+  },
+
+  async playAudio(source, key) {
     if (!this.audio) return;
     if (this.data.playingKey === key) {
+      this.audioRequestId += 1;
+      this.currentAudioSource = '';
       this.audio.stop();
+      this.setData({ playingKey: '' });
       return;
     }
+    const requestId = this.audioRequestId + 1;
+    this.audioRequestId = requestId;
     this.audio.stop();
-    this.audio.volume = Math.max(0, Math.min(1, this.data.settings.volume / 100));
-    this.audio.src = source;
+    this.currentAudioSource = source;
     this.setData({ playingKey: key });
-    this.audio.play();
+    try {
+      const playableSource = await this.resolveAudioSource(source);
+      if (requestId !== this.audioRequestId) return;
+      if (!playableSource) throw new Error('cloud_audio_url_unavailable');
+      this.audio.volume = Math.max(0, Math.min(1, this.data.settings.volume / 100));
+      this.audio.src = playableSource;
+      this.audio.play();
+    } catch (error) {
+      console.warn('[mc-settings] resolve audio failed', source, error);
+      if (requestId === this.audioRequestId) {
+        this.currentAudioSource = '';
+        this.setData({ playingKey: '' });
+        wx.showToast({ title: '云端音效地址获取失败', icon: 'none' });
+      }
+    }
   },
 
   saveSettings() {

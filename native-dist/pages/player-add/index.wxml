@@ -45,7 +45,7 @@
         <text class="field-label">球衣号码</text>
         <input class="field-input" value="{{number}}" type="number" placeholder="请输入球衣号码（1-99）" placeholder-class="input-placeholder" data-field="number" bindinput="onInput" />
       </view>
-      <view class="form-row required">
+      <view class="form-row">
         <text class="field-label">所属球队</text>
         <picker class="field-picker" mode="selector" range="{{teams}}" range-key="label" value="{{teamIndex}}" bindchange="onTeamChange">
           <view class="picker-inner">

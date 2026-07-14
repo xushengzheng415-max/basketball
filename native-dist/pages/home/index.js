@@ -7,6 +7,81 @@ const mainRoutes = {
   mine: '/pages/mine/index'
 };
 
+const RECENT_MATCHES_KEY = 'sx_recent_matches';
+const TEAM_LOGO_BASE = '/assets/pages/scorer-v2/teams/';
+const { pullRoster, resolveImageUrl } = require('../../utils/roster-sync');
+
+function normalizeText(value) {
+  return String(value || '').trim();
+}
+
+function getLogoSource(item) {
+  if (!item) return '';
+  return resolveImageUrl(item.logoUrl, item.logoFileID, item.teamLogo, item.teamLogoFileID, item.logo);
+}
+
+function addTeamLogo(map, team) {
+  const logo = resolveImageUrl(getLogoSource(team));
+  if (!team || !logo) return;
+  const identities = [team.id, team.key, team.label, team.name, team.teamName];
+  identities.forEach((identity) => {
+    const key = normalizeText(identity);
+    if (key) map[key] = logo;
+  });
+}
+
+function buildTeamLogoMap() {
+  const map = {};
+  ['teams', 'teamDrafts', 'teamCategories'].forEach((storageKey) => {
+    const teams = wx.getStorageSync(storageKey);
+    (Array.isArray(teams) ? teams : []).forEach((team) => addTeamLogo(map, team));
+  });
+  return map;
+}
+
+function getRecentTeamLogo(item, side, teamLogoMap) {
+  const team = item && item[side + 'Team'];
+  const directLogo = item && (item[side + 'Logo'] || item[side + 'LogoUrl'] || getLogoSource(team));
+  const identities = item ? [
+    item[side + 'TeamId'],
+    item[side + 'TeamKey'],
+    team && team.id,
+    team && team.key,
+    item[side + 'Name'],
+    team && (team.label || team.name || team.teamName)
+  ] : [];
+  const storedLogo = identities.map((identity) => teamLogoMap[normalizeText(identity)]).find(Boolean);
+  return resolveImageUrl(storedLogo, directLogo) || TEAM_LOGO_BASE + (side === 'home' ? 'team-logo-left.png' : 'team-logo-right.png');
+}
+
+function formatRecentMatchTime(timestamp) {
+  const date = new Date(Number(timestamp) || Date.now());
+  const pad = (value) => String(value).padStart(2, '0');
+  return pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
+}
+
+function isToday(timestamp) {
+  const date = new Date(Number(timestamp) || 0);
+  const today = new Date();
+  return date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
+}
+
+function decorateRecentMatch(item, teamLogoMap) {
+  const ended = item && (item.ended === true || item.status === 'finished');
+  return Object.assign({}, item, {
+    homeName: item.homeName || '\u4e3b\u961f',
+    awayName: item.awayName || '\u5ba2\u961f',
+    homeLogo: getRecentTeamLogo(item, 'home', teamLogoMap),
+    awayLogo: getRecentTeamLogo(item, 'away', teamLogoMap),
+    homeScore: Number(item.homeScore || 0),
+    awayScore: Number(item.awayScore || 0),
+    time: formatRecentMatchTime(item.updatedAt || item.createdAt),
+    venue: item.matchName || '\u5feb\u6377\u6bd4\u8d5b',
+    statusText: ended ? '\u5df2\u7ed3\u675f' : '\u672a\u7ed3\u675f',
+    statusClass: ended ? 'done' : 'pending'
+  });
+}
+
 Page({
   data: {
     currentRole: '校区管理员',
@@ -15,56 +90,8 @@ Page({
       pending: 2,
       finished: 1
     },
-    hasRecentMatches: true,
-    shortcutItems: [
-      { key: 'createTournament', title: '创建赛事', desc: '创建并发布赛事', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-create-event.png', iconClass: 'event', cardClass: '' },
-      { key: 'createTeam', title: '球队管理', desc: '创建并管理球队', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-create-team.png', iconClass: 'team', cardClass: '' },
-      { key: 'createPlayer', title: '球员管理', desc: '添加球员资料', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-create-player.png', iconClass: 'player', cardClass: '' },
-      { key: 'quickMatch', title: '快捷比赛', desc: '单场临时计分', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-quick-match.png', iconClass: 'quick', cardClass: '' },
-      { key: 'lessonStats', title: '销课统计', desc: '待开发', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-lesson-stats.png', iconClass: 'stats', cardClass: '' },
-      { key: 'lessonReview', title: '课后评价', desc: '待开发', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/workbench/icon-after-review.png', iconClass: 'review', cardClass: '' }
-    ],
-    recentMatches: [
-      {
-        id: 'match-001',
-        homeName: '蜂巢U10A',
-        awayName: '星火U10',
-        homeScore: 38,
-        awayScore: 34,
-        time: '05-10 09:00',
-        venue: '蜂巢篮球馆1号场',
-        statusText: '已完成',
-        statusClass: 'done',
-        homeLogoClass: 'bee',
-        awayLogoClass: 'star'
-      },
-      {
-        id: 'match-002',
-        homeName: '猎鹰U12',
-        awayName: '风暴U12',
-        homeScore: 42,
-        awayScore: 40,
-        time: '05-10 10:30',
-        venue: '蜂巢篮球馆1号场',
-        statusText: '待确认',
-        statusClass: 'pending',
-        homeLogoClass: 'eagle',
-        awayLogoClass: 'storm'
-      },
-      {
-        id: 'match-003',
-        homeName: '训练营A队',
-        awayName: '训练营B队',
-        homeScore: 28,
-        awayScore: 22,
-        time: '05-10 14:00',
-        venue: '蜂巢篮球馆2号场',
-        statusText: '待确认',
-        statusClass: 'pending',
-        homeLogoClass: 'camp-a',
-        awayLogoClass: 'camp-b'
-      }
-    ],
+    hasRecentMatches: false,
+    recentMatches: [],
     tabItems: [
       { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home-selected.png', activeClass: 'active' },
       { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament.png', activeClass: '' },
@@ -73,6 +100,30 @@ Page({
       { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
       { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
     ]
+  },
+
+  onShow() {
+    this.loadRecentMatches();
+    const app = typeof getApp === 'function' ? getApp() : null;
+    const rosterReady = app && app.globalData && app.globalData.rosterReady;
+    Promise.resolve(rosterReady)
+      .then((result) => result || pullRoster())
+      .then(() => this.loadRecentMatches())
+      .catch((error) => console.warn('[home] pull roster failed', error));
+  },
+
+  loadRecentMatches() {
+    const stored = wx.getStorageSync(RECENT_MATCHES_KEY);
+    const allMatches = (Array.isArray(stored) ? stored : []).slice().sort((left, right) => Number(right.updatedAt || 0) - Number(left.updatedAt || 0));
+    const teamLogoMap = buildTeamLogoMap();
+    const recentMatches = allMatches.slice(0, 5).map((item) => decorateRecentMatch(item, teamLogoMap));
+    const todayMatches = allMatches.filter((item) => isToday(item.createdAt || item.updatedAt));
+    const finished = todayMatches.filter((item) => item.ended === true || item.status === 'finished').length;
+    this.setData({
+      recentMatches,
+      hasRecentMatches: recentMatches.length > 0,
+      todayStats: { total: todayMatches.length, pending: todayMatches.length - finished, finished }
+    });
   },
 
   openCampusRole() {
@@ -89,37 +140,38 @@ Page({
     wx.navigateTo({ url: '/pages/scorer/index?from=homeHero' });
   },
 
-  onShortcutTap(event) {
-    const key = event.currentTarget.dataset.key;
-
-    if (key === 'quickMatch') {
-      wx.navigateTo({ url: '/pages/quick-match/index?from=shortcut' });
-      return;
-    }
-
-    if (key === 'createTournament') {
-      wx.navigateTo({ url: '/pages/tournament-create/index?from=home' });
-      return;
-    }
-
-    if (key === 'createPlayer') {
-      wx.navigateTo({ url: '/pages/player-add/index?from=home' });
-      return;
-    }
-
-    if (key === 'createTeam') {
-      wx.navigateTo({ url: '/pages/team-create/index?from=home' });
-      return;
-    }
-
-    if (key === 'lessonStats' || key === 'lessonReview') {
-      wx.showToast({ title: '预览页规划中', icon: 'none' });
-    }
-  },
-
   goMatchDetail(event) {
     const id = event.currentTarget.dataset.id;
-    wx.navigateTo({ url: `/pages/game-detail/index?id=${id}` });
+    const match = this.data.recentMatches.find((item) => String(item.id) === String(id));
+    if (match && match.ended !== true && match.status !== 'finished') {
+      wx.navigateTo({ url: '/pages/scorer-board/index?boardOnly=1&resumeId=' + encodeURIComponent(match.id) });
+      return;
+    }
+    if (match && match.tournamentId && match.gameId) {
+      wx.navigateTo({ url: `/pages/game-detail/index?tournamentId=${match.tournamentId}&gameId=${match.gameId}` });
+      return;
+    }
+    if (match) wx.showToast({ title: match.statusText + '  ' + match.homeScore + '-' + match.awayScore, icon: 'none' });
+  },
+
+  deleteRecentMatch(event) {
+    const id = event.currentTarget.dataset.id;
+    if (!id) return;
+    wx.showModal({
+      title: '删除比分',
+      content: '确定删除这条最近对阵比分吗？',
+      confirmText: '删除',
+      confirmColor: '#ff4b00',
+      success: (res) => {
+        if (!res.confirm) return;
+        const stored = wx.getStorageSync(RECENT_MATCHES_KEY);
+        const matches = Array.isArray(stored) ? stored : [];
+        const nextMatches = matches.filter((item) => String(item.id) !== String(id));
+        wx.setStorageSync(RECENT_MATCHES_KEY, nextMatches);
+        this.loadRecentMatches();
+        wx.showToast({ title: '已删除', icon: 'success' });
+      }
+    });
   },
 
   goMoreMatches() {

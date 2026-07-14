@@ -356,11 +356,26 @@ page {
 
 .card-actions {
   display: flex;
-  width: 86rpx;
+  width: 142rpx;
   flex-shrink: 0;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
+  gap: 14rpx;
   color: #4c535e;
+}
+
+.delete-button {
+  display: flex;
+  width: 44rpx;
+  height: 36rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 18rpx;
+  color: #ff4d00;
+  background: rgba(255, 77, 0, 0.1);
+  font-size: 22rpx;
+  font-weight: 900;
+  line-height: 36rpx;
 }
 
 .edit-icon {
@@ -559,4 +574,56 @@ page {
   background: #fff1e8;
   font-size: 21rpx;
   font-weight: 900;
+}
+.delete-confirm-modal {
+  box-sizing: border-box;
+  width: 610rpx;
+  padding: 40rpx 34rpx 30rpx;
+  border-radius: 22rpx;
+  background: #ffffff;
+}
+
+.delete-confirm-title {
+  display: block;
+  color: #111820;
+  font-size: 34rpx;
+  font-weight: 900;
+  text-align: center;
+}
+
+.delete-confirm-desc {
+  display: block;
+  margin-top: 18rpx;
+  color: #6a717d;
+  font-size: 26rpx;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.delete-confirm-actions {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20rpx;
+  margin-top: 34rpx;
+}
+
+.delete-confirm-cancel,
+.delete-confirm-submit {
+  display: flex;
+  height: 74rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 37rpx;
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.delete-confirm-cancel {
+  color: #5d6470;
+  background: #eef0f3;
+}
+
+.delete-confirm-submit {
+  color: #ffffff;
+  background: linear-gradient(180deg, #ff6a18 0%, #ff4d00 100%);
 }
