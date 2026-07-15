@@ -120,3 +120,35 @@ jobs:
           gh pr merge "${{ steps.pr.outputs.number }}" \
             --repo "$GITHUB_REPOSITORY" \
             --merge
+
+      - name: Sync managed branches to Gitee
+        env:
+          GITEE_USERNAME: ${{ secrets.GITEE_USERNAME }}
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+        shell: bash
+        run: |
+          if [[ -z "$GITEE_USERNAME" || -z "$GITEE_TOKEN" ]]; then
+            echo "::error::GITEE_USERNAME and GITEE_TOKEN repository secrets are required."
+            exit 1
+          fi
+
+          git fetch --no-tags origin \
+            "+refs/heads/release/1.0:refs/remotes/origin/release/1.0" \
+            "+refs/heads/develop/1.5:refs/remotes/origin/develop/1.5"
+
+          askpass="$RUNNER_TEMP/gitee-askpass.sh"
+          trap 'rm -f "$askpass"' EXIT
+          cat > "$askpass" <<'EOF'
+          #!/usr/bin/env bash
+          case "$1" in
+            *Username*) printf '%s\n' "$GITEE_USERNAME" ;;
+            *Password*) printf '%s\n' "$GITEE_TOKEN" ;;
+            *) exit 1 ;;
+          esac
+          EOF
+          chmod 700 "$askpass"
+
+          GIT_ASKPASS="$askpass" GIT_TERMINAL_PROMPT=0 git push \
+            https://gitee.com/saixiaofeng/basketball.git \
+            origin/release/1.0:refs/heads/release/1.0 \
+            origin/develop/1.5:refs/heads/develop/1.5
