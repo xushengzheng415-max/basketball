@@ -2,141 +2,116 @@ const { callCloud } = require('../../utils/cloud');
 
 Page({
   data: {
-    agreed: true,
+    agreed: false,
+    agreementCheckClass: '',
     loggingIn: false,
-    hasSavedWechat: false
+    buttonText: '手机号快捷登录',
+    redirectPath: ''
   },
 
-  onShow() {
-    this.refreshSavedWechat();
-    const savedProfile = this.getSavedWechatProfile();
-    if (savedProfile) {
-      setTimeout(() => this.loginWithSavedWechat(), 120);
+  onLoad(options) {
+    const rawPath = (options && options.redirect) || '';
+    let redirectPath = '';
+    try {
+      redirectPath = decodeURIComponent(rawPath);
+    } catch (error) {
+      redirectPath = '';
     }
-  },
-
-  getSavedWechatProfile() {
-    const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
-    if (!profile || !profile.loggedIn || profile.mode !== 'wechat') return null;
-    if (!profile.userId && !profile.wxOpenId && !profile.phoneNumber) return null;
-    return profile;
-  },
-
-  refreshSavedWechat() {
-    this.setData({ hasSavedWechat: !!this.getSavedWechatProfile() });
+    if (redirectPath.indexOf('/pages/') !== 0) redirectPath = '';
+    this.setData({ redirectPath });
   },
 
   toggleAgreement() {
-    this.setData({ agreed: !this.data.agreed });
+    if (this.data.loggingIn) return;
+    const agreed = !this.data.agreed;
+    this.setData({
+      agreed,
+      agreementCheckClass: agreed ? 'checked' : ''
+    });
   },
 
-  ensureAgreed() {
-    if (this.data.agreed) return true;
-    wx.showToast({ title: '请先勾选用户协议', icon: 'none' });
-    return false;
+  promptAgreement() {
+    wx.showToast({ title: '请先阅读并勾选用户协议和隐私政策', icon: 'none' });
   },
 
-  loginByWechat(event) {
-    if (!this.ensureAgreed() || this.data.loggingIn) return;
+  showUserAgreement() {
+    wx.showModal({
+      title: '用户服务协议',
+      content: '赛小蜂篮球为用户提供赛事管理、比赛计分和教务数据服务。登录后请遵守平台规则，不得上传违法、侵权或虚假内容。',
+      showCancel: false,
+      confirmText: '我知道了',
+      confirmColor: '#ff5a00'
+    });
+  },
+
+  openPrivacyPolicy() {
+    if (typeof wx.openPrivacyContract !== 'function') {
+      wx.showToast({ title: '请升级客户端后查看隐私政策', icon: 'none' });
+      return;
+    }
+    wx.openPrivacyContract({
+      fail: () => wx.showToast({ title: '隐私政策暂时无法打开', icon: 'none' })
+    });
+  },
+
+  loginByPhone(event) {
+    if (!this.data.agreed) {
+      this.promptAgreement();
+      return;
+    }
+    if (this.data.loggingIn) return;
 
     const detail = event.detail || {};
     const errMsg = detail.errMsg || '';
-    if (errMsg && errMsg.indexOf('ok') < 0) {
-      wx.showToast({ title: '需要授权手机号后登录', icon: 'none' });
-      return;
-    }
-
     const phoneCode = detail.code || '';
-    wx.getUserProfile({
-      desc: '用于完善赛小蜂篮球个人资料',
-      success: (res) => {
-        this.finishWechatLogin({ phoneCode, userInfo: res.userInfo || {} });
-      },
-      fail: () => {
-        this.finishWechatLogin({ phoneCode, userInfo: {} });
-      }
-    });
-  },
-
-  loginWithSavedWechat() {
-    if (!this.ensureAgreed() || this.data.loggingIn) return;
-
-    const savedProfile = this.getSavedWechatProfile();
-    if (!savedProfile) {
-      this.refreshSavedWechat();
-      wx.showToast({ title: '请重新授权登录', icon: 'none' });
+    if ((errMsg && errMsg.indexOf('ok') < 0) || !phoneCode) {
+      wx.showToast({ title: '未完成手机号授权', icon: 'none' });
       return;
     }
 
-    const profile = Object.assign({}, savedProfile, {
-      loggedIn: true,
-      mode: 'wechat',
-      loggedAt: Date.now()
-    });
-    wx.setStorageSync('loginProfile', profile);
-    wx.setStorageSync('userProfile', profile);
-    wx.reLaunch({ url: '/pages/home/index' });
+    this.finishPhoneLogin(phoneCode);
   },
 
-  async finishWechatLogin(options) {
-    const userInfo = options.userInfo || {};
+  async finishPhoneLogin(phoneCode) {
     const profile = {
       loggedIn: true,
       mode: 'wechat',
-      avatarUrl: userInfo.avatarUrl || '',
-      nickName: userInfo.nickName || '微信用户',
+      avatarUrl: '',
+      nickName: '赛小蜂用户',
       loggedAt: Date.now()
     };
 
-    this.setData({ loggingIn: true });
+    this.setData({ loggingIn: true, buttonText: '正在登录' });
     wx.showLoading({ title: '登录中' });
 
-    const result = await callCloud('sxLogin', {
-      profile,
-      phoneCode: options.phoneCode || ''
-    });
+    try {
+      const result = await callCloud('sxLogin', { profile, phoneCode });
+      if (!result || !result.ok) {
+        throw new Error((result && result.message) || '登录失败，请稍后重试');
+      }
+      if (result.phoneAuthFailed || !result.phoneNumber) {
+        throw new Error('手机号验证失败，请重新授权');
+      }
 
-    wx.hideLoading();
-    this.setData({ loggingIn: false });
+      const savedProfile = Object.assign({}, profile, {
+        userId: result.userId || '',
+        wxOpenId: result.openid || '',
+        wxUnionId: result.unionid || '',
+        phoneNumber: result.phoneNumber
+      });
 
-    if (!result || !result.ok) {
-      const message = result && result.message ? result.message : '登录失败，请稍后重试';
-      wx.showToast({ title: message, icon: 'none' });
-      return;
+      wx.setStorageSync('loginProfile', savedProfile);
+      wx.setStorageSync('userProfile', savedProfile);
+      if (this.data.redirectPath) {
+        wx.redirectTo({ url: this.data.redirectPath });
+        return;
+      }
+      wx.reLaunch({ url: '/pages/home/index' });
+    } catch (error) {
+      wx.showToast({ title: error.message || '登录失败，请稍后重试', icon: 'none' });
+    } finally {
+      wx.hideLoading();
+      this.setData({ loggingIn: false, buttonText: '手机号快捷登录' });
     }
-
-    const savedProfile = Object.assign({}, profile, {
-      userId: result.userId || '',
-      wxOpenId: result.openid || '',
-      wxUnionId: result.unionid || '',
-      phoneNumber: result.phoneNumber || '',
-      phoneAuthFailed: !!result.phoneAuthFailed
-    });
-
-    wx.setStorageSync('loginProfile', savedProfile);
-    wx.setStorageSync('userProfile', savedProfile);
-
-    if (result.phoneAuthFailed) {
-      wx.showToast({ title: '已登录，手机号稍后可补授权', icon: 'none' });
-      setTimeout(() => wx.reLaunch({ url: '/pages/home/index' }), 600);
-      return;
-    }
-
-    wx.reLaunch({ url: '/pages/home/index' });
-  },
-
-  enterAsGuest() {
-    if (!this.ensureAgreed()) return;
-    const profile = {
-      loggedIn: true,
-      mode: 'guest',
-      avatarUrl: '',
-      nickName: '游客用户',
-      loggedAt: Date.now()
-    };
-    wx.setStorageSync('loginProfile', profile);
-    wx.setStorageSync('userProfile', profile);
-    callCloud('sxLogin', { profile });
-    wx.navigateTo({ url: '/pages/scorer/index' });
   }
 });

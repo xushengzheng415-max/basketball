@@ -10,6 +10,16 @@ const DEFAULT_CATEGORIES = [
   { key: 'unassigned', label: '未分队', fixed: true, system: true }
 ];
 
+function hasPhoneLogin() {
+  const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
+  return !!(profile && profile.loggedIn && profile.mode !== 'guest' && profile.phoneNumber);
+}
+
+function getLoginUrl(redirectPath) {
+  const redirect = redirectPath ? '?redirect=' + encodeURIComponent(redirectPath) : '';
+  return '/pages/login/index' + redirect;
+}
+
 function ensureRealDataReset() {
   if (wx.getStorageSync('playerDataResetVersion') === DATA_RESET_VERSION) return;
   wx.setStorageSync('players', []);
@@ -256,8 +266,25 @@ Page({
     wx.showToast({ title: '左右滑动类别可快速筛选', icon: 'none' });
   },
 
+  requirePhoneLogin(redirectPath, content) {
+    if (hasPhoneLogin()) return true;
+    wx.showModal({
+      title: '登录后云端保存',
+      content: content || '登录后可保存并同步球队和球员资料。',
+      confirmText: '去登录',
+      cancelText: '先浏览',
+      confirmColor: '#ff5a00',
+      success: (result) => {
+        if (result.confirm) wx.navigateTo({ url: getLoginUrl(redirectPath) });
+      }
+    });
+    return false;
+  },
+
   openAddModal() {
-    wx.navigateTo({ url: '/pages/player-add/index?from=team' });
+    const url = '/pages/player-add/index?from=team';
+    if (!this.requirePhoneLogin(url, '登录后才能新增球员并保存个人资料。')) return;
+    wx.navigateTo({ url });
   },
 
   closeAddModal() {
@@ -265,7 +292,9 @@ Page({
   },
 
   openTeamManager() {
-    wx.navigateTo({ url: '/pages/team-create/index?from=player-library' });
+    const url = '/pages/team-create/index?from=player-library';
+    if (!this.requirePhoneLogin(url, '登录后才能创建球队并保存球队资料。')) return;
+    wx.navigateTo({ url });
   },
 
   openCategoryManager() {
@@ -296,6 +325,7 @@ Page({
   },
 
   addPlayer() {
+    if (!this.requirePhoneLogin('', '登录后才能保存球员资料。')) return;
     const name = this.data.name.trim();
     const number = normalizeNumber(this.data.number);
     const storedPlayers = wx.getStorageSync('players') || [];
@@ -336,10 +366,13 @@ Page({
       wx.showToast({ title: '未找到球员', icon: 'none' });
       return;
     }
-    wx.navigateTo({ url: `/pages/player-add/index?mode=edit&id=${id}` });
+    const url = `/pages/player-add/index?mode=edit&id=${id}`;
+    if (!this.requirePhoneLogin(url, '登录后才能编辑并同步球员资料。')) return;
+    wx.navigateTo({ url });
   },
 
   onDeletePlayer(event) {
+    if (!this.requirePhoneLogin('', '登录后才能删除球员资料，避免数据归属不清。')) return;
     const id = event.currentTarget.dataset.id;
     const player = this.data.players.filter((item) => String(item.id) === String(id))[0];
     if (!player) {

@@ -7,6 +7,14 @@
 
     </view>
 
+    <view wx:if="{{showLoginGuide}}" class="login-guide" bindtap="goLogin">
+      <view class="login-guide-copy">
+        <text class="login-guide-title">当前未登录</text>
+        <text class="login-guide-desc">登录后可云端保存赛事、球队与比赛数据</text>
+      </view>
+      <text class="login-guide-action">去登录  ›</text>
+    </view>
+
     <view class="section-label light">
       <view class="section-line"></view>
       <text>快速比赛</text>

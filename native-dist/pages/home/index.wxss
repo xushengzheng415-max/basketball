@@ -56,6 +56,54 @@ page {
   height: 142rpx;
   max-width: 100%;
 }
+
+.login-guide {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  margin-top: 12rpx;
+  padding: 18rpx 20rpx;
+  align-items: center;
+  justify-content: space-between;
+  border: 1rpx solid rgba(255, 132, 42, 0.45);
+  border-radius: 16rpx;
+  background: rgba(11, 17, 22, 0.76);
+  box-shadow: 0 12rpx 28rpx rgba(0, 0, 0, 0.18);
+}
+
+.login-guide-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.login-guide-title,
+.login-guide-desc {
+  display: block;
+}
+
+.login-guide-title {
+  color: #ffffff;
+  font-size: 25rpx;
+  font-weight: 800;
+}
+
+.login-guide-desc {
+  margin-top: 5rpx;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.66);
+  font-size: 20rpx;
+  line-height: 1.4;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.login-guide-action {
+  margin-left: 18rpx;
+  flex: 0 0 auto;
+  color: #ff8a22;
+  font-size: 23rpx;
+  font-weight: 900;
+}
 .campus-pill {
   display: flex;
   align-items: center;
