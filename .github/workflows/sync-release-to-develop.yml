@@ -123,14 +123,26 @@ jobs:
 
       - name: Sync managed branches to Gitee
         env:
-          GITEE_USERNAME: ${{ secrets.GITEE_USERNAME }}
           GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
         shell: bash
         run: |
-          if [[ -z "$GITEE_USERNAME" || -z "$GITEE_TOKEN" ]]; then
-            echo "::error::GITEE_USERNAME and GITEE_TOKEN repository secrets are required."
+          if [[ -z "$GITEE_TOKEN" ]]; then
+            echo "::error::GITEE_TOKEN repository secret is required."
             exit 1
           fi
+
+          gitee_user_json="$(curl --fail --silent --show-error --get \
+            --data-urlencode "access_token=$GITEE_TOKEN" \
+            https://gitee.com/api/v5/user)"
+          GITEE_USERNAME="$(printf '%s' "$gitee_user_json" | \
+            node -e 'let input = ""; process.stdin.on("data", chunk => input += chunk); process.stdin.on("end", () => process.stdout.write(JSON.parse(input).login || ""));')"
+          unset gitee_user_json
+          if [[ -z "$GITEE_USERNAME" ]]; then
+            echo "::error::Unable to resolve the Gitee login for GITEE_TOKEN."
+            exit 1
+          fi
+          export GITEE_USERNAME
+          echo "Authenticated to Gitee as $GITEE_USERNAME."
 
           git fetch --no-tags origin \
             "+refs/heads/release/1.0:refs/remotes/origin/release/1.0" \
