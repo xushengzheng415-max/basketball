@@ -105,6 +105,21 @@ Page({
     ]
   },
 
+  onShareAppMessage() {
+    return {
+      title: '赛小蜂篮球｜赛事、计分、教务一体化管理',
+      path: '/pages/home/index',
+      imageUrl: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/share-card-5x4-v2.png'
+    };
+  },
+
+  onShareTimeline() {
+    return {
+      title: '赛小蜂篮球｜赛事、计分、教务一体化管理',
+      imageUrl: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/share-logo-20260715.png'
+    };
+  },
+
   onShow() {
     this.loadRecentMatches();
     const app = typeof getApp === 'function' ? getApp() : null;
