@@ -21,7 +21,7 @@ jobs:
 
     steps:
       - name: Check out develop/1.5
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           ref: develop/1.5
           fetch-depth: 0
