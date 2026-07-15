@@ -1,0 +1,122 @@
+name: Sync release/1.0 to develop/1.5
+
+on:
+  push:
+    branches:
+      - release/1.0
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-release-1.0-to-develop-1.5
+  cancel-in-progress: false
+
+jobs:
+  forward-sync:
+    name: Forward-sync production fixes
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out develop/1.5
+        uses: actions/checkout@v4
+        with:
+          ref: develop/1.5
+          fetch-depth: 0
+
+      - name: Fetch source and target branches
+        run: |
+          git fetch --no-tags origin \
+            "+refs/heads/release/1.0:refs/remotes/origin/release/1.0" \
+            "+refs/heads/develop/1.5:refs/remotes/origin/develop/1.5"
+
+      - name: Check whether synchronization is needed
+        id: compare
+        shell: bash
+        run: |
+          if git merge-base --is-ancestor origin/release/1.0 origin/develop/1.5; then
+            echo "needed=false" >> "$GITHUB_OUTPUT"
+            echo "develop/1.5 already contains release/1.0."
+          else
+            echo "needed=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create or find the synchronization pull request
+        if: steps.compare.outputs.needed == 'true'
+        id: pr
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          pr_number="$(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --base develop/1.5 \
+            --head release/1.0 \
+            --state open \
+            --json number \
+            --jq '.[0].number // empty')"
+
+          if [[ -z "$pr_number" ]]; then
+            if ! pr_url="$(gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base develop/1.5 \
+              --head release/1.0 \
+              --title "chore(sync): merge release/1.0 into develop/1.5" \
+              --body "Automatically forward-syncs production Bug fixes from release/1.0 into develop/1.5. If merge checks fail, keep this PR open and resolve the problem in the 1.5 worktree.")"; then
+              echo "::error::Unable to create the synchronization PR. In GitHub, enable Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests."
+              exit 1
+            fi
+            pr_number="${pr_url##*/}"
+          fi
+
+          echo "number=$pr_number" >> "$GITHUB_OUTPUT"
+          echo "Using synchronization PR #$pr_number."
+
+      - name: Verify the merge result
+        if: steps.compare.outputs.needed == 'true'
+        shell: bash
+        run: |
+          base_sha="$(git rev-parse origin/develop/1.5)"
+          git checkout --detach "$base_sha"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          if ! git merge --no-commit --no-ff origin/release/1.0; then
+            git merge --abort || true
+            echo "::error::release/1.0 conflicts with develop/1.5. Resolve the open synchronization PR in the 1.5 worktree."
+            exit 1
+          fi
+
+          git diff --check "$base_sha"
+
+          mapfile -t js_files < <(git diff --name-only "$base_sha" -- '*.js')
+          for file in "${js_files[@]}"; do
+            [[ -f "$file" ]] && node --check "$file"
+          done
+
+          mapfile -t json_files < <(git diff --name-only "$base_sha" -- '*.json')
+          if (( ${#json_files[@]} > 0 )); then
+            node -e 'const fs = require("fs"); for (const file of process.argv.slice(1)) JSON.parse(fs.readFileSync(file, "utf8"));' "${json_files[@]}"
+          fi
+
+          mapfile -t wxml_files < <(git diff --name-only "$base_sha" -- '*.wxml')
+          for file in "${wxml_files[@]}"; do
+            [[ -f "$file" ]] || continue
+            if grep -En '\{\{[^}]*\?[^}]*:.*\}\}|\{\{[^}]*\[[0-9]|\{\{[^}]*(===|!==|\.find\()' "$file"; then
+              echo "::error file=$file::Complex WXML expression detected. Move the calculation into the page JavaScript before synchronizing."
+              exit 1
+            fi
+          done
+
+          git merge --abort
+
+      - name: Merge the synchronization pull request
+        if: steps.compare.outputs.needed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh pr merge "${{ steps.pr.outputs.number }}" \
+            --repo "$GITHUB_REPOSITORY" \
+            --merge
