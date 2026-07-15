@@ -1,4 +1,5 @@
 const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team-data/';
+const TEAM_SELECTION_KEY = 'sx_team_data_selection';
 const FALLBACK_LOGOS = [
   `${ASSET_BASE}logo-team-fengmang-u12.png`,
   `${ASSET_BASE}logo-team-xinghuo.png`,
@@ -24,6 +25,10 @@ function isFinished(match) {
 
 function getTeamName(team) {
   return text(team && (team.label || team.name || team.teamName)) || '未命名球队';
+}
+
+function getTeamLogo(team) {
+  return text(team && (team.logoUrl || team.teamLogo || team.logo || team.logoFileID || team.teamLogoFileID));
 }
 
 function teamIdentity(team) {
@@ -104,7 +109,7 @@ function decorateTeam(team, index, matches) {
   return {
     id: text(team.id || team.key || getTeamName(team)),
     name: getTeamName(team),
-    logo: team.logoUrl || team.teamLogo || team.logo || FALLBACK_LOGOS[index % FALLBACK_LOGOS.length],
+    logo: getTeamLogo(team) || FALLBACK_LOGOS[index % FALLBACK_LOGOS.length],
     matches: teamMatches.length,
     wins,
     losses,
@@ -120,7 +125,7 @@ function decorateTeam(team, index, matches) {
 Page({
   data: {
     assets: {
-      background: `${ASSET_BASE}background-team-data-shared.png`,
+      background: `${ASSET_BASE}background-team-data-workbench-v2.png`,
       search: `${ASSET_BASE}icon-search.png`,
       team: `${ASSET_BASE}icon-team.png`,
       calendar: `${ASSET_BASE}icon-calendar.png`,
@@ -182,6 +187,14 @@ Page({
   openTeam(event) {
     const id = event.currentTarget.dataset.id;
     if (!id) return;
-    wx.navigateTo({ url: '/pages/team-data-detail/index?teamId=' + encodeURIComponent(id) });
+    const team = this.data.teams.find((item) => same(item.id, id));
+    const logo = team && team.logo ? '&teamLogo=' + encodeURIComponent(team.logo) : '';
+    const name = team && team.name ? '&teamName=' + encodeURIComponent(team.name) : '';
+    if (team) wx.setStorageSync(TEAM_SELECTION_KEY, { id: team.id, name: team.name, logo: team.logo, selectedAt: Date.now() });
+    wx.navigateTo({ url: '/pages/team-data-detail/index?teamId=' + encodeURIComponent(id) + logo + name });
+  },
+
+  goBack() {
+    wx.navigateBack({ delta: 1, fail: () => wx.redirectTo({ url: '/pages/data/index' }) });
   }
 });

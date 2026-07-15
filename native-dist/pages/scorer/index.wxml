@@ -16,11 +16,15 @@
     <view class="setup-grid">
       <view class="setup-field">
         <text>主队</text>
-        <input class="team-name-input" value="{{homeName}}" maxlength="12" data-side="home" bindinput="onSetupTeamNameInput" placeholder="手写主队名称" />
+        <view class="setup-team-source"><view class="{{homeExistingModeClass}}" data-side="home" data-mode="existing" bindtap="setSetupTeamMode">已有球队</view><view class="{{homeTemporaryModeClass}}" data-side="home" data-mode="temporary" bindtap="setSetupTeamMode">临时球队</view></view>
+        <picker wx:if="{{homeTeamUseExisting}}" class="team-picker" mode="selector" range="{{teamOptions}}" range-key="label" value="{{homeTeamIndex}}" bindchange="onHomeTeamChange"><view class="team-picker-value">{{homeTeamPickerText}}</view></picker>
+        <input wx:else class="team-name-input" value="{{homeName}}" maxlength="12" data-side="home" bindinput="onSetupTeamNameInput" placeholder="手写主队名称" />
       </view>
       <view class="setup-field">
         <text>客队</text>
-        <input class="team-name-input" value="{{awayName}}" maxlength="12" data-side="away" bindinput="onSetupTeamNameInput" placeholder="手写客队名称" />
+        <view class="setup-team-source"><view class="{{awayExistingModeClass}}" data-side="away" data-mode="existing" bindtap="setSetupTeamMode">已有球队</view><view class="{{awayTemporaryModeClass}}" data-side="away" data-mode="temporary" bindtap="setSetupTeamMode">临时球队</view></view>
+        <picker wx:if="{{awayTeamUseExisting}}" class="team-picker" mode="selector" range="{{teamOptions}}" range-key="label" value="{{awayTeamIndex}}" bindchange="onAwayTeamChange"><view class="team-picker-value">{{awayTeamPickerText}}</view></picker>
+        <input wx:else class="team-name-input" value="{{awayName}}" maxlength="12" data-side="away" bindinput="onSetupTeamNameInput" placeholder="手写客队名称" />
       </view>
       <view class="setup-field">
         <text>每节时长</text>

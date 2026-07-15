@@ -1,4 +1,5 @@
 const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team-data/';
+const TEAM_SELECTION_KEY = 'sx_team_data_selection';
 const FALLBACK_TEAM = `${ASSET_BASE}logo-team-fengmang-u12.png`;
 const FALLBACK_TOURNAMENTS = [`${ASSET_BASE}logo-tournament-summer-2026.png`, `${ASSET_BASE}logo-tournament-spring.png`];
 
@@ -6,6 +7,11 @@ function readList(key) { const value = wx.getStorageSync(key); return Array.isAr
 function text(value) { return String(value === undefined || value === null ? '' : value).trim(); }
 function same(a, b) { return !!text(a) && text(a) === text(b); }
 function teamName(team) { return text(team && (team.label || team.name || team.teamName)) || '未命名球队'; }
+function teamLogo(team) { return text(team && (team.logoUrl || team.teamLogo || team.logo || team.logoFileID || team.teamLogoFileID)); }
+function usableTeamLogo(logo) {
+  const value = text(logo);
+  return value && value !== FALLBACK_TEAM && value.indexOf('logo-team-fengmang-u12.png') < 0;
+}
 function finished(item) { return !!item && (item.ended === true || item.status === 'finished' || item.status === 'ended'); }
 function teamIds(team) { return [team && team.id, team && team.key, teamName(team)].map(text).filter(Boolean); }
 function sideIds(item, side) {
@@ -20,7 +26,18 @@ function getSide(item, team) {
   return '';
 }
 function collectTeams() { return readList('teams').concat(readList('teamDrafts')).concat(readList('teamCategories')); }
-function findTeam(id) { return collectTeams().find((team) => same(team.id, id) || same(team.key, id) || same(teamName(team), id)) || null; }
+function findTeam(id) {
+  const teams = collectTeams();
+  const groups = [
+    teams.filter((team) => same(team.id, id)),
+    teams.filter((team) => same(team.key, id)),
+    teams.filter((team) => same(teamName(team), id))
+  ];
+  for (let index = 0; index < groups.length; index += 1) {
+    if (groups[index].length) return groups[index].find((team) => teamLogo(team)) || groups[index][0];
+  }
+  return null;
+}
 function findByIdentity(ids) { return collectTeams().find((team) => overlaps(ids, teamIds(team))) || null; }
 function matchTime(item) { return Number(item.updatedAt || item.createdAt || item.finishedAt || 0); }
 function formatDate(value) {
@@ -106,14 +123,18 @@ function buildTournamentCards(records, tournaments) {
 
 Page({
   data: {
-    assets: { background: `${ASSET_BASE}background-team-data-shared.png`, back: `${ASSET_BASE}icon-back.png`, chevron: `${ASSET_BASE}icon-chevron-right.png`, match: `${ASSET_BASE}icon-match.png`, trophy: `${ASSET_BASE}icon-trophy.png`, ranking: `${ASSET_BASE}icon-ranking.png`, shield: `${ASSET_BASE}icon-shield.png`, rate: `${ASSET_BASE}icon-win-rate.png`, hoop: `${ASSET_BASE}icon-basket-hoop.png`, trend: `${ASSET_BASE}icon-trend.png` },
-    teamId: '', team: { name: '球队详情', logo: FALLBACK_TEAM, meta: '' },
+    assets: { background: `${ASSET_BASE}background-team-data-workbench-v2.png`, back: `${ASSET_BASE}icon-back.png`, chevron: `${ASSET_BASE}icon-chevron-right.png`, match: `${ASSET_BASE}icon-match.png`, trophy: `${ASSET_BASE}icon-trophy.png`, ranking: `${ASSET_BASE}icon-ranking.png`, shield: `${ASSET_BASE}icon-shield.png`, rate: `${ASSET_BASE}icon-win-rate.png`, hoop: `${ASSET_BASE}icon-basket-hoop.png`, trend: `${ASSET_BASE}icon-trend.png` },
+    teamId: '', requestedTeamLogo: '', requestedTeamName: '', team: { name: '球队详情', logo: '', meta: '' },
     stats: { matches: 0, tournaments: 0, wins: 0, losses: 0, winRate: '0.0%', points: 0, averageFor: '0.0', averageAgainst: '0.0', difference: 0, differenceText: '0' },
     recentTrend: [], tournaments: [], recentMatches: [], activeTab: 'overview', overviewTabClass: 'tab active', tournamentTabClass: 'tab', overviewVisible: true, tournamentVisible: true, empty: false, trendEmpty: true, tournamentsEmpty: true, matchesEmpty: true
   },
 
   onLoad(options) {
-    this.setData({ teamId: decodeURIComponent(text(options && options.teamId)) });
+    this.setData({
+      teamId: decodeURIComponent(text(options && options.teamId)),
+      requestedTeamLogo: decodeURIComponent(text(options && options.teamLogo)),
+      requestedTeamName: decodeURIComponent(text(options && options.teamName))
+    });
   },
 
   onShow() { this.loadData(); },
@@ -121,11 +142,22 @@ Page({
   loadData() {
     const team = findTeam(this.data.teamId);
     if (!team) {
-      this.setData({ empty: true, team: { name: '未找到球队', logo: FALLBACK_TEAM, meta: '' } });
+      this.setData({ empty: true, team: { name: '未找到球队', logo: '', meta: '' } });
       return;
     }
     const tournaments = readList('tournaments');
+    const selection = wx.getStorageSync(TEAM_SELECTION_KEY) || {};
+    const selectedLogo = same(selection.id, this.data.teamId) ? text(selection.logo) : '';
+    const selectedName = same(selection.id, this.data.teamId) ? text(selection.name) : '';
+    const preferredLogo = [selectedLogo, this.data.requestedTeamLogo].find(usableTeamLogo) || '';
     const records = enrichMatches(tournaments).map((match, index) => matchMeta(match, team, index)).filter(Boolean);
+    const displayName = selectedName || this.data.requestedTeamName || teamName(team);
+    const recordLogo = records.map((record) => {
+      if (same(record.homeName, displayName)) return record.homeLogo;
+      if (same(record.awayName, displayName)) return record.awayLogo;
+      return '';
+    }).find(usableTeamLogo) || '';
+    const storedLogo = teamLogo(team);
     const wins = records.filter((item) => item.result === 'W').length;
     const losses = records.filter((item) => item.result === 'L').length;
     const points = records.reduce((sum, item) => sum + item.ownScore, 0);
@@ -135,7 +167,7 @@ Page({
     const difference = points - against;
     this.setData({
       empty: false,
-      team: { name: teamName(team), logo: team.logoUrl || team.teamLogo || team.logo || FALLBACK_TEAM, meta: [text(team.group || team.ageGroup || team.category), team.enabled === false ? '已停用' : '启用中'].filter(Boolean).join(' · ') },
+      team: { name: displayName, logo: preferredLogo || recordLogo || (usableTeamLogo(storedLogo) ? storedLogo : ''), meta: [text(team.group || team.ageGroup || team.category), team.enabled === false ? '已停用' : '启用中'].filter(Boolean).join(' · ') },
       stats: { matches: records.length, tournaments: tournamentCards.length, wins, losses, winRate: records.length ? percent(wins * 100 / records.length) + '%' : '0.0%', points, averageFor: records.length ? percent(points / records.length) : '0.0', averageAgainst: records.length ? percent(against / records.length) : '0.0', difference, differenceText: difference > 0 ? '+' + difference : String(difference) },
       recentTrend: trend,
       tournaments: tournamentCards,

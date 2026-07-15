@@ -52,8 +52,8 @@ const AUDIO_FILE_IDS = {
     'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/防守音效2.mp3',
     'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/防守音效3.mp3'
   ],
-  miss: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/投篮未进音效.mp3'],
-  cheer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声.mp3'],
+  miss: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/投篮未进音效.mp3'],
+  cheer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/欢呼声.mp3'],
   horn: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/冲锋号.mp3'],
   entry: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/出场音乐.mp3'],
   anthem: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3'],
@@ -279,10 +279,14 @@ function buildConfiguredCustomSounds() {
       (item.fileID || item.fileId || item.src) === savedValue
     )) || {};
     const detailChannel = detail.channel === 'shout' ? 'horn' : detail.channel;
+    const channelStored = audioItems.find((item) => {
+      const itemChannel = item && item.channel === 'shout' ? 'horn' : (item && item.channel);
+      return itemChannel && itemChannel === detailChannel;
+    }) || {};
     const indexFallback = DEFAULT_CUSTOM_SOUND_META[index] || {};
     const savedFallback = DEFAULT_CUSTOM_SOUND_META.find((item) => item.source === savedValue);
     const fallback = DEFAULT_CUSTOM_SOUND_META.find((item) => item.type === detailChannel) || savedFallback || indexFallback;
-    const source = detail.source || stored.fileID || stored.fileId || stored.src || (String(savedValue).indexOf('cloud://') === 0 ? savedValue : '') || fallback.source || '';
+    const source = stored.fileID || stored.fileId || stored.src || channelStored.fileID || channelStored.fileId || channelStored.src || detail.source || (String(savedValue).indexOf('cloud://') === 0 ? savedValue : '') || fallback.source || '';
     const storedChannel = stored.channel === 'shout' ? 'horn' : stored.channel;
     const channel = detailChannel || storedChannel || fallback.type || ('custom-' + index);
     return {
@@ -325,8 +329,33 @@ function normalizeLibraryTeams() {
 }
 
 function getTeamLogo(team, side) {
+  const raw = team && team.raw ? team.raw : {};
+  const stableCloudLogo = [
+    team && team.logoFileID,
+    team && team.teamLogoFileID,
+    raw.logoFileID,
+    raw.teamLogoFileID,
+    team && team.logoUrl,
+    team && team.teamLogo,
+    raw.logoUrl,
+    raw.teamLogo
+  ].map((value) => String(value || '')).find((value) => value.indexOf('cloud://') === 0);
+  if (stableCloudLogo) return stableCloudLogo;
   const logoUrl = team && resolveImageUrl(team.logoUrl, team.logoFileID, team.teamLogo, team.teamLogoFileID, team.logo);
   return logoUrl || TEAM_ASSET + (side === 'home' ? 'team-logo-left.png' : 'team-logo-right.png');
+}
+
+function matchConfiguredTeam(configTeam, teamOptions) {
+  if (!configTeam) return null;
+  const values = [configTeam.id, configTeam.key, configTeam.name, configTeam.label]
+    .map((value) => String(value || ''))
+    .filter(Boolean);
+  return (teamOptions || []).find((team) => {
+    const raw = team && team.raw ? team.raw : {};
+    return [team && team.key, team && team.label, team && team.name, raw.id, raw.key, raw.name, raw.label, raw.teamName]
+      .map((value) => String(value || ''))
+      .some((value) => value && values.indexOf(value) >= 0);
+  }) || null;
 }
 
 function buildEmptyTeamPlayers() {
@@ -404,11 +433,13 @@ Page({
   restAudioSeeking: false,
   restAudioTrackRect: null,
   audioUrlCache: {},
+  audioDownloadPromises: {},
   persistentAudioCache: {},
   persistentAudioConsent: '',
   audioConsentPromptOpen: false,
   audioPreloadStarted: false,
   audioPreloadStopped: false,
+  audioLibrarySyncPromise: null,
   matchRecordId: '',
   matchRecordCreatedAt: 0,
   matchRecordSaveTimer: null,
@@ -431,6 +462,13 @@ Page({
     homeName: '蜂巢U10A',
     awayName: '星火U10',
     teamOptions: [],
+    hasExistingTeams: false,
+    homeTeamUseExisting: true,
+    awayTeamUseExisting: true,
+    homeExistingModeClass: 'active',
+    homeTemporaryModeClass: '',
+    awayExistingModeClass: 'active',
+    awayTemporaryModeClass: '',
     homeTeamIndex: 0,
     awayTeamIndex: 1,
     homeTeamPickerText: '蜂巢U10A',
@@ -608,8 +646,7 @@ Page({
   onShow() {
     this.detectBoardSize();
     this.syncVoiceStyle();
-    this.syncCustomSounds();
-    this.preloadCommonAudio();
+    this.refreshCloudAudioLibrary().finally(() => this.preloadCommonAudio());
     if (this.data.started && this.matchHiddenAt) {
       const elapsedSeconds = Math.max(0, Math.floor((Date.now() - this.matchHiddenAt) / 1000));
       this.resumeElapsedMatchClock(elapsedSeconds, this.matchClockWasRunning, this.matchShotClockWasRunning);
@@ -689,16 +726,27 @@ Page({
     const homeTeam = teamOptions[homeTeamIndex] || teamOptions[0];
     const awayTeam = teamOptions[awayTeamIndex] || teamOptions[0];
     const editedNames = this.setupTeamNameEdited || {};
+    const touchedModes = this.setupTeamModeTouched || {};
+    const hasExistingTeams = libraryTeams.length > 0;
+    const homeTeamUseExisting = touchedModes.home ? !!this.data.homeTeamUseExisting : hasExistingTeams;
+    const awayTeamUseExisting = touchedModes.away ? !!this.data.awayTeamUseExisting : hasExistingTeams;
     this.setData({
       teamOptions,
+      hasExistingTeams,
+      homeTeamUseExisting,
+      awayTeamUseExisting,
+      homeExistingModeClass: homeTeamUseExisting ? 'active' : '',
+      homeTemporaryModeClass: homeTeamUseExisting ? '' : 'active',
+      awayExistingModeClass: awayTeamUseExisting ? 'active' : '',
+      awayTemporaryModeClass: awayTeamUseExisting ? '' : 'active',
       homeTeamIndex,
       awayTeamIndex,
       homeTeamPickerText: homeTeam ? homeTeam.label : '请选择主队',
       awayTeamPickerText: awayTeam ? awayTeam.label : '请选择客队',
-      homeName: editedNames.home ? this.data.homeName : (homeTeam ? homeTeam.label : this.data.homeName),
-      awayName: editedNames.away ? this.data.awayName : (awayTeam ? awayTeam.label : this.data.awayName),
-      homeLogo: editedNames.home ? this.data.homeLogo : getTeamLogo(homeTeam, 'home'),
-      awayLogo: editedNames.away ? this.data.awayLogo : getTeamLogo(awayTeam, 'away')
+      homeName: editedNames.home || !homeTeamUseExisting ? this.data.homeName : (homeTeam ? homeTeam.label : this.data.homeName),
+      awayName: editedNames.away || !awayTeamUseExisting ? this.data.awayName : (awayTeam ? awayTeam.label : this.data.awayName),
+      homeLogo: editedNames.home || !homeTeamUseExisting ? this.data.homeLogo : getTeamLogo(homeTeam, 'home'),
+      awayLogo: editedNames.away || !awayTeamUseExisting ? this.data.awayLogo : getTeamLogo(awayTeam, 'away')
     });
   },
   onHomeTeamChange(event) {
@@ -717,6 +765,7 @@ Page({
     const side = event.currentTarget.dataset.side === 'away' ? 'away' : 'home';
     this.setupTeamNameEdited = Object.assign({}, this.setupTeamNameEdited || {}, { [side]: true });
     const value = String((event.detail && event.detail.value) || '').slice(0, 12);
+    this.setupTemporaryNames = Object.assign({}, this.setupTemporaryNames || {}, { [side]: value });
     const teamOptions = Array.isArray(this.data.teamOptions) ? this.data.teamOptions : [];
     const teamIndex = teamOptions.findIndex((team) => team && team.label === value);
     const team = teamIndex >= 0 ? teamOptions[teamIndex] : null;
@@ -724,6 +773,40 @@ Page({
     patch[side + 'Name'] = value;
     patch[side + 'TeamIndex'] = teamIndex;
     patch[side + 'Logo'] = getTeamLogo(team, side);
+    this.setData(patch);
+  },
+  setSetupTeamMode(event) {
+    const side = event.currentTarget.dataset.side === 'away' ? 'away' : 'home';
+    const useExisting = event.currentTarget.dataset.mode === 'existing';
+    if (useExisting && !this.data.hasExistingTeams) {
+      wx.showToast({ title: '暂无已建球队，请使用临时球队', icon: 'none' });
+      return;
+    }
+    this.setupTeamModeTouched = Object.assign({}, this.setupTeamModeTouched || {}, { [side]: true });
+    const patch = {};
+    patch[side + 'TeamUseExisting'] = useExisting;
+    patch[side + 'ExistingModeClass'] = useExisting ? 'active' : '';
+    patch[side + 'TemporaryModeClass'] = useExisting ? '' : 'active';
+    if (useExisting) {
+      if (!this.data[side + 'TeamUseExisting']) {
+        this.setupTemporaryNames = Object.assign({}, this.setupTemporaryNames || {}, { [side]: this.data[side + 'Name'] || '' });
+      }
+      const fallbackIndex = side === 'away' && this.data.teamOptions.length > 1 ? 1 : 0;
+      const currentIndex = Number(this.data[side + 'TeamIndex']);
+      const teamIndex = currentIndex >= 0 && this.data.teamOptions[currentIndex] ? currentIndex : fallbackIndex;
+      const team = this.data.teamOptions[teamIndex];
+      patch[side + 'TeamIndex'] = teamIndex;
+      patch[side + 'Name'] = team ? team.label : '';
+      patch[side + 'TeamPickerText'] = team ? team.label : '请选择球队';
+      patch[side + 'Logo'] = getTeamLogo(team, side);
+      this.setupTeamNameEdited = Object.assign({}, this.setupTeamNameEdited || {}, { [side]: false });
+    } else {
+      const temporaryName = (this.setupTemporaryNames && this.setupTemporaryNames[side]) || '';
+      patch[side + 'TeamIndex'] = -1;
+      patch[side + 'Name'] = temporaryName;
+      patch[side + 'Logo'] = getTeamLogo(null, side);
+      this.setupTeamNameEdited = Object.assign({}, this.setupTeamNameEdited || {}, { [side]: true });
+    }
     this.setData(patch);
   },
 
@@ -764,13 +847,15 @@ Page({
     const clockSeconds = timerMode === 'down' ? periodMinutes * 60 : 0;
     const homePlayers = buildQuickPlayers('home', config.homePlayers);
     const awayPlayers = buildQuickPlayers('away', config.awayPlayers);
+    const homeTeam = matchConfiguredTeam(config.homeTeam, this.data.teamOptions) || config.homeTeam;
+    const awayTeam = matchConfiguredTeam(config.awayTeam, this.data.teamOptions) || config.awayTeam;
     this.setData({
       started: true,
       matchName: config.matchName || '未命名比赛',
       homeName,
       awayName,
-      homeLogo: getTeamLogo(config.homeTeam, 'home'),
-      awayLogo: getTeamLogo(config.awayTeam, 'away'),
+      homeLogo: getTeamLogo(homeTeam, 'home'),
+      awayLogo: getTeamLogo(awayTeam, 'away'),
       period: 1,
       totalPeriods,
       periodMinutes,
@@ -795,8 +880,8 @@ Page({
     const teamOptions = this.data.teamOptions && this.data.teamOptions.length ? this.data.teamOptions : normalizeLibraryTeams();
     const homeName = (this.data.homeName || '').trim() || '主队';
     const awayName = (this.data.awayName || '').trim() || '客队';
-    const homeTeam = teamOptions.find((team) => team && team.label === homeName) || null;
-    const awayTeam = teamOptions.find((team) => team && team.label === awayName) || null;
+    const homeTeam = this.data.homeTeamUseExisting ? (teamOptions.find((team) => team && team.label === homeName) || null) : null;
+    const awayTeam = this.data.awayTeamUseExisting ? (teamOptions.find((team) => team && team.label === awayName) || null) : null;
     const homeRoster = { starters: [], bench: [] };
     const awayRoster = { starters: [], bench: [] };
     wx.setStorageSync('quickMatchActiveConfig', {
@@ -2089,6 +2174,20 @@ Page({
   syncCustomSounds() {
     this.setData({ customSounds: buildConfiguredCustomSounds() });
   },
+  refreshCloudAudioLibrary() {
+    if (this.audioLibrarySyncPromise) return this.audioLibrarySyncPromise;
+    this.audioLibrarySyncPromise = callCloud('sxGetAudioLibrary', {})
+      .then((result) => {
+        if (result && result.ok) {
+          if (result.audioMap && typeof result.audioMap === 'object') wx.setStorageSync(CLOUD_AUDIO_MAP_KEY, result.audioMap);
+          if (Array.isArray(result.items)) wx.setStorageSync(CLOUD_AUDIO_ITEMS_KEY, result.items);
+        }
+      })
+      .catch((error) => console.warn('[scorer] refresh cloud audio library failed', error))
+      .then(() => this.syncCustomSounds())
+      .finally(() => { this.audioLibrarySyncPromise = null; });
+    return this.audioLibrarySyncPromise;
+  },
 
   selectVoice(event) {
     const id = event.currentTarget.dataset.id;
@@ -2333,9 +2432,10 @@ Page({
   loadPersistentAudioCache() {
     const saved = wx.getStorageSync(AUDIO_CACHE_STORAGE_KEY);
     this.persistentAudioCache = saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {};
-    const consent = wx.getStorageSync(AUDIO_CACHE_CONSENT_KEY);
-    this.persistentAudioConsent = consent === 'allowed' ? 'allowed' : '';
+    this.persistentAudioConsent = 'allowed';
+    wx.setStorageSync(AUDIO_CACHE_CONSENT_KEY, 'allowed');
     this.audioUrlCache = Object.assign({}, this.audioUrlCache || {});
+    this.audioDownloadPromises = Object.assign({}, this.audioDownloadPromises || {});
   },
   audioFileExists(path) {
     return new Promise((resolve) => {
@@ -2376,7 +2476,22 @@ Page({
     this.savePersistentAudioCache();
     return '';
   },
-  downloadAudioToTemp(source) {
+  evictOldestPersistentAudio() {
+    return new Promise((resolve) => {
+      let order = wx.getStorageSync(AUDIO_CACHE_ORDER_KEY);
+      order = Array.isArray(order) ? order : [];
+      const expiredKey = order.shift();
+      if (!expiredKey) return resolve(false);
+      const expiredPath = this.persistentAudioCache[expiredKey];
+      delete this.persistentAudioCache[expiredKey];
+      delete this.audioUrlCache[expiredKey];
+      wx.setStorageSync(AUDIO_CACHE_ORDER_KEY, order);
+      this.savePersistentAudioCache();
+      if (!expiredPath || !wx.removeSavedFile) return resolve(true);
+      wx.removeSavedFile({ filePath: expiredPath, success: () => resolve(true), fail: () => resolve(true) });
+    });
+  },
+  downloadAudioToTemp(source, onProgress) {
     return new Promise((resolve) => {
       const isCloudFile = source.indexOf('cloud://') === 0;
       const download = isCloudFile && wx.cloud && wx.cloud.downloadFile
@@ -2385,33 +2500,71 @@ Page({
           ? (options) => wx.downloadFile(Object.assign({ url: source }, options))
           : null;
       if (!download) return resolve('');
-      download({
+      const task = download({
         success: (result) => resolve((result && result.tempFilePath) || ''),
         fail: (error) => {
           console.warn('[scorer] background audio download failed', source, error);
           resolve('');
         }
       });
+      if (task && task.onProgressUpdate && typeof onProgress === 'function') {
+        task.onProgressUpdate((event) => onProgress(Math.max(0, Math.min(100, Number(event && event.progress) || 0))));
+      }
     });
   },
   persistDownloadedAudio(cacheKey, tempFilePath) {
     return new Promise((resolve) => {
       if (!tempFilePath) return resolve('');
       this.audioUrlCache[cacheKey] = tempFilePath;
-      if (!wx.saveFile) return resolve(tempFilePath);
-      wx.saveFile({
-        tempFilePath,
-        success: (result) => {
-          const savedFilePath = (result && result.savedFilePath) || '';
-          if (savedFilePath) this.recordPersistentAudio(cacheKey, savedFilePath);
-          resolve(savedFilePath || tempFilePath);
-        },
-        fail: (error) => {
-          console.warn('[scorer] persist audio cache failed', cacheKey, error);
-          resolve(tempFilePath);
-        }
-      });
+      if (!wx.saveFile) return resolve('');
+      const save = (retried) => {
+        wx.saveFile({
+          tempFilePath,
+          success: (result) => {
+            const savedFilePath = (result && result.savedFilePath) || '';
+            if (savedFilePath) this.recordPersistentAudio(cacheKey, savedFilePath);
+            resolve(savedFilePath);
+          },
+          fail: (error) => {
+            if (!retried) {
+              this.evictOldestPersistentAudio().then((evicted) => {
+                if (evicted) save(true);
+                else {
+                  console.warn('[scorer] persist audio cache failed', cacheKey, error);
+                  resolve('');
+                }
+              });
+              return;
+            }
+            console.warn('[scorer] persist audio cache failed after retry', cacheKey, error);
+            resolve('');
+          }
+        });
+      };
+      save(false);
     });
+  },
+  async ensureAudioCached(source, onProgress) {
+    if (!source || !/^(cloud|https?):\/\//.test(source)) return source || '';
+    const persistentPath = await this.getPersistentAudioPath(source);
+    if (persistentPath) return persistentPath;
+    if (this.audioDownloadPromises[source]) return this.audioDownloadPromises[source];
+    const task = (async () => {
+      let tempFilePath = '';
+      const memoryPath = this.audioUrlCache[source];
+      if (memoryPath && await this.audioFileExists(memoryPath)) tempFilePath = memoryPath;
+      if (!tempFilePath) tempFilePath = await this.downloadAudioToTemp(source, onProgress);
+      if (!tempFilePath) return '';
+      this.audioUrlCache[source] = tempFilePath;
+      const savedFilePath = await this.persistDownloadedAudio(source, tempFilePath);
+      return savedFilePath || tempFilePath;
+    })();
+    this.audioDownloadPromises[source] = task;
+    try {
+      return await task;
+    } finally {
+      delete this.audioDownloadPromises[source];
+    }
   },
   async persistAudioItemsInBackground(items) {
     const queue = Array.isArray(items) ? items : [];
@@ -2448,30 +2601,29 @@ Page({
     if (this.audioPreloadStarted) return;
     this.audioPreloadStarted = true;
     this.audioPreloadStopped = false;
-    const fixedTypes = ['attack', 'defense', 'rest', 'buzzer', 'countdown', 'two', 'three', 'freeThrowMade', 'freeThrowMiss'];
-    const configuredSources = (this.data.customSounds || []).reduce((list, item) => list.concat(item.source || '', item.audioIds || []), []);
-    const sources = fixedTypes
-      .reduce((list, type) => list.concat(collectStoredAudioSources(type), AUDIO_FILE_IDS[type] || []), configuredSources)
+    const cacheSounds = (this.data.scoringSounds || []).concat(this.data.customSounds || []);
+    const extraTypes = ['rest', 'buzzer', 'countdown'];
+    const configuredSources = cacheSounds.reduce((list, item) => {
+      const storedSources = collectStoredAudioSources(item.type);
+      return list.concat(storedSources.length ? storedSources : [item.source || ''].concat(item.audioIds || []));
+    }, []);
+    const sources = extraTypes
+      .reduce((list, type) => {
+        const storedSources = collectStoredAudioSources(type);
+        return list.concat(storedSources.length ? storedSources : (AUDIO_FILE_IDS[type] || []));
+      }, configuredSources)
       .filter((source, index, list) => source && /^(cloud|https?):\/\//.test(source) && list.indexOf(source) === index);
-    const pendingPersistence = [];
+    if (!sources.length) {
+      this.audioPreloadStarted = false;
+      return;
+    }
     for (let index = 0; index < sources.length; index += 1) {
       if (this.audioPreloadStopped) break;
       const source = sources[index];
-      if (await this.getPersistentAudioPath(source)) continue;
-      if (this.audioUrlCache[source]) {
-        if (this.persistentAudioConsent === 'allowed') await this.persistDownloadedAudio(source, this.audioUrlCache[source]);
-        else if (!this.persistentAudioConsent) pendingPersistence.push({ source, tempFilePath: this.audioUrlCache[source] });
-        continue;
-      }
-      const tempFilePath = await this.downloadAudioToTemp(source);
+      await this.ensureAudioCached(source);
       if (this.audioPreloadStopped) break;
-      if (!tempFilePath) continue;
-      this.audioUrlCache[source] = tempFilePath;
-      if (this.persistentAudioConsent === 'allowed') await this.persistDownloadedAudio(source, tempFilePath);
-      else if (!this.persistentAudioConsent) pendingPersistence.push({ source, tempFilePath });
     }
     this.audioPreloadStarted = false;
-    if (!this.audioPreloadStopped && pendingPersistence.length) this.requestPersistentAudioConsent(pendingPersistence);
   },
   playNativeAudio(type, preferredSource) {
     const fallbackIds = this.getAudioIds(type);
@@ -2514,6 +2666,7 @@ Page({
         else this.stopAudio();
       });
       this.audioContext.play();
+      this.cacheAudioAfterPlaybackStarts(fileId, type);
     };
     const resolveWithCloudFunction = () => {
       callCloud('sxGetAudioUrl', { fileID: fileId }).then((result) => {
@@ -2584,6 +2737,13 @@ Page({
       return;
     }
     playSrc(fileId);
+  },
+  cacheAudioAfterPlaybackStarts(fileId, type) {
+    const shouldCache = !!type && type !== 'attack' && type !== 'defense' && /^(cloud|https?):\/\//.test(fileId);
+    if (!shouldCache || this.persistentAudioCache[fileId]) return;
+    this.ensureAudioCached(fileId).then((cachedPath) => {
+      if (!cachedPath) console.warn('[scorer] silent background audio cache failed', fileId);
+    });
   },
   stopNativeAudio() {
     const context = this.audioContext;

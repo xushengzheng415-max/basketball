@@ -500,7 +500,7 @@ page {
   align-items: center;
   justify-content: flex-end;
   min-width: 0;
-  gap: 10rpx;
+  gap: 6rpx;
 }
 
 .team-side.right {
@@ -511,8 +511,8 @@ page {
 .team-logo {
   display: block;
   flex-shrink: 0;
-  width: 56rpx;
-  height: 56rpx;
+  width: 50rpx;
+  height: 50rpx;
   margin: 0;
   border: 0;
   border-radius: 0;
@@ -536,7 +536,7 @@ page {
 }
 
 .score-side {
-  flex: 0 0 166rpx;
+  flex: 0 0 128rpx;
   min-width: 0;
   text-align: center;
 }
@@ -561,7 +561,7 @@ page {
 }
 
 .score-split {
-  margin: 0 12rpx;
+  margin: 0 6rpx;
 }
 
 .match-meta {
@@ -576,38 +576,34 @@ page {
   word-break: break-all;
 }
 
-.status-pill {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.status-icon {
+  display: block;
   flex-shrink: 0;
-  min-width: 82rpx;
-  height: 42rpx;
-  border-radius: 999rpx;
-  font-size: 20rpx;
-  font-weight: 800;
+  width: 54rpx;
+  height: 50rpx;
 }
 
 .row-actions {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   flex-shrink: 0;
-  gap: 8rpx;
+  gap: 6rpx;
+  margin-right: 6rpx;
 }
 
 .delete-match-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 82rpx;
+  width: 38rpx;
   height: 38rpx;
   margin: 0;
   padding: 0;
   border-radius: 999rpx;
   background: #fff3ed;
   color: #ff4b00;
-  font-size: 20rpx;
+  font-size: 18rpx;
   font-weight: 800;
   line-height: 38rpx;
 }
@@ -616,21 +612,12 @@ page {
   border: 0;
 }
 
-.status-done {
-  color: #18a957;
-  background: #e8f8ef;
-}
-
-.status-pending {
-  color: #ff4b00;
-  background: #fff0e9;
-}
-
 .row-arrow {
   flex-shrink: 0;
-  margin-left: 8rpx;
+  width: 18rpx;
+  margin-left: 2rpx;
   color: #8c929c;
-  font-size: 42rpx;
+  font-size: 34rpx;
 }
 
 .more-link {

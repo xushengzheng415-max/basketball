@@ -2,6 +2,7 @@
   "pages": [
     "pages/login/index",
     "pages/home/index",
+    "pages/recent-matches/index",
     "pages/quick-match/index",
     "pages/scorer/index",
     "pages/scorer-board/index",

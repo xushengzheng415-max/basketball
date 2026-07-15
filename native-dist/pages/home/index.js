@@ -9,6 +9,7 @@ const mainRoutes = {
 
 const RECENT_MATCHES_KEY = 'sx_recent_matches';
 const TEAM_LOGO_BASE = '/assets/pages/scorer-v2/teams/';
+const STATUS_ICON_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/recent-matches/';
 const { pullRoster, resolveImageUrl } = require('../../utils/roster-sync');
 
 function normalizeText(value) {
@@ -60,14 +61,16 @@ function formatRecentMatchTime(timestamp) {
   return pad(date.getMonth() + 1) + '-' + pad(date.getDate()) + ' ' + pad(date.getHours()) + ':' + pad(date.getMinutes());
 }
 
-function isToday(timestamp) {
-  const date = new Date(Number(timestamp) || 0);
-  const today = new Date();
-  return date.getFullYear() === today.getFullYear() && date.getMonth() === today.getMonth() && date.getDate() === today.getDate();
+function getMatchTimestamp(item) {
+  return Number(item && (item.updatedAt || item.endedAt || item.createdAt)) || 0;
+}
+
+function isFinishedMatch(item) {
+  return !!(item && (item.ended === true || item.status === 'finished'));
 }
 
 function decorateRecentMatch(item, teamLogoMap) {
-  const ended = item && (item.ended === true || item.status === 'finished');
+  const ended = isFinishedMatch(item);
   return Object.assign({}, item, {
     homeName: item.homeName || '\u4e3b\u961f',
     awayName: item.awayName || '\u5ba2\u961f',
@@ -75,10 +78,10 @@ function decorateRecentMatch(item, teamLogoMap) {
     awayLogo: getRecentTeamLogo(item, 'away', teamLogoMap),
     homeScore: Number(item.homeScore || 0),
     awayScore: Number(item.awayScore || 0),
-    time: formatRecentMatchTime(item.updatedAt || item.createdAt),
+    time: formatRecentMatchTime(getMatchTimestamp(item)),
     venue: item.matchName || '\u5feb\u6377\u6bd4\u8d5b',
     statusText: ended ? '\u5df2\u7ed3\u675f' : '\u672a\u7ed3\u675f',
-    statusClass: ended ? 'done' : 'pending'
+    statusIcon: STATUS_ICON_BASE + (ended ? 'status-finished.png' : 'status-unfinished.png')
   });
 }
 
@@ -86,9 +89,9 @@ Page({
   data: {
     currentRole: '校区管理员',
     todayStats: {
-      total: 3,
-      pending: 2,
-      finished: 1
+      total: 0,
+      pending: 0,
+      finished: 0
     },
     hasRecentMatches: false,
     recentMatches: [],
@@ -114,15 +117,14 @@ Page({
 
   loadRecentMatches() {
     const stored = wx.getStorageSync(RECENT_MATCHES_KEY);
-    const allMatches = (Array.isArray(stored) ? stored : []).slice().sort((left, right) => Number(right.updatedAt || 0) - Number(left.updatedAt || 0));
+    const allMatches = (Array.isArray(stored) ? stored : []).slice().sort((left, right) => getMatchTimestamp(right) - getMatchTimestamp(left));
     const teamLogoMap = buildTeamLogoMap();
     const recentMatches = allMatches.slice(0, 5).map((item) => decorateRecentMatch(item, teamLogoMap));
-    const todayMatches = allMatches.filter((item) => isToday(item.createdAt || item.updatedAt));
-    const finished = todayMatches.filter((item) => item.ended === true || item.status === 'finished').length;
+    const finished = allMatches.filter(isFinishedMatch).length;
     this.setData({
       recentMatches,
       hasRecentMatches: recentMatches.length > 0,
-      todayStats: { total: todayMatches.length, pending: todayMatches.length - finished, finished }
+      todayStats: { total: allMatches.length, pending: allMatches.length - finished, finished }
     });
   },
 
@@ -143,15 +145,21 @@ Page({
   goMatchDetail(event) {
     const id = event.currentTarget.dataset.id;
     const match = this.data.recentMatches.find((item) => String(item.id) === String(id));
-    if (match && match.ended !== true && match.status !== 'finished') {
+    if (!match) return;
+    if (match.ended !== true && match.status !== 'finished') {
       wx.navigateTo({ url: '/pages/scorer-board/index?boardOnly=1&resumeId=' + encodeURIComponent(match.id) });
       return;
     }
-    if (match && match.tournamentId && match.gameId) {
+    const hasReport = match.reportRequested === true || match.reportLocked === true || !!match.reportNo || !!match.pdfFileID;
+    if (hasReport) {
+      wx.navigateTo({ url: '/pages/referee-report/index?recordId=' + encodeURIComponent(match.id) });
+      return;
+    }
+    if (match.tournamentId && match.gameId) {
       wx.navigateTo({ url: `/pages/game-detail/index?tournamentId=${match.tournamentId}&gameId=${match.gameId}` });
       return;
     }
-    if (match) wx.showToast({ title: match.statusText + '  ' + match.homeScore + '-' + match.awayScore, icon: 'none' });
+    wx.navigateTo({ url: '/pages/referee-report/index?recordId=' + encodeURIComponent(match.id) + '&viewOnly=1' });
   },
 
   deleteRecentMatch(event) {
@@ -175,7 +183,7 @@ Page({
   },
 
   goMoreMatches() {
-    wx.redirectTo({ url: mainRoutes.tournament });
+    wx.navigateTo({ url: '/pages/recent-matches/index' });
   },
 
   onTabTap(event) {

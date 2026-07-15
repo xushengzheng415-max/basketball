@@ -17,6 +17,9 @@ page { width: 100%; height: 100%; background: #050607; }
 .setup-field.wide { grid-column: span 2; }
 .setup-field > text { margin-bottom: 10rpx; color: #f5f7fb; font-size: 24rpx; font-weight: 900; }
 .setup-field input { height: 72rpx; box-sizing: border-box; padding: 0 20rpx; border: 1rpx solid rgba(255,255,255,.16); border-radius: 12rpx; color: #101820; background: rgba(255,255,255,.96); font-size: 28rpx; }
+.setup-team-source { display: grid; grid-template-columns: 1fr 1fr; gap: 8rpx; margin-bottom: 8rpx; }
+.setup-team-source > view { display: flex; align-items: center; justify-content: center; height: 42rpx; border: 1rpx solid rgba(255,255,255,.14); border-radius: 8rpx; color: rgba(255,255,255,.62); background: rgba(255,255,255,.05); font-size: 20rpx; font-weight: 800; }
+.setup-team-source > view.active { border-color: #ff6410; color: #fff; background: rgba(255,100,16,.22); }
 .stepper, .mode-row, .preset-row { display: flex; align-items: center; gap: 12rpx; }
 .stepper view, .stepper text, .mode, .preset { display: flex; align-items: center; justify-content: center; border-radius: 10rpx; background: rgba(255,255,255,.1); color: #fff; font-weight: 900; }
 .stepper view { width: 62rpx; height: 62rpx; background: #263548; }
@@ -669,7 +672,7 @@ page { width: 100%; height: 100%; background: #050607; }
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.landscape-board .team-logo { display: none; }
+.landscape-board .team-logo { display: block; }
 .score-digits {
   display: flex;
   align-items: center;
@@ -2803,6 +2806,7 @@ page { width: 100%; height: 100%; background: #050607; }
   height: 10.8vh !important;
   gap: .8vw !important;
 }
+
 .landscape-board .team-logo,
 .phone-board .team-logo {
   display: block !important;

@@ -17,7 +17,7 @@ page {
   top: 0;
   left: 0;
   width: 750rpx;
-  height: 1626rpx;
+  height: 434rpx;
   z-index: 0;
 }
 
@@ -57,9 +57,9 @@ page {
 .nav-title {
   flex-shrink: 0;
   color: #ffffff;
-  font-size: 30rpx;
+  font-size: 35rpx;
   font-weight: 900;
-  line-height: 38rpx;
+  line-height: 1;
   text-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.45);
 }
 

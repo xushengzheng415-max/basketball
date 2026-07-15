@@ -1,13 +1,14 @@
 <view class="detail-page">
   <image class="page-background" src="{{assets.background}}" mode="aspectFill" />
   <view class="nav-bar">
-    <view class="back-button" bindtap="goBack"><image src="{{assets.back}}" mode="aspectFit" /></view>
+    <view class="back-button" bindtap="goBack" aria-label="返回球队数据"><text class="back-arrow">‹</text></view>
     <text class="nav-title">球队详情</text>
     <view class="nav-placeholder"></view>
   </view>
 
   <view class="team-hero">
-    <image class="hero-logo" src="{{team.logo}}" mode="aspectFit" />
+    <image wx:if="{{team.logo}}" class="hero-logo" src="{{team.logo}}" mode="aspectFit" />
+    <view wx:else class="hero-logo hero-logo-empty"></view>
     <view class="hero-copy">
       <text class="hero-name">{{team.name}}</text>
       <text class="hero-meta">{{team.meta}}</text>

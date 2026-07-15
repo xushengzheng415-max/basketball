@@ -59,7 +59,7 @@ function longestWinningStreak(records) { let best = 0; let current = 0; records.
 
 Page({
   data: {
-    assets: { background: `${ASSET_BASE}background-team-data-shared.png`, back: `${ASSET_BASE}icon-back.png`, match: `${ASSET_BASE}icon-match.png`, trophy: `${ASSET_BASE}icon-trophy.png`, shield: `${ASSET_BASE}icon-shield.png`, rate: `${ASSET_BASE}icon-win-rate.png`, ranking: `${ASSET_BASE}icon-ranking.png`, hoop: `${ASSET_BASE}icon-basket-hoop.png`, trend: `${ASSET_BASE}icon-trend.png`, star: `${ASSET_BASE}icon-star.png` },
+    assets: { background: `${ASSET_BASE}background-team-data-workbench-v2.png`, back: `${ASSET_BASE}icon-back.png`, match: `${ASSET_BASE}icon-match.png`, trophy: `${ASSET_BASE}icon-trophy.png`, shield: `${ASSET_BASE}icon-shield.png`, rate: `${ASSET_BASE}icon-win-rate.png`, ranking: `${ASSET_BASE}icon-ranking.png`, hoop: `${ASSET_BASE}icon-basket-hoop.png`, trend: `${ASSET_BASE}icon-trend.png`, star: `${ASSET_BASE}icon-star.png` },
     teamId: '', tournamentId: '', tournament: { name: '赛事球队数据', logo: FALLBACK_TOURNAMENT }, team: { name: '球队', logo: FALLBACK_TEAM },
     stats: { matches: 0, wins: 0, losses: 0, winRate: '0.0%', rank: '--', points: 0, averageFor: '0.0', averageAgainst: '0.0', differenceText: '0' },
     performance: { averageFor: '0.0', averageAgainst: '0.0', highest: 0, lowestAgainst: 0, streakText: '0场', attackStyle: 'width:0%', defenseStyle: 'width:0%' },

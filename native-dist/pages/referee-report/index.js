@@ -24,6 +24,25 @@ function uploadCloudFile(cloudPath, filePath) {
   });
 }
 
+function normalizeText(value) { return String(value || '').trim(); }
+function readStoredList(key) { const value = wx.getStorageSync(key); return Array.isArray(value) ? value : []; }
+function getTeamName(team) { return normalizeText(team && (team.label || team.name || team.teamName)); }
+function getTeamLogo(team) { return normalizeText(team && (team.logoUrl || team.teamLogo || team.logo || team.logoFileID || team.teamLogoFileID)); }
+function resolveReportTeamLogo(record, active, side) {
+  const recordTeam = record && record[side + 'Team'];
+  const activeTeam = active && active[side + 'Team'];
+  const identities = [
+    record && record[side + 'TeamId'], record && record[side + 'TeamKey'], record && record[side + 'Name'],
+    recordTeam && recordTeam.id, recordTeam && recordTeam.key, getTeamName(recordTeam),
+    activeTeam && activeTeam.id, activeTeam && activeTeam.key, getTeamName(activeTeam)
+  ].map(normalizeText).filter(Boolean);
+  const storedTeam = readStoredList('teams').concat(readStoredList('teamDrafts')).concat(readStoredList('teamCategories')).find((team) => {
+    const teamIdentities = [team && team.id, team && team.key, getTeamName(team)].map(normalizeText).filter(Boolean);
+    return teamIdentities.some((identity) => identities.indexOf(identity) >= 0);
+  });
+  return getTeamLogo(storedTeam) || getTeamLogo(recordTeam) || getTeamLogo(activeTeam) || normalizeText(record && (record[side + 'LogoUrl'] || record[side + 'Logo'])) || normalizeText(active && (active[side + 'LogoUrl'] || active[side + 'Logo']));
+}
+
 Page({
   signatureCanvas: null,
   signatureContext: null,
@@ -33,6 +52,7 @@ Page({
   signatureLastPoint: null,
   signaturePointCount: 0,
   record: null,
+  viewOnly: false,
   data: {
     heroTexture: HERO_TEXTURE, badgeImage: U10_BADGE, showU10Badge: true, showCodeBadge: false,
     matchName: '赛后裁判报告', groupShort: 'U10', groupName: '未填写', tournamentName: '未填写',
@@ -41,10 +61,12 @@ Page({
     homeTimeouts: 0, awayTimeouts: 0, periodColumns: [], periodTableWidth: 650,
     statusText: '待裁判确认', statusClass: '', refereeName: '', confirmed: false, confirmedClass: '',
     reportLocked: false, lockedClass: '', signatureFileID: '', pdfFileID: '', reportNo: '', signedAtText: '', submitting: false,
-    showSignatureCanvas: true, showLockedSignature: false, showUnsignedControls: true, showPdfButton: false, showRetryButton: false
+    viewOnly: false, showConfirmationSection: true, showSignatureCanvas: true, showLockedSignature: false,
+    showUnsignedControls: true, showPdfButton: false, showRetryButton: false
   },
 
   onLoad(options) {
+    this.viewOnly = !!(options && options.viewOnly === '1');
     const recordId = decodeURIComponent((options && options.recordId) || '');
     const stored = wx.getStorageSync(RECENT_MATCHES_KEY);
     const list = Array.isArray(stored) ? stored : [];
@@ -58,11 +80,13 @@ Page({
   },
 
   onReady() {
-    if (!this.data.reportLocked) this.initSignatureCanvas();
+    if (this.data.showSignatureCanvas) this.initSignatureCanvas();
   },
 
   applyRecord(record) {
     const active = wx.getStorageSync('quickMatchActiveConfig') || {};
+    const homeLogo = resolveReportTeamLogo(record, active, 'home');
+    const awayLogo = resolveReportTeamLogo(record, active, 'away');
     const configuredPeriods = Math.max(1, Number(record.totalPeriods || 4));
     const periodScores = Array.isArray(record.periodScores) ? record.periodScores : [];
     const hasPeriodData = periodScores.length > 0;
@@ -75,6 +99,7 @@ Page({
       periodColumns.push({ label: 'Q' + period, homeText: played ? String(Number(item.home || 0)) : '—', awayText: played ? String(Number(item.away || 0)) : '—' });
     }
     const locked = record.reportLocked === true;
+    const viewOnly = this.viewOnly === true;
     const matchName = record.matchName || active.matchName || '快捷比赛';
     const groupMatch = matchName.match(/U\d{1,2}/i);
     const isU10 = !!(groupMatch && groupMatch[0].toUpperCase() === 'U10');
@@ -87,19 +112,22 @@ Page({
       matchTime: formatDateTime(record.endedAt || record.createdAt),
       venue: record.venue || active.venue || '未填写',
       homeName: record.homeName || '主队', awayName: record.awayName || '客队',
-      homeLogo: record.homeLogo || '', awayLogo: record.awayLogo || '',
+      homeLogo, awayLogo,
       homeInitial: String(record.homeName || '主').slice(0, 1), awayInitial: String(record.awayName || '客').slice(0, 1),
       homeScore: Number(record.homeScore || 0), awayScore: Number(record.awayScore || 0),
       homeFouls: Number(record.homeFouls || 0), awayFouls: Number(record.awayFouls || 0),
       homeTimeouts: Number(record.homeTimeouts || 0), awayTimeouts: Number(record.awayTimeouts || 0),
       periodColumns, periodTableWidth: Math.max(650, 300 + configuredPeriods * 94),
-      statusText: locked ? (record.pdfFileID ? '报告已生成' : '已签署 · 待生成') : '待裁判确认',
-      statusClass: locked ? 'signed' : '', refereeName: record.refereeName || '', confirmed: locked,
+      statusText: viewOnly ? '比赛数据' : (locked ? (record.pdfFileID ? '报告已生成' : '已签署 · 待生成') : '待裁判确认'),
+      statusClass: !viewOnly && locked ? 'signed' : '', refereeName: record.refereeName || '', confirmed: locked,
       confirmedClass: locked ? 'checked' : '', reportLocked: locked, lockedClass: locked ? 'locked' : '',
       signatureFileID: record.signatureFileID || '', pdfFileID: record.pdfFileID || '', reportNo: record.reportNo || '',
       signedAtText: record.signedAt ? formatDateTime(record.signedAt) : '',
-      showSignatureCanvas: !locked, showLockedSignature: locked, showUnsignedControls: !locked,
-      showPdfButton: locked && !!record.pdfFileID, showRetryButton: locked && !record.pdfFileID
+      viewOnly, showConfirmationSection: !viewOnly,
+      showSignatureCanvas: !viewOnly && !locked, showLockedSignature: !viewOnly && locked,
+      showUnsignedControls: !viewOnly && !locked,
+      showPdfButton: !viewOnly && locked && !!record.pdfFileID,
+      showRetryButton: !viewOnly && locked && !record.pdfFileID
     });
   },
 
@@ -194,23 +222,23 @@ Page({
   async generatePdf() {
     this.setData({ submitting: true });
     try {
-      const imagePath = await this.renderA4Report();
+      const imagePath = await this.renderPdfReport();
       const recordKey = safeSegment(this.record.id);
       const draftFileID = await uploadCloudFile('match-report-drafts/' + recordKey + '/' + Date.now() + '.png', imagePath);
       const result = await callCloud('sxGenerateMatchReportPdf', { draftFileID, recordId: this.record.id, reportNo: this.record.reportNo });
       if (!result.ok || !result.fileID) throw new Error(result.message || 'PDF 生成失败');
       const updated = this.saveLocalPatch({ reportStatus: 'completed', pdfFileID: result.fileID, reportImageFileID: draftFileID, updatedAt: Date.now() });
       this.applyRecord(updated); await callCloud('sxSaveMatchResult', { result: updated });
-      wx.showToast({ title: 'A4 报告已生成', icon: 'success' });
+      wx.showToast({ title: 'PDF 已生成', icon: 'success' });
     } catch (error) {
       console.error('[referee-report] generate pdf failed', error); this.saveLocalPatch({ reportStatus: 'pdf_failed' });
       wx.showModal({ title: 'PDF 暂未生成', content: '签名和比分已经安全锁定，请检查网络或云函数部署后点击“重新生成”。', showCancel: false });
     } finally { this.setData({ submitting: false }); }
   },
 
-  async renderA4Report() {
+  async renderPdfReport() {
     const queryResult = await new Promise((resolve) => wx.createSelectorQuery().in(this).select('#reportCanvas').fields({ node: true, size: true }).exec((res) => resolve(res && res[0])));
-    if (!queryResult || !queryResult.node) throw new Error('A4 画布初始化失败');
+    if (!queryResult || !queryResult.node) throw new Error('PDF 画布初始化失败');
     const canvas = queryResult.node; canvas.width = 1240; canvas.height = 1754;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 1240, 1754);
@@ -222,8 +250,12 @@ Page({
     ctx.fillText('赛事：' + this.data.tournamentName, 82, 294); ctx.fillText('组别：' + this.data.groupName, 660, 294);
     ctx.fillText('比赛时间：' + this.data.matchTime, 82, 337); ctx.fillText('比赛地点：' + this.data.venue, 660, 337);
     ctx.strokeStyle = '#ddd'; ctx.beginPath(); ctx.moveTo(82, 372); ctx.lineTo(1158, 372); ctx.stroke();
-    ctx.textAlign = 'center'; ctx.fillStyle = '#f45112'; ctx.font = 'bold 34px sans-serif'; ctx.fillText(this.data.homeName, 275, 445);
-    ctx.fillStyle = '#111'; ctx.fillText(this.data.awayName, 965, 445);
+    const homeLogoSource = await this.downloadCloudFile(this.data.homeLogo);
+    const awayLogoSource = await this.downloadCloudFile(this.data.awayLogo);
+    if (homeLogoSource) await this.drawImage(canvas, ctx, homeLogoSource, 220, 390, 110, 110); else this.drawFallbackBadge(ctx, 275, 445, this.data.homeInitial, '#ff5b00');
+    if (awayLogoSource) await this.drawImage(canvas, ctx, awayLogoSource, 910, 390, 110, 110); else this.drawFallbackBadge(ctx, 965, 445, this.data.awayInitial, '#20252b');
+    ctx.textAlign = 'center'; ctx.fillStyle = '#f45112'; ctx.font = 'bold 30px sans-serif'; ctx.fillText(this.data.homeName, 275, 540);
+    ctx.fillStyle = '#111'; ctx.fillText(this.data.awayName, 965, 540);
     ctx.font = 'bold 102px sans-serif'; ctx.fillStyle = '#f45112'; ctx.fillText(String(this.data.homeScore), 500, 510);
     ctx.fillStyle = '#111'; ctx.fillText(':', 620, 510); ctx.fillText(String(this.data.awayScore), 740, 510);
     ctx.font = '22px sans-serif'; ctx.fillStyle = '#f45112'; ctx.fillText('比赛结束', 620, 555);
@@ -254,6 +286,10 @@ Page({
       if (!src) return resolve();
       const image = canvas.createImage(); image.onload = () => { ctx.drawImage(image, x, y, width, height); resolve(); }; image.onerror = resolve; image.src = src;
     });
+  },
+  drawFallbackBadge(ctx, x, y, initial, color) {
+    ctx.save(); ctx.beginPath(); ctx.arc(x, y, 48, 0, Math.PI * 2); ctx.fillStyle = color; ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = 'bold 34px sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(initial || '队', x, y); ctx.restore();
   },
   downloadCloudFile(fileID) {
     return new Promise((resolve) => {

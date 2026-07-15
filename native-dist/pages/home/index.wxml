@@ -5,10 +5,6 @@
         <image class="brand-logo" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/brand-horizontal-logo.png" mode="aspectFit" />
       </view>
 
-      <view class="campus-pill" bindtap="openCampusRole">
-        <text>{{currentRole}}</text>
-        <text class="campus-arrow">▾</text>
-      </view>
     </view>
 
     <view class="section-label light">
@@ -29,7 +25,7 @@
         <view class="stat-item">
           <image class="stat-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/quick-match/stat-today.png" mode="aspectFit" />
           <view>
-            <text class="stat-label">今日比赛</text>
+            <text class="stat-label">全部比赛</text>
             <text class="stat-number">{{todayStats.total}}</text>
           </view>
         </view>
@@ -37,7 +33,7 @@
         <view class="stat-item">
           <image class="stat-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/quick-match/stat-pending.png" mode="aspectFit" />
           <view>
-            <text class="stat-label">待开始</text>
+            <text class="stat-label">未结束</text>
             <text class="stat-number">{{todayStats.pending}}</text>
           </view>
         </view>
@@ -61,7 +57,7 @@
         <text class="version-watermark">2.0</text>
 
         <view class="version-ad-head">
-          <view class="version-badge">赛小蜂 2.0</view>
+          <view class="version-badge">赛小蜂篮球 2.0</view>
           <text class="version-status">COMING SOON</text>
         </view>
 
@@ -124,8 +120,8 @@
           </view>
 
           <view class="row-actions">
-            <view class="status-pill {{item.statusClass}}">{{item.statusText}}</view>
-            <button class="delete-match-btn" data-id="{{item.id}}" catchtap="deleteRecentMatch">删除</button>
+            <image class="status-icon" src="{{item.statusIcon}}" mode="aspectFit" aria-label="{{item.statusText}}" />
+            <button class="delete-match-btn" data-id="{{item.id}}" catchtap="deleteRecentMatch">删</button>
           </view>
           <text class="row-arrow">›</text>
         </view>

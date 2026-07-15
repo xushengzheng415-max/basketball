@@ -40,3 +40,25 @@ page { min-height: 100%; background: #020b18; }
 .empty-card { display: flex; flex-direction: column; align-items: center; padding: 70rpx 30rpx; border: 1rpx dashed rgba(143,160,180,.35); border-radius: 22rpx; background: rgba(10,25,43,.82); }
 .empty-icon { width: 72rpx; height: 72rpx; opacity: .6; }.empty-title { margin-top: 20rpx; font-size: 30rpx; font-weight: 800; }.empty-desc { margin-top: 12rpx; color: #8f9aac; font-size: 23rpx; text-align: center; }
 .loading { padding: 80rpx 0; color: #97a2b3; font-size: 25rpx; text-align: center; }
+
+/* Align the team-data module with the workbench black/orange product theme. */
+page { background: #05080b; }
+.hero { position: relative; }
+.hero-title { margin-left: 78rpx; color: #ffffff; text-shadow: 0 5rpx 18rpx rgba(0,0,0,.72); }
+.hero-subtitle { margin-left: 78rpx; color: rgba(255,255,255,.72); }
+.nav-back { display: flex; align-items: center; justify-content: center; width: 68rpx; height: 68rpx; border: 1rpx solid rgba(255,122,32,.74); border-radius: 50%; color: #ffffff; background: rgba(5,8,11,.84); box-shadow: 0 0 20rpx rgba(255,91,8,.2); box-sizing: border-box; }
+.overview-back { position: absolute; left: 0; top: calc(env(safe-area-inset-top) + 66rpx); z-index: 4; }
+.back-arrow { display: block; margin-top: -7rpx; font-family: Arial,sans-serif; font-size: 58rpx; line-height: 58rpx; font-weight: 300; }
+.summary-card { border-color: rgba(255,106,22,.5); background: linear-gradient(135deg,rgba(5,8,11,.96),rgba(17,25,34,.94) 60%,rgba(37,17,9,.9)); box-shadow: 0 16rpx 36rpx rgba(0,0,0,.36); }
+.summary-icon { filter: sepia(1) saturate(7) hue-rotate(348deg) brightness(1.08); opacity: 1; }
+.summary-label { color: rgba(255,255,255,.76); }
+.summary-divider,.stat-divider { background: rgba(255,255,255,.18); }
+.search-box { border-color: rgba(255,255,255,.2); background: rgba(8,12,16,.92); }
+.filter-chip { border-color: rgba(255,255,255,.28); color: rgba(255,255,255,.72); background: rgba(5,8,11,.5); }
+.filter-chip.active { border-color: #ff7a20; background: linear-gradient(135deg,#ff4b00,#ff7418); box-shadow: 0 8rpx 18rpx rgba(255,75,0,.32); }
+.team-card { overflow: hidden; border-color: rgba(255,255,255,.16); background: linear-gradient(135deg,rgba(7,11,15,.97),rgba(17,25,34,.95) 64%,rgba(31,15,8,.9)); box-shadow: 0 12rpx 30rpx rgba(0,0,0,.25); }
+.team-card::before { content: ""; position: absolute; left: 0; top: 22rpx; bottom: 22rpx; width: 5rpx; border-radius: 0 6rpx 6rpx 0; background: linear-gradient(180deg,#ff8a18,#ff4b00); }
+.team-name,.stat-value { color: #ffffff; }
+.stat-label { color: rgba(255,255,255,.6); }
+.form-dot.w { background: #ff5b08; }.form-dot.l { background: #7d838b; }
+.empty-card { border-color: rgba(255,106,22,.3); background: rgba(8,12,16,.9); }

@@ -377,6 +377,13 @@ Page({
     homeName: '蜂巢U10A',
     awayName: '星火U10',
     teamOptions: [],
+    hasExistingTeams: false,
+    homeTeamUseExisting: true,
+    awayTeamUseExisting: true,
+    homeExistingModeClass: 'active',
+    homeTemporaryModeClass: '',
+    awayExistingModeClass: 'active',
+    awayTemporaryModeClass: '',
     homeTeamIndex: 0,
     awayTeamIndex: 1,
     homeTeamPickerText: '蜂巢U10A',
@@ -608,16 +615,27 @@ Page({
     const homeTeam = teamOptions[homeTeamIndex] || teamOptions[0];
     const awayTeam = teamOptions[awayTeamIndex] || teamOptions[0];
     const editedNames = this.setupTeamNameEdited || {};
+    const touchedModes = this.setupTeamModeTouched || {};
+    const hasExistingTeams = libraryTeams.length > 0;
+    const homeTeamUseExisting = touchedModes.home ? !!this.data.homeTeamUseExisting : hasExistingTeams;
+    const awayTeamUseExisting = touchedModes.away ? !!this.data.awayTeamUseExisting : hasExistingTeams;
     this.setData({
       teamOptions,
+      hasExistingTeams,
+      homeTeamUseExisting,
+      awayTeamUseExisting,
+      homeExistingModeClass: homeTeamUseExisting ? 'active' : '',
+      homeTemporaryModeClass: homeTeamUseExisting ? '' : 'active',
+      awayExistingModeClass: awayTeamUseExisting ? 'active' : '',
+      awayTemporaryModeClass: awayTeamUseExisting ? '' : 'active',
       homeTeamIndex,
       awayTeamIndex,
       homeTeamPickerText: homeTeam ? homeTeam.label : '请选择主队',
       awayTeamPickerText: awayTeam ? awayTeam.label : '请选择客队',
-      homeName: editedNames.home ? this.data.homeName : (homeTeam ? homeTeam.label : this.data.homeName),
-      awayName: editedNames.away ? this.data.awayName : (awayTeam ? awayTeam.label : this.data.awayName),
-      homeLogo: editedNames.home ? this.data.homeLogo : getTeamLogo(homeTeam, 'home'),
-      awayLogo: editedNames.away ? this.data.awayLogo : getTeamLogo(awayTeam, 'away')
+      homeName: editedNames.home || !homeTeamUseExisting ? this.data.homeName : (homeTeam ? homeTeam.label : this.data.homeName),
+      awayName: editedNames.away || !awayTeamUseExisting ? this.data.awayName : (awayTeam ? awayTeam.label : this.data.awayName),
+      homeLogo: editedNames.home || !homeTeamUseExisting ? this.data.homeLogo : getTeamLogo(homeTeam, 'home'),
+      awayLogo: editedNames.away || !awayTeamUseExisting ? this.data.awayLogo : getTeamLogo(awayTeam, 'away')
     });
   },
   onHomeTeamChange(event) {
@@ -636,6 +654,7 @@ Page({
     const side = event.currentTarget.dataset.side === 'away' ? 'away' : 'home';
     this.setupTeamNameEdited = Object.assign({}, this.setupTeamNameEdited || {}, { [side]: true });
     const value = String((event.detail && event.detail.value) || '').slice(0, 12);
+    this.setupTemporaryNames = Object.assign({}, this.setupTemporaryNames || {}, { [side]: value });
     const teamOptions = Array.isArray(this.data.teamOptions) ? this.data.teamOptions : [];
     const teamIndex = teamOptions.findIndex((team) => team && team.label === value);
     const team = teamIndex >= 0 ? teamOptions[teamIndex] : null;
@@ -643,6 +662,40 @@ Page({
     patch[side + 'Name'] = value;
     patch[side + 'TeamIndex'] = teamIndex;
     patch[side + 'Logo'] = getTeamLogo(team, side);
+    this.setData(patch);
+  },
+  setSetupTeamMode(event) {
+    const side = event.currentTarget.dataset.side === 'away' ? 'away' : 'home';
+    const useExisting = event.currentTarget.dataset.mode === 'existing';
+    if (useExisting && !this.data.hasExistingTeams) {
+      wx.showToast({ title: '暂无已建球队，请使用临时球队', icon: 'none' });
+      return;
+    }
+    this.setupTeamModeTouched = Object.assign({}, this.setupTeamModeTouched || {}, { [side]: true });
+    const patch = {};
+    patch[side + 'TeamUseExisting'] = useExisting;
+    patch[side + 'ExistingModeClass'] = useExisting ? 'active' : '';
+    patch[side + 'TemporaryModeClass'] = useExisting ? '' : 'active';
+    if (useExisting) {
+      if (!this.data[side + 'TeamUseExisting']) {
+        this.setupTemporaryNames = Object.assign({}, this.setupTemporaryNames || {}, { [side]: this.data[side + 'Name'] || '' });
+      }
+      const fallbackIndex = side === 'away' && this.data.teamOptions.length > 1 ? 1 : 0;
+      const currentIndex = Number(this.data[side + 'TeamIndex']);
+      const teamIndex = currentIndex >= 0 && this.data.teamOptions[currentIndex] ? currentIndex : fallbackIndex;
+      const team = this.data.teamOptions[teamIndex];
+      patch[side + 'TeamIndex'] = teamIndex;
+      patch[side + 'Name'] = team ? team.label : '';
+      patch[side + 'TeamPickerText'] = team ? team.label : '请选择球队';
+      patch[side + 'Logo'] = getTeamLogo(team, side);
+      this.setupTeamNameEdited = Object.assign({}, this.setupTeamNameEdited || {}, { [side]: false });
+    } else {
+      const temporaryName = (this.setupTemporaryNames && this.setupTemporaryNames[side]) || '';
+      patch[side + 'TeamIndex'] = -1;
+      patch[side + 'Name'] = temporaryName;
+      patch[side + 'Logo'] = getTeamLogo(null, side);
+      this.setupTeamNameEdited = Object.assign({}, this.setupTeamNameEdited || {}, { [side]: true });
+    }
     this.setData(patch);
   },
 
@@ -722,8 +775,8 @@ Page({
     const teamOptions = this.data.teamOptions && this.data.teamOptions.length ? this.data.teamOptions : normalizeLibraryTeams();
     const homeName = (this.data.homeName || '').trim() || '主队';
     const awayName = (this.data.awayName || '').trim() || '客队';
-    const homeTeam = teamOptions.find((team) => team && team.label === homeName) || null;
-    const awayTeam = teamOptions.find((team) => team && team.label === awayName) || null;
+    const homeTeam = this.data.homeTeamUseExisting ? (teamOptions.find((team) => team && team.label === homeName) || null) : null;
+    const awayTeam = this.data.awayTeamUseExisting ? (teamOptions.find((team) => team && team.label === awayName) || null) : null;
     const homeRoster = { starters: [], bench: [] };
     const awayRoster = { starters: [], bench: [] };
     wx.setStorageSync('quickMatchActiveConfig', {

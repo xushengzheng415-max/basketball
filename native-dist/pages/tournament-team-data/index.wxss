@@ -13,3 +13,17 @@ page { min-height: 100%; background: #020b18; }
 .highlight .highlight-value { margin-top: 4rpx; color: #ffffff; font-size: 29rpx; font-weight: 900; }
 .highlight .highlight-value.blue { color: #68a0ff; }
 .highlight .highlight-value.orange { color: #ff7b18; }
+
+/* Workbench-aligned black/orange theme and visible navigation. */
+page { background: #05080b; }
+.back-button { justify-content: center; width: 68rpx; height: 68rpx; border: 1rpx solid rgba(255,122,32,.74); border-radius: 50%; color: #ffffff; background: rgba(5,8,11,.86); box-shadow: 0 0 20rpx rgba(255,91,8,.2); box-sizing: border-box; }
+.back-arrow { display: block; margin-top: -7rpx; font-family: Arial,sans-serif; font-size: 58rpx; line-height: 58rpx; font-weight: 300; }
+.nav-title { text-shadow: 0 4rpx 14rpx rgba(0,0,0,.72); }
+.tabs { border-color: rgba(255,122,32,.48); background: rgba(5,8,11,.82); }
+.tab { color: rgba(255,255,255,.7); }.tab.active { background: linear-gradient(100deg,#ff4b00,#ff7418); }
+.stats-card,.section-card,.attack-card,.highlight-card { border-color: rgba(255,255,255,.17); background: linear-gradient(135deg,rgba(7,11,15,.97),rgba(17,25,34,.95) 68%,rgba(34,16,8,.9)); box-shadow: 0 12rpx 30rpx rgba(0,0,0,.24); }
+.stats-card { border-top-color: rgba(255,106,22,.54); }
+.stat-cell,.stats-separator,.game-row,.highlight { border-color: rgba(255,255,255,.15); }
+.stat-label,.game-sequence,.game-date,.game-team,.performance-title,.performance-unit { color: rgba(255,255,255,.62); }
+.stat-value,.section-heading,.section-title { color: #ffffff; }
+.empty-panel { border-color: rgba(255,106,22,.3); background: rgba(8,12,16,.9); }

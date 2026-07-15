@@ -1,6 +1,6 @@
 <view class="event-page">
   <image class="page-background" src="{{assets.background}}" mode="aspectFill" />
-  <view class="nav-bar"><view class="back-button" bindtap="goBack"><image src="{{assets.back}}" mode="aspectFit" /></view><text class="nav-title">赛事球队数据</text><view class="nav-placeholder"></view></view>
+  <view class="nav-bar"><view class="back-button" bindtap="goBack" aria-label="返回球队详情"><text class="back-arrow">‹</text></view><text class="nav-title">赛事球队数据</text><view class="nav-placeholder"></view></view>
 
   <view class="event-hero">
     <view class="hero-row"><image class="event-logo" src="{{tournament.logo}}" mode="aspectFit" /><text class="event-name">{{tournament.name}}</text></view>

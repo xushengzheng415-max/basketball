@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "全部最近比分",
+  "navigationBarBackgroundColor": "#050505",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#050505",
+  "enablePullDownRefresh": true
+}

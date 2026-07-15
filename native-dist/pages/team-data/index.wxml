@@ -2,6 +2,7 @@
   <image class="page-background" src="{{assets.background}}" mode="aspectFill" />
 
   <view class="hero">
+    <view class="nav-back overview-back" bindtap="goBack" aria-label="返回数据中心"><text class="back-arrow">‹</text></view>
     <text class="hero-title">球队数据</text>
     <text class="hero-subtitle">查看每支球队的比赛表现</text>
   </view>

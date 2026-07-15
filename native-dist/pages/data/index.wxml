@@ -1,19 +1,12 @@
 <view class="data-center">
-  <image class="page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/data-center-bg.png" mode="aspectFill" />
+  <image class="page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/education-top-bg-clean.png" mode="aspectFill" />
 
   <view class="hero">
-    <image class="status-bar" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/status-bar.png" mode="aspectFit" />
+    <view class="status-bar"></view>
     <view class="nav-row">
       <view class="nav-spacer"></view>
       <text class="nav-title">数据中心</text>
-      <view class="nav-actions">
-        <text class="version-badge">1.0介绍页</text>
-        <view class="capsule">
-          <text class="capsule-dots">•••</text>
-          <view class="capsule-divider"></view>
-          <view class="capsule-circle"></view>
-        </view>
-      </view>
+      <view class="nav-actions"></view>
     </view>
 
     <view class="hero-copy">

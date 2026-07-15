@@ -6,7 +6,6 @@ const CLOUD_AUDIO_ITEMS_KEY = 'sx_mc_audio_items';
 const VOICE_STYLE_KEY = 'sx_score_voice_style';
 const CUSTOM_SLOTS_KEY = 'sx_mc_custom_slots';
 const CUSTOM_SLOT_DETAILS_KEY = 'sx_mc_custom_slot_details';
-const QUICK_SLOTS_KEY = 'sx_mc_quick_slots';
 const VOICE_MODE_KEY = 'sx_score_voice_mode';
 const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mc-settings/';
 const VOICE_PREVIEW_TEXT = {
@@ -91,31 +90,6 @@ const customCategory = {
   fallbackNames: ['投篮未进', '欢呼声', '冲锋号', '出场音乐', '国歌', '罚进音效', '罚球失误'],
   fallbackChannels: ['miss', 'cheer', 'horn', 'entry', 'anthem', 'freeThrowMade', 'freeThrowMiss']
 };
-
-const shortcutActions = [
-  { id: 'score-two', name: '2分得分' },
-  { id: 'score-three', name: '3分得分' },
-  { id: 'miss', name: '投篮未进' },
-  { id: 'cheer', name: '欢呼声' },
-  { id: 'horn', name: '冲锋号' },
-  { id: 'attack', name: '进攻音效' },
-  { id: 'defense', name: '防守音效' },
-  { id: 'pause', name: '暂停音乐' },
-  { id: 'buzzer', name: '蜂鸣器' },
-  { id: 'foul', name: '犯规' },
-  { id: 'timeout', name: '暂停' },
-  { id: 'substitution', name: '换人' },
-  { id: 'undo', name: '撤销操作' }
-];
-
-const defaultQuickSlots = [
-  { id: 1, key: '1', action: 'attack', name: '进攻音效' },
-  { id: 2, key: '2', action: 'defense', name: '防守音效' },
-  { id: 3, key: '3', action: 'score-two', name: '2分得分' },
-  { id: 4, key: '4', action: 'score-three', name: '3分得分' },
-  { id: 5, key: '5', action: 'miss', name: '投篮未进' },
-  { id: 6, key: '6', action: 'buzzer', name: '蜂鸣器' }
-];
 
 function normalizeSettings(saved) {
   const value = saved && typeof saved === 'object' ? saved : {};
@@ -233,13 +207,22 @@ function saveCustomSlots(slots) {
   })));
 }
 
-function getQuickSlots() {
-  const saved = wx.getStorageSync(QUICK_SLOTS_KEY);
-  if (!Array.isArray(saved) || saved.length !== 6) return defaultQuickSlots;
-  return defaultQuickSlots.map((fallback, index) => {
-    const slot = saved[index] || fallback;
-    const action = shortcutActions.find((item) => item.id === slot.action);
-    return Object.assign({}, fallback, slot, { name: action ? action.name : fallback.name });
+function buildCustomModalOptions(options, slots, editingIndex) {
+  const currentSlots = Array.isArray(slots) ? slots : [];
+  return (Array.isArray(options) ? options : []).map((option) => {
+    const slotIndex = currentSlots.findIndex((slot) => slot.id === option.id);
+    if (slotIndex < 0) {
+      return Object.assign({}, option, {
+        slotPositionText: '未选中',
+        slotPositionClass: 'unselected'
+      });
+    }
+    const position = Number(currentSlots[slotIndex].position) || slotIndex + 1;
+    const isCurrent = slotIndex === editingIndex;
+    return Object.assign({}, option, {
+      slotPositionText: isCurrent ? `当前第${position}格` : `第${position}格`,
+      slotPositionClass: isCurrent ? 'current' : 'selected'
+    });
   });
 }
 
@@ -279,10 +262,8 @@ Page({
     modalCategoryKey: '',
     modalOptions: [],
     editingSlotIndex: -1,
-    editingShortcutId: 0,
     customSlots: [],
     customOptions: [],
-    quickSlots: [],
     playingKey: '',
     cloudLoading: false
   },
@@ -338,8 +319,7 @@ Page({
       voicePreviewText: VOICE_PREVIEW_TEXT[voiceMode],
       packageName: settings.soundPackage === 'custom' ? '自定义音效包' : '默认音效包',
       customSlots: custom.slots,
-      customOptions: custom.options,
-      quickSlots: getQuickSlots()
+      customOptions: custom.options
     });
   },
 
@@ -442,13 +422,13 @@ Page({
   },
 
   replaceCustomSlot(event) {
+    const editingSlotIndex = Number(event.currentTarget.dataset.index);
     this.setData({
       modalVisible: true,
       modalTitle: '替换自定义音效',
       modalType: 'custom-slot',
-      modalOptions: this.data.customOptions,
-      editingSlotIndex: Number(event.currentTarget.dataset.index),
-      editingShortcutId: 0
+      modalOptions: buildCustomModalOptions(this.data.customOptions, this.data.customSlots, editingSlotIndex),
+      editingSlotIndex
     });
   },
 
@@ -474,17 +454,6 @@ Page({
       return;
     }
     this.playAudio(slot.source, `custom-${index}`);
-  },
-
-  editShortcut(event) {
-    this.setData({
-      modalVisible: true,
-      modalTitle: `设置快捷键 ${event.currentTarget.dataset.key}`,
-      modalType: 'shortcut',
-      modalOptions: shortcutActions,
-      editingShortcutId: Number(event.currentTarget.dataset.id),
-      editingSlotIndex: -1
-    });
   },
 
   chooseModalOption(event) {
@@ -517,16 +486,6 @@ Page({
         saveCustomSlots(normalized);
         this.setData({ customSlots: normalized });
       }
-    } else if (type === 'shortcut') {
-      const action = shortcutActions.find((item) => item.id === id);
-      const shortcutId = this.data.editingShortcutId;
-      if (action && shortcutId) {
-        const quickSlots = this.data.quickSlots.map((slot) => (
-          slot.id === shortcutId ? Object.assign({}, slot, { action: action.id, name: action.name }) : slot
-        ));
-        wx.setStorageSync(QUICK_SLOTS_KEY, quickSlots);
-        this.setData({ quickSlots });
-      }
     }
     this.closeModal();
   },
@@ -538,8 +497,7 @@ Page({
       modalType: '',
       modalCategoryKey: '',
       modalOptions: [],
-      editingSlotIndex: -1,
-      editingShortcutId: 0
+      editingSlotIndex: -1
     });
   },
 

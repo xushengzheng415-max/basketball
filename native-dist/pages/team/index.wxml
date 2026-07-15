@@ -2,7 +2,7 @@
   <image class="page-bg" src="{{assets.bg}}" mode="aspectFill" />
 
   <view class="page-content">
-    <image class="status-bar" src="{{assets.statusBar}}" mode="aspectFit" />
+    <view class="status-bar"></view>
 
     <view class="top-header">
       <image class="brand-title" src="{{assets.logoTitle}}" mode="aspectFit" />

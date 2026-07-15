@@ -1,0 +1,27 @@
+<view class="recent-page">
+  <image class="recent-page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/recent-matches/recent-score-bg.png" mode="aspectFill" />
+  <view class="summary-card">
+    <view class="summary-item"><text class="summary-label">全部记录</text><text class="summary-value">{{totalCount}}</text></view>
+    <view class="summary-divider"></view>
+    <view class="summary-item"><text class="summary-label">已结束</text><text class="summary-value done">{{finishedCount}}</text></view>
+    <view class="summary-divider"></view>
+    <view class="summary-item"><text class="summary-label">未结束</text><text class="summary-value pending">{{activeCount}}</text></view>
+  </view>
+
+  <view wx:if="{{hasMatches}}" class="match-list">
+    <view wx:for="{{matches}}" wx:key="id" class="match-row" data-id="{{item.id}}" bindtap="openMatch">
+      <view class="match-content">
+        <view class="match-main">
+          <view class="team-side home"><text class="team-name">{{item.homeName}}</text><image class="team-logo" src="{{item.homeLogo}}" mode="aspectFit" /></view>
+          <view class="score-side"><view class="score-line"><text class="score-home">{{item.homeScore}}</text><text class="score-split">-</text><text class="score-away">{{item.awayScore}}</text></view></view>
+          <view class="team-side away"><image class="team-logo" src="{{item.awayLogo}}" mode="aspectFit" /><text class="team-name">{{item.awayName}}</text></view>
+        </view>
+        <text class="match-meta">{{item.time}}  {{item.venue}}</text>
+      </view>
+      <view class="row-actions"><image class="status-icon" src="{{item.statusIcon}}" mode="aspectFit" aria-label="{{item.statusText}}" /><button class="delete-btn" data-id="{{item.id}}" catchtap="deleteMatch">删</button></view>
+      <text class="row-arrow">›</text>
+    </view>
+  </view>
+
+  <view wx:else class="empty-card"><text>暂无最近比分记录</text></view>
+</view>

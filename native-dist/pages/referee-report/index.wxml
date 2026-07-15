@@ -89,7 +89,7 @@
     </view>
     <view class="record-tip">ⓘ 如比分或记录有误，请返回计分板修改</view>
 
-    <view class="confirmation-card {{lockedClass}}">
+    <view wx:if="{{showConfirmationSection}}" class="confirmation-card {{lockedClass}}">
       <view class="section-title"><text class="section-mark"></text>裁判确认</view>
       <view class="name-row">
         <text>裁判姓名</text>
@@ -115,14 +115,14 @@
   <view wx:if="{{showUnsignedControls}}" class="warning-bar">⚠ 确认后比分将锁定，报告不可直接修改</view>
   <button wx:if="{{showUnsignedControls}}" class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="confirmAndGenerate">
     <text class="submit-title">签字确认并生成报告</text>
-    <text class="submit-subtitle">确认后生成正式 A4 赛后裁判报告</text>
+    <text class="submit-subtitle">确认后生成正式赛后裁判报告 PDF</text>
   </button>
   <button wx:if="{{showPdfButton}}" class="submit-button" bindtap="openPdf">
-    <text class="submit-title">打开 / 导出 A4 PDF</text>
+    <text class="submit-title">打开 / 导出 PDF</text>
     <text class="submit-subtitle">可通过微信文件菜单转发或保存</text>
   </button>
   <button wx:if="{{showRetryButton}}" class="submit-button retry-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="retryPdf">
-    <text class="submit-title">重新生成 A4 PDF</text>
+    <text class="submit-title">重新生成 PDF</text>
     <text class="submit-subtitle">签名与比分已锁定，无需重新签字</text>
   </button>
   <canvas type="2d" id="reportCanvas" class="report-canvas"></canvas>
