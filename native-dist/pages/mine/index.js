@@ -225,5 +225,20 @@ Page({
         wx.showToast({ title: '\u8d44\u6599\u540c\u6b65\u5931\u8d25\uff0c\u8bf7\u91cd\u8bd5', icon: 'none' });
       })
       .finally(() => wx.hideLoading());
+  },
+
+  logout() {
+    wx.showModal({
+      title: '退出登录',
+      content: '确定要退出当前账号吗？',
+      confirmText: '退出',
+      confirmColor: '#ff5b08',
+      success: (result) => {
+        if (!result.confirm) return;
+        wx.removeStorageSync('loginProfile');
+        wx.removeStorageSync('userProfile');
+        wx.reLaunch({ url: '/pages/login/index' });
+      }
+    });
   }
 });
