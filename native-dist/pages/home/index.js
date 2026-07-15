@@ -12,6 +12,16 @@ const TEAM_LOGO_BASE = '/assets/pages/scorer-v2/teams/';
 const STATUS_ICON_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/recent-matches/';
 const { pullRoster, resolveImageUrl } = require('../../utils/roster-sync');
 
+function hasPhoneLogin() {
+  const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
+  return !!(profile && profile.loggedIn && profile.mode !== 'guest' && profile.phoneNumber);
+}
+
+function getLoginUrl(redirectPath) {
+  const redirect = redirectPath ? '?redirect=' + encodeURIComponent(redirectPath) : '';
+  return '/pages/login/index' + redirect;
+}
+
 function normalizeText(value) {
   return String(value || '').trim();
 }
@@ -87,6 +97,7 @@ function decorateRecentMatch(item, teamLogoMap) {
 
 Page({
   data: {
+    showLoginGuide: true,
     currentRole: '校区管理员',
     todayStats: {
       total: 0,
@@ -121,6 +132,7 @@ Page({
   },
 
   onShow() {
+    this.refreshLoginState();
     this.loadRecentMatches();
     const app = typeof getApp === 'function' ? getApp() : null;
     const rosterReady = app && app.globalData && app.globalData.rosterReady;
@@ -128,6 +140,29 @@ Page({
       .then((result) => result || pullRoster())
       .then(() => this.loadRecentMatches())
       .catch((error) => console.warn('[home] pull roster failed', error));
+  },
+
+  refreshLoginState() {
+    this.setData({ showLoginGuide: !hasPhoneLogin() });
+  },
+
+  goLogin() {
+    wx.navigateTo({ url: getLoginUrl('') });
+  },
+
+  requirePhoneLogin(redirectPath, content) {
+    if (hasPhoneLogin()) return true;
+    wx.showModal({
+      title: '登录后云端保存',
+      content: content || '登录后可保存并同步赛事、球队和比赛数据。',
+      confirmText: '去登录',
+      cancelText: '先浏览',
+      confirmColor: '#ff5a00',
+      success: (result) => {
+        if (result.confirm) wx.navigateTo({ url: getLoginUrl(redirectPath) });
+      }
+    });
+    return false;
   },
 
   loadRecentMatches() {
@@ -154,7 +189,9 @@ Page({
   },
 
   goQuickMatch() {
-    wx.navigateTo({ url: '/pages/scorer/index?from=homeHero' });
+    const url = '/pages/scorer/index?from=homeHero';
+    if (!this.requirePhoneLogin(url, '登录后才能云端保存比赛设置、计分过程和赛后记录。')) return;
+    wx.navigateTo({ url });
   },
 
   goMatchDetail(event) {
@@ -178,6 +215,7 @@ Page({
   },
 
   deleteRecentMatch(event) {
+    if (!this.requirePhoneLogin('', '删除比分记录前请先登录，避免误操作或数据归属不清。')) return;
     const id = event.currentTarget.dataset.id;
     if (!id) return;
     wx.showModal({

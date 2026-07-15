@@ -7,6 +7,16 @@ const mainRoutes = {
   mine: '/pages/mine/index'
 };
 
+function hasPhoneLogin() {
+  const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
+  return !!(profile && profile.loggedIn && profile.mode !== 'guest' && profile.phoneNumber);
+}
+
+function getLoginUrl(redirectPath) {
+  const redirect = redirectPath ? '?redirect=' + encodeURIComponent(redirectPath) : '';
+  return '/pages/login/index' + redirect;
+}
+
 Page({
   data: {
     name: '',
@@ -157,8 +167,25 @@ Page({
     });
   },
 
+  requirePhoneLogin(redirectPath, content) {
+    if (hasPhoneLogin()) return true;
+    wx.showModal({
+      title: '登录后云端保存',
+      content: content || '登录后可保存并同步赛事数据。',
+      confirmText: '去登录',
+      cancelText: '先浏览',
+      confirmColor: '#ff5a00',
+      success: (result) => {
+        if (result.confirm) wx.navigateTo({ url: getLoginUrl(redirectPath) });
+      }
+    });
+    return false;
+  },
+
   goCreateTournament() {
-    wx.navigateTo({ url: '/pages/tournament-create/index?from=tournament' });
+    const url = '/pages/tournament-create/index?from=tournament';
+    if (!this.requirePhoneLogin(url, '登录后才能创建赛事并云端保存参赛队伍、赛程和比赛数据。')) return;
+    wx.navigateTo({ url });
   },
 
   hideCreateTournament() {
@@ -178,6 +205,7 @@ Page({
   },
 
   saveTournament() {
+    if (!this.requirePhoneLogin('', '登录后才能保存赛事资料。')) return;
     const name = this.data.name.trim();
     if (!name) {
       wx.showToast({ title: '请填写赛事名称', icon: 'none' });
@@ -230,5 +258,4 @@ Page({
     });
   }
 });
-
 
