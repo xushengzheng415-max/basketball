@@ -1,0 +1,209 @@
+<view class="create-page">
+  <image class="page-bg" src="/assets/pages/tournament-create/background-create-tournament-clean.png" mode="aspectFill" />
+
+  <view class="top-nav">
+    <view class="back-hit" bindtap="goBack">
+      <view class="back-icon"></view>
+    </view>
+    <text class="nav-title">创建赛事</text>
+  </view>
+
+  <scroll-view class="form-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="form-content">
+      <view class="form-panel basic-panel">
+        <view class="panel-title-row">
+          <view class="title-line"></view>
+          <text class="panel-title">赛事基础信息</text>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">赛事名称</view>
+          <view class="control input-control">
+            <input value="{{form.name}}" placeholder="请输入赛事名称" bindinput="onNameInput" />
+            <image wx:if="{{hasName}}" class="control-icon clear" src="/assets/pages/tournament-create/icon-close-common.svg" mode="aspectFit" bindtap="clearName" />
+          </view>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">赛事类型</view>
+          <picker class="control-picker" range="{{typeOptions}}" value="{{typeIndex}}" bindchange="onTypeChange">
+            <view class="control select-control">
+              <text>{{form.type}}</text>
+              <image class="control-icon" src="/assets/pages/tournament-create/icon-dropdown-common.svg" mode="aspectFit" />
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row two-date-row">
+          <view class="row-label required">比赛日期</view>
+          <view class="date-range">
+            <picker class="date-picker" mode="date" value="{{form.startDate}}" bindchange="onStartDateChange">
+              <view class="control date-control">
+                <image class="leading-icon" src="/assets/pages/tournament-create/icon-calendar-common.svg" mode="aspectFit" />
+                <text>{{form.startDate}}</text>
+              </view>
+            </picker>
+            <text class="date-sep">至</text>
+            <picker class="date-picker" mode="date" value="{{form.endDate}}" bindchange="onEndDateChange">
+              <view class="control date-control end">
+                <text>{{form.endDate}}</text>
+              </view>
+            </picker>
+          </view>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">比赛场馆</view>
+          <view class="control input-control">
+            <image class="leading-icon" src="/assets/pages/tournament-create/icon-location-common.svg" mode="aspectFit" />
+            <input value="{{form.venue}}" placeholder="请输入场馆/场地" bindinput="onVenueInput" />
+          </view>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label">年龄组</view>
+          <picker class="control-picker" range="{{ageOptions}}" value="{{ageIndex}}" bindchange="onAgeChange">
+            <view class="control select-control">
+              <text>{{form.ageGroup}}</text>
+              <image class="control-icon" src="/assets/pages/tournament-create/icon-dropdown-common.svg" mode="aspectFit" />
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">队伍数量</view>
+          <view class="step-wrap">
+            <view class="stepper">
+              <view class="step-btn" data-field="teamCount" data-delta="-1" bindtap="changeNumber"><text class="step-symbol">−</text></view>
+              <text class="step-value">{{form.teamCount}}</text>
+              <view class="step-btn" data-field="teamCount" data-delta="1" bindtap="changeNumber"><text class="step-symbol">+</text></view>
+            </view>
+            <text class="unit">支</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="form-panel">
+        <view class="panel-title-row">
+          <view class="title-line"></view>
+          <text class="panel-title">参赛设置</text>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">赛制</view>
+          <picker class="control-picker" range="{{systemOptions}}" value="{{systemIndex}}" bindchange="onSystemChange">
+            <view class="control select-control">
+              <text>{{form.system}}</text>
+              <image class="control-icon" src="/assets/pages/tournament-create/icon-dropdown-common.svg" mode="aspectFit" />
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">报名截止</view>
+          <picker class="control-picker" mode="date" value="{{form.registrationDeadline}}" bindchange="onRegistrationDeadlineChange">
+            <view class="control date-control single-date">
+              <image class="leading-icon" src="/assets/pages/tournament-create/icon-calendar-common.svg" mode="aspectFit" />
+              <text>{{form.registrationDeadline}}</text>
+            </view>
+          </picker>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">报名上限</view>
+          <view class="step-wrap">
+            <view class="stepper">
+              <view class="step-btn" data-field="playerLimit" data-delta="-1" bindtap="changeNumber"><text class="step-symbol">−</text></view>
+              <text class="step-value">{{form.playerLimit}}</text>
+              <view class="step-btn" data-field="playerLimit" data-delta="1" bindtap="changeNumber"><text class="step-symbol">+</text></view>
+            </view>
+            <text class="unit">人</text>
+          </view>
+        </view>
+
+        <view class="switch-row">
+          <view class="switch-label"><text>允许外部球队报名</text><image src="/assets/pages/tournament-create/icon-info-common.svg" mode="aspectFit" /></view>
+          <switch color="#ff5a00" checked="{{form.openRegistration}}" data-field="openRegistration" bindchange="onSwitchChange" />
+        </view>
+
+        <view class="switch-row">
+          <view class="switch-label"><text>报名需审核</text><image src="/assets/pages/tournament-create/icon-info-common.svg" mode="aspectFit" /></view>
+          <switch color="#ff5a00" checked="{{form.requireApproval}}" data-field="requireApproval" bindchange="onSwitchChange" />
+        </view>
+      </view>
+
+      <view class="form-panel rules-panel">
+        <view class="panel-title-row">
+          <view class="title-line"></view>
+          <text class="panel-title">比赛规则</text>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">每节时长</view>
+          <view class="step-wrap">
+            <view class="stepper">
+              <view class="step-btn" data-field="periodMinutes" data-delta="-1" bindtap="changeNumber"><text class="step-symbol">−</text></view>
+              <text class="step-value">{{form.periodMinutes}}</text>
+              <view class="step-btn" data-field="periodMinutes" data-delta="1" bindtap="changeNumber"><text class="step-symbol">+</text></view>
+            </view>
+            <text class="unit">分钟</text>
+          </view>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label required">比赛节数</view>
+          <view class="step-wrap">
+            <view class="stepper">
+              <view class="step-btn" data-field="periodCount" data-delta="-1" bindtap="changeNumber"><text class="step-symbol">−</text></view>
+              <text class="step-value">{{form.periodCount}}</text>
+              <view class="step-btn" data-field="periodCount" data-delta="1" bindtap="changeNumber"><text class="step-symbol">+</text></view>
+            </view>
+            <text class="unit">节</text>
+          </view>
+        </view>
+        <view class="form-row">
+          <view class="row-label">加时时长</view>
+          <view class="step-wrap">
+            <view class="stepper">
+              <view class="step-btn" data-field="overtimeMinutes" data-delta="-1" bindtap="changeNumber"><text class="step-symbol">−</text></view>
+              <text class="step-value">{{form.overtimeMinutes}}</text>
+              <view class="step-btn" data-field="overtimeMinutes" data-delta="1" bindtap="changeNumber"><text class="step-symbol">+</text></view>
+            </view>
+            <text class="unit">分钟</text>
+          </view>
+        </view>
+
+        <view class="form-row">
+          <view class="row-label">暂停次数</view>
+          <view class="step-wrap">
+            <view class="stepper">
+              <view class="step-btn" data-field="timeoutCount" data-delta="-1" bindtap="changeNumber"><text class="step-symbol">−</text></view>
+              <text class="step-value">{{form.timeoutCount}}</text>
+              <view class="step-btn" data-field="timeoutCount" data-delta="1" bindtap="changeNumber"><text class="step-symbol">+</text></view>
+            </view>
+            <text class="unit">次</text>
+          </view>
+        </view>
+
+        <view class="switch-row">
+          <view class="switch-label"><text>启用技术统计</text><image src="/assets/pages/tournament-create/icon-info-common.svg" mode="aspectFit" /></view>
+          <switch color="#ff5a00" checked="{{form.enableStats}}" data-field="enableStats" bindchange="onSwitchChange" />
+        </view>
+
+        <view class="switch-row">
+          <view class="switch-label"><text>显示实时比分</text><image src="/assets/pages/tournament-create/icon-info-common.svg" mode="aspectFit" /></view>
+          <switch color="#ff5a00" checked="{{form.showLiveScore}}" data-field="showLiveScore" bindchange="onSwitchChange" />
+        </view>
+      </view>
+
+      <view class="action-area">
+        <button class="primary-action" bindtap="saveAndCreate">保存并创建</button>
+        <button class="secondary-action" bindtap="saveDraft">保存草稿</button>
+      </view>
+
+      <view class="bottom-space"></view>
+    </view>
+  </scroll-view>
+
+  <sxf-tabbar active="tournament" />
+</view>

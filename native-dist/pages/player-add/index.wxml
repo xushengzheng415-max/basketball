@@ -1,0 +1,171 @@
+<view class="add-player-page">
+  <image class="page-bg" src="{{assets.bg}}" mode="aspectFill" />
+
+  <view class="nav-bar">
+    <view class="back-hit" bindtap="goBack">
+      <text class="back-icon">‹</text>
+    </view>
+    <text class="nav-title">{{pageTitle}}</text>
+    <view class="capsule">
+      <text class="capsule-dots">•••</text>
+      <view class="capsule-line"></view>
+      <view class="capsule-ring"></view>
+    </view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y="true" enhanced="true" show-scrollbar="false">
+    <view class="avatar-card">
+      <view class="avatar-wrap" bindtap="chooseAvatar">
+        <image class="avatar-img" src="{{avatarSrc}}" mode="aspectFill" />
+        <view class="avatar-camera">
+          <image class="camera-mini" src="{{assets.cameraIcon}}" mode="aspectFit" />
+        </view>
+      </view>
+      <view class="avatar-copy">
+        <text class="avatar-title">上传球员头像</text>
+        <text class="avatar-desc">建议上传清晰正面照，支持 JPG/PNG 格式，不超过 2MB。</text>
+        <view class="upload-btn" bindtap="chooseAvatar">
+          <image class="upload-icon" src="{{assets.cameraIcon}}" mode="aspectFit" />
+          <text>上传头像</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="form-card basic-card">
+      <view class="section-title">
+        <view class="section-mark"></view>
+        <text>球员基础信息</text>
+      </view>
+
+      <view class="form-row required">
+        <text class="field-label">球员姓名</text>
+        <input class="field-input" value="{{name}}" placeholder="请输入球员姓名" placeholder-class="input-placeholder" data-field="name" bindinput="onInput" />
+      </view>
+      <view class="form-row required">
+        <text class="field-label">球衣号码</text>
+        <input class="field-input" value="{{number}}" type="number" placeholder="请输入球衣号码（1-99）" placeholder-class="input-placeholder" data-field="number" bindinput="onInput" />
+      </view>
+      <view class="form-row">
+        <text class="field-label">所属球队</text>
+        <picker class="field-picker" mode="selector" range="{{teams}}" range-key="label" value="{{teamIndex}}" bindchange="onTeamChange">
+          <view class="picker-inner">
+            <text class="picker-text {{teamPlaceholderClass}}">{{teamText}}</text>
+            <image class="chevron-icon" src="{{assets.chevronIcon}}" mode="aspectFit" />
+          </view>
+        </picker>
+      </view>
+      <view class="form-row required chip-row">
+        <text class="field-label">场上位置</text>
+        <view class="position-group">
+          <view wx:for="{{positions}}" wx:key="key" class="position-chip {{item.activeClass}}" data-key="{{item.key}}" bindtap="selectPosition">{{item.key}}</view>
+        </view>
+      </view>
+      <view class="form-row required height-row">
+        <text class="field-label">身高（cm）</text>
+        <picker class="field-picker" mode="selector" range="{{heightOptions}}" value="{{heightIndex}}" bindchange="onHeightChange">
+          <view class="picker-inner">
+            <text class="picker-text">{{heightText}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="form-row required">
+        <text class="field-label">体重（kg）</text>
+        <picker class="field-picker" mode="selector" range="{{weightOptions}}" value="{{weightIndex}}" bindchange="onWeightChange">
+          <view class="picker-inner">
+            <text class="picker-text">{{weightText}}</text>
+            <text class="picker-arrow">›</text>
+          </view>
+        </picker>
+      </view>
+      <view class="form-row required">
+        <text class="field-label">年龄</text>
+        <input class="field-input" value="{{age}}" type="number" placeholder="请输入年龄" placeholder-class="input-placeholder" data-field="age" bindinput="onInput" />
+      </view>
+      <view class="form-row">
+        <text class="field-label">监护人姓名</text>
+        <input class="field-input" value="{{guardian}}" placeholder="请输入监护人姓名" placeholder-class="input-placeholder" data-field="guardian" bindinput="onInput" />
+      </view>
+      <view class="form-row required">
+        <text class="field-label">联系电话</text>
+        <input class="field-input" value="{{phone}}" type="number" placeholder="请输入联系电话" placeholder-class="input-placeholder" data-field="phone" bindinput="onInput" />
+      </view>
+    </view>
+
+    <view class="form-card competition-card">
+      <view class="section-title">
+        <view class="section-mark"></view>
+        <text>参赛信息</text>
+      </view>
+      <view class="info-row required">
+        <text class="field-label">身份状态</text>
+        <text class="status-pill">{{identityStatus}}</text>
+      </view>
+      <view class="info-row required" bindtap="openInsurance">
+        <text class="field-label">保险信息</text>
+        <view class="insurance-side">
+          <text class="upload-state">{{insuranceStatus}}</text>
+          <image class="chevron-icon" src="{{assets.chevronIcon}}" mode="aspectFit" />
+        </view>
+      </view>
+      <view class="remark-row">
+        <text class="field-label">备注</text>
+        <view class="remark-box">
+          <textarea class="remark-input" value="{{remark}}" maxlength="200" placeholder="请输入备注信息（选填）" placeholder-class="input-placeholder" data-field="remark" bindinput="onInput" />
+          <text class="remark-count">{{remarkCountText}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="save-btn" bindtap="savePlayer">{{saveText}}</view>
+    <view class="bottom-space"></view>
+  </scroll-view>
+
+  <sxf-tabbar active="player" />
+
+  <view wx:if="{{showCropper}}" class="cropper-mask">
+    <view class="cropper-panel">
+      <view class="cropper-head">
+        <text class="cropper-title">裁剪头像</text>
+        <text class="cropper-close" bindtap="cancelCrop">×</text>
+      </view>
+      <view
+        id="cropArea"
+        class="crop-area"
+        catchtouchstart="onCropTouchStart"
+        catchtouchmove="onCropTouchMove"
+        catchtouchend="onCropTouchEnd"
+        catchtouchcancel="onCropTouchEnd"
+      >
+        <view
+          class="crop-image-movable"
+          style="width: {{cropImageWidth}}px; height: {{cropImageHeight}}px; transform: translate3d({{cropX}}px, {{cropY}}px, 0) scale({{cropScale}});"
+        >
+          <image class="crop-preview" src="{{cropSrc}}" mode="scaleToFill" />
+        </view>
+        <view class="crop-shade top"></view>
+        <view class="crop-shade bottom"></view>
+        <view class="crop-shade left"></view>
+        <view class="crop-shade right"></view>
+        <view class="crop-frame">
+          <view class="crop-grid horizontal one"></view>
+          <view class="crop-grid horizontal two"></view>
+          <view class="crop-grid vertical one"></view>
+          <view class="crop-grid vertical two"></view>
+        </view>
+      </view>
+      <view class="zoom-actions">
+        <view class="zoom-btn" data-step="-0.2" bindtap="changeCropZoom">缩小</view>
+        <text class="zoom-value">{{cropScaleText}}</text>
+        <view class="zoom-btn" data-step="0.2" bindtap="changeCropZoom">放大</view>
+      </view>
+      <text class="cropper-tip">拖动照片调整位置，也可双指或按钮缩放</text>
+      <view class="cropper-actions">
+        <view class="cropper-cancel" bindtap="cancelCrop">取消</view>
+        <view class="cropper-confirm" bindtap="confirmCrop">使用头像</view>
+      </view>
+    </view>
+  </view>
+
+  <canvas type="2d" id="avatarCropCanvas" class="crop-canvas"></canvas>
+</view>

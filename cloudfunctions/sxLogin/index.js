@@ -30,15 +30,22 @@ async function ensureVoiceTrial(openid, unionid, now) {
 }
 
 async function getPhoneNumber(phoneCode) {
-  if (!phoneCode) return '';
+  if (!phoneCode) return { phoneNumber: '', failed: true, message: '未收到手机号授权码' };
+
   try {
     const result = await cloud.openapi.phonenumber.getPhoneNumber({ code: phoneCode });
-    return (result && result.phoneInfo && result.phoneInfo.phoneNumber) || '';
+    return {
+      phoneNumber: (result && result.phoneInfo && result.phoneInfo.phoneNumber) || '',
+      failed: false,
+      message: ''
+    };
   } catch (error) {
     console.warn('[sxLogin] get phone number failed', error);
-    const wrapped = new Error('手机号授权失败，请重新登录');
-    wrapped.code = 'phone_auth_failed';
-    throw wrapped;
+    return {
+      phoneNumber: '',
+      failed: true,
+      message: error && error.message ? error.message : '手机号授权失败'
+    };
   }
 }
 
@@ -48,15 +55,17 @@ exports.main = async (event = {}) => {
   const openid = wxContext.OPENID;
   const unionid = wxContext.UNIONID || '';
   const profile = event.profile || {};
-  if ((profile.mode || 'wechat') === 'wechat' && !event.phoneCode) {
-    return { ok: false, code: 'phone_code_required', message: '请先授权手机号后登录' };
-  }
+  const mode = profile.mode || 'wechat';
 
   let phoneNumber = '';
-  try {
-    phoneNumber = await getPhoneNumber(event.phoneCode || '');
-  } catch (error) {
-    return { ok: false, code: error.code || 'phone_auth_failed', message: error.message || '手机号授权失败，请重新登录' };
+  let phoneAuthFailed = false;
+  let phoneAuthMessage = '';
+
+  if (mode === 'wechat') {
+    const phoneResult = await getPhoneNumber(event.phoneCode || '');
+    phoneNumber = phoneResult.phoneNumber || '';
+    phoneAuthFailed = !!phoneResult.failed || !phoneNumber;
+    phoneAuthMessage = phoneResult.message || '';
   }
 
   const user = {
@@ -64,8 +73,10 @@ exports.main = async (event = {}) => {
     unionid,
     nickName: profile.nickName || '微信用户',
     avatarUrl: profile.avatarUrl || '',
-    mode: profile.mode || 'wechat',
+    mode,
     phoneNumber: phoneNumber || profile.phoneNumber || '',
+    phoneAuthFailed,
+    phoneAuthMessage,
     lastLoginAt: now,
     updatedAt: now
   };
@@ -74,10 +85,10 @@ exports.main = async (event = {}) => {
   if (existed.data.length) {
     await db.collection('sx_users').doc(existed.data[0]._id).update({ data: user });
     await ensureVoiceTrial(openid, unionid, now);
-    return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, userId: existed.data[0]._id };
+    return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, phoneAuthFailed, userId: existed.data[0]._id };
   }
 
   const created = await db.collection('sx_users').add({ data: Object.assign({}, user, { createdAt: now }) });
   await ensureVoiceTrial(openid, unionid, now);
-  return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, userId: created._id };
+  return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, phoneAuthFailed, userId: created._id };
 };

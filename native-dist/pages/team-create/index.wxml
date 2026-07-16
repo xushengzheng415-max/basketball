@@ -1,0 +1,201 @@
+<view class="team-create-page">
+  <image class="page-bg" src="{{assets.bg}}" mode="aspectFill" />
+
+  <view class="top-nav">
+    <view class="back-hit" bindtap="goBack">
+      <image class="back-icon" src="{{assets.back}}" mode="aspectFit" />
+    </view>
+    <text class="nav-title">{{navTitle}}</text>
+    <view class="wechat-capsule">
+      <text class="dot-text">•••</text>
+      <view class="capsule-divider"></view>
+      <view class="capsule-circle"></view>
+    </view>
+  </view>
+
+  <scroll-view wx:if="{{!showForm}}" class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="list-hero">
+      <view class="hero-copy">
+        <text class="hero-kicker">TEAM MANAGEMENT</text>
+        <text class="hero-title">球队列表</text>
+        <text class="hero-desc">管理球队档案、教练信息、队员数量与启用状态</text>
+      </view>
+      <view class="hero-add" bindtap="openCreateForm">
+        <image class="hero-add-icon" src="{{assets.plus}}" mode="aspectFit" />
+        <text>新建球队</text>
+      </view>
+    </view>
+
+    <view class="stats-panel">
+      <view class="stat-item">
+        <text class="stat-value orange">{{teamStats.total}}</text>
+        <text class="stat-label">球队总数</text>
+      </view>
+      <view class="stat-line"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{teamStats.active}}</text>
+        <text class="stat-label">启用球队</text>
+      </view>
+      <view class="stat-line"></view>
+      <view class="stat-item">
+        <text class="stat-value">{{teamStats.players}}</text>
+        <text class="stat-label">队员总数</text>
+      </view>
+    </view>
+
+    <view class="search-row">
+      <view class="search-box">
+        <text class="search-symbol">⌕</text>
+        <input class="search-input" value="{{keyword}}" placeholder="搜索球队 / 教练 / 年龄组" placeholder-class="search-placeholder" bindinput="onKeywordInput" />
+      </view>
+    </view>
+
+    <scroll-view class="filter-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+      <view class="filter-track">
+        <view wx:for="{{filterTabs}}" wx:key="key" class="filter-chip {{item.activeClass}}" data-key="{{item.key}}" bindtap="onFilterTap">
+          <text>{{item.label}}</text>
+          <text class="filter-count">{{item.countText}}</text>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view wx:if="{{isEmptyVisible}}" class="empty-panel">
+      <image class="empty-logo" src="{{assets.logo}}" mode="aspectFit" />
+      <text class="empty-title">暂无球队</text>
+      <text class="empty-desc">先创建一支球队，后续可在赛事和计分板中调用。</text>
+      <view class="empty-button" bindtap="openCreateForm">创建第一支球队</view>
+    </view>
+
+    <view wx:for="{{visibleTeams}}" wx:key="id" class="team-card">
+      <view class="team-card-top">
+        <image class="team-logo-small" src="{{item.logoUrl}}" mode="aspectFit" />
+        <view class="team-main">
+          <view class="team-name-row">
+            <text class="team-name">{{item.name}}</text>
+            <text class="status-pill {{item.statusClass}}">{{item.statusText}}</text>
+          </view>
+          <text class="team-subtitle">{{item.ageGroup}} · 独立球队档案</text>
+        </view>
+      </view>
+
+      <view class="team-meta-grid">
+        <view class="meta-cell">
+          <text class="meta-label">主教练</text>
+          <text class="meta-value">{{item.coachName}}</text>
+        </view>
+        <view class="meta-cell">
+          <text class="meta-label">队员</text>
+          <text class="meta-value orange">{{item.playerCountText}} 人</text>
+        </view>
+        <view class="meta-cell">
+          <text class="meta-label">更新</text>
+          <text class="meta-value">{{item.createdText}}</text>
+        </view>
+      </view>
+
+      <view class="team-actions">
+        <view class="ghost-button" data-id="{{item.id}}" bindtap="goPlayers">队员</view>
+        <view class="ghost-button" data-id="{{item.id}}" bindtap="toggleTeamEnabled">启停</view>
+        <view class="ghost-button" data-id="{{item.id}}" bindtap="deleteTeam">删除</view>
+        <view class="solid-button" data-id="{{item.id}}" bindtap="editTeam">编辑</view>
+      </view>
+    </view>
+
+    <view class="scroll-safe"></view>
+  </scroll-view>
+
+  <scroll-view wx:if="{{showForm}}" class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="panel basic-panel">
+      <view class="section-head">
+        <view class="section-mark"></view>
+        <text class="section-title">{{formTitle}}</text>
+      </view>
+
+      <view class="basic-body">
+        <view class="logo-card">
+          <image class="team-logo" src="{{logoDisplay}}" mode="aspectFit" />
+          <button class="upload-button" bindtap="chooseLogo">
+            <image class="upload-icon" src="{{assets.camera}}" mode="aspectFit" />
+            <text>上传队徽</text>
+          </button>
+          <text class="upload-tip">建议尺寸 512x512</text>
+          <text class="upload-tip">仅支持 JPG/PNG</text>
+        </view>
+
+        <view class="form-list">
+          <view wx:for="{{rows}}" wx:key="key" class="form-row">
+            <view class="field-label">
+              <text wx:if="{{item.required}}" class="required">*</text>
+              <text>{{item.label}}</text>
+            </view>
+            <view class="field-control">
+              <input wx:if="{{item.isInput}}" class="field-input" type="{{item.inputType}}" value="{{item.value}}" maxlength="{{item.maxLength}}" placeholder="{{item.placeholder}}" placeholder-class="placeholder" data-key="{{item.key}}" bindinput="onFieldInput" />
+              <picker wx:if="{{item.isPicker}}" mode="selector" range="{{item.options}}" data-key="{{item.key}}" bindchange="onPickerChange">
+                <view class="picker-inner {{item.valueClass}}">
+                  <text>{{item.displayValue}}</text>
+                  <image class="dropdown-icon" src="{{assets.dropdown}}" mode="aspectFit" />
+                </view>
+              </picker>
+              <image wx:if="{{item.showClear}}" class="clear-icon" src="{{assets.close}}" mode="aspectFit" bindtap="clearTeamName" />
+            </view>
+          </view>
+
+          <view class="form-row intro-row">
+            <view class="field-label intro-label">
+              <text>球队简介</text>
+            </view>
+            <view class="field-control textarea-control">
+              <textarea class="team-intro" value="{{form.intro}}" maxlength="100" placeholder="请输入球队简介（选填）" placeholder-class="placeholder" bindinput="onIntroInput" />
+              <text class="intro-count">{{introCountText}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="panel member-panel">
+      <view class="section-head">
+        <view class="section-mark"></view>
+        <text class="section-title">队员设置</text>
+      </view>
+      <view class="member-row">
+        <view class="member-count">
+          <text>当前球员</text>
+          <text class="count-number">{{playerCountText}}</text>
+          <text>人</text>
+        </view>
+      </view>
+      <view class="notice-row">
+        <image class="info-icon" src="{{assets.info}}" mode="aspectFit" />
+        <text>创建球队后，在球队详情中维护队员</text>
+      </view>
+    </view>
+
+    <view class="panel status-panel">
+      <view class="section-head">
+        <view class="section-mark"></view>
+        <text class="section-title">球队状态</text>
+      </view>
+      <view class="status-row">
+        <view class="status-copy">
+          <view class="status-title-line">
+            <text>启用球队</text>
+            <image class="info-icon small" src="{{assets.info}}" mode="aspectFit" />
+          </view>
+          <text class="status-desc">启用后，该球队将可被分配至赛事并进行比赛</text>
+        </view>
+        <switch class="team-switch" checked="{{form.enabled}}" color="#ff5b08" bindchange="onEnabledChange" />
+        <text class="status-chip">{{statusText}}</text>
+      </view>
+    </view>
+
+    <view class="footer-actions">
+      <view class="draft-button" bindtap="saveDraft">保存草稿</view>
+      <view class="save-button" bindtap="saveTeam">保存球队</view>
+    </view>
+
+    <view class="scroll-safe"></view>
+  </scroll-view>
+
+  <sxf-tabbar active="player" />
+</view>

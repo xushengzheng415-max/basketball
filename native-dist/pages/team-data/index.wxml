@@ -1,0 +1,71 @@
+<view class="page-shell">
+  <image class="page-background" src="{{assets.background}}" mode="aspectFill" />
+
+  <view class="hero">
+    <text class="hero-title">球队数据</text>
+    <text class="hero-subtitle">查看每支球队的比赛表现</text>
+  </view>
+
+  <view class="summary-card">
+    <view class="summary-item">
+      <image class="summary-icon" src="{{assets.team}}" mode="aspectFit" />
+      <text class="summary-label">球队总数</text>
+      <text class="summary-value">{{summary.teams}}</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <image class="summary-icon" src="{{assets.calendar}}" mode="aspectFit" />
+      <text class="summary-label">累计比赛</text>
+      <text class="summary-value">{{summary.matches}}</text>
+    </view>
+    <view class="summary-divider"></view>
+    <view class="summary-item">
+      <image class="summary-icon flame" src="{{assets.flame}}" mode="aspectFit" />
+      <text class="summary-label">进行中赛事</text>
+      <text class="summary-value orange">{{summary.running}}</text>
+    </view>
+  </view>
+
+  <view class="search-box">
+    <image class="search-icon" src="{{assets.search}}" mode="aspectFit" />
+    <input class="search-input" placeholder="搜索球队" placeholder-class="search-placeholder" value="{{keyword}}" bindinput="onKeywordInput" />
+  </view>
+
+  <view class="filter-row">
+    <view wx:for="{{filters}}" wx:key="key" class="{{item.className}}" data-key="{{item.key}}" bindtap="changeFilter">{{item.label}}</view>
+  </view>
+
+  <view class="team-list" wx:if="{{!loading}}">
+    <view wx:for="{{visibleTeams}}" wx:key="id" class="{{item.cardClass}}" data-id="{{item.id}}" bindtap="openTeam">
+      <image class="team-logo" src="{{item.logo}}" mode="aspectFit" />
+      <view class="team-main">
+        <text class="team-name">{{item.name}}</text>
+        <view class="team-stats">
+          <view class="team-stat"><text class="stat-label">比赛</text><text class="stat-value">{{item.matches}}场</text></view>
+          <view class="stat-divider"></view>
+          <view class="team-stat"><text class="stat-label">胜-负</text><text class="stat-value">{{item.wins}}-{{item.losses}}</text></view>
+          <view class="stat-divider"></view>
+          <view class="team-stat"><text class="stat-label">胜率</text><text class="stat-value">{{item.winRate}}</text></view>
+          <view class="stat-divider"></view>
+          <view class="team-stat form-stat">
+            <text class="stat-label">近期状态</text>
+            <view class="form-row" wx:if="{{!item.recentEmpty}}">
+              <text wx:for="{{item.recent}}" wx:key="key" class="{{item.className}}">{{item.label}}</text>
+            </view>
+            <text class="form-empty" wx:else>暂无赛果</text>
+          </view>
+        </view>
+      </view>
+      <image class="team-chevron" src="{{assets.chevron}}" mode="aspectFit" />
+    </view>
+
+    <view class="empty-card" wx:if="{{empty}}">
+      <image class="empty-icon" src="{{assets.team}}" mode="aspectFit" />
+      <text class="empty-title">暂无球队数据</text>
+      <text class="empty-desc">创建球队并完成比赛后，统计会自动显示在这里</text>
+    </view>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">正在读取球队数据…</view>
+  <sxf-tabbar active="data" />
+</view>

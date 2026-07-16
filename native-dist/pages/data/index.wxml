@@ -1,0 +1,70 @@
+<view class="data-center">
+  <image class="page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/data-center-bg.png" mode="aspectFill" />
+
+  <view class="hero">
+    <image class="status-bar" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/status-bar.png" mode="aspectFit" />
+    <view class="nav-row">
+      <view class="nav-spacer"></view>
+      <text class="nav-title">数据中心</text>
+      <view class="nav-actions">
+        <text class="version-badge">1.0介绍页</text>
+        <view class="capsule">
+          <text class="capsule-dots">•••</text>
+          <view class="capsule-divider"></view>
+          <view class="capsule-circle"></view>
+        </view>
+      </view>
+    </view>
+
+    <view class="hero-copy">
+      <view class="hero-title">
+        <text class="hero-title-hot">赛事数据</text><text class="hero-title-light">能力规划</text>
+      </view>
+      <text class="hero-subtitle">比赛、球员、球队、成长数据将在后续版本沉淀</text>
+    </view>
+  </view>
+
+  <view class="content">
+    <view class="panel feature-panel">
+      <view class="panel-title-row">
+        <view class="panel-accent"></view>
+        <text class="panel-title">后续将支持</text>
+      </view>
+
+      <view class="feature-grid">
+        <view wx:for="{{features}}" wx:key="title" class="{{item.cardClass}}" data-url="{{item.url}}" bindtap="goFeature">
+          <image class="feature-icon" src="{{item.icon}}" mode="aspectFit" />
+          <text class="feature-title">{{item.title}}</text>
+          <text class="feature-status {{item.statusClass}}">{{item.status}}</text>
+        </view>
+      </view>
+
+      <view class="notice-row">
+        <text class="notice-icon">i</text>
+        <text class="notice-text">球队数据已开放，其余功能正在规划中。</text>
+      </view>
+    </view>
+
+    <view class="panel range-panel">
+      <view class="panel-title-row">
+        <view class="panel-accent"></view>
+        <text class="panel-title">当前版本数据范围</text>
+      </view>
+
+      <view class="range-list">
+        <view wx:for="{{rangeItems}}" wx:key="title" class="range-row" data-url="{{item.url}}" bindtap="goRangeItem">
+          <image class="range-icon" src="{{item.icon}}" mode="aspectFit" />
+          <view class="range-copy">
+            <text class="range-title">{{item.title}}</text>
+            <text class="range-desc">{{item.desc}}</text>
+          </view>
+          <image class="range-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/icon-chevron.png" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view class="back-button" bindtap="goWorkbench">返回工作台</view>
+    </view>
+  </view>
+
+  <sxf-tabbar active="data" />
+</view>

@@ -1,7 +1,7 @@
-﻿const voiceStyles = [
-  { id: 'standard', name: '标准播报' },
-  { id: 'live', name: '现场 MC' },
-  { id: 'kids', name: '儿童友好' }
+const voiceStyles = [
+  { id: 'standard', name: '赛小智' },
+  { id: 'live', name: '赛小瑾' },
+  { id: 'kids', name: '赛小萌' }
 ];
 
 function pick(list, seed) {

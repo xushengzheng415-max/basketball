@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "\u6570\u636e\u4e2d\u5fc3",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "sxf-tabbar": "/components/sxf-tabbar/index"
+  }
+}

@@ -1,41 +1,68 @@
 <view class="page-wrap" wx:if="{{game}}">
   <view class="hero">
-    <text class="eyebrow">{{tournament.name || '赛事'}}</text>
+    <text class="eyebrow">{{tournament.name}}</text>
     <text class="title">{{game.name}}</text>
-    <text class="desc">{{game.homeTeamName}} vs {{game.awayTeamName}}</text>
-  </view>
-
-  <view class="roster-grid">
-    <view class="roster-card">
-      <text class="roster-title">{{game.homeTeamName}}球员</text>
-      <view wx:if="{{game.homePlayers.length === 0}}" class="mini-empty">未选择</view>
-      <view wx:for="{{game.homePlayers}}" wx:key="id" class="selected-player" data-id="{{item.id}}" bindtap="removeHome">
-        <text>#{{item.number || '--'}} {{item.name}}</text>
-        <text class="remove">移除</text>
+    <view class="matchup">
+      <view class="match-team">
+        <image class="hero-logo" src="{{homeTeam.logoUrl}}" mode="aspectFit" />
+        <text>{{game.homeTeamName}}</text>
+      </view>
+      <text class="hero-vs">VS</text>
+      <view class="match-team away">
+        <image class="hero-logo" src="{{awayTeam.logoUrl}}" mode="aspectFit" />
+        <text>{{game.awayTeamName}}</text>
       </view>
     </view>
-    <view class="roster-card">
-      <text class="roster-title">{{game.awayTeamName}}球员</text>
-      <view wx:if="{{game.awayPlayers.length === 0}}" class="mini-empty">未选择</view>
-      <view wx:for="{{game.awayPlayers}}" wx:key="id" class="selected-player" data-id="{{item.id}}" bindtap="removeAway">
-        <text>#{{item.number || '--'}} {{item.name}}</text>
-        <text class="remove">移除</text>
-      </view>
+    <view class="match-actions">
+      <view class="primary-action" bindtap="startScorer">进入计分板</view>
     </view>
   </view>
 
-  <text class="section">球员库</text>
-  <view wx:if="{{players.length === 0}}" class="empty">暂无球员，请先到底部“球员”页添加球员。</view>
-  <view wx:elif="{{availablePlayers.length === 0}}" class="empty">球员已全部加入本场次。</view>
-  <view wx:for="{{availablePlayers}}" wx:key="id" class="player-row">
-    <text class="player-name">#{{item.number || '--'}} {{item.name}}</text>
-    <view class="player-actions">
-      <view data-id="{{item.id}}" bindtap="addToHome">加主队</view>
-      <view data-id="{{item.id}}" bindtap="addToAway">加客队</view>
+  <view class="team-section">
+    <view class="section-head">
+      <view class="section-team">
+        <image class="section-logo" src="{{homeTeam.logoUrl}}" mode="aspectFit" />
+        <text>{{game.homeTeamName}}</text>
+      </view>
+      <text class="starter-count">首发 {{homeStarterCount}} / 5</text>
+    </view>
+    <view wx:if="{{homeEmpty}}" class="empty">该球队还没有球员资料。</view>
+    <view wx:for="{{homeRoster}}" wx:key="id" class="{{item.roleClass}}">
+      <view class="player-info">
+        <text class="player-number">#{{item.number}}</text>
+        <text class="player-name">{{item.name}}</text>
+        <text class="role-tag">{{item.roleText}}</text>
+      </view>
+      <view class="role-actions">
+        <view class="{{item.starterButtonClass}}" data-side="home" data-id="{{item.id}}" data-role="starter" bindtap="chooseRole">首发</view>
+        <view class="{{item.benchButtonClass}}" data-side="home" data-id="{{item.id}}" data-role="bench" bindtap="chooseRole">替补</view>
+      </view>
+    </view>
+  </view>
+
+  <view class="team-section">
+    <view class="section-head">
+      <view class="section-team">
+        <image class="section-logo" src="{{awayTeam.logoUrl}}" mode="aspectFit" />
+        <text>{{game.awayTeamName}}</text>
+      </view>
+      <text class="starter-count">首发 {{awayStarterCount}} / 5</text>
+    </view>
+    <view wx:if="{{awayEmpty}}" class="empty">该球队还没有球员资料。</view>
+    <view wx:for="{{awayRoster}}" wx:key="id" class="{{item.roleClass}}">
+      <view class="player-info">
+        <text class="player-number">#{{item.number}}</text>
+        <text class="player-name">{{item.name}}</text>
+        <text class="role-tag">{{item.roleText}}</text>
+      </view>
+      <view class="role-actions">
+        <view class="{{item.starterButtonClass}}" data-side="away" data-id="{{item.id}}" data-role="starter" bindtap="chooseRole">首发</view>
+        <view class="{{item.benchButtonClass}}" data-side="away" data-id="{{item.id}}" data-role="bench" bindtap="chooseRole">替补</view>
+      </view>
     </view>
   </view>
 </view>
 
 <view class="page-wrap" wx:else>
-  <view class="empty">没有找到这场场次，请返回赛事详情重新进入。</view>
+  <view class="empty">没有找到这场比赛，请返回赛事详情重新进入。</view>
 </view>

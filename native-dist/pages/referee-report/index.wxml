@@ -1,0 +1,129 @@
+<view class="report-page">
+  <view class="custom-nav">
+    <view class="nav-back" bindtap="goBack">‹</view>
+    <view class="nav-title">赛后裁判报告</view>
+    <view class="nav-space"></view>
+  </view>
+
+  <view class="hero-card">
+    <image class="hero-bg" src="{{heroTexture}}" mode="aspectFill"></image>
+    <view class="hero-shade"></view>
+    <image wx:if="{{showU10Badge}}" class="group-badge-image" src="{{badgeImage}}" mode="aspectFit"></image>
+    <view wx:if="{{showCodeBadge}}" class="group-badge">
+      <view class="group-badge-main">{{groupShort}}</view>
+      <view class="group-badge-sub">ELITE</view>
+      <view class="group-ball">◉</view>
+    </view>
+    <view class="hero-copy">
+      <view class="hero-title">{{matchName}}</view>
+      <view class="hero-subtitle">请核对比赛信息与比分</view>
+    </view>
+    <view class="status-pill {{statusClass}}">{{statusText}}</view>
+  </view>
+
+  <view class="main-card">
+    <view class="section-title"><text class="section-mark"></text>比赛资料</view>
+    <view class="meta-grid">
+      <view class="meta-item"><text class="meta-label">赛事：</text><text>{{tournamentName}}</text></view>
+      <view class="meta-item"><text class="meta-label">组别：</text><text>{{groupName}}</text></view>
+      <view class="meta-item"><text class="meta-label">比赛时间：</text><text>{{matchTime}}</text></view>
+      <view class="meta-item"><text class="meta-label">比赛地点：</text><text>{{venue}}</text></view>
+    </view>
+
+    <view class="dash-line meta-divider"></view>
+    <view class="score-block">
+      <view class="team-block">
+        <image wx:if="{{homeLogo}}" class="team-logo" src="{{homeLogo}}" mode="aspectFit" binderror="onHomeLogoError"></image>
+        <view wx:else class="team-fallback home-fallback">{{homeInitial}}</view>
+        <view class="team-name home-name">{{homeName}}</view>
+      </view>
+      <view class="score-center">
+        <view class="score-row"><text class="home-score">{{homeScore}}</text><text class="score-colon">:</text><text>{{awayScore}}</text></view>
+        <view class="ended-pill">比赛结束</view>
+      </view>
+      <view class="team-block">
+        <image wx:if="{{awayLogo}}" class="team-logo" src="{{awayLogo}}" mode="aspectFit" binderror="onAwayLogoError"></image>
+        <view wx:else class="team-fallback away-fallback">{{awayInitial}}</view>
+        <view class="team-name">{{awayName}}</view>
+      </view>
+    </view>
+
+    <view class="dash-line score-divider"></view>
+    <view class="section-title period-section-title"><text class="section-mark"></text>单节得分</view>
+    <scroll-view class="period-scroll" scroll-x="true">
+      <view class="period-table" style="min-width: {{periodTableWidth}}rpx;">
+        <view class="period-row header-row">
+          <view class="period-team-cell">球队</view>
+          <view class="period-cell" wx:for="{{periodColumns}}" wx:key="label">{{item.label}}</view>
+          <view class="period-cell total-cell">总分</view>
+        </view>
+        <view class="period-row">
+          <view class="period-team-cell home-name">{{homeName}}</view>
+          <view class="period-cell" wx:for="{{periodColumns}}" wx:key="label">{{item.homeText}}</view>
+          <view class="period-cell total-cell home-name">{{homeScore}}</view>
+        </view>
+        <view class="period-row">
+          <view class="period-team-cell">{{awayName}}</view>
+          <view class="period-cell" wx:for="{{periodColumns}}" wx:key="label">{{item.awayText}}</view>
+          <view class="period-cell total-cell">{{awayScore}}</view>
+        </view>
+      </view>
+    </scroll-view>
+
+    <view class="section-title summary-title"><text class="section-mark"></text>比赛记录摘要</view>
+    <view class="summary-grid">
+      <view class="summary-card">
+        <view class="summary-team home-name">{{homeName}}</view>
+        <view class="summary-values">
+          <view><text>全队犯规</text><text class="summary-number home-name">{{homeFouls}}</text></view>
+          <view><text>暂停</text><text class="summary-number home-name">{{homeTimeouts}}</text></view>
+        </view>
+      </view>
+      <view class="summary-card">
+        <view class="summary-team">{{awayName}}</view>
+        <view class="summary-values">
+          <view><text>全队犯规</text><text class="summary-number">{{awayFouls}}</text></view>
+          <view><text>暂停</text><text class="summary-number">{{awayTimeouts}}</text></view>
+        </view>
+      </view>
+    </view>
+    <view class="record-tip">ⓘ 如比分或记录有误，请返回计分板修改</view>
+
+    <view class="confirmation-card {{lockedClass}}">
+      <view class="section-title"><text class="section-mark"></text>裁判确认</view>
+      <view class="name-row">
+        <text>裁判姓名</text>
+        <input class="name-input" value="{{refereeName}}" disabled="{{reportLocked}}" placeholder="请输入裁判姓名" bindinput="onRefereeInput"></input>
+      </view>
+      <view class="sign-label">请裁判在此签名</view>
+      <view wx:if="{{showSignatureCanvas}}" class="signature-wrap">
+        <canvas type="2d" id="signatureCanvas" class="signature-canvas" disable-scroll="true" bindtouchstart="onSignatureStart" catchtouchmove="onSignatureMove" bindtouchend="onSignatureEnd" bindtouchcancel="onSignatureEnd"></canvas>
+        <view class="clear-sign" bindtap="clearSignature">↻ 清除重签</view>
+      </view>
+      <view wx:if="{{showLockedSignature}}" class="signature-wrap locked-signature">
+        <image class="signature-preview" src="{{signatureFileID}}" mode="aspectFit"></image>
+        <view class="signed-stamp">已签署</view>
+      </view>
+      <view class="confirm-check" bindtap="toggleConfirmed">
+        <view class="checkbox {{confirmedClass}}">✓</view>
+        <text>本人已核对以上比赛信息与比分</text>
+      </view>
+      <view wx:if="{{reportLocked}}" class="report-meta">报告编号：{{reportNo}}　签署时间：{{signedAtText}}</view>
+    </view>
+  </view>
+
+  <view wx:if="{{showUnsignedControls}}" class="warning-bar">⚠ 确认后比分将锁定，报告不可直接修改</view>
+  <button wx:if="{{showUnsignedControls}}" class="submit-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="confirmAndGenerate">
+    <text class="submit-title">签字确认并生成报告</text>
+    <text class="submit-subtitle">确认后生成正式 A4 赛后裁判报告</text>
+  </button>
+  <button wx:if="{{showPdfButton}}" class="submit-button" bindtap="openPdf">
+    <text class="submit-title">打开 / 导出 A4 PDF</text>
+    <text class="submit-subtitle">可通过微信文件菜单转发或保存</text>
+  </button>
+  <button wx:if="{{showRetryButton}}" class="submit-button retry-button" loading="{{submitting}}" disabled="{{submitting}}" bindtap="retryPdf">
+    <text class="submit-title">重新生成 A4 PDF</text>
+    <text class="submit-subtitle">签名与比分已锁定，无需重新签字</text>
+  </button>
+  <canvas type="2d" id="reportCanvas" class="report-canvas"></canvas>
+</view>

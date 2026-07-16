@@ -1,19 +1,22 @@
 <view class="login-page">
-  <image class="login-bg" src="/assets/home/home-bg.jpg" mode="aspectFill" />
+  <image class="login-bg" src="./home-bg.jpg" mode="aspectFill" />
   <view class="login-mask"></view>
 
   <view class="login-content">
     <view class="brand-zone">
-      <image class="main-logo" src="/assets/home/main-logo.png" mode="aspectFit" />
+      <image class="main-logo" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/main-logo.png" mode="aspectFit" />
     </view>
 
     <view class="action-panel">
-      <image class="panel-ball" src="/assets/home/basketball-icon.png" mode="aspectFit" />
-      <button class="image-button login-button-float" open-type="getPhoneNumber" bindgetphonenumber="loginByWechat">
-        <image src="/assets/login/login-button.png" mode="widthFix" />
+      <image class="panel-ball" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/basketball-icon.png" mode="aspectFit" />
+      <button wx:if="{{hasSavedWechat}}" class="image-button login-button-float" bindtap="loginWithSavedWechat">
+        <image src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/login/login-button.png" mode="widthFix" />
+      </button>
+      <button wx:else class="image-button login-button-float" open-type="getPhoneNumber" bindgetphonenumber="loginByWechat">
+        <image src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/login/login-button.png" mode="widthFix" />
       </button>
       <view class="image-button guest guest-button-float" bindtap="enterAsGuest">
-        <image src="/assets/login/guest-button.png" mode="widthFix" />
+        <image src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/login/guest-button.png" mode="widthFix" />
       </view>
       <view class="agreement" bindtap="toggleAgreement">
         <view class="check {{agreed ? 'active' : ''}}">✓</view>

@@ -1,0 +1,14 @@
+{
+  "$schema": "https://static.cloudbase.net/cli/cloudbaserc.schema.json",
+  "envId": "cloudbase-d4g93f0re5f3274c1",
+  "functionRoot": "cloudfunctions",
+  "functions": [
+    {
+      "name": "sxLogin",
+      "runtime": "Nodejs18.15",
+      "handler": "index.main",
+      "timeout": 15,
+      "memorySize": 256
+    }
+  ]
+}

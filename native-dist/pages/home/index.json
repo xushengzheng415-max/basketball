@@ -1,3 +1,7 @@
 {
-  "navigationBarTitleText": "赛小蜂篮球"
+  "navigationBarTitleText": "\u5de5\u4f5c\u53f0",
+  "navigationStyle": "custom",
+  "usingComponents": {
+    "sxf-tabbar": "/components/sxf-tabbar/index"
+  }
 }

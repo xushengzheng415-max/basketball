@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="390" height="844" viewBox="0 0 390 844">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#07131d" flood-opacity=".14"/>
+    </filter>
+    <linearGradient id="orangeGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ff6a20"/>
+      <stop offset="100%" stop-color="#e93708"/>
+    </linearGradient>
+    <linearGradient id="darkGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0e1f2b"/>
+      <stop offset="100%" stop-color="#07131d"/>
+    </linearGradient>
+  </defs>
+  <style>
+    text{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;dominant-baseline:hanging}
+    .title{font-weight:800;fill:#07131d}
+    .sub{fill:#647184}
+    .white{fill:#fff}
+    .muted{fill:#647184}
+    .small{font-size:14px}
+    .label{font-size:18px;font-weight:700;fill:#07131d}
+    .btnText{font-size:18px;font-weight:800}
+    .score{font-size:92px;font-weight:900;fill:#ff4d18}
+  </style>
+  
+  <rect width="390" height="844" rx="0" fill="#f3f6fa"/>
+  <rect y="0" width="390" height="88" fill="#07131d"/>
+  <text x="195" y="45" text-anchor="middle" font-size="17" font-weight="800" fill="#fff">赛小蜂篮球</text>
+  <circle cx="315" cy="58" r="17" fill="#111c27" stroke="#3b4a58"/>
+  <circle cx="350" cy="58" r="17" fill="#111c27" stroke="#3b4a58"/>
+  <text x="27" y="48" font-size="30" fill="#fff">‹</text>
+  
+  <rect x="14" y="112" width="362" height="160" rx="8" fill="url(#darkGrad)"/>
+  <text x="30" y="132" font-size="15" font-weight="800" fill="#ffd956">赛小蜂篮球</text>
+  <text x="30" y="162" font-size="26" font-weight="900" fill="#fff">快速开始一场比赛</text>
+  <text x="30" y="202" font-size="14" fill="#cbd5e1">设置主客队和比赛时间，横屏计分。</text>
+  <rect x="30" y="230" width="96" height="34" rx="8" fill="#ffd956"/>
+  <text x="78" y="237" text-anchor="middle" class="btnText" fill="#07131d">开始设置</text>
+  <rect x="14" y="284" width="362" height="58" rx="7" fill="#fff7ed" stroke="#ffd4b8"/>
+  <text x="30" y="301" font-size="15" font-weight="800" fill="#e6360a">分享朋友圈可解锁 MC 音效 1 天</text>
+  <text x="30" y="323" font-size="12" fill="#647184">点击计分盘上方提示即可解锁现场音效。</text>
+  <text x="14" y="362" font-size="18" font-weight="900" fill="#07131d">最近赛果</text>
+  <rect x="14" y="394" width="362" height="112" rx="8" fill="#fff" filter="url(#shadow)"/>
+  <text x="30" y="416" font-size="18" font-weight="800" fill="#07131d">主队</text>
+  <text x="334" y="410" text-anchor="middle" font-size="30" font-weight="900" fill="#ff4d18">68</text>
+  <text x="30" y="454" font-size="18" font-weight="800" fill="#07131d">客队</text>
+  <text x="334" y="448" text-anchor="middle" font-size="30" font-weight="900" fill="#ff4d18">64</text>
+  <text x="30" y="486" font-size="12" fill="#647184">2026-07-05 20:30</text>
+  <rect x="14" y="522" width="174" height="74" rx="8" fill="#fff" filter="url(#shadow)"/>
+  <text x="30" y="542" font-size="17" font-weight="800" fill="#07131d">创建赛事</text>
+  <text x="30" y="568" font-size="12" fill="#647184">赛事名称、地点、日期</text>
+  <rect x="202" y="522" width="174" height="74" rx="8" fill="#fff" filter="url(#shadow)"/>
+  <text x="218" y="542" font-size="17" font-weight="800" fill="#07131d">球员库</text>
+  <text x="218" y="568" font-size="12" fill="#647184">添加球员与号码</text>
+
+  <rect y="786" width="390" height="58" fill="#fff"/>
+  <line x1="0" y1="786" x2="390" y2="786" stroke="#dbe3ee"/>
+  <text x="53" y="809" text-anchor="middle" font-size="13" fill="#ff4d18">首页</text>
+  <text x="145" y="809" text-anchor="middle" font-size="13" fill="#647184">赛事</text>
+  <text x="240" y="809" text-anchor="middle" font-size="13" fill="#647184">球员</text>
+  <text x="334" y="809" text-anchor="middle" font-size="13" fill="#647184">我的</text>
+  <rect x="143" y="831" width="104" height="4" rx="2" fill="#111"/>
+  
+</svg>

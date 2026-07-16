@@ -1,66 +1,59 @@
 <view class="products">
   <view class="hero">
-    <text class="kicker">赛小蜂篮球</text>
-    <text class="title">基础计分先用起来，现场播报单独购买</text>
-    <text class="desc">MC 音效控制优先通过分享兑换当天 VIP，不在主页面强调收费。AI 比分播报包单独计费。</text>
+    <text class="kicker">{{copy.kicker}}</text>
+    <text class="title">{{copy.title}}</text>
+    <text class="desc">{{copy.desc}}</text>
   </view>
 
-  <text class="section-title">分享可解锁</text>
-  <view wx:for="{{proFeatures}}" wx:key="id" class="feature-card">
-    <view class="feature-head">
-      <view>
-        <text class="feature-tag">{{item.tag}}</text>
-        <text class="feature-name">{{item.name}}</text>
+  <view wx:if="{{mode == 'mc'}}">
+    <text class="section-title">{{copy.shareTitle}}</text>
+    <view class="plan-card" bindtap="selectSharePlan">
+      <view class="plan-main">
+        <view class="plan-top">
+          <text class="plan-name">{{sharePlan.name}}</text>
+          <text class="promo">{{sharePlan.badge}}</text>
+        </view>
+        <text class="plan-desc">{{sharePlan.desc}}</text>
       </view>
-      <view class="preview" catchtap="previewFeature">预览</view>
+      <view class="price-block">
+        <text class="price">{{sharePlan.price}}</text>
+        <text class="buy">{{sharePlan.action}}</text>
+      </view>
     </view>
-    <text class="feature-desc">{{item.desc}}</text>
-    <view class="point" wx:for="{{item.points}}" wx:for-item="point" wx:key="*this">{{point}}</view>
-  </view>
 
-  <view wx:for="{{sharePlans}}" wx:key="id" class="plan-card" bindtap="selectSharePlan">
-    <view class="plan-main">
-      <view class="plan-top">
-        <text class="plan-name">{{item.name}}</text>
-        <text class="promo">{{item.badge}}</text>
+    <view wx:if="{{showMcPay}}" class="hidden-pay">
+      <view class="hidden-head">
+        <view>
+          <text class="hidden-kicker">{{copy.directKicker}}</text>
+          <text class="hidden-title">{{copy.directTitle}}</text>
+        </view>
+        <view class="hidden-close" bindtap="closeMcPay">{{copy.fold}}</view>
       </view>
-      <text class="plan-desc">{{item.desc}}</text>
-    </view>
-    <view class="price-block">
-      <text class="price">{{item.price}}</text>
-      <text class="buy">{{item.action}}</text>
-    </view>
-  </view>
-
-  <view wx:if="{{showMcPay}}" class="hidden-pay">
-    <view class="hidden-head">
-      <view>
-        <text class="hidden-kicker">不方便分享？</text>
-        <text class="hidden-title">直接解锁 MC 音效</text>
+      <view wx:for="{{mcPaidPlans}}" wx:key="id" class="hidden-plan" data-id="{{item.id}}" bindtap="selectMcPaidPlan">
+        <view>
+          <view class="hidden-line"><text class="hidden-name">{{item.name}}</text><text class="hidden-badge">{{item.badge}}</text></view>
+          <text class="hidden-desc">{{item.desc}}</text>
+        </view>
+        <text class="hidden-price">{{item.priceText}}</text>
       </view>
-      <view class="hidden-close" bindtap="closeMcPay">收起</view>
-    </view>
-    <view wx:for="{{mcPaidPlans}}" wx:key="id" class="hidden-plan" data-id="{{item.id}}" bindtap="selectMcPaidPlan">
-      <view>
-        <view class="hidden-line"><text class="hidden-name">{{item.name}}</text><text class="hidden-badge">{{item.badge}}</text></view>
-        <text class="hidden-desc">{{item.desc}}</text>
-      </view>
-      <text class="hidden-price">{{item.priceText}}</text>
     </view>
   </view>
 
-  <text class="section-title">AI 语音播报包</text>
-  <view class="voice-grid">
-    <view wx:for="{{voicePlans}}" wx:key="id" class="voice-card" data-id="{{item.id}}" bindtap="selectVoicePlan">
-      <text class="voice-name">{{item.name}}</text>
-      <text class="voice-price">{{item.priceText}}</text>
-      <text class="voice-desc">{{item.desc}}</text>
-      <text class="voice-action">{{item.action}}</text>
+  <view wx:if="{{mode == 'voice'}}">
+    <text class="section-title">{{copy.voiceTitle}}</text>
+    <view class="voice-grid">
+      <view wx:for="{{voicePlans}}" wx:key="id" class="voice-card" data-id="{{item.id}}" bindtap="selectVoicePlan">
+        <text class="voice-name">{{item.name}}</text>
+        <text class="voice-price">{{item.priceText}}</text>
+        <text class="voice-desc">{{item.desc}}</text>
+        <text class="voice-count">{{item.countText}}</text>
+        <text class="voice-action">{{item.action}}</text>
+      </view>
     </view>
   </view>
 
   <view class="notice">
-    <text>当前策略</text>
-    <text>MC 音效主推分享换 1 天 VIP；用户不想分享时，可在弹窗里直接付费解锁。球员数据 2.0 上线前不展示。</text>
+    <text>{{copy.noticeTitle}}</text>
+    <text>{{copy.notice}}</text>
   </view>
 </view>
