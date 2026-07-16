@@ -65,6 +65,12 @@
 - Large images/icons should use cloud storage under `ui-assets/assets/`; local `native-dist/assets` is only source/backup to avoid the 2MB preview limit.
 - If a module worktree conflicts with this file, the canonical-path `AGENTS.md` wins.
 
+### WeChat Capsule Safe Area
+
+- Every custom-navigation page must reserve the top-right WeChat capsule safe area; page titles, dates, counts, labels, edit actions, and floating buttons must never sit behind or touch the capsule.
+- Prefer calculating the safe area from `wx.getMenuButtonBoundingClientRect()`. For static native pages, reserve at least `210rpx` on the right of the top navigation row, or move right-side actions into a separate row below the capsule.
+- Do not solve capsule collisions with arbitrary `translateY` offsets. Keep navigation content inside an explicit safe layout and verify it on narrow iPhone portrait screens before handoff.
+
 ---
 ## 二、技术栈
 

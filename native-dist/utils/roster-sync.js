@@ -1,5 +1,7 @@
 const STORAGE_KEYS = ['teams', 'teamDrafts', 'teamCategories', 'players'];
 const IMAGE_URLS_KEY = 'rosterImageUrls';
+const ROSTER_SYNCED_AT_KEY = 'rosterCloudSyncedAt';
+const DEFAULT_PULL_CACHE_MS = 60 * 1000;
 
 let syncing = null;
 let pushTimer = null;
@@ -50,6 +52,10 @@ function saveImageUrls(imageUrls) {
   wx.setStorageSync(IMAGE_URLS_KEY, imageUrls && typeof imageUrls === 'object' ? imageUrls : {});
 }
 
+function markRosterSynced() {
+  wx.setStorageSync(ROSTER_SYNCED_AT_KEY, Date.now());
+}
+
 function resolveImageUrl() {
   const source = preferCloudFile.apply(null, arguments);
   if (!source.startsWith('cloud://')) return source;
@@ -87,7 +93,7 @@ function saveLocalRoster(roster, imageUrls) {
   wx.setStorageSync('teamCategories', (Array.isArray(roster.teamCategories) ? roster.teamCategories : []).map((item) => decorateTeam(item, urls)));
   wx.setStorageSync('players', (Array.isArray(roster.players) ? roster.players : []).map((item) => decoratePlayer(item, urls)));
   saveImageUrls(urls);
-  wx.setStorageSync('rosterCloudSyncedAt', Date.now());
+  markRosterSynced();
 }
 
 function callSync(action, roster) {
@@ -112,16 +118,32 @@ function pullRoster() {
       }
       const localRoster = getLocalRoster();
       if (hasRosterData(localRoster)) {
-        return callSync('push', localRoster).then(() => ({ source: 'local', roster: localRoster }));
+        return callSync('push', localRoster).then(() => {
+          markRosterSynced();
+          return { source: 'local', roster: localRoster };
+        });
       }
+      markRosterSynced();
       return { source: 'empty', roster: localRoster };
     })
     .finally(() => { syncing = null; });
   return syncing;
 }
 
+function pullRosterIfStale(maxAge) {
+  const ttl = typeof maxAge === 'number' ? Math.max(0, maxAge) : DEFAULT_PULL_CACHE_MS;
+  const syncedAt = Number(wx.getStorageSync(ROSTER_SYNCED_AT_KEY) || 0);
+  if (syncedAt && Date.now() - syncedAt < ttl) {
+    return Promise.resolve({ source: 'cache', roster: getLocalRoster() });
+  }
+  return pullRoster();
+}
+
 function pushRoster() {
-  return callSync('push', getLocalRoster());
+  return callSync('push', getLocalRoster()).then((result) => {
+    markRosterSynced();
+    return result;
+  });
 }
 
 function scheduleRosterPush(delay) {
@@ -132,4 +154,4 @@ function scheduleRosterPush(delay) {
   }, typeof delay === 'number' ? delay : 300);
 }
 
-module.exports = { getLocalRoster, pullRoster, pushRoster, resolveImageUrl, saveLocalRoster, scheduleRosterPush };
+module.exports = { getLocalRoster, pullRoster, pullRosterIfStale, pushRoster, resolveImageUrl, saveLocalRoster, scheduleRosterPush };

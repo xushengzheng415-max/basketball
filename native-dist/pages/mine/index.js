@@ -1,6 +1,9 @@
 const { callCloud } = require('../../utils/cloud');
 
 const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/';
+const PROFILE_SYNCED_AT_KEY = 'mineProfileCloudSyncedAt';
+const PROFILE_SYNC_CACHE_MS = 60 * 1000;
+let profileSyncing = null;
 const DEFAULT_PROFILE = {
   loggedIn: false,
   avatarUrl: '',
@@ -59,6 +62,19 @@ function getPhoneText(profile) {
   return profile.phoneNumber || '微信授权获取';
 }
 
+function syncProfileIfStale() {
+  const syncedAt = Number(wx.getStorageSync(PROFILE_SYNCED_AT_KEY) || 0);
+  if (syncedAt && Date.now() - syncedAt < PROFILE_SYNC_CACHE_MS) return Promise.resolve(null);
+  if (profileSyncing) return profileSyncing;
+  profileSyncing = callCloud('sxSyncRoster', { action: 'profile' })
+    .then((result) => {
+      if (result && result.ok) wx.setStorageSync(PROFILE_SYNCED_AT_KEY, Date.now());
+      return result;
+    })
+    .finally(() => { profileSyncing = null; });
+  return profileSyncing;
+}
+
 function buildFormRows(profile) {
   return [
     { field: 'nickName', label: '昵称', value: profile.nickName, placeholder: '请输入昵称', editable: true, icon: ASSET_BASE + 'icon-person.png', showChevron: true },
@@ -98,7 +114,7 @@ Page({
     const profile = readProfile();
     const preferences = readPreferences();
     this.refresh(profile, preferences);
-    callCloud('sxSyncRoster', { action: 'profile' }).then((result) => {
+    syncProfileIfStale().then((result) => {
       if (!result || !result.ok || !result.profile) return;
       const cloudProfile = result.profile;
       const rawProfile = Object.assign({}, profile, cloudProfile, {
@@ -214,6 +230,7 @@ Page({
           wx.setStorageSync('loginProfile', Object.assign({}, loginProfile, profile));
         }
         wx.setStorageSync('minePreferences', preferences);
+        wx.setStorageSync(PROFILE_SYNCED_AT_KEY, Date.now());
         return getAvatarDisplayUrl(avatarFileID);
       })
       .then((displayUrl) => {
@@ -237,6 +254,7 @@ Page({
         if (!result.confirm) return;
         wx.removeStorageSync('loginProfile');
         wx.removeStorageSync('userProfile');
+        wx.removeStorageSync(PROFILE_SYNCED_AT_KEY);
         wx.reLaunch({ url: '/pages/login/index' });
       }
     });

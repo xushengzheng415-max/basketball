@@ -6,7 +6,7 @@
 
   <view class="login-content">
     <view class="brand-zone">
-      <image class="main-logo" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/main-logo.png" mode="aspectFit" />
+      <image class="main-logo" src="./main-logo.png" mode="aspectFit" />
     </view>
 
     <view class="login-card">
@@ -14,11 +14,9 @@
       <text class="login-description">登录后可同步赛事、计分与教务数据</text>
 
       <button wx:if="{{agreed}}" class="phone-login-button" open-type="getPhoneNumber" bindgetphonenumber="loginByPhone" loading="{{loggingIn}}" disabled="{{loggingIn}}">
-        <image class="phone-login-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/login/phone-login-button-bg-v1.png" mode="aspectFill" />
         <text class="phone-login-text">{{buttonText}}</text>
       </button>
       <button wx:else class="phone-login-button phone-login-button-locked" bindtap="promptAgreement">
-        <image class="phone-login-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/login/phone-login-button-bg-v1.png" mode="aspectFill" />
         <text class="phone-login-text">{{buttonText}}</text>
       </button>
 

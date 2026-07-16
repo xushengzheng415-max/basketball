@@ -41,10 +41,13 @@ async function getPhoneNumber(phoneCode) {
     };
   } catch (error) {
     console.warn('[sxLogin] get phone number failed', error);
+    const errorCode = error && (error.errCode || error.errcode || error.code) || '';
+    const errorMessage = error && (error.errMsg || error.message) || '';
     return {
       phoneNumber: '',
       failed: true,
-      message: error && error.message ? error.message : '手机号授权失败'
+      code: errorCode,
+      message: errorMessage || (errorCode ? '手机号授权失败：' + errorCode : '手机号授权失败')
     };
   }
 }
@@ -57,15 +60,29 @@ exports.main = async (event = {}) => {
   const profile = event.profile || {};
   const mode = profile.mode || 'wechat';
 
-  let phoneNumber = '';
-  let phoneAuthFailed = false;
-  let phoneAuthMessage = '';
+  const phonePromise = mode === 'wechat'
+    ? getPhoneNumber(event.phoneCode || '')
+    : Promise.resolve({ phoneNumber: '', failed: false, message: '', code: '' });
+  const userPromise = db.collection('sx_users').where({ openid }).limit(1).get();
+  const [phoneResult, existed] = await Promise.all([phonePromise, userPromise]);
+  const phoneNumber = phoneResult.phoneNumber || '';
+  const phoneAuthMessage = phoneResult.message || '';
+  const phoneAuthCode = phoneResult.code || '';
+  const existingUser = existed.data && existed.data[0] ? existed.data[0] : null;
+  const resolvedPhoneNumber = phoneNumber || (existingUser && existingUser.phoneNumber) || profile.phoneNumber || '';
+  const effectivePhoneAuthFailed = mode === 'wechat' && !resolvedPhoneNumber;
 
-  if (mode === 'wechat') {
-    const phoneResult = await getPhoneNumber(event.phoneCode || '');
-    phoneNumber = phoneResult.phoneNumber || '';
-    phoneAuthFailed = !!phoneResult.failed || !phoneNumber;
-    phoneAuthMessage = phoneResult.message || '';
+  if (effectivePhoneAuthFailed) {
+    return {
+      ok: true,
+      openid,
+      unionid,
+      phoneNumber: '',
+      phoneAuthFailed: true,
+      phoneAuthMessage,
+      phoneAuthCode,
+      userId: existingUser ? existingUser._id : ''
+    };
   }
 
   const user = {
@@ -74,21 +91,22 @@ exports.main = async (event = {}) => {
     nickName: profile.nickName || '微信用户',
     avatarUrl: profile.avatarUrl || '',
     mode,
-    phoneNumber: phoneNumber || profile.phoneNumber || '',
-    phoneAuthFailed,
+    phoneNumber: resolvedPhoneNumber,
+    phoneAuthFailed: false,
     phoneAuthMessage,
     lastLoginAt: now,
     updatedAt: now
   };
 
-  const existed = await db.collection('sx_users').where({ openid }).limit(1).get();
   if (existed.data.length) {
-    await db.collection('sx_users').doc(existed.data[0]._id).update({ data: user });
-    await ensureVoiceTrial(openid, unionid, now);
-    return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, phoneAuthFailed, userId: existed.data[0]._id };
+    await Promise.all([
+      db.collection('sx_users').doc(existed.data[0]._id).update({ data: user }),
+      ensureVoiceTrial(openid, unionid, now)
+    ]);
+    return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, phoneAuthFailed: false, phoneAuthMessage, phoneAuthCode, userId: existed.data[0]._id };
   }
 
   const created = await db.collection('sx_users').add({ data: Object.assign({}, user, { createdAt: now }) });
   await ensureVoiceTrial(openid, unionid, now);
-  return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, phoneAuthFailed, userId: created._id };
+  return { ok: true, openid, unionid, phoneNumber: user.phoneNumber, phoneAuthFailed: false, phoneAuthMessage, phoneAuthCode, userId: created._id };
 };

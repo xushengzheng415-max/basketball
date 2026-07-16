@@ -1,47 +1,93 @@
-<view class="education-page">
-  <view class="hero-section">
-    <image class="hero-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/education-top-bg-clean.png" mode="aspectFill" />
-    <text class="page-title">教务中心</text>
-    <view class="version-badge">1.0介绍页</view>
-    <view class="hero-title">
-      <text class="title-hot">教务管理</text>
-      <text class="title-light">能力规划</text>
-    </view>
-    <text class="hero-subtitle">课程、学员、课消、教练薪酬将在后续版本开放</text>
-  </view>
+<view class="coach-page">
+  <image class="page-bg" src="{{assets.background}}" mode="aspectFill" />
+  <view class="page-shade"></view>
 
-  <view class="support-panel">
-    <view class="section-head">
-      <view class="orange-line"></view>
-      <text class="section-title">后续将支持</text>
-    </view>
-    <view class="feature-grid">
-      <view wx:for="{{features}}" wx:key="key" class="feature-card" data-key="{{item.key}}" bindtap="onFeatureTap">
-        <image class="feature-icon" src="{{item.icon}}" mode="aspectFit" />
-        <text class="feature-title">{{item.title}}</text>
-        <view class="planning-pill">规划中</view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero">
+      <view class="brand-row">
+        <image class="brand-logo" src="{{assets.logo}}" mode="aspectFit" />
+        <view class="role-pill">教练端</view>
+        <view class="campus-pill">浦东校区⌄</view>
+      </view>
+      <view class="welcome-row">
+        <view>
+          <text class="eyebrow">陈教练，晚上好</text>
+          <text class="page-title">今日教学工作台</text>
+          <text class="hero-copy">浦东校区 · 备课、点名、评价一处完成</text>
+        </view>
+        <view class="weekly-progress"><view class="weekly-ring"><text>76%</text></view><text class="weekly-label">12/16 节课</text></view>
       </view>
     </view>
-    <view class="planning-notice">
-      <text class="notice-icon">i</text>
-      <text class="notice-copy">以上功能正在规划中，敬请期待后续版本上线。</text>
-    </view>
-  </view>
 
-  <view class="current-panel">
-    <view class="clipboard-icon">
-      <view class="clip-top"></view>
-      <view class="clip-line"></view>
-      <view class="clip-line short"></view>
-      <view class="clip-line"></view>
-    </view>
-    <text class="current-title">当前版本请先使用赛事与计分功能</text>
-    <text class="current-desc">我们会不断优化产品，带来更好的教务管理体验。</text>
-    <view class="event-button" bindtap="goTournament">
-      <text>查看赛事功能</text>
-      <view class="button-ball"></view>
-    </view>
-  </view>
+    <view class="content">
+      <view class="next-card" bindtap="openCourseDetail">
+        <view class="card-head">
+          <view><text class="section-kicker">下一节课</text><text class="course-title">U10 提高班 · 控球强化</text></view>
+          <view class="countdown"><text class="countdown-value">42</text><text>分钟后</text></view>
+        </view>
+        <view class="course-meta"><text>18:30–20:00</text><text>2号馆</text><text>15名学员</text></view>
+        <view class="progress-track"><view class="progress-value"></view></view>
+        <view class="next-actions">
+          <view class="outline-btn" catchtap="openPlan">查看计划</view>
+          <view class="primary-btn" catchtap="openAttendance">进入点名</view>
+          <view class="outline-btn" catchtap="openCourseStudents">学员名单</view>
+        </view>
+      </view>
 
+      <view class="metric-grid">
+        <view class="metric-card" wx:for="{{metrics}}" wx:key="label">
+          <image class="metric-icon" src="{{item.icon}}" mode="aspectFit" />
+          <text class="metric-label">{{item.label}}</text>
+          <view><text class="metric-value">{{item.value}}</text><text class="metric-unit">{{item.unit}}</text></view>
+          <text class="metric-note">{{item.note}}</text>
+        </view>
+      </view>
+
+      <view class="class-entry" bindtap="openClasses">
+        <view class="class-entry-icon"><image src="{{assets.classIcon}}" mode="aspectFit" /></view>
+        <view class="class-entry-main"><view><text class="class-entry-title">我的班级</text><text class="role-tag">教练管理</text></view><text class="class-entry-desc">3个负责班级 · 37名学员 · 本周8节课</text><view class="class-entry-tags"><text>课程安排</text><text>班级学员</text><text>教学进度</text></view></view>
+        <text class="class-entry-arrow">›</text>
+      </view>
+
+      <view class="section-card">
+        <view class="section-head"><view><text class="section-title">今日课程</text><text class="section-sub">3节 · 已完成1节</text></view><text class="link" bindtap="openCourses">全部课程 ›</text></view>
+        <view class="timeline-item" wx:for="{{courses}}" wx:key="id" data-id="{{item.id}}" bindtap="openCourseDetail">
+          <view class="time-column"><text class="time">{{item.time}}</text><text class="time-state">{{item.state}}</text></view>
+          <view class="timeline-line"><view class="timeline-dot {{item.dotClass}}"></view></view>
+          <view class="course-info"><view><text class="list-title">{{item.title}}</text><text class="tag">{{item.tag}}</text></view><text class="list-sub">{{item.venue}} · {{item.students}}名学员</text></view>
+          <text class="chevron">›</text>
+        </view>
+      </view>
+
+      <view class="section-card">
+        <view class="section-head"><view><text class="section-title">教学待办</text><text class="section-sub">按课堂流程自动生成</text></view><text class="link">4项待处理</text></view>
+        <view class="task-grid">
+          <view class="task-card" wx:for="{{tasks}}" wx:key="title" data-action="{{item.action}}" bindtap="handleTask">
+            <view class="task-icon-wrap"><image class="task-icon" src="{{item.icon}}" mode="aspectFit" /><text class="task-badge">{{item.count}}</text></view>
+            <text class="task-title">{{item.title}}</text><text class="task-desc">{{item.desc}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="section-card period-report-card">
+        <view class="section-head"><view><text class="section-title">周期报告提醒</text><text class="section-sub">只在本周或本月课程完成后触发</text></view><text class="report-rule">自动提醒</text></view>
+        <view class="period-report-row {{item.stateClass}}" wx:for="{{periodReports}}" wx:key="type" data-type="{{item.type}}" bindtap="openPeriodReports">
+          <view class="period-report-icon"><view class="report-sheet"><text></text><text></text><text></text></view></view>
+          <view class="period-report-main"><text class="period-eyebrow">{{item.eyebrow}}</text><text class="period-title">{{item.title}}</text><text class="period-desc">{{item.desc}}</text></view>
+          <view class="period-report-side"><text class="period-value">{{item.value}}</text><text class="period-action">{{item.actionLabel}} ›</text></view>
+        </view>
+      </view>
+
+      <view class="section-card student-card">
+        <view class="section-head"><view><text class="section-title">学员动态</text><text class="section-sub">关注近期训练变化</text></view><text class="link">查看全部 ›</text></view>
+        <view class="student-row" wx:for="{{students}}" wx:key="id" data-id="{{item.id}}" bindtap="openStudent">
+          <image class="student-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="student-copy"><view><text class="list-title">{{item.name}}</text><text class="positive-tag">{{item.tag}}</text></view><text class="list-sub">{{item.message}}</text></view>
+          <text class="chevron">›</text>
+        </view>
+      </view>
+    </view>
+    <view class="bottom-space"></view>
+  </scroll-view>
   <sxf-tabbar active="education" />
 </view>

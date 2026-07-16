@@ -27,7 +27,7 @@
 
     <view class="event-list" wx:if="{{hasVisibleTournaments}}">
       <view wx:for="{{visibleTournaments}}" wx:key="id" class="event-card" data-id="{{item.id}}" bindtap="openTournament">
-        <image class="event-card-img" src="{{item.cardImage}}" mode="widthFix" data-id="{{item.id}}" />
+        <image class="event-card-img" src="{{item.cardImage}}" mode="scaleToFill" data-id="{{item.id}}" />
         <view class="detail-hit" data-id="{{item.id}}" catchtap="openTournament">杩涘叆璇︽儏</view>
       </view>
       <image class="list-footer" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/list-footer-no-more.png" mode="aspectFit" />
@@ -39,4 +39,3 @@
   </view>
   <sxf-tabbar active="tournament" />
 </view>
-

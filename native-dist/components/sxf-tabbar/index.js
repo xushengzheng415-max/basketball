@@ -1,4 +1,4 @@
-const TAB_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/tabbar/';
+const TAB_BASE = '/components/sxf-tabbar/';
 
 const TAB_ITEMS = [
   { key: 'home', label: '\u5de5\u4f5c\u53f0', icon: TAB_BASE + 'workbench.png', activeIcon: TAB_BASE + 'workbench-active.png', url: '/pages/home/index' },
@@ -18,7 +18,8 @@ Component({
   },
 
   data: {
-    items: []
+    items: [],
+    navigating: false
   },
 
   observers: {
@@ -34,9 +35,8 @@ Component({
   },
 
   methods: {
-    syncItems() {
-      const active = this.properties.active;
-      const items = TAB_ITEMS.map((item) => {
+    buildItems(active) {
+      return TAB_ITEMS.map((item) => {
         const isActive = item.key === active;
         return {
           ...item,
@@ -44,15 +44,28 @@ Component({
           activeClass: isActive ? 'active' : ''
         };
       });
-      this.setData({ items });
+    },
+
+    syncItems(nextActive) {
+      const active = nextActive || this.properties.active;
+      this.setData({ items: this.buildItems(active) });
     },
 
     onTabTap(event) {
+      if (this.data.navigating) return;
       const key = event.currentTarget.dataset.key;
       const target = TAB_ITEMS.find((item) => item.key === key);
       if (!target || key === this.properties.active) return;
 
-      wx.redirectTo({ url: target.url });
+      this.setData({ navigating: true, items: this.buildItems(key) }, () => {
+        wx.redirectTo({
+          url: target.url,
+          fail: () => {
+            this.setData({ navigating: false });
+            this.syncItems();
+          }
+        });
+      });
     }
   }
 });

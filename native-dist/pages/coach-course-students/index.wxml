@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="nav"><view class="back" bindtap="goBack"><text>‹</text></view><view><text class="nav-title">学员名单</text><text class="nav-sub">{{course.title}} · {{course.date}}</text></view></view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="course-card"><view><text class="eyebrow">本节课程</text><text class="course-title">{{course.title}}</text><text class="course-meta">{{course.time}}　{{course.venue}}　{{course.coach}}</text></view><view class="summary"><text>{{course.studentCount}}</text><text>应到学员</text></view></view>
+    <view class="search"><text>⌕</text><input value="{{keyword}}" bindinput="onSearch" placeholder="搜索学员姓名或球衣号码"/></view>
+    <view class="filters"><text class="filter {{item.activeClass}}" wx:for="{{filters}}" wx:key="key" data-key="{{item.key}}" bindtap="selectFilter">{{item.label}}</text></view>
+    <view class="list-head"><text>课程学员</text><text>当前显示 {{visibleCount}} 人</text></view>
+    <view class="student-list">
+      <view class="student" wx:for="{{students}}" wx:key="id" data-id="{{item.id}}" bindtap="openStudent">
+        <image src="{{item.avatar}}" mode="aspectFill"/>
+        <view class="student-main"><view><text class="student-name">{{item.name}}</text><text class="number">#{{item.number}}</text></view><text class="package">U10提高班 · {{item.package}}</text></view>
+        <text class="status {{item.statusClass}}">{{item.status}}</text><text class="arrow">›</text>
+      </view>
+      <view class="empty" wx:if="{{emptyVisible}}"><text>未找到符合条件的学员</text><text>请调整搜索词或筛选条件</text></view>
+    </view>
+    <view class="safe"></view>
+  </scroll-view>
+</view>

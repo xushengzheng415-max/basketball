@@ -1,0 +1,17 @@
+<view class="page">
+  <view class="nav"><view class="back" bindtap="goBack"><text>‹</text></view><view><text class="nav-title">预约下一课</text><text class="nav-sub">为林浩选择对应周次课程</text></view></view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="student-card"><view class="avatar">林</view><view><text class="student-name">林浩 #23</text><text class="student-meta">U10提高班 · 剩余18课时</text></view><text class="valid">可预约</text></view>
+    <view class="section-head"><view><text class="section-title">选择周次</text><text class="section-sub">最多可预约未来三周课程</text></view></view>
+    <view class="week-tabs"><view wx:for="{{weeks}}" wx:key="index" class="week {{item.activeClass}}" data-index="{{item.index}}" bindtap="selectWeek"><text>{{item.name}}</text><text>{{item.range}}</text></view></view>
+    <view class="section-head"><view><text class="section-title">可预约课程</text><text class="section-sub">选择后将占用该课程一个名额</text></view><text class="count">{{courses.length}}节</text></view>
+    <view class="course {{item.activeClass}}" wx:for="{{courses}}" wx:key="id" data-id="{{item.id}}" bindtap="selectCourse">
+      <view class="course-head"><view><text class="date">{{item.date}}</text><text class="time">{{item.time}}</text></view><text class="select">{{item.selectText}}</text></view>
+      <text class="course-title">{{item.title}}</text><text class="topic">{{item.topic}}</text>
+      <view class="course-meta"><text>{{item.venue}}</text><text>已约 {{item.capacity}}</text><text class="available">{{item.available}}</text></view>
+    </view>
+    <view class="notice"><text>预约说明</text><text>预约成功后会加入学员课表；如需取消，请在课程开始前联系教务中心。</text></view>
+    <view class="safe"></view>
+  </scroll-view>
+  <view class="footer"><view class="primary {{confirmClass}}" bindtap="confirmReservation">{{confirmText}}</view></view>
+</view>

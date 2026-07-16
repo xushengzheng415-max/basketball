@@ -10,7 +10,33 @@ const mainRoutes = {
 const RECENT_MATCHES_KEY = 'sx_recent_matches';
 const TEAM_LOGO_BASE = '/assets/pages/scorer-v2/teams/';
 const STATUS_ICON_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/recent-matches/';
-const { pullRoster, resolveImageUrl } = require('../../utils/roster-sync');
+const CLOUD_ASSET_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const TAB_PREFETCH_ASSETS = [
+  CLOUD_ASSET_ROOT + 'tournament/tournament-card-elite-u10.png',
+  CLOUD_ASSET_ROOT + 'tournament/tournament-card-u12-weekend.png',
+  CLOUD_ASSET_ROOT + 'tournament/tournament-card-training-internal.png',
+  CLOUD_ASSET_ROOT + 'pages/team/player-library-bg.png',
+  CLOUD_ASSET_ROOT + 'pages/team/logo-and-title.png',
+  CLOUD_ASSET_ROOT + 'pages/education/education-top-bg-clean.png',
+  CLOUD_ASSET_ROOT + 'pages/mine-profile/profile-bg.png',
+  CLOUD_ASSET_ROOT + 'pages/mine-profile/profile-avatar.png'
+];
+const { pullRosterIfStale, resolveImageUrl } = require('../../utils/roster-sync');
+let tabAssetPrefetchStarted = false;
+
+function prefetchTabAssets() {
+  if (tabAssetPrefetchStarted || !wx.getImageInfo) return;
+  tabAssetPrefetchStarted = true;
+  let index = 0;
+  const loadNext = () => {
+    if (index >= TAB_PREFETCH_ASSETS.length) return;
+    wx.getImageInfo({
+      src: TAB_PREFETCH_ASSETS[index++],
+      complete: () => setTimeout(loadNext, 80)
+    });
+  };
+  setTimeout(loadNext, 600);
+}
 
 function hasPhoneLogin() {
   const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
@@ -134,10 +160,11 @@ Page({
   onShow() {
     this.refreshLoginState();
     this.loadRecentMatches();
+    prefetchTabAssets();
     const app = typeof getApp === 'function' ? getApp() : null;
     const rosterReady = app && app.globalData && app.globalData.rosterReady;
     Promise.resolve(rosterReady)
-      .then((result) => result || pullRoster())
+      .then((result) => result || pullRosterIfStale())
       .then(() => this.loadRecentMatches())
       .catch((error) => console.warn('[home] pull roster failed', error));
   },
@@ -237,6 +264,15 @@ Page({
 
   goMoreMatches() {
     wx.navigateTo({ url: '/pages/recent-matches/index' });
+  },
+
+  openRecentMatches(event) {
+    const filter = event.currentTarget.dataset.filter || 'all';
+    wx.navigateTo({ url: '/pages/recent-matches/index?filter=' + encodeURIComponent(filter) });
+  },
+
+  openEducationProduct() {
+    wx.navigateTo({ url: '/pages/education-product/index' });
   },
 
   onTabTap(event) {

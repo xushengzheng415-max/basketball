@@ -2,31 +2,82 @@
   "pages": [
     "pages/home/index",
     "pages/login/index",
-    "pages/recent-matches/index",
-    "pages/quick-match/index",
-    "pages/scorer/index",
-    "pages/scorer-board/index",
-    "pages/referee-report/index",
-    "pages/products/index",
-    "pages/mc-system/index",
     "pages/data/index",
-    "pages/team-data/index",
-    "pages/team-data-detail/index",
-    "pages/tournament-team-data/index",
     "pages/education/index",
-    "pages/stats-scorer/index",
-    "pages/order/index",
-    "pages/pay-result/index",
     "pages/tournament/index",
-    "pages/tournament-create/index",
-    "pages/tournament-detail/index",
-    "pages/game-detail/index",
     "pages/team/index",
-    "pages/team-create/index",
-    "pages/player-add/index",
-    "pages/mc-settings/index",
     "pages/mine/index"
   ],
+  "subPackages": [
+    { "root": "pages/recent-matches", "pages": ["index"] },
+    { "root": "pages/education-product", "pages": ["index"] },
+    { "root": "pages/quick-match", "pages": ["index"] },
+    { "root": "pages/scorer", "pages": ["index"] },
+    { "root": "pages/scorer-board", "pages": ["index"] },
+    { "root": "pages/referee-report", "pages": ["index"] },
+    { "root": "pages/products", "pages": ["index"] },
+    { "root": "pages/mc-system", "pages": ["index"] },
+    { "root": "pages/team-data", "pages": ["index"] },
+    { "root": "pages/team-data-detail", "pages": ["index"] },
+    { "root": "pages/tournament-team-data", "pages": ["index"] },
+    { "root": "pages/coach-classes", "pages": ["index"] },
+    { "root": "pages/coach-courses", "pages": ["index"] },
+    { "root": "pages/coach-course-detail", "pages": ["index"] },
+    { "root": "pages/coach-course-students", "pages": ["index"] },
+    { "root": "pages/coach-course-plan", "pages": ["index"] },
+    { "root": "pages/coach-attendance", "pages": ["index"] },
+    { "root": "pages/coach-classroom", "pages": ["index"] },
+    { "root": "pages/coach-evaluation-list", "pages": ["index"] },
+    { "root": "pages/coach-student-detail", "pages": ["index"] },
+    { "root": "pages/coach-pending-plans", "pages": ["index"] },
+    { "root": "pages/coach-student-reservation", "pages": ["index"] },
+    { "root": "pages/coach-student-evaluations", "pages": ["index"] },
+    { "root": "pages/coach-evaluation", "pages": ["index"] },
+    { "root": "pages/coach-period-reports", "pages": ["index"] },
+    { "root": "pages/stats-scorer", "pages": ["index"] },
+    { "root": "pages/order", "pages": ["index"] },
+    { "root": "pages/pay-result", "pages": ["index"] },
+    { "root": "pages/tournament-create", "pages": ["index"] },
+    { "root": "pages/tournament-detail", "pages": ["index"] },
+    { "root": "pages/game-detail", "pages": ["index"] },
+    { "root": "pages/team-create", "pages": ["index"] },
+    { "root": "pages/player-add", "pages": ["index"] },
+    { "root": "pages/mc-settings", "pages": ["index"] }
+  ],
+  "preloadRule": {
+    "pages/home/index": {
+      "network": "all",
+      "packages": ["pages/recent-matches", "pages/education-product", "pages/quick-match"]
+    },
+    "pages/quick-match/index": {
+      "network": "all",
+      "packages": ["pages/scorer", "pages/scorer-board"]
+    },
+    "pages/recent-matches/index": {
+      "network": "all",
+      "packages": ["pages/scorer-board", "pages/referee-report", "pages/game-detail"]
+    },
+    "pages/tournament/index": {
+      "network": "all",
+      "packages": ["pages/tournament-create", "pages/tournament-detail", "pages/game-detail"]
+    },
+    "pages/team/index": {
+      "network": "all",
+      "packages": ["pages/team-create", "pages/player-add"]
+    },
+    "pages/education/index": {
+      "network": "all",
+      "packages": ["pages/coach-classes", "pages/coach-courses", "pages/coach-course-detail", "pages/coach-course-students", "pages/coach-course-plan", "pages/coach-attendance", "pages/coach-classroom", "pages/coach-evaluation-list", "pages/coach-student-detail", "pages/coach-pending-plans", "pages/coach-student-reservation", "pages/coach-student-evaluations", "pages/coach-evaluation", "pages/coach-period-reports"]
+    },
+    "pages/data/index": {
+      "network": "all",
+      "packages": ["pages/team-data", "pages/team-data-detail", "pages/tournament-team-data", "pages/stats-scorer"]
+    },
+    "pages/mine/index": {
+      "network": "all",
+      "packages": ["pages/mc-settings", "pages/products", "pages/mc-system", "pages/order", "pages/pay-result"]
+    }
+  },
   "window": {
     "backgroundTextStyle": "light",
     "navigationBarBackgroundColor": "#101820",

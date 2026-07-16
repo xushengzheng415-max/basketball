@@ -1,0 +1,8 @@
+<view class="page"><view class="nav"><view class="back" bindtap="goBack">‹</view><view><text class="nav-title">课后评价清单</text><text class="nav-sub">U10提高班 · 本节课已完成</text></view></view>
+<scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+  <view class="hero"><view><text class="eyebrow">评价完成进度</text><text class="hero-title">为每位到课学员生成训练日报</text><text class="hero-sub">完成六维评分、标签与教练评价后保存日报</text></view><view class="ring"><text>{{completedCount}}</text><text>已完成</text></view><view class="track"><view style="width:{{progressWidth}}%"></view></view></view>
+  <view class="notice"><text>评价范围</text><text>仅包含本节课到课与补课学员；请假、缺勤学员不会生成课后日报。</text></view>
+  <view class="section-head"><view><text>到课学员</text><text>{{totalCount}}人需要完成评价</text></view><text>逐个完成</text></view>
+  <view class="list"><view class="student" wx:for="{{students}}" wx:key="id" data-id="{{item.id}}" data-index="{{item.index}}" bindtap="openEvaluation"><image src="{{item.avatar}}" mode="aspectFill"/><view class="student-main"><view><text class="name">{{item.name}}</text><text class="number">#{{item.number}}</text><text class="attendance">{{item.attendanceLabel}}</text></view><text class="hint">课堂六维评分 · 标签评价 · 当日训练日报</text></view><view class="student-side"><text class="status {{item.statusClass}}">{{item.status}}</text><text class="action">{{item.actionLabel}} ›</text></view></view></view>
+  <view class="rule-card"><text>完成后的数据去向</text><text>日报立即保存；本周最后一节课完成后自动生成周报草稿，月底最后一节课完成后自动生成月报草稿。</text></view><view class="safe"></view>
+</scroll-view><view class="footer"><view class="finish" bindtap="finishAll">{{finishLabel}}</view></view></view>

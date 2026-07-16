@@ -75,13 +75,40 @@ function decorateMatch(item, teamLogoMap) {
   });
 }
 
+function normalizeFilter(filter) {
+  return ['all', 'pending', 'finished'].includes(filter) ? filter : 'all';
+}
+
+function getFilterView(filter) {
+  const activeFilter = normalizeFilter(filter);
+  const titles = { all: '全部比赛', pending: '未结束比赛', finished: '已完成比赛' };
+  return {
+    activeFilter,
+    pageTitle: titles[activeFilter],
+    allFilterClass: activeFilter === 'all' ? 'active' : '',
+    pendingFilterClass: activeFilter === 'pending' ? 'active' : '',
+    finishedFilterClass: activeFilter === 'finished' ? 'active' : ''
+  };
+}
+
 Page({
   data: {
     matches: [],
     hasMatches: false,
     totalCount: 0,
     finishedCount: 0,
-    activeCount: 0
+    activeCount: 0,
+    activeFilter: 'all',
+    pageTitle: '全部比赛',
+    allFilterClass: 'active',
+    pendingFilterClass: '',
+    finishedFilterClass: ''
+  },
+
+  onLoad(options) {
+    const filterView = getFilterView(options && options.filter);
+    this.setData(filterView);
+    wx.setNavigationBarTitle({ title: filterView.pageTitle });
   },
 
   onShow() {
@@ -107,15 +134,26 @@ Page({
       .slice()
       .sort((left, right) => getMatchTimestamp(right) - getMatchTimestamp(left));
     const teamLogoMap = buildTeamLogoMap();
-    const matches = allMatches.map((item) => decorateMatch(item, teamLogoMap));
+    const decoratedMatches = allMatches.map((item) => decorateMatch(item, teamLogoMap));
     const finishedCount = allMatches.filter(isFinishedMatch).length;
+    const matches = decoratedMatches.filter((item) => {
+      if (this.data.activeFilter === 'finished') return isFinishedMatch(item);
+      if (this.data.activeFilter === 'pending') return !isFinishedMatch(item);
+      return true;
+    });
     this.setData({
       matches,
       hasMatches: matches.length > 0,
-      totalCount: matches.length,
+      totalCount: allMatches.length,
       finishedCount,
-      activeCount: matches.length - finishedCount
+      activeCount: allMatches.length - finishedCount
     });
+  },
+
+  changeFilter(event) {
+    const filterView = getFilterView(event.currentTarget.dataset.filter);
+    this.setData(filterView, () => this.loadMatches());
+    wx.setNavigationBarTitle({ title: filterView.pageTitle });
   },
 
   openMatch(event) {

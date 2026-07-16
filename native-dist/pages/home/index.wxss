@@ -6,13 +6,19 @@ page {
 
 .home-page {
   position: relative;
-  min-height: 100vh;
+  display: flex;
+  width: 100%;
+  height: 100vh;
+  min-height: 0;
+  flex-direction: column;
   overflow: hidden;
-  background: #f4f6f8;
+  background: #071017;
+  box-sizing: border-box;
 }
 
 .top-hero {
   position: relative;
+  flex: 0 0 auto;
   min-height: 560rpx;
   padding: 72rpx 28rpx 28rpx;
   overflow: hidden;
@@ -287,6 +293,21 @@ page {
   padding: 0 16rpx;
 }
 
+.stat-button {
+  min-height: 74rpx;
+  margin: 0 7rpx;
+  border: 1rpx solid rgba(255, 112, 18, 0.14);
+  border-radius: 13rpx;
+  background: linear-gradient(180deg, rgba(255, 112, 18, 0.06), rgba(255, 255, 255, 0.015));
+  box-sizing: border-box;
+}
+
+.stat-button:active {
+  border-color: rgba(255, 112, 18, 0.68);
+  background: rgba(255, 105, 12, 0.16);
+  transform: translateY(1rpx);
+}
+
 .stat-icon {
   flex-shrink: 0;
   width: 48rpx;
@@ -326,9 +347,14 @@ page {
 .content-scroll {
   position: relative;
   z-index: 2;
-  height: calc(100vh - 500rpx);
+  display: flex;
+  height: auto;
+  min-height: 0;
+  flex: 1;
   margin-top: -2rpx;
-  padding: 0 24rpx;
+  padding: 12rpx 28rpx calc(120rpx + env(safe-area-inset-bottom));
+  overflow: hidden;
+  background: radial-gradient(circle at 92% 5%, rgba(255, 87, 0, 0.14), transparent 32%), linear-gradient(180deg, #071017 0%, #05090c 100%);
   box-sizing: border-box;
 }
 
@@ -342,19 +368,32 @@ page {
 
 .version-panel {
   position: relative;
-  margin-bottom: 24rpx;
+  display: flex;
+  width: 100%;
+  min-height: 0;
+  flex: 1;
+  margin: 0;
+}
+
+.version-panel:active {
+  transform: scale(0.992);
 }
 
 .version-ad {
   position: relative;
-  min-height: 330rpx;
-  padding: 28rpx 30rpx 24rpx;
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  padding: 30rpx 30rpx 24rpx;
   overflow: hidden;
   border: 1rpx solid rgba(255, 107, 22, 0.78);
   border-radius: 24rpx;
   color: #ffffff;
-  background: radial-gradient(circle at 86% 22%, rgba(255, 94, 0, 0.34), transparent 28%), linear-gradient(135deg, #090d12 0%, #111922 58%, #251109 100%);
-  box-shadow: 0 18rpx 40rpx rgba(15, 23, 42, 0.2);
+  background: radial-gradient(circle at 86% 22%, rgba(255, 94, 0, 0.38), transparent 30%), linear-gradient(135deg, #090d12 0%, #111922 58%, #251109 100%);
+  box-shadow: 0 18rpx 42rpx rgba(0, 0, 0, 0.34);
   box-sizing: border-box;
 }
 
@@ -390,14 +429,14 @@ page {
   border-radius: 999rpx;
   color: #ff8a2a;
   background: rgba(255, 92, 0, 0.1);
-  font-size: 21rpx;
+  font-size: 23rpx;
   font-weight: 900;
 }
 
 .version-status {
   color: rgba(255, 255, 255, 0.58);
   font-family: Arial, sans-serif;
-  font-size: 18rpx;
+  font-size: 20rpx;
   font-weight: 700;
   letter-spacing: 3rpx;
 }
@@ -411,24 +450,34 @@ page {
 .version-kicker {
   margin-top: 26rpx;
   color: #ff7a20;
-  font-size: 24rpx;
+  font-size: 27rpx;
   font-weight: 900;
   letter-spacing: 4rpx;
 }
 
 .version-title {
   margin-top: 4rpx;
-  font-size: 50rpx;
+  font-size: 52rpx;
   font-weight: 900;
   line-height: 1.08;
   letter-spacing: 2rpx;
+}
+
+.version-title text {
+  display: block;
+}
+
+.version-title-accent {
+  margin-top: 4rpx;
+  color: #ff7a16;
+  text-shadow: 0 8rpx 24rpx rgba(255, 92, 0, 0.2);
 }
 
 .version-desc {
   max-width: 510rpx;
   margin-top: 12rpx;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 22rpx;
+  font-size: 24rpx;
   line-height: 1.55;
 }
 
@@ -438,12 +487,49 @@ page {
   margin-top: 22rpx;
 }
 
+.version-benefits {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10rpx;
+  margin-top: 24rpx;
+  margin-bottom: 18rpx;
+}
+
+.version-benefit {
+  min-width: 0;
+  padding: 16rpx 10rpx;
+  border: 1rpx solid rgba(255, 126, 32, 0.24);
+  border-radius: 13rpx;
+  background: rgba(5, 10, 14, 0.56);
+  text-align: center;
+}
+
+.version-benefit text {
+  display: block;
+}
+
+.version-benefit text:first-child {
+  color: #f4f6f7;
+  font-size: 23rpx;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.version-benefit text:last-child {
+  margin-top: 6rpx;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 18rpx;
+  line-height: 1.35;
+}
+
 .version-feature {
   display: flex;
   align-items: center;
   margin-right: 24rpx;
   color: rgba(255, 255, 255, 0.9);
-  font-size: 21rpx;
+  font-size: 23rpx;
   font-weight: 700;
 }
 
@@ -461,21 +547,68 @@ page {
 }
 
 .version-footer {
-  margin-top: 24rpx;
+  margin-top: auto;
   padding-top: 18rpx;
   border-top: 1rpx solid rgba(255, 255, 255, 0.12);
   color: rgba(255, 255, 255, 0.36);
   font-family: Arial, sans-serif;
-  font-size: 16rpx;
+  font-size: 17rpx;
   letter-spacing: 2rpx;
 }
 
 .version-expect {
   color: #ff8a2a;
   font-family: sans-serif;
-  font-size: 22rpx;
+  font-size: 24rpx;
   font-weight: 900;
   letter-spacing: 0;
+}
+
+.paid-entry {
+  border-color: rgba(255, 132, 35, 0.92);
+  box-shadow: 0 18rpx 42rpx rgba(255, 91, 0, 0.16);
+}
+
+.version-conversion {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding: 20rpx 20rpx 20rpx 22rpx;
+  border: 1rpx solid rgba(255, 125, 28, 0.52);
+  border-radius: 14rpx;
+  background: linear-gradient(100deg, rgba(255, 91, 0, 0.17), rgba(255, 137, 30, 0.05));
+}
+
+.version-conversion-label,
+.version-conversion-note {
+  display: block;
+}
+
+.version-conversion-label {
+  color: #f5f6f7;
+  font-size: 23rpx;
+  font-weight: 900;
+}
+
+.version-conversion-note {
+  margin-top: 4rpx;
+  color: rgba(255, 255, 255, 0.48);
+  font-size: 17rpx;
+}
+
+.version-conversion-action {
+  min-width: 192rpx;
+  padding: 15rpx 18rpx;
+  border-radius: 12rpx;
+  color: #fff;
+  background: linear-gradient(90deg, #ff5700, #ff951d);
+  box-shadow: 0 10rpx 24rpx rgba(255, 83, 0, 0.3);
+  font-size: 28rpx;
+  font-weight: 900;
+  text-align: center;
 }
 
 .version-watermark {
@@ -509,6 +642,62 @@ page {
   top: 14rpx;
   width: 180rpx;
   height: 180rpx;
+}
+
+@media (max-height: 740px) {
+  .top-hero {
+    min-height: 520rpx;
+    padding-top: 58rpx;
+    padding-bottom: 20rpx;
+  }
+
+  .brand-logo {
+    height: 112rpx;
+  }
+
+  .section-label.light {
+    margin-top: 34rpx;
+    margin-bottom: 16rpx;
+  }
+
+  .quick-card {
+    min-height: 286rpx;
+    padding-top: 28rpx;
+    padding-bottom: 22rpx;
+  }
+
+  .version-ad {
+    padding-top: 20rpx;
+    padding-bottom: 18rpx;
+  }
+
+  .version-kicker {
+    margin-top: 16rpx;
+  }
+
+  .version-features,
+  .version-benefits,
+  .version-conversion {
+    margin-top: 14rpx;
+  }
+
+  .version-title {
+    font-size: 46rpx;
+  }
+
+  .version-conversion {
+    padding: 13rpx 14rpx 13rpx 16rpx;
+  }
+
+  .version-conversion-label {
+    font-size: 21rpx;
+  }
+
+  .version-conversion-action {
+    min-width: 170rpx;
+    padding: 11rpx 14rpx;
+    font-size: 24rpx;
+  }
 }
 
 .match-list {

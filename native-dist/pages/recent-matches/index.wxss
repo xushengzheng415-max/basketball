@@ -43,6 +43,19 @@ page {
   flex: 1;
   min-width: 0;
   text-align: center;
+  padding: 12rpx 6rpx;
+  border: 1rpx solid transparent;
+  border-radius: 14rpx;
+  box-sizing: border-box;
+}
+
+.summary-item.active {
+  border-color: rgba(255, 111, 20, 0.72);
+  background: rgba(255, 106, 12, 0.12);
+}
+
+.summary-item.active .summary-label {
+  color: #ffffff;
 }
 
 .summary-label,

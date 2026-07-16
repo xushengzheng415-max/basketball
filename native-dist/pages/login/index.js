@@ -1,5 +1,30 @@
 const { callCloud } = require('../../utils/cloud');
 
+function cloudErrorMessage(result) {
+  if (!result) return '登录服务无响应，请稍后重试';
+  if (result.message) return result.message;
+  const error = result.error || {};
+  return error.errMsg || error.message || '登录失败，请稍后重试';
+}
+
+function phoneAuthErrorMessage(result) {
+  const raw = String((result && (result.phoneAuthMessage || result.phoneAuthCode)) || '').toLowerCase();
+  console.warn('[login] phone authorization failed', result);
+  if (raw.includes('-604101') || raw.includes('48001') || raw.includes('unauthorized') || raw.includes('permission')) {
+    return '小程序尚未开通手机号能力';
+  }
+  if (raw.includes('40029') || raw.includes('40163') || raw.includes('invalid code') || raw.includes('been used')) {
+    return '授权码已失效，请重新点击登录';
+  }
+  if (raw.includes('quota') || raw.includes('limit')) {
+    return '手机号验证次数已达上限';
+  }
+  if (raw.includes('function') && raw.includes('not')) {
+    return '登录云函数尚未部署';
+  }
+  return '手机号验证失败，请检查云函数日志';
+}
+
 Page({
   data: {
     agreed: false,
@@ -87,10 +112,10 @@ Page({
     try {
       const result = await callCloud('sxLogin', { profile, phoneCode });
       if (!result || !result.ok) {
-        throw new Error((result && result.message) || '登录失败，请稍后重试');
+        throw new Error(cloudErrorMessage(result));
       }
       if (result.phoneAuthFailed || !result.phoneNumber) {
-        throw new Error('手机号验证失败，请重新授权');
+        throw new Error(phoneAuthErrorMessage(result));
       }
 
       const savedProfile = Object.assign({}, profile, {

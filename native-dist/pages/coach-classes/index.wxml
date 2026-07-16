@@ -1,0 +1,18 @@
+<view class="page">
+  <view class="nav"><view class="back" bindtap="goBack"><text>‹</text></view><view><text class="nav-title">我的班级</text><text class="nav-sub">陈教练 · 浦东校区</text></view></view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero"><view><text class="eyebrow">班级教学驾驶舱</text><text class="hero-title">今天先处理3项教学任务</text><text class="hero-desc">课程、学员、计划与风险集中处理</text></view><image src="{{assets.student}}" mode="aspectFit"/></view>
+    <view class="summary-grid"><view wx:for="{{summary}}" wx:key="label"><text class="summary-value">{{item.value}}</text><text class="summary-label">{{item.label}}</text></view></view>
+    <view class="cockpit-card"><view class="cockpit-head"><view><text class="section-title">今日执行</text><text class="section-sub">按紧急程度完成教学工作</text></view><text class="live">实时</text></view><view class="task-row"><view class="dashboard-task {{item.activeClass}}" wx:for="{{todayTasks}}" wx:key="label" data-action="{{item.action}}" data-id="{{item.classId}}" bindtap="handleDashboardTask"><text class="task-value">{{item.value}}</text><text class="task-label">{{item.label}}</text><text class="task-note">{{item.note}}</text></view></view></view>
+    <view class="alert-card"><view class="cockpit-head"><view><text class="section-title">教学提醒</text><text class="section-sub">需要教练关注的班级动态</text></view><text class="alert-count">2项</text></view><view class="alert-row" wx:for="{{alerts}}" wx:key="title" data-id="{{item.classId}}" data-action="{{item.action}}" bindtap="handleAlert"><text class="alert-level {{item.levelClass}}">{{item.level}}</text><view><text class="alert-title">{{item.title}}</text><text class="alert-desc">{{item.desc}}</text></view><text class="alert-action">{{item.action}} ›</text></view></view>
+    <view class="permission"><text class="permission-title">权限说明</text><text>班级创建、教练调整和跨班调动由校区负责人处理；教练负责本班教学执行。</text></view>
+    <view class="section-head"><view><text class="section-title">负责班级</text><text class="section-sub">共3个教学班</text></view><text class="all-course" bindtap="openCourses">全部课程 ›</text></view>
+    <view class="class-card" wx:for="{{classes}}" wx:key="id">
+      <view class="class-head"><view><view><text class="class-title">{{item.title}}</text><text class="level">{{item.level}}</text></view><text class="class-meta">{{item.venue}} · {{item.schedule}}</text></view><text class="task {{item.taskClass}}">{{item.task}}</text></view>
+      <view class="class-stats"><view><text>{{item.students}} / {{item.capacity}}</text><text>学员容量</text></view><view><text>{{item.next}}</text><text>下一节课</text></view><view><text>{{item.progress}}%</text><text>课程进度</text></view></view>
+      <view class="progress-track"><view class="progress-value" style="width:{{item.progress}}%"></view></view><text class="progress-copy">{{item.progressText}}</text>
+      <view class="class-actions"><view data-id="{{item.id}}" bindtap="openStudents"><image src="{{assets.student}}" mode="aspectFit"/><text>班级学员</text></view><view bindtap="openCourses"><image src="{{assets.course}}" mode="aspectFit"/><text>课程安排</text></view><view data-id="{{item.id}}" bindtap="openPlan"><image src="{{assets.progress}}" mode="aspectFit"/><text>课程计划</text></view></view>
+    </view>
+    <view class="safe"></view>
+  </scroll-view>
+</view>

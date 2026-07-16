@@ -1,0 +1,35 @@
+<view class="product-page">
+  <image class="page-bg" src="{{heroBackground}}" mode="aspectFill" />
+  <view class="page-shade"></view>
+  <view class="nav"><view class="back" bindtap="goBack">‹</view><text>教务系统专业版</text><view class="nav-space"></view></view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero">
+      <image class="brand-logo" src="{{logo}}" mode="aspectFit" />
+      <view class="hero-badge"><text>赛小蜂篮球 2.0</text><text>PRO</text></view>
+      <text class="hero-kicker">TEACHING MANAGEMENT SYSTEM</text>
+      <view class="hero-title"><text>从一节课开始</text><text class="hero-title-accent">跑通校区增长</text></view>
+      <text class="hero-desc">排课有秩序、课堂有标准、课消可追溯、成长可量化、经营看得见，把每天的教学动作沉淀为机构增长能力。</text>
+      <view class="hero-points"><text>多校区协同</text><text>教练移动工作端</text><text>PC经营后台</text></view>
+    </view>
+
+    <view class="content">
+      <view class="result-card"><view><text>教学动作标准化</text><text>备课、上课、评价有统一流程</text></view><view class="result-arrow">→</view><view><text>经营结果可追踪</text><text>课程、课消、员工、财务统一</text></view></view>
+
+      <view class="section-head"><view><text class="section-kicker">专业版能力</text><text class="section-title">不是多一套工具，而是少一堆重复工作</text></view><text class="section-no">01</text></view>
+      <view class="capability-grid"><view class="capability-card" wx:for="{{capabilities}}" wx:key="order"><text class="capability-order">{{item.order}}</text><text class="capability-title">{{item.title}}</text><text class="capability-desc">{{item.desc}}</text></view></view>
+
+      <view class="role-panel">
+        <view class="section-head light"><view><text class="section-kicker">角色分工</text><text class="section-title">每个人只看自己该看的</text></view><text class="section-no">02</text></view>
+        <view class="role-row" wx:for="{{roles}}" wx:key="label"><view class="role-dot"></view><view><text>{{item.label}}</text><text>{{item.desc}}</text></view><text class="role-check">✓</text></view>
+      </view>
+
+      <view class="unlock-card">
+        <view class="unlock-top"><view><text class="unlock-eyebrow">按校区付费授权</text><text class="unlock-title">开通后即可进入真实教务工作流</text></view><text class="unlock-mark">PRO</text></view>
+        <view class="unlock-list"><text>PC端账号与员工权限</text><text>小程序校区负责人端与教练端</text><text>云端数据、AI报告与持续升级</text></view>
+        <view class="unlock-note">具体方案根据校区数量、员工账号和功能范围确定</view>
+      </view>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+  <view class="footer"><view><text>教务系统专业版</text><text>按机构需求配置授权</text></view><button class="unlock-button" open-type="contact" show-message-card="{{true}}" send-message-title="咨询赛小蜂教务系统专业版" send-message-path="/pages/education-product/index" bindtap="recordUnlockLead">付费解锁</button></view>
+</view>

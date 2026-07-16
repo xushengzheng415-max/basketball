@@ -38,7 +38,10 @@ page {
   right: 0;
   z-index: 30;
   padding: 108rpx 24rpx 0;
-  background: linear-gradient(180deg, rgba(6, 8, 9, 0.36) 0%, rgba(6, 8, 9, 0.18) 100%);
+  background:
+    linear-gradient(115deg, rgba(255, 91, 0, 0.24), rgba(255, 91, 0, 0) 48%),
+    linear-gradient(180deg, #090b0c 0%, #120b07 100%);
+  box-shadow: 0 12rpx 26rpx rgba(0, 0, 0, 0.34);
 }
 
 .page-content {
@@ -130,19 +133,190 @@ page {
   border-radius: 6rpx;
 }
 
+.recent-score-panel {
+  margin: 14rpx 0 0;
+  overflow: hidden;
+  border-radius: 18rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 30rpx rgba(0, 0, 0, 0.28);
+}
+
+.recent-score-head {
+  display: flex;
+  height: 72rpx;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20rpx;
+  border-bottom: 1rpx solid #edf0f3;
+}
+
+.recent-score-title {
+  display: flex;
+  align-items: center;
+  color: #161b22;
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.recent-score-line {
+  width: 7rpx;
+  height: 28rpx;
+  margin-right: 10rpx;
+  border-radius: 5rpx;
+  background: linear-gradient(180deg, #ff9c25, #ff4d00);
+}
+
+.recent-score-count {
+  color: #8a929b;
+  font-size: 18rpx;
+}
+
+.recent-score-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 134rpx minmax(0, 1fr) 86rpx;
+  min-height: 106rpx;
+  align-items: center;
+  padding: 8rpx 12rpx 8rpx 16rpx;
+  border-bottom: 1rpx solid #edf0f3;
+  box-sizing: border-box;
+}
+
+.recent-team {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.recent-team.home {
+  justify-content: flex-end;
+}
+
+.recent-team.away {
+  justify-content: flex-start;
+}
+
+.recent-team text {
+  min-width: 0;
+  overflow: hidden;
+  color: #20262d;
+  font-size: 19rpx;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-team image {
+  flex: none;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.recent-score-main {
+  min-width: 0;
+  text-align: center;
+}
+
+.recent-score-main > view {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  color: #171c22;
+  font-family: Arial, sans-serif;
+  font-size: 34rpx;
+  font-weight: 900;
+}
+
+.recent-home-score {
+  color: #ff4f00;
+}
+
+.recent-score-split {
+  margin: 0 6rpx;
+}
+
+.recent-score-meta {
+  display: block;
+  margin-top: 2rpx;
+  overflow: hidden;
+  color: #9299a1;
+  font-size: 14rpx;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recent-row-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 5rpx;
+}
+
+.recent-row-actions image {
+  width: 36rpx;
+  height: 36rpx;
+}
+
+.recent-row-actions button {
+  display: flex;
+  width: 32rpx;
+  height: 32rpx;
+  align-items: center;
+  justify-content: center;
+  margin: 0;
+  padding: 0;
+  border-radius: 50%;
+  color: #ff5a0a;
+  background: #fff0e8;
+  font-size: 15rpx;
+  line-height: 32rpx;
+}
+
+.recent-row-actions button::after {
+  border: 0;
+}
+
+.recent-row-actions > text {
+  color: #a0a7af;
+  font-size: 28rpx;
+}
+
+.recent-score-empty {
+  display: flex;
+  height: 104rpx;
+  align-items: center;
+  justify-content: center;
+  color: #8d959e;
+  font-size: 21rpx;
+}
+
+.recent-score-more {
+  display: flex;
+  height: 64rpx;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  color: #6f7781;
+  background: #fafbfc;
+  font-size: 21rpx;
+  font-weight: 700;
+}
+
 .event-list {
-  padding: 16rpx 8rpx 18rpx;
+  margin-top: 14rpx;
+  padding: 12rpx 8rpx 14rpx;
   background: rgba(0, 0, 0, 0.78);
 }
 
 .event-card {
-  width: 100%;
-  margin-bottom: 16rpx;
+  width: 94%;
+  margin: 0 auto 9rpx;
 }
 
 .event-card-img {
   display: block;
   width: 100%;
+  height: 318rpx;
 }
 
 .list-footer {

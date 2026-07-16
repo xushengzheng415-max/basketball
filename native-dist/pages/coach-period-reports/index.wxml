@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="nav"><view class="back" bindtap="goBack">‹</view><view><text class="nav-title">周期报告中心</text><text class="nav-sub">教务中心 · AI自动汇总</text></view><text class="campus">浦东校区</text></view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="tabs"><view class="tab {{item.activeClass}}" wx:for="{{tabs}}" wx:key="key" data-type="{{item.key}}" bindtap="switchType">{{item.label}}</view></view>
+    <view class="hero-card {{activeType}}">
+      <view class="hero-head"><view><text class="eyebrow">{{report.eyebrow}}</text><text class="hero-title">{{report.title}}</text><text class="period">{{report.period}}</text></view><view class="report-mark"><view></view><view></view><view></view></view></view>
+      <view class="trigger"><text class="trigger-dot"></text><text>{{report.trigger}}</text></view>
+      <view class="summary-grid"><view><text>{{report.pending}}</text><text>待生成</text></view><view><text>{{report.generated}}</text><text>已生成</text></view><view><text>{{report.completion}}</text><text>生成进度</text></view></view>
+      <view class="progress-track"><view class="progress-value" style="width:{{report.completionWidth}}%"></view></view>
+    </view>
+    <view class="rule-card"><view class="rule-icon">i</view><view><text>{{report.ruleTitle}}</text><text>{{report.ruleCopy}}</text></view></view>
+    <view class="list-head"><view><text>负责班级球员</text><text>报告均基于已发布日报生成，草稿需教练确认</text></view><text>{{students.length}}人</text></view>
+    <view class="student-list">
+      <view class="student" wx:for="{{students}}" wx:key="id">
+        <image src="{{item.avatar}}" mode="aspectFill" />
+        <view class="student-main"><view><text class="student-name">{{item.name}}</text><text class="number">#{{item.number}}</text><text class="status {{item.statusClass}}" style="{{item.statusStyle}}">{{item.status}}</text></view><text class="student-meta">{{item.classes}}</text></view>
+        <view class="student-score"><text>{{item.score}}</text><text>日报均分</text></view>
+        <view class="upload-btn {{item.disabledClass}}" data-id="{{item.id}}" bindtap="openReport">{{item.buttonLabel}}</view>
+      </view>
+    </view>
+    <view class="safe"></view>
+  </scroll-view>
+  <view class="mask" wx:if="{{editorVisible}}" bindtap="closeEditor">
+    <view class="editor-sheet" catchtap="stopTouch">
+      <view class="sheet-handle"></view>
+      <view class="editor-head"><view><text>AI周期报告草稿</text><text>{{currentStudent.name}} · {{report.period}}</text></view><view class="close" bindtap="closeEditor">×</view></view>
+      <view class="source-tip"><text>{{sourceTitle}}</text><text>{{sourceDetail}}</text></view>
+      <text class="field-label">报告内容（教练可修改）</text><textarea value="{{reportText}}" maxlength="1600" bindinput="onReportInput" placeholder="系统将根据本周期日报客观生成报告草稿" />
+      <view class="submit" bindtap="submitReport">{{submitLabel}}</view>
+    </view>
+  </view>
+</view>

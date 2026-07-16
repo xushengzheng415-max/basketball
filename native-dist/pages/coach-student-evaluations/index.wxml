@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="nav"><view class="back" bindtap="goBack"><text>‹</text></view><view><text class="nav-title">课后评价记录</text><text class="nav-sub">林浩 · U10提高班</text></view></view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero"><view><text class="eyebrow">球员训练档案</text><text class="hero-title">每节课的成长都有记录</text><text class="hero-copy">按课程顺序查看评分、教练总结与训练标签。</text></view><view class="overall"><text>4.3</text><text>综合分</text></view></view>
+    <view class="summary-grid"><view wx:for="{{summary}}" wx:key="label"><text>{{item.value}}</text><text>{{item.label}}</text></view></view>
+    <view class="section-head"><view><text class="section-title">全部课后评价</text><text class="section-sub">按最近上课时间排序</text></view><text class="count">共 {{reviews.length}} 条</text></view>
+    <view class="review-card" wx:for="{{reviews}}" wx:key="id">
+      <view class="review-head"><view><text class="lesson">{{item.lessonNo}}</text><text class="date">{{item.date}}</text></view><view class="score"><text>{{item.score}}</text><text>{{item.scoreText}}</text></view></view>
+      <text class="topic">{{item.topic}}</text><text class="summary">{{item.summary}}</text>
+      <view class="tags"><text wx:for="{{item.tags}}" wx:key="*this">{{item}}</text></view>
+      <view class="review-foot"><text>课堂纪律 · 训练装备 · 运动能力</text><text>评价已归档</text></view>
+    </view>
+    <view class="safe"></view>
+  </scroll-view>
+</view>

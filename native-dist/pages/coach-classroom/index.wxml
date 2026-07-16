@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="nav"><view class="back" bindtap="goBack">‹</view><view><text class="nav-title">上课流程</text><text class="nav-sub">U10提高班 · 控球强化</text></view><view class="live"><text></text>课堂进行中</view></view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="hero">
+      <view><text class="eyebrow">本节课进度</text><text class="hero-title">{{activeIndex}} / 5 个模块已完成</text><text class="hero-sub">18:30–20:00 · 2号馆 · {{attendeeCount}}名到课学员</text></view>
+      <view class="clock"><text>{{elapsedText}}</text><text>课堂计时</text></view>
+    </view>
+
+    <view class="current-card">
+      <view class="current-head"><view><text class="current-kicker">当前训练模块</text><text class="current-title">{{currentModule.title}}</text></view><text class="minute">{{currentModule.minutes}}分钟</text></view>
+      <text class="current-desc">{{currentModule.desc}}</text>
+      <view class="module-meta"><text>{{currentModule.intensity}}强度</text><text>按课程计划执行</text><text>教练确认完成</text></view>
+      <view class="progress-track"><view class="progress-value" style="width:{{moduleProgressWidth}}%"></view></view>
+      <view class="current-actions"><view class="pause" bindtap="toggleTimer">{{timerLabel}}</view><view class="complete" bindtap="completeCurrentModule">完成当前模块</view></view>
+    </view>
+
+    <view class="section-head"><view><text>课程执行清单</text><text>按备课计划依次完成</text></view><text>共90分钟</text></view>
+    <view class="module-list">
+      <view class="module {{item.stateClass}}" wx:for="{{modules}}" wx:key="id">
+        <view class="module-order">{{item.order}}</view><view class="module-line {{item.lineClass}}"></view>
+        <view class="module-main"><text class="module-title">{{item.title}}</text><text class="module-desc">{{item.desc}}</text><view><text>{{item.minutes}}分钟</text><text>{{item.intensity}}强度</text></view></view>
+        <text class="module-state">{{item.state}}</text>
+      </view>
+    </view>
+
+    <view class="attendance-card"><view><text class="attendance-title">本节到课学员</text><text class="attendance-sub">课后仅为到课与补课学员生成评价</text></view><view class="avatars"><image wx:for="{{attendees}}" wx:key="id" src="{{item.avatar}}" mode="aspectFill"/><text>{{attendeeCount}}人</text></view></view>
+    <view class="safe"></view>
+  </scroll-view>
+  <view class="footer"><view class="finish {{finishClass}}" bindtap="finishLesson">{{finishLabel}}</view></view>
+</view>
