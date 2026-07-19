@@ -6,11 +6,20 @@ page { background:#05080b; color:#f7f8fa; font-family:"PingFang SC","Microsoft Y
 .page-scroll { position:relative; z-index:2; height:100vh; }
 .hero { padding:170rpx 40rpx 18rpx; }
 .brand-row,.welcome-row,.card-head,.course-meta,.next-actions,.section-head,.timeline-item,.student-row { display:flex; align-items:center; }
-.brand-logo { width:268rpx; height:82rpx; }
-.role-pill,.campus-pill,.tag,.positive-tag { border:1rpx solid #ff7a00; color:#ff8a19; border-radius:999rpx; }
-.role-pill { margin-left:16rpx; padding:8rpx 18rpx; font-size:22rpx; }
-.campus-pill { margin-left:auto; padding:12rpx 18rpx; font-size:24rpx; background:rgba(6,9,12,.78); }
-.welcome-row { justify-content:space-between; margin-top:38rpx; }
+.role-pill,.tag,.positive-tag { border:1rpx solid #ff7a00; color:#ff8a19; border-radius:999rpx; }
+.role-pill { display:flex; align-items:center; gap:7rpx; padding:8rpx 18rpx; font-size:22rpx; }
+.role-switch-mark { color:#ffb063; font-size:16rpx; }
+.education-mode { display:flex; align-items:center; gap:14rpx; margin-top:22rpx; padding:14rpx 18rpx; border:1rpx solid rgba(255,122,0,.48); border-radius:16rpx; background:rgba(255,122,0,.09); }
+.education-mode.active { border-color:rgba(91,207,99,.45); background:rgba(91,207,99,.09); }
+.education-mode-dot { width:14rpx; height:14rpx; flex:none; border-radius:50%; background:#ff7a00; box-shadow:0 0 0 7rpx rgba(255,122,0,.12); }
+.education-mode.active .education-mode-dot { background:#65d36d; box-shadow:0 0 0 7rpx rgba(101,211,109,.12); }
+.education-mode-copy { min-width:0; flex:1; }
+.education-mode-copy text { display:block; }
+.education-mode-copy text:first-child { color:#ff941f; font-size:23rpx; font-weight:800; }
+.education-mode.active .education-mode-copy text:first-child { color:#74db7c; }
+.education-mode-copy text:last-child { margin-top:4rpx; overflow:hidden; color:#aeb4ba; font-size:19rpx; text-overflow:ellipsis; white-space:nowrap; }
+.education-mode-arrow { color:#ff941f; font-size:34rpx; }
+.welcome-row { justify-content:space-between; margin-top:26rpx; }
 .eyebrow,.page-title,.hero-copy,.metric-label,.metric-note,.section-title,.section-sub,.list-title,.list-sub,.task-title,.task-desc { display:block; }
 .eyebrow { color:#ff8a19; font-size:24rpx; letter-spacing:2rpx; }
 .page-title { margin-top:8rpx; font-size:46rpx; line-height:1.25; font-weight:800; }

@@ -1,4 +1,5 @@
 const DURATION_VALUES = [5, 10, 15, 20, 25, 30];
+const { requireEducationAccess } = require('../../utils/education-access');
 const INTENSITY_VALUES = ['低', '中', '中高', '高'];
 const MODULE_TEMPLATES = [
   { id: 'custom', title: '自定义模块', shortTitle: '自定义', desc: '', minutes: 10, intensity: '中' },
@@ -60,6 +61,12 @@ Page({
       { id: 'm4', title: '小组攻防对抗', desc: '3v3限制运球次数，快速出球', minutes: 25, intensity: '高' },
       { id: 'm5', title: '拉伸与总结', desc: '静态拉伸、课堂要点回顾', minutes: 10, intensity: '低' }
     ], '')
+  },
+
+  onLoad(options) {
+    if (options && options.mode === 'edit') {
+      this.openEditModule({ currentTarget: { dataset: { id: 'm1' } } });
+    }
   },
 
   goBack() {
@@ -258,15 +265,17 @@ Page({
     });
   },
 
-  saveDraft() {
+  async saveDraft() {
+    if (!(await requireEducationAccess())) return;
     wx.showToast({ title: '计划草稿已保存', icon: 'success' });
   },
 
-  confirmPlan() {
+  async confirmPlan() {
     if (this.data.totalMinutes !== 90) {
       wx.showToast({ title: '请先将总时长调整为90分钟', icon: 'none' });
       return;
     }
+    if (!(await requireEducationAccess())) return;
     wx.showToast({ title: '课程计划已确认', icon: 'success' });
     setTimeout(() => this.goBack(), 600);
   }

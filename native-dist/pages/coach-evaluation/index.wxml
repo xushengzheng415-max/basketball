@@ -1,41 +1,4 @@
-<view class="page">
-  <view class="nav"><view class="back" bindtap="goBack"><text>‹</text></view><view><text class="nav-title">AI 课后评价</text><text class="nav-sub">U10提高班 · 课后任务</text></view><text class="progress">{{progressText}}</text></view>
-  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="student"><image src="{{avatar}}" mode="aspectFill"/><view><text class="name">{{studentName}}　#{{studentNumber}}</text><text class="meta">{{studentMeta}}</text></view><view class="switch">评价清单</view></view>
-    <view class="lesson"><view><text class="eyebrow">本节训练内容</text><text class="lesson-title">控球强化与攻防转换</text></view><text class="lesson-meta">90分钟 · 5个训练模块 · 计划完成度 96%</text></view>
-
-    <view class="rating-card">
-      <view class="rating-head"><view><text class="rating-title">课堂六维评分</text><text class="rating-sub">每次点击以0.5星为单位，满分5星</text></view><view class="overall"><text class="overall-score">{{overallScore}}</text><text class="overall-unit">/ 5.0</text><text class="overall-grade">{{overallGrade}}</text></view></view>
-      <view class="overall-track"><view class="overall-value" style="width:{{overallPercent}}%"></view></view><view class="overall-foot"><text>综合分 {{overallPercent}} 分</text><text>按维度权重自动计算</text></view>
-      <view class="rating-row" wx:for="{{ratings}}" wx:for-item="dimension" wx:key="key">
-        <view class="rating-copy"><text class="dimension-label">{{dimension.label}}</text><text class="dimension-desc">{{dimension.desc}} · 权重{{dimension.weight}}%</text></view>
-        <view class="stars">
-          <view class="star" wx:for="{{dimension.stars}}" wx:for-item="star" wx:key="value">
-            <text class="star-base">★</text><text class="star-fill {{star.fillClass}}">★</text>
-            <view class="star-hit star-left" data-key="{{dimension.key}}" data-value="{{star.halfValue}}" bindtap="rateDimension"></view><view class="star-hit star-right" data-key="{{dimension.key}}" data-value="{{star.fullValue}}" bindtap="rateDimension"></view>
-          </view>
-        </view>
-        <text class="dimension-score">{{dimension.ratingText}}</text>
-      </view>
-    </view>
-
-    <view class="tag-card" wx:for="{{groups}}" wx:key="title"><view class="head"><text class="title">{{item.title}}</text><text class="hint">可多选</text></view><view class="tags"><text class="tag {{tag.activeClass}}" wx:for="{{item.tags}}" wx:for-item="tag" wx:key="label" data-label="{{tag.label}}" bindtap="toggleTag">{{tag.label}}</text></view></view>
-
-    <view class="ai-card"><view class="ai-head"><view><text class="ai-title">AI 评价初稿</text><text class="ai-sub">结合课程计划、六维评分与标签生成，可自由修改</text></view><view class="generate" bindtap="generate">{{generateLabel}}</view></view><textarea class="editor" value="{{draft}}" maxlength="600" bindinput="onDraftInput" placeholder="完成评分和标签后生成评价，也可以直接填写"/><view class="editor-foot"><text>AI 仅辅助生成，最终内容由教练确认</text><text>{{draftLength}} / 600</text></view></view>
-
-    <view class="report-card">
-      <view class="report-head"><view><text class="report-title">当日训练日报</text><text class="report-sub">随本堂课评价填写，保持内容简洁</text></view><text class="report-status">{{reportStatus}}</text></view>
-      <view class="report-preview">
-        <view class="report-name"><view><text>{{reportData.title}}</text><text>{{reportData.period}}</text></view><view class="report-score"><text>{{overallScore}}</text><text>综合分</text></view></view>
-        <view class="report-metrics"><view wx:for="{{reportData.metrics}}" wx:key="label"><view><text>{{item.value}}</text><text>{{item.unit}}</text></view><text>{{item.label}}</text></view></view>
-        <view class="report-copy"><text class="copy-label">综合表现</text><text>{{reportData.summary}}</text></view>
-        <view class="report-copy highlight"><text class="copy-label">成长亮点</text><text>{{reportData.highlight}}</text></view>
-        <view class="report-copy suggestion"><text class="copy-label">训练建议</text><text>{{reportData.suggestion}}</text></view>
-      </view>
-      <view class="report-actions"><view class="report-generate" style="width:100%" bindtap="generateReport">{{reportGenerateLabel}}日报</view></view>
-    </view>
-
-    <view class="version"><text class="version-title">日报发布规则</text><text>六维评分、AI初稿、教练修改与当日训练日报会一并留痕，最终内容以教练确认发布为准。</text></view><view class="safe"></view>
-  </scroll-view>
-  <view class="footer"><view class="draft" bindtap="save">保存草稿</view><view class="publish" bindtap="publish">{{publishLabel}}</view></view>
-</view>
+<view class="page"><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+<block wx:if="{{isEvaluate}}"><view class="title has-back"><text class="back" bindtap="goBack">‹</text>课后评价</view><view class="subtitle">U10提高班 · <text>本节课评价</text></view><view class="student"><image src="{{avatar}}" mode="aspectFill"/><view><text class="name">{{studentName}} #{{studentNumber}}</text><text class="meta">U10提高班</text></view></view><view class="rating" wx:for="{{ratings}}" wx:key="key"><view class="rating-copy"><text class="rating-title">{{item.label}}</text><text class="meta">{{item.desc}}</text></view><view class="scores"><text class="score {{star.activeClass}}" wx:for="{{item.stars}}" wx:for-item="star" wx:key="value" data-key="{{item.key}}" data-value="{{star.fullValue}}" bindtap="rateDimension">{{star.value}}</text></view></view><view class="panel"><view class="panel-title">成长亮点 <text class="small">（可多选）</text></view><view class="tags"><text class="tag {{item.activeClass}}" wx:for="{{highlightTags}}" wx:key="label" data-label="{{item.label}}" bindtap="toggleTag">{{item.label}}</text></view></view><view class="panel"><view class="panel-head"><text class="panel-title">教练建议</text><text class="generate" bindtap="generate">↻ 重新生成</text></view><textarea class="draft" value="{{draft}}" bindinput="onDraftInput" maxlength="200"/><text class="counter">{{draftLength}}/200</text></view><view class="panel"><view class="panel-title">家长将看到 <text class="small">（预览）</text></view><view class="preview">{{draft}}</view></view></block>
+<block wx:elif="{{isConfirm}}"><view class="title with-back"><text bindtap="backToEdit">‹</text>课后增长包确认</view><view class="subtitle">U10提高班 · 5月23日训练</view><view class="summary-card"><view class="package-icon">▣</view><view><text class="rating-title">本次成长包</text><view class="summary-grid"><text><text class="strong">5</text>名学员</text><text><text class="strong">5</text>份训练日报</text><text><text class="strong">1</text>份班级动态</text><text><text class="strong">2</text>项风险提醒</text></view></view><text class="pending">待确认</text></view><view class="section-title">▤　家长将收到</view><view class="panel"><view class="confirm-row">▤ <view><text>训练日报</text><text class="small">每位学员的训练完成情况与课堂表现</text></view><text>查看　›</text></view><view class="confirm-row">☆ <view><text>成长标签</text><text class="small">基于课堂表现生成的个性化成长标签</text></view><text>查看　›</text></view><view class="confirm-row">☵ <view><text>教练建议</text><text class="small">针对学员的提升建议与后续训练重点</text></view><text>查看　›</text></view></view><view class="section-title">▣　班级内容</view><view class="panel confirm-row">● <view><text>U10提高班 · 今日训练动态</text><text class="small">控球强化　攻防转换　团队协作</text></view><text>预览内容　›</text></view><view class="section-title warning">⚠　需要关注</view><view class="panel"><view class="confirm-row"><text class="risk">●</text><view><text>刘宇辰 · 连续2次缺勤</text><text class="small">近2次训练未到课，请及时跟进了解情况</text></view></view><view class="confirm-row"><text class="risk">●</text><view><text>赵子墨 · 家长报告未读3次</text><text class="small">该学员家长已连续3次未阅读报告</text></view></view></view></block>
+<block wx:else><view class="title with-back"><text bindtap="goBack">‹</text>评价退回修改</view><view class="subtitle">林浩 · 5月23日训练日报</view><view class="return-card"><text class="warning">⚠　负责人退回</text><text class="small">退回时间 5月23日 18:42</text><text>成长建议过于笼统，请补充控球稳定性的具体表现，并确认家长摘要不包含内部训练术语。</text></view><view class="panel"><view class="panel-title">▣　需要修改 <text class="strong">2</text>项</view><view class="confirm-row"><text>1　成长建议</text><text class="pending">待修改　›</text></view><view class="confirm-row"><text>2　家长摘要</text><text class="pending">待修改　›</text></view><view class="confirm-row"><text>3　课堂六维评分</text><text>无需修改</text></view></view><view class="panel"><view class="panel-title">✎　成长建议</view><textarea class="draft" value="{{draft}}" bindinput="onDraftInput" maxlength="300"/></view><view class="panel"><view class="panel-title">✎　家长摘要</view><textarea class="draft" value="{{reportData.summary}}" maxlength="200"/></view></block><view class="safe"></view></scroll-view><view class="footer"><view class="outline" bindtap="backToEdit">保存草稿</view><view wx:if="{{isEvaluate}}" class="primary" bindtap="previewConfirm">完成评价</view><view wx:elif="{{isConfirm}}" class="primary" bindtap="publish">确认并发送</view><view wx:else class="primary" bindtap="publish">重新提交</view></view></view>

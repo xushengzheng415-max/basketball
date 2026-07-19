@@ -1,4 +1,5 @@
 const ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const { requireEducationAccess } = require('../../utils/education-access');
 
 const STUDENT_PROFILES = {
   s1: { id: 's1', name: '林浩', number: '23', age: '9岁', avatar: ROOT + 'pages/team/avatar-linhao.png' },
@@ -15,12 +16,9 @@ const rawGroups = [
 ];
 
 const initialRatings = [
-  { key: 'discipline', label: '课堂纪律', desc: '集合、规则与课堂秩序', rating: 4.5, weight: 15 },
-  { key: 'equipment', label: '训练装备', desc: '球衣、球鞋与护具准备', rating: 5, weight: 10 },
-  { key: 'athletic', label: '运动能力', desc: '速度、协调、力量与体能', rating: 4, weight: 20 },
-  { key: 'technique', label: '技术完成', desc: '动作质量与训练目标完成度', rating: 4.5, weight: 25 },
-  { key: 'focus', label: '专注投入', desc: '听讲、执行与训练积极性', rating: 4, weight: 15 },
-  { key: 'teamwork', label: '团队协作', desc: '沟通、配合与同伴支持', rating: 4.5, weight: 15 }
+  { key: 'focus', label: '课堂投入', desc: '专注认真，积极参与', rating: 4, weight: 35 },
+  { key: 'technique', label: '技能完成', desc: '动作规范，完成质量', rating: 5, weight: 35 },
+  { key: 'teamwork', label: '团队协作', desc: '沟通配合，互相支持', rating: 4, weight: 30 }
 ];
 
 function decorateTags(selected) {
@@ -35,7 +33,8 @@ function createStars(rating) {
     value,
     halfValue: value - 0.5,
     fullValue: value,
-    fillClass: rating >= value ? 'full' : rating >= value - 0.5 ? 'half' : 'empty'
+    fillClass: rating >= value ? 'full' : rating >= value - 0.5 ? 'half' : 'empty',
+    activeClass: rating === value ? 'active' : ''
   }));
 }
 
@@ -107,6 +106,10 @@ const overall = calculateOverall(initialRatings);
 
 Page({
   data: {
+    viewMode: 'evaluate',
+    isEvaluate: true,
+    isConfirm: false,
+    isReturned: false,
     studentId: 's1',
     studentName: '林浩',
     studentNumber: '23',
@@ -119,6 +122,11 @@ Page({
     source: '',
     progressText: '1 / 1',
     selected,
+    highlightTags: [
+      { label: '弱手进步', activeClass: 'active' },
+      { label: '控球稳定', activeClass: 'active' },
+      { label: '主动沟通', activeClass: 'active' }
+    ],
     groups: decorateTags(selected),
     ratings: decorateRatings(initialRatings),
     ...overall,
@@ -144,7 +152,12 @@ Page({
     const total = Math.max(1, Number(options.total) || attendees.length || 1);
     const studentName = profile.name;
     const draft = defaultDraft(studentName);
+    const viewMode = options.mode === 'returned' ? 'returned' : options.mode === 'confirm' ? 'confirm' : 'evaluate';
     this.setData({
+      viewMode,
+      isEvaluate: viewMode === 'evaluate',
+      isConfirm: viewMode === 'confirm',
+      isReturned: viewMode === 'returned',
       studentId: profile.id,
       studentName,
       studentNumber: profile.number,
@@ -157,6 +170,14 @@ Page({
       draftLength: draft.length,
       reportData: buildDailyReport(this.data, this.data.selected, studentName)
     });
+  },
+
+  previewConfirm() {
+    this.setData({ viewMode: 'confirm', isEvaluate: false, isConfirm: true, isReturned: false });
+  },
+
+  backToEdit() {
+    this.setData({ viewMode: 'evaluate', isEvaluate: true, isConfirm: false, isReturned: false });
   },
 
   goBack() {
@@ -222,16 +243,18 @@ Page({
     }, 700);
   },
 
-  save() {
+  async save() {
+    if (!(await requireEducationAccess())) return;
     wx.showToast({ title: '评价草稿已保存', icon: 'success' });
   },
 
-  publish() {
+  async publish() {
     if (this.data.publishing) return;
     if (!this.data.draft.trim()) {
       wx.showToast({ title: '请先填写评价内容', icon: 'none' });
       return;
     }
+    if (!(await requireEducationAccess())) return;
     wx.showModal({
       title: '发布课后评价',
       content: '将同步保存六维评分、综合分、教练评价与当日训练日报。',

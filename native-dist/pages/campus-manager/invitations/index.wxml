@@ -1,0 +1,41 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>员工管理</text></view>
+    <text class="nav-title">邀请状态管理</text>
+  </view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="page-heading"><text>员工邀请</text><text>跟踪邀请进度，及时处理未激活账号</text></view>
+      <view class="metric-grid">
+        <view class="metric-item" wx:for="{{metrics}}" wx:key="label"><text>{{item.label}}</text><text class="{{item.tone}}">{{item.value}}</text></view>
+      </view>
+      <scroll-view class="tabs" scroll-x enhanced show-scrollbar="{{false}}">
+        <view class="tab {{item.activeClass}}" wx:for="{{tabs}}" wx:key="key" data-key="{{item.key}}" bindtap="switchTab">{{item.label}}</view>
+      </scroll-view>
+
+      <view class="invite-card" wx:for="{{invitations}}" wx:key="id">
+        <view class="invite-summary" data-id="{{item.id}}" bindtap="toggleCard">
+          <image class="avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="invite-copy">
+            <view class="name-row"><text>{{item.name}}</text><text class="status {{item.tone}}">{{item.status}}</text></view>
+            <text>{{item.role}} · {{item.campus}}</text>
+            <text>{{item.phone}}</text>
+          </view>
+          <image class="chevron" src="{{icons.chevron}}" mode="aspectFit" />
+        </view>
+        <view class="invite-meta"><text>发送于 {{item.sentAt}}</text><text>{{item.expiry}}</text></view>
+        <view wx:if="{{item.expanded}}" class="expanded-panel">
+          <view class="timeline-row"><view></view><text>邀请已发送</text><text>{{item.sentAt}}</text></view>
+          <view class="timeline-row dim"><view></view><text>等待员工激活账号</text><text>未完成</text></view>
+          <view class="invite-link"><text>邀请链接</text><text>https://sxf.cn/i/8K2M</text></view>
+          <button bindtap="resendInvite">重新发送邀请</button>
+        </view>
+      </view>
+
+      <view class="tip"><image src="{{icons.warning}}" mode="aspectFit" /><text>邀请链接默认 3 天内有效，失效后可重新发送。</text></view>
+      <button class="primary-button" bindtap="createInvite">＋ 邀请新员工</button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

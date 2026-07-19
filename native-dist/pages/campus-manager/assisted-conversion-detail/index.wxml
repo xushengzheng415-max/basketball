@@ -1,0 +1,54 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack" aria-role="button" aria-label="返回平台辅助价值">
+      <image src="{{icons.back}}" mode="aspectFit" />
+    </view>
+    <text class="nav-title">辅助成交归因详情</text>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="summary-card">
+        <view class="person-icon"><image src="{{icons.user}}" mode="aspectFit" /></view>
+        <view class="summary-main">
+          <view class="person-line"><text>刘承宇</text><text>续费</text></view>
+          <text class="amount-label">交易金额</text>
+          <view class="amount"><text>¥</text><text>6,000</text></view>
+        </view>
+        <view class="summary-side">
+          <view class="assist-badge"><image src="{{icons.check}}" mode="aspectFit" /><text>平台辅助成交</text></view>
+          <text>成交时间</text><text>2024-05-26 20:18</text>
+          <text>订单类型</text><text>课程续费</text>
+        </view>
+      </view>
+
+      <view class="panel">
+        <view class="section-title"><view></view><text>归因链路</text></view>
+        <view class="chain-list">
+          <view class="chain-row" wx:for="{{chain}}" wx:key="title">
+            <view class="timeline-dot"></view>
+            <view class="row-symbol">{{item.symbol}}</view>
+            <view class="row-copy"><text>{{item.title}}</text><text>{{item.detail}}</text></view>
+            <view class="row-side"><text>{{item.time}}</text><text>{{item.owner}}</text></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="panel evidence-panel">
+        <view class="section-title"><view></view><text>关键证据</text></view>
+        <view class="evidence-list">
+          <view class="evidence-row" wx:for="{{evidence}}" wx:key="title">
+            <view class="row-symbol compact">{{item.symbol}}</view>
+            <view class="row-copy"><text>{{item.title}}</text><text>{{item.detail}}</text></view>
+            <view class="row-side"><text>{{item.time}}</text><text>{{item.owner}}</text></view>
+          </view>
+        </view>
+        <view class="panel-note"><text>i</text><text>平台记录可追溯过程，不代表成交全部由平台创造</text></view>
+      </view>
+
+      <button class="primary-button" bindtap="showOriginalRecords">查看原始记录 <text>›</text></button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

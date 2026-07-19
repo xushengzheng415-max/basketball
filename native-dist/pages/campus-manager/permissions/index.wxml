@@ -1,0 +1,44 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>教练详情</text></view>
+    <text class="nav-title">权限与数据范围</text>
+  </view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="page-heading"><text>权限配置</text><text>设置教练可查看的数据和可执行的操作</text></view>
+      <view class="profile-card">
+        <image class="avatar" src="{{avatar}}" mode="aspectFill" />
+        <view class="profile-copy"><view><text>陈教练</text><text>全职教练</text></view><text>账号：chenjiaolian</text><text>手机：138****5628</text></view>
+      </view>
+
+      <view class="section-card identity-card">
+        <view class="section-title">岗位与归属</view>
+        <view class="field-row"><text>所属校区</text><text>浦东校区</text></view>
+        <view class="field-row class-field"><text>负责班级</text><view><text>U10-1班</text><text>U12-2班</text><text>U14精英班</text></view></view>
+      </view>
+
+      <view class="section-card">
+        <view class="section-title">数据范围</view>
+        <view class="scope-row {{item.selectedClass}}" wx:for="{{scopes}}" wx:key="key" data-key="{{item.key}}" bindtap="selectScope">
+          <view class="radio"><view></view></view>
+          <view><text>{{item.label}}</text><text>{{item.caption}}</text></view>
+        </view>
+      </view>
+
+      <view class="permission-section" wx:for="{{sections}}" wx:key="title" wx:for-index="sectionIndex">
+        <view class="section-label">{{item.title}}</view>
+        <view class="section-card permission-card">
+          <view class="permission-row" wx:for="{{item.items}}" wx:key="label" wx:for-item="permission" wx:for-index="itemIndex" data-section="{{sectionIndex}}" data-item="{{itemIndex}}" bindtap="togglePermission">
+            <view class="permission-copy"><text>{{permission.label}}</text><text>{{permission.caption}}</text></view>
+            <view class="permission-switch {{permission.switchClass}}"><view></view></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="risk-tip"><image src="{{icons.warning}}" mode="aspectFit" /><view><text>权限变更提醒</text><text>减少权限可能导致教练无法继续处理未完成任务，请确认后保存。</text></view></view>
+      <button class="primary-button" bindtap="savePermissions">保存权限设置</button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

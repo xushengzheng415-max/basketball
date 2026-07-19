@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "sxf-tabbar": "/components/sxf-tabbar/index"
+  }
+}

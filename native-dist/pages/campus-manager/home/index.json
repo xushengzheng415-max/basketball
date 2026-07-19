@@ -1,0 +1,8 @@
+{
+  "navigationStyle": "custom",
+  "backgroundColor": "#05080b",
+  "disableScroll": true,
+  "usingComponents": {
+    "sxf-tabbar": "/components/sxf-tabbar/index"
+  }
+}

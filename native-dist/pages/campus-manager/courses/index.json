@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "课程总览",
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "backgroundColor": "#05080b",
+  "backgroundTextStyle": "dark"
+}

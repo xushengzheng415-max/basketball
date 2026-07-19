@@ -1,4 +1,5 @@
 const ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
+const { requireEducationAccess } = require('../../utils/education-access');
 
 const REPORTS = {
   weekly: {
@@ -87,6 +88,12 @@ function reportSummary(baseReport, students) {
 Page({
   data: {
     activeType: 'weekly',
+    isWeekly: true,
+    reportTypeLabel: '周报',
+    secondaryLabel: '稍后确认',
+    confirmLabel: '周报',
+    concernAvatarOne: ROOT + 'avatar-liuyuchen.png',
+    concernAvatarTwo: ROOT + 'avatar-zhaozimo.png',
     tabs: buildTabs('weekly'),
     report: REPORTS.weekly,
     students: buildStudents('weekly', []),
@@ -122,6 +129,10 @@ Page({
     const students = buildStudents(type, []);
     this.setData({
       activeType: type,
+      isWeekly: type === 'weekly',
+      reportTypeLabel: type === 'weekly' ? '周报' : '月报',
+      secondaryLabel: type === 'weekly' ? '稍后确认' : '保存草稿',
+      confirmLabel: type === 'weekly' ? '周报' : '月报',
       tabs: buildTabs(type),
       report: reportSummary({ ...REPORTS[type] }, students),
       students,
@@ -160,7 +171,8 @@ Page({
     this.generateReport(student);
   },
 
-  generateReport(student) {
+  async generateReport(student) {
+    if (!(await requireEducationAccess())) return;
     if (!wx.cloud || !wx.cloud.callFunction) {
       wx.showToast({ title: '当前环境未启用云开发', icon: 'none' });
       return;
@@ -209,12 +221,13 @@ Page({
   stopTouch() {},
   onReportInput(event) { this.setData({ reportText: event.detail.value }); },
 
-  submitReport() {
+  async submitReport() {
     if (!this.data.reportText.trim()) {
       wx.showToast({ title: '报告内容不能为空', icon: 'none' });
       return;
     }
     if (!this.data.currentStudent || !this.data.currentStudent.reportId) return;
+    if (!(await requireEducationAccess())) return;
     this.setData({ submitLabel: '云端发布中…' });
     wx.showLoading({ title: '正在发布报告' });
     wx.cloud.callFunction({

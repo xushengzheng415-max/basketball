@@ -1,0 +1,49 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-control" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>返回点名监督</text></view>
+  </view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="page-head"><text class="role-tag">校区负责人</text><text class="page-title">点名监督</text></view>
+
+      <view class="course-summary">
+        <view class="course-symbol">U8</view>
+        <view class="course-copy"><text>U8启蒙班</text><text>浦东校区 · 1号馆</text></view>
+        <view class="course-time"><view><image src="{{icons.calendar}}" mode="aspectFit" /><text>2026年7月16日 周四</text></view><view><image src="{{icons.clock}}" mode="aspectFit" /><text>09:00–10:30</text></view></view>
+      </view>
+
+      <view class="panel attendance-panel">
+        <view class="panel-head"><text>点名进度</text><text class="complete-state">点名已完成 ●</text></view>
+        <view class="metric-grid">
+          <view class="metric" wx:for="{{metrics}}" wx:key="label"><view class="metric-top"><text class="metric-symbol tone-{{item.tone}}">{{item.symbol}}</text><text>{{item.label}}</text></view><view class="metric-value tone-{{item.tone}}"><text>{{item.value}}</text><text>{{item.suffix}}</text></view></view>
+        </view>
+        <view class="progress-row"><view class="progress-track"><view class="progress-value"></view></view><text>出勤率 88.9%</text></view>
+      </view>
+
+      <view class="panel students-panel">
+        <view class="panel-head"><text>学员点名状态</text><view class="legend"><text class="success">● 已到</text><text class="orange">● 请假</text><text class="danger">● 缺勤</text></view></view>
+        <view class="student-row" wx:for="{{students}}" wx:key="no">
+          <text class="student-no">{{item.no}}</text><view class="student-avatar">{{item.avatar}}</view><text class="student-name">{{item.name}}</text><text class="student-status tone-{{item.tone}}">● {{item.status}}</text><text class="student-tag tone-{{item.tone}}" wx:if="{{item.tag}}">{{item.tag}}</text>
+        </view>
+      </view>
+
+      <view class="panel exceptions-panel">
+        <view class="panel-head"><text>异常学员</text><text>查看全部 ›</text></view>
+        <view class="exception-row" wx:for="{{exceptions}}" wx:key="name"><view class="exception-avatar">{{item.avatar}}</view><text class="exception-name">{{item.name}}</text><text class="tone-{{item.tone}}">{{item.status}}</text><text class="exception-reason">{{item.reason}}</text><button data-message="已打开异常详情" bindtap="showToast">查看详情</button></view>
+      </view>
+
+      <view class="panel submit-panel">
+        <view class="panel-head"><text>教练提交记录</text><text>查看记录 ›</text></view>
+        <view class="submit-row"><view class="coach-avatar">王</view><view><text>王教练</text><text>提交时间：07-16 10:35</text></view><view><text>点名结果：<text class="success">已完成</text></text><text>出勤率：<text class="success">88.9%</text></text></view></view>
+      </view>
+
+      <view class="panel operation-panel">
+        <view class="panel-head"><text>监督操作</text></view>
+        <view class="operation-grid"><button data-message="提醒已发送" bindtap="showToast"><text>♢</text>提醒教练<text style="display:block;margin-top:5rpx;color:#858d95;font-size:14rpx;">发送点名提醒</text></button><button data-message="已打开异常学员" bindtap="showToast"><text>!</text>查看异常<text style="display:block;margin-top:5rpx;color:#858d95;font-size:14rpx;">异常学员详情</text></button><button data-message="已发起更正申请" bindtap="showToast"><text>✎</text>发起更正<text style="display:block;margin-top:5rpx;color:#858d95;font-size:14rpx;">申请数据更正</text></button></view>
+        <text class="operation-note">如需更正点名结果，请教练先提交更正申请后，由校区负责人审核。</text>
+      </view>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

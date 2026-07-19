@@ -1,10 +1,63 @@
-const ROOT='cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
-const baseStudents=[
-  {id:'s1',name:'林浩',number:'23',package:'剩余18课时',avatar:ROOT+'avatar-linhao.png',status:'present'},
-  {id:'s2',name:'刘宇辰',number:'8',package:'剩余6课时',avatar:ROOT+'avatar-liuyuchen.png',status:'leave'},
-  {id:'s3',name:'张子轩',number:'11',package:'剩余12课时',avatar:ROOT+'avatar-zhangzixuan.png',status:'makeup'},
-  {id:'s4',name:'赵子墨',number:'5',package:'剩余23课时',avatar:ROOT+'avatar-zhaozimo.png',status:'present'},
-  {id:'s5',name:'廖然',number:'17',package:'剩余9课时',avatar:ROOT+'avatar-liaoran.png',status:'absent'}
+const ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
+const { requireEducationAccess } = require('../../utils/education-access');
+const avatarFiles = ['avatar-linhao.png', 'avatar-liuyuchen.png', 'avatar-zhangzixuan.png', 'avatar-zhaozimo.png', 'avatar-liaoran.png'];
+const names = [
+  ['林浩', '23', 'present'], ['刘宇辰', '8', 'leave'], ['张子轩', '11', 'present'],
+  ['赵子墨', '5', 'present'], ['廖然', '17', 'absent'], ['王昊', '12', 'present'],
+  ['陈奕', '7', 'present'], ['周睿', '19', 'present'], ['吴昊', '2', 'present'],
+  ['徐朗', '21', 'present'], ['孙一航', '16', 'present'], ['孔明', '9', 'present']
 ];
-function decorate(students){const labels={present:'到课',leave:'请假',absent:'缺勤',makeup:'补课',trial:'试听'};return students.map(item=>({...item,statusLabel:labels[item.status],presentClass:item.status==='present'?'selected':'',leaveClass:item.status==='leave'?'selected':'',absentClass:item.status==='absent'?'selected':'',makeupClass:item.status==='makeup'?'selected':''}))}
-Page({data:{students:decorate(baseStudents),presentCount:2,leaveCount:1,absentCount:1,makeupCount:1,consumeCount:3},onStatus(e){const id=e.currentTarget.dataset.id,status=e.currentTarget.dataset.status;const students=this.data.students.map(item=>item.id===id?{...item,status}:item);this.sync(students)},markAll(){this.sync(this.data.students.map(item=>({...item,status:'present'})))},sync(students){const decorated=decorate(students);this.setData({students:decorated,presentCount:decorated.filter(i=>i.status==='present').length,leaveCount:decorated.filter(i=>i.status==='leave').length,absentCount:decorated.filter(i=>i.status==='absent').length,makeupCount:decorated.filter(i=>i.status==='makeup').length,consumeCount:decorated.filter(i=>i.status==='present'||i.status==='makeup').length})},goBack(){const pages=getCurrentPages();if(pages.length>1){wx.navigateBack({delta:1});return}wx.redirectTo({url:'/pages/coach-course-detail/index?id=course-2'})},confirm(){wx.showModal({title:'确认点名并开始上课',content:'将保存本节课出勤结果并进入上课流程。课后评价会在本节课完成后统一生成待办。',success:r=>{if(!r.confirm)return;const attendees=this.data.students.filter(item=>item.status==='present'||item.status==='makeup').map(item=>({id:item.id,name:item.name,number:item.number,avatar:item.avatar,attendanceStatus:item.status}));wx.setStorageSync('sxf_attendance_course-2',attendees);wx.removeStorageSync('sxf_evaluation_status_course-2');wx.showToast({title:'点名已确认',icon:'success'});setTimeout(()=>wx.navigateTo({url:'/pages/coach-classroom/index?id=course-2'}),500)}})}});
+const baseStudents = names.map((item, index) => ({
+  id: 's' + (index + 1), name: item[0], number: item[1], status: item[2],
+  package: '剩余' + (18 - index % 6) + '课时', avatar: ROOT + avatarFiles[index % avatarFiles.length]
+}));
+
+function decorate(students) {
+  return students.map((item) => ({
+    ...item,
+    presentClass: item.status === 'present' ? 'selected' : '',
+    leaveClass: item.status === 'leave' ? 'selected' : '',
+    absentClass: item.status === 'absent' ? 'selected' : '',
+    showRecord: item.status === 'leave' || item.status === 'absent'
+  }));
+}
+
+Page({
+  data: { students: [], presentCount: 10, leaveCount: 1, absentCount: 1, makeupCount: 0, consumeCount: 10 },
+  onLoad() { this.sync(baseStudents); },
+  onStatus(event) {
+    const id = event.currentTarget.dataset.id;
+    const status = event.currentTarget.dataset.status;
+    this.sync(this.data.students.map((item) => item.id === id ? { ...item, status } : item));
+  },
+  markAll() { this.sync(this.data.students.map((item) => ({ ...item, status: 'present' }))); },
+  sync(students) {
+    const decorated = decorate(students);
+    this.setData({
+      students: decorated,
+      presentCount: decorated.filter((item) => item.status === 'present').length,
+      leaveCount: decorated.filter((item) => item.status === 'leave').length,
+      absentCount: decorated.filter((item) => item.status === 'absent').length,
+      makeupCount: decorated.filter((item) => item.status === 'makeup').length,
+      consumeCount: decorated.filter((item) => item.status === 'present' || item.status === 'makeup').length
+    });
+  },
+  goBack() {
+    const pages = getCurrentPages();
+    if (pages.length > 1) wx.navigateBack({ delta: 1 });
+    else wx.redirectTo({ url: '/pages/coach-course-detail/index?id=course-2' });
+  },
+  async confirm() {
+    if (!(await requireEducationAccess())) return;
+    wx.showModal({
+      title: '确认完成点名', content: '缺勤与异常情况将同步校区负责人。',
+      success: (result) => {
+        if (!result.confirm) return;
+        const attendees = this.data.students.filter((item) => item.status === 'present' || item.status === 'makeup').map((item) => ({ id: item.id, name: item.name, number: item.number, avatar: item.avatar, attendanceStatus: item.status }));
+        wx.setStorageSync('sxf_attendance_course-2', attendees);
+        wx.showToast({ title: '点名已完成', icon: 'success' });
+        setTimeout(() => wx.navigateTo({ url: '/pages/coach-classroom/index?id=course-2' }), 500);
+      }
+    });
+  }
+});

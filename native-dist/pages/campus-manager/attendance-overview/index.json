@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "点名监督",
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "backgroundColor": "#05080b",
+  "backgroundTextStyle": "dark"
+}

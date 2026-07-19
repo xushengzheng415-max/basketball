@@ -1,0 +1,30 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;"><view class="back-control" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>返回工作台</text></view></view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="hero">
+      <text class="role-tag">校区负责人</text>
+      <view class="hero-title"><text>成长内容</text><text>中心</text></view>
+      <text class="hero-subtitle">专业内容驱动 · 连接家长成长</text>
+      <view class="hero-art"><view class="art-card"><text>▰</text><text>▶</text><text>▥</text></view></view>
+      <view class="hero-metrics"><view><text>待生成</text><text style="display:block;margin-top:5rpx;color:#ff7d08;font-size:34rpx;font-weight:800;">5</text></view><view><text>待发布</text><text style="display:block;margin-top:5rpx;color:#ff7d08;font-size:34rpx;font-weight:800;">3</text></view><view><text>本周触达</text><text style="display:block;margin-top:5rpx;color:#ff7d08;font-size:34rpx;font-weight:800;">86</text></view></view>
+    </view>
+
+    <view class="content-sheet">
+      <view class="section-title"><view style="width:5rpx;height:28rpx;border-radius:3rpx;background:#ff7200;"></view><text>内容入口</text></view>
+      <view class="entrance-grid"><view class="entrance-card" wx:for="{{entrances}}" wx:key="title" data-route="{{item.route}}" bindtap="openRoute"><view>{{item.symbol}}</view><text>{{item.title}}</text><text style="display:block;margin-top:7rpx;color:#8d8f92;font-size:16rpx;">{{item.caption}}</text></view></view>
+
+      <view class="section-title list-title"><view style="width:5rpx;height:28rpx;border-radius:3rpx;background:#ff7200;"></view><text>内容列表</text></view>
+      <scroll-view class="filter-scroll" scroll-x show-scrollbar="{{false}}"><view class="filters"><view class="filter {{item.activeClass}}" wx:for="{{filters}}" wx:key="key" data-key="{{item.key}}" bindtap="selectFilter">{{item.label}}</view></view></scroll-view>
+      <view class="content-list">
+        <view class="content-row" wx:for="{{contents}}" wx:key="id">
+          <view class="content-thumb">{{item.symbol}}</view><view class="content-main"><text>{{item.title}}</text><text>{{item.meta}}</text></view><view class="content-state"><text class="tone-{{item.tone}}">● {{item.state}}</text><text>负责人：{{item.coach}}</text></view><button data-id="{{item.id}}" bindtap="previewContent">预览发布</button>
+        </view>
+      </view>
+
+      <view class="section-title effect-title"><view style="width:5rpx;height:28rpx;border-radius:3rpx;background:#ff7200;"></view><text>内容效果</text><text style="margin-left:auto;color:#8a8c8f;font-size:15rpx;">本周</text></view>
+      <view class="effect-grid"><view class="effect-card" wx:for="{{effects}}" wx:key="label"><view>{{item.symbol}}</view><view><text>{{item.label}}</text><text style="display:block;font-size:25rpx;font-weight:800;">{{item.value}}</text><text style="display:block;color:#8f9194;font-size:13rpx;">{{item.compare}}</text></view></view></view>
+      <view class="brand-footer"><text>赛小蜂篮球 2.0</text><text>用专业内容，陪伴孩子每一次成长</text></view>
+    </view>
+  </scroll-view>
+</view>

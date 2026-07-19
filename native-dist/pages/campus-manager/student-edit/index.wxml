@@ -1,0 +1,57 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-control" bindtap="goBack" aria-role="button" aria-label="返回学员管理">
+      <image src="{{icons.back}}" mode="aspectFit" /><text>返回学员管理</text>
+    </view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="page-head">
+        <view><text class="page-title">{{title}}</text><text class="subtitle">完善学员信息，创建学员档案</text></view>
+        <view class="avatar-upload" bindtap="chooseAvatar">
+          <image wx:if="{{avatar}}" src="{{avatar}}" mode="aspectFill" />
+          <text wx:else>＋头像</text>
+        </view>
+      </view>
+
+      <view class="form-section">
+        <view class="section-title"><image src="{{icons.user}}" mode="aspectFit" /><text>基本信息</text></view>
+        <view class="form-card">
+          <view class="form-row"><text>姓名 <text>*</text></text><input placeholder="请输入学员姓名" value="{{form.name}}" data-key="name" bindinput="onInput" /></view>
+          <picker range="{{genderOptions}}" data-key="gender" data-source="genderOptions" bindchange="onPicker"><view class="form-row"><text>性别 <text>*</text></text><text class="field-value" wx:if="{{form.gender}}">{{form.gender}}</text><text class="field-value" wx:else>请选择性别</text><image src="{{icons.chevron}}" mode="aspectFit" /></view></picker>
+          <picker mode="date" data-key="birthday" bindchange="onDate"><view class="form-row"><text>出生日期 <text>*</text></text><text class="field-value" wx:if="{{form.birthday}}">{{form.birthday}}</text><text class="field-value" wx:else>请选择出生日期</text><image src="{{icons.calendar}}" mode="aspectFit" /></view></picker>
+          <view class="form-row"><text>手机号 <text>*</text></text><input type="number" maxlength="11" placeholder="请输入学员手机号" value="{{form.phone}}" data-key="phone" bindinput="onInput" /></view>
+        </view>
+      </view>
+
+      <view class="form-section">
+        <view class="section-title"><image src="{{icons.user}}" mode="aspectFit" /><text>家长信息</text></view>
+        <view class="form-card">
+          <view class="form-row"><text>家长姓名 <text>*</text></text><input placeholder="请输入家长姓名" value="{{form.parentName}}" data-key="parentName" bindinput="onInput" /></view>
+          <picker range="{{relationOptions}}" data-key="relation" data-source="relationOptions" bindchange="onPicker"><view class="form-row"><text>家长关系 <text>*</text></text><text class="field-value" wx:if="{{form.relation}}">{{form.relation}}</text><text class="field-value" wx:else>请选择家长关系</text><image src="{{icons.chevron}}" mode="aspectFit" /></view></picker>
+          <view class="form-row"><text>手机号 <text>*</text></text><input type="number" maxlength="11" placeholder="请输入家长手机号" value="{{form.parentPhone}}" data-key="parentPhone" bindinput="onInput" /></view>
+        </view>
+      </view>
+
+      <view class="form-section">
+        <view class="section-title"><image src="{{icons.check}}" mode="aspectFit" /><text>入学信息</text></view>
+        <view class="form-card">
+          <picker range="{{campusOptions}}" data-key="campus" data-source="campusOptions" bindchange="onPicker"><view class="form-row"><text>所属校区 <text>*</text></text><text class="field-value" wx:if="{{form.campus}}">{{form.campus}}</text><text class="field-value" wx:else>请选择所属校区</text><image src="{{icons.chevron}}" mode="aspectFit" /></view></picker>
+          <picker mode="date" data-key="enrollmentDate" bindchange="onDate"><view class="form-row"><text>入学日期 <text>*</text></text><text class="field-value" wx:if="{{form.enrollmentDate}}">{{form.enrollmentDate}}</text><text class="field-value" wx:else>请选择入学日期</text><image src="{{icons.calendar}}" mode="aspectFit" /></view></picker>
+        </view>
+      </view>
+
+      <view class="form-section">
+        <view class="section-title"><view class="ball-symbol">球</view><text>初始班级</text></view>
+        <view class="form-card single-row"><picker range="{{classOptions}}" data-key="initialClass" data-source="classOptions" bindchange="onPicker"><view class="form-row"><text>初始班级</text><text class="field-value" wx:if="{{form.initialClass}}">{{form.initialClass}}</text><text class="field-value" wx:else>请选择初始班级（可留空）</text><image src="{{icons.chevron}}" mode="aspectFit" /></view></picker></view>
+      </view>
+
+      <button class="primary-button" bindtap="saveStudent">▣　保存学员</button>
+      <button class="secondary-button" bindtap="saveAndAssign">保存并分班</button>
+      <text class="required-note">带 <text>*</text> 为必填项，请完整填写学员信息</text>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

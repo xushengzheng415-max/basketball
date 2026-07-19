@@ -1,0 +1,41 @@
+page { height:100%; background:#05080b; color:#f6f7f8; }
+.page-shell { height:100vh; overflow:hidden; background:radial-gradient(circle at 70% 20%,rgba(255,115,0,.08),transparent 30%),linear-gradient(180deg,#05080b,#070b0e); }
+.custom-nav { position:absolute; z-index:10; left:0; right:0; box-sizing:content-box; display:flex; align-items:center; justify-content:center; pointer-events:none; }
+.back-button { position:absolute; left:28rpx; width:62rpx; height:62rpx; display:flex; align-items:center; pointer-events:auto; }
+.back-button image { width:30rpx; height:30rpx; }
+.nav-title { font-size:34rpx; font-weight:800; letter-spacing:2rpx; }
+.page-scroll { height:100%; }
+.content { padding:16rpx 28rpx 0; box-sizing:border-box; }
+.score-card { min-height:288rpx; padding:38rpx 42rpx; display:flex; align-items:center; border:1rpx solid #30363c; border-radius:24rpx; background:linear-gradient(135deg,#11171c,#090d10); box-sizing:border-box; }
+.score-copy { flex:1; }
+.score-label { display:block; font-size:34rpx; font-weight:750; }
+.score-value { margin-top:24rpx; display:flex; align-items:flex-end; color:#ff7900; }
+.score-value text:first-child { font-size:98rpx; line-height:.9; font-weight:850; }
+.score-value text:last-child { margin:0 0 8rpx 12rpx; color:#f5f6f7; font-size:28rpx; }
+.score-gauge { position:relative; width:248rpx; height:178rpx; display:flex; align-items:center; justify-content:center; overflow:hidden; }
+.gauge-ring { position:absolute; top:0; width:210rpx; height:210rpx; border:26rpx solid #2c2f32; border-left-color:#ff7100; border-top-color:#ff9100; border-radius:50%; transform:rotate(-22deg); box-shadow:0 0 22rpx rgba(255,115,0,.28); }
+.score-gauge image { z-index:1; width:68rpx; height:68rpx; margin-top:32rpx; }
+.dimension-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:12rpx; margin-top:22rpx; }
+.dimension-card { min-width:0; padding:22rpx 8rpx; text-align:center; border:1rpx solid #30363c; border-radius:20rpx; background:#11161b; }
+.dimension-symbol { width:48rpx; height:48rpx; line-height:48rpx; margin:auto; border:2rpx solid #ff7900; border-radius:50%; color:#ff7900; font-size:22rpx; font-weight:800; }
+.dimension-label { display:block; margin-top:15rpx; color:#c3c7ca; font-size:18rpx; white-space:nowrap; }
+.dimension-value { margin-top:12rpx; }
+.dimension-value text:first-child { font-size:36rpx; font-weight:800; }
+.dimension-value text:last-child { margin-left:3rpx; font-size:19rpx; }
+.section-head { margin:38rpx 4rpx 18rpx; font-size:29rpx; font-weight:800; }
+.coach-card { min-height:138rpx; margin-bottom:14rpx; padding:20rpx 20rpx; display:flex; align-items:center; gap:18rpx; border:1rpx solid #30363c; border-radius:20rpx; background:linear-gradient(120deg,#11171c,#090d10); box-sizing:border-box; }
+.coach-avatar { flex:0 0 82rpx; width:82rpx; height:82rpx; line-height:82rpx; text-align:center; border:2rpx solid #ff7900; border-radius:50%; background:#292e32; font-size:32rpx; font-weight:800; }
+.coach-copy { flex:1; min-width:0; }
+.coach-name { display:block; font-size:28rpx; font-weight:800; }
+.coach-focus { margin-top:12rpx; display:flex; font-size:19rpx; }
+.coach-focus text:first-child { color:#9ba1a6; }
+.coach-focus text:last-child { color:#ff7900; }
+.coach-score { display:flex; align-items:flex-end; color:#ff7900; }
+.coach-score text:first-child { font-size:42rpx; font-weight:850; }
+.coach-score text:last-child { margin:0 0 5rpx 5rpx; color:#c9cdd0; font-size:18rpx; }
+.outline-button { min-width:78rpx; padding:12rpx 15rpx; text-align:center; border:1rpx solid #ff7900; border-radius:30rpx; color:#ff8a12; font-size:19rpx; }
+.page-note { margin:24rpx 8rpx; display:flex; justify-content:center; align-items:center; gap:10rpx; color:#92999f; font-size:18rpx; }
+.page-note text:first-child { width:28rpx; height:28rpx; line-height:28rpx; text-align:center; border:1rpx solid #ff7900; border-radius:50%; color:#ff7900; }
+.primary-button { height:92rpx; line-height:92rpx; margin:0; border-radius:20rpx; background:linear-gradient(100deg,#ff5f00,#ff8d13); color:#fff; font-size:27rpx; font-weight:800; box-shadow:0 14rpx 28rpx rgba(255,100,0,.2); }
+.primary-button text { margin-left:10rpx; font-size:38rpx; }
+.safe-space { height:64rpx; }

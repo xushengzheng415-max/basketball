@@ -5,9 +5,15 @@
   <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="hero">
       <view class="brand-row">
-        <image class="brand-logo" src="{{assets.logo}}" mode="aspectFit" />
-        <view class="role-pill">教练端</view>
-        <view class="campus-pill">浦东校区⌄</view>
+        <view class="role-pill" bindtap="openRoleTester" aria-role="button" aria-label="预览身份切换">
+          <text>教练端</text>
+          <text class="role-switch-mark" wx:if="{{showRoleTester}}">⌄</text>
+        </view>
+      </view>
+      <view class="education-mode {{educationModeClass}}" bindtap="openEducationAccount">
+        <view class="education-mode-dot"></view>
+        <view class="education-mode-copy"><text>{{educationModeTitle}}</text><text>{{educationModeCopy}}</text></view>
+        <text class="education-mode-arrow" wx:if="{{!educationAccessActive}}">›</text>
       </view>
       <view class="welcome-row">
         <view>

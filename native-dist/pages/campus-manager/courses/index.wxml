@@ -1,0 +1,116 @@
+<view class="courses-page">
+  <image class="page-background" src="{{assets.background}}" mode="aspectFill" />
+  <view class="page-shade"></view>
+
+  <view class="custom-nav" style="top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-control" bindtap="goBack" aria-role="button" aria-label="返回校区经营工作台">
+      <image class="back-icon" src="{{assets.back}}" mode="aspectFit" />
+      <text>返回校区经营工作台</text>
+    </view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+
+    <view class="header-section">
+      <view class="brand-line">
+        <view class="role-tag">校区负责人端</view>
+        <text class="page-title">课程总览</text>
+      </view>
+
+      <view class="selector-row">
+        <picker class="selector-picker" mode="selector" range="{{campuses}}" value="{{campusIndex}}" bindchange="onCampusChange">
+          <view class="selector-field">
+            <image src="{{assets.location}}" mode="aspectFit" />
+            <text>{{campusText}}</text>
+            <text class="selector-arrow">⌄</text>
+          </view>
+        </picker>
+        <picker class="selector-picker" mode="date" value="{{dateValue}}" bindchange="onDateChange">
+          <view class="selector-field">
+            <image src="{{assets.calendar}}" mode="aspectFit" />
+            <text>{{dateText}}</text>
+            <text class="selector-arrow">⌄</text>
+          </view>
+        </picker>
+      </view>
+
+      <view class="metric-grid">
+        <view class="metric-card" wx:for="{{metrics}}" wx:key="label">
+          <image class="metric-icon" wx:if="{{item.icon}}" src="{{item.icon}}" mode="aspectFit" />
+          <view class="metric-css-icon {{item.visualClass}}" wx:else><view class="play-triangle"></view></view>
+          <view class="metric-divider"></view>
+          <view class="metric-copy">
+            <text class="metric-label">{{item.label}}</text>
+            <view class="metric-number tone-{{item.tone}}"><text>{{item.value}}</text><text class="metric-suffix">{{item.suffix}}</text></view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="week-strip">
+      <view class="week-day {{item.activeClass}}" wx:for="{{weekDays}}" wx:key="key" data-key="{{item.key}}" bindtap="selectDay">
+        <text class="weekday">{{item.weekday}}</text>
+        <text class="day-number">{{item.day}}</text>
+        <text class="day-marker">{{item.markerText}}</text>
+      </view>
+      <image class="week-more" src="{{assets.chevron}}" mode="aspectFit" />
+    </view>
+
+    <view class="filter-strip">
+      <view class="filter-pill {{item.activeClass}}" wx:for="{{filters}}" wx:key="key" data-key="{{item.key}}" bindtap="selectFilter">
+        <text>{{item.label}}</text>
+        <view class="exception-dot" wx:if="{{item.hasBadge}}"></view>
+      </view>
+    </view>
+
+    <view class="course-timeline">
+      <view class="course-entry" wx:for="{{courses}}" wx:key="id">
+        <view class="timeline-rail"><view class="timeline-dot"></view></view>
+        <view class="course-card">
+          <view class="course-main">
+            <view class="time-column">
+              <text class="start-time">{{item.start}}</text>
+              <text class="end-time">{{item.end}}</text>
+              <text class="state-chip {{item.timeStateClass}}">{{item.timeState}}</text>
+            </view>
+            <view class="course-divider"></view>
+            <view class="course-info">
+              <text class="course-title">{{item.title}}</text>
+              <text class="course-tag">{{item.tag}}</text>
+              <view class="venue-row"><image src="{{assets.location}}" mode="aspectFit" /><text>{{item.venue}}</text></view>
+            </view>
+            <view class="coach-block">
+              <image class="coach-avatar" src="{{item.avatar}}" mode="aspectFill" />
+              <text>{{item.coach}}</text>
+            </view>
+            <view class="attendance-block" data-id="{{item.id}}" bindtap="openAttendance">
+              <text class="attendance-value">{{item.attendance}}</text>
+              <text class="attendance-label">应到 / 实到</text>
+              <text class="state-chip {{item.businessStateClass}}">{{item.businessState}}</text>
+            </view>
+          </view>
+          <view class="course-actions">
+            <view class="course-action" data-id="{{item.id}}" data-action="detail" bindtap="handleCourseAction"><view class="detail-glyph"><text></text><text></text><text></text></view><text>查看详情</text></view>
+            <view class="action-divider"></view>
+            <view class="course-action" data-id="{{item.id}}" data-action="reschedule" bindtap="handleCourseAction"><image src="{{assets.calendar}}" mode="aspectFit" /><text>调课</text></view>
+            <view class="action-divider"></view>
+            <view class="course-action" data-id="{{item.id}}" data-action="cancel" bindtap="handleCourseAction"><view class="pause-glyph"><text></text><text></text></view><text>停课</text></view>
+          </view>
+        </view>
+      </view>
+      <view class="empty-state" wx:if="{{emptyVisible}}"><image src="{{assets.check}}" mode="aspectFit" /><text>当前筛选下暂无课程</text></view>
+    </view>
+
+    <view class="reminder-panel">
+      <view class="reminder-head"><view><image src="{{assets.warning}}" mode="aspectFit" /><text>提醒</text></view><text>查看更多 ›</text></view>
+      <view class="reminder-row" wx:for="{{reminders}}" wx:key="id" data-route="{{item.route}}" bindtap="openReminder">
+        <image class="reminder-icon" src="{{item.icon}}" mode="aspectFit" />
+        <text class="reminder-title {{item.titleClass}}">{{item.title}}</text>
+        <view class="reminder-copy"><text>{{item.meta}}</text><text>{{item.note}}</text></view>
+        <text class="reminder-action">{{item.action}}</text>
+      </view>
+    </view>
+    <view class="safe-space"></view>
+  </scroll-view>
+</view>

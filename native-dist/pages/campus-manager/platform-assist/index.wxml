@@ -1,0 +1,45 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack" aria-role="button" aria-label="返回校区经营工作台">
+      <image src="{{icons.back}}" mode="aspectFit" />
+      <text>返回</text>
+    </view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="hero">
+        <view class="ball-art"><view></view><view></view><view></view></view>
+        <text class="role-pill">校区负责人端</text>
+        <text class="hero-title">平台辅助价值</text>
+        <text class="hero-subtitle">通过教练与机构协同，提供过程支持与机会洞察</text>
+      </view>
+
+      <view class="value-list">
+        <view class="value-card" wx:for="{{values}}" wx:key="title">
+          <view class="value-icon"><image src="{{item.icon}}" mode="aspectFit" /></view>
+          <text class="value-title">{{item.title}}</text>
+          <view class="value-number"><text wx:if="{{item.money}}">¥</text><text>{{item.value}}</text><text>{{item.suffix}}</text></view>
+        </view>
+      </view>
+
+      <view class="contribution-panel">
+        <view class="section-head"><view></view><text>可追溯的贡献</text></view>
+        <text class="section-caption">辅助成交为可追溯的任务结果</text>
+        <view class="contribution-list">
+          <view class="contribution-row" wx:for="{{contributions}}" wx:key="title" bindtap="openDetail">
+            <view class="row-symbol">{{item.symbol}}</view>
+            <view class="row-copy"><text>{{item.title}}</text><text>{{item.detail}}</text></view>
+            <text class="row-amount">{{item.amount}}</text>
+            <view class="row-button">查看依据 <text>›</text></view>
+          </view>
+        </view>
+        <view class="panel-note"><text>i</text><text>辅助成交为可追溯任务结果，不代表全部收入由平台创造</text></view>
+      </view>
+
+      <button class="primary-button" bindtap="openDetail">查看归因详情 <text>›</text></button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

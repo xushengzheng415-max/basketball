@@ -1,14 +1,1 @@
-<view class="page">
-  <view class="nav"><view class="back" bindtap="goBack"><text>‹</text></view><view><text class="nav-title">待完成计划</text><text class="nav-sub">请在开课前完成课程搭建</text></view></view>
-  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="hero"><text class="eyebrow">今日备课任务</text><text class="hero-title">还有 {{plans.length}} 份计划未完成</text><text class="hero-copy">完善训练目标、模块和执行要点后即可确认课程计划。</text></view>
-    <view class="plan-card" wx:for="{{plans}}" wx:key="id">
-      <view class="card-head"><view><text class="class-name">{{item.className}}</text><text class="lesson">{{item.lesson}}</text></view><text class="status">待完成</text></view>
-      <view class="meta-grid"><view><text>上课时间</text><text>{{item.time}}</text></view><view><text>场馆 / 学员</text><text>{{item.venue}} · {{item.students}}</text></view></view>
-      <view class="remaining">{{item.remaining}}</view>
-      <view class="missing"><text class="missing-title">还需补充</text><view wx:for="{{item.missing}}" wx:key="*this"><text class="dot">•</text><text>{{item}}</text></view></view>
-      <view class="primary" data-id="{{item.id}}" bindtap="editPlan">继续完善计划</view>
-    </view>
-    <view class="safe"></view>
-  </scroll-view>
-</view>
+<view class="page"><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}"><view class="title has-back"><text class="back" bindtap="goBack">‹</text>待完成计划</view><view class="subtitle">计划结构将用于课后评价与成长报告</view><view class="tabs"><text class="active">今天 1</text><text>本周 3</text></view><view class="plan {{item.emptyClass}}" wx:for="{{plans}}" wx:key="id"><view class="head"><text class="class-name">{{item.className}}</text><text class="status">{{item.status}}</text></view><view class="meta">◷ {{item.time}}　｜　⌖ {{item.venue}}</view><view wx:if="{{item.showMissing}}" class="missing"><view><text>缺少内容</text><text>•　{{item.missingLabel}}</text></view><view class="ring">{{item.progress}}%<text class="small">完成度</text></view></view><view wx:else class="progress-head"><text>完成度</text><text>{{item.progress}}%</text></view><view wx:if="{{!item.showMissing}}" class="track"><view style="width:{{item.progress}}%"></view></view><view class="primary {{item.buttonClass}}" data-id="{{item.id}}" bindtap="editPlan">{{item.button}}</view></view><view class="safe"></view></scroll-view></view>

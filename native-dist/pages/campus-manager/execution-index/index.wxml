@@ -1,0 +1,49 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack" aria-role="button" aria-label="返回校区经营工作台">
+      <image src="{{icons.back}}" mode="aspectFit" />
+    </view>
+    <text class="nav-title">经营执行指数</text>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="score-card">
+        <view class="score-copy">
+          <text class="score-label">本周执行</text>
+          <view class="score-value"><text>86</text><text>分</text></view>
+        </view>
+        <view class="score-gauge">
+          <view class="gauge-ring"></view>
+          <image src="{{icons.check}}" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view class="dimension-grid">
+        <view class="dimension-card" wx:for="{{dimensions}}" wx:key="label">
+          <view class="dimension-symbol">{{item.symbol}}</view>
+          <text class="dimension-label">{{item.label}}</text>
+          <view class="dimension-value"><text>{{item.value}}</text><text>{{item.suffix}}</text></view>
+        </view>
+      </view>
+
+      <view class="section-head"><text>教练执行情况</text></view>
+      <view class="coach-list">
+        <view class="coach-card" wx:for="{{coaches}}" wx:key="name" bindtap="openCoach">
+          <view class="coach-avatar">{{item.avatarText}}</view>
+          <view class="coach-copy">
+            <text class="coach-name">{{item.name}}</text>
+            <view class="coach-focus"><text>待提升：</text><text>{{item.focus}}</text></view>
+          </view>
+          <view class="coach-score"><text>{{item.score}}</text><text>分</text></view>
+          <view class="outline-button">查看</view>
+        </view>
+      </view>
+
+      <view class="page-note"><text>i</text><text>指数只反映任务执行，不直接评价教学质量</text></view>
+      <button class="primary-button" bindtap="openTasks">查看待改进任务 <text>›</text></button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

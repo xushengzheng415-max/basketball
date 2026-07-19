@@ -1,0 +1,19 @@
+<view class="page"><view class="nav" style="padding-top:{{navTop}}px;height:{{navHeight}}px"><view class="back" bindtap="goBack"><image src="{{icons.back}}"/><text>返回排课</text></view><text>新建单节排课</text></view><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}"><view style="height:{{navSpacer}}px"></view><view class="content">
+  <view class="page-title"><text>新建单节排课</text><text>为班级安排一次独立课程，系统自动检测冲突</text></view>
+  <view class="section-title"><text></text><text>课程信息</text></view>
+  <view class="form-panel">
+    <picker mode="selector" range="{{campusOptions}}" data-key="campus" data-source="campusOptions" bindchange="onPicker"><view class="form-row"><image src="{{icons.location}}"/><text>校区</text><text>{{form.campus}}</text><image src="{{icons.chevron}}"/></view></picker>
+    <picker mode="selector" range="{{classOptions}}" data-key="className" data-source="classOptions" bindchange="onPicker"><view class="form-row"><view class="mini-shield">U10</view><text>班级</text><text>{{form.className}}</text><image src="{{icons.chevron}}"/></view></picker>
+    <picker mode="date" value="{{form.date}}" bindchange="onDate"><view class="form-row"><image src="{{icons.calendar}}"/><text>日期</text><text>{{form.date}}（周三）</text><image src="{{icons.chevron}}"/></view></picker>
+    <picker mode="selector" range="{{startOptions}}" data-key="start" data-source="startOptions" bindchange="onPicker"><view class="form-row"><image src="{{icons.clock}}"/><text>开始时间</text><text>{{form.start}}</text><image src="{{icons.chevron}}"/></view></picker>
+    <picker mode="selector" range="{{endOptions}}" data-key="end" data-source="endOptions" bindchange="onPicker"><view class="form-row"><image src="{{icons.clock}}"/><text>结束时间</text><text>{{form.end}}</text><image src="{{icons.chevron}}"/></view></picker>
+    <picker mode="selector" range="{{coachOptions}}" data-key="coach" data-source="coachOptions" bindchange="onPicker"><view class="form-row"><image src="{{icons.user}}"/><text>主教练</text><text>{{form.coach}}</text><image src="{{icons.chevron}}"/></view></picker>
+    <picker mode="selector" range="{{assistantOptions}}" data-key="assistant" data-source="assistantOptions" bindchange="onPicker"><view class="form-row"><image src="{{icons.user}}"/><text>助教（可选）</text><text>{{form.assistant}}</text><image src="{{icons.chevron}}"/></view></picker>
+    <picker mode="selector" range="{{venueOptions}}" data-key="venue" data-source="venueOptions" bindchange="onPicker"><view class="form-row"><view class="venue-icon">馆</view><text>场馆</text><text>{{form.venue}}</text><image src="{{icons.chevron}}"/></view></picker>
+  </view>
+  <view class="section-title"><text></text><text>智能冲突检测</text></view>
+  <view class="checks"><view wx:for="{{checks}}" wx:key="title"><view class="check-icon">{{item.symbol}}</view><text>{{item.title}}</text><text>{{item.result}}</text><text>{{item.note}}</text></view></view>
+  <view class="section-title"><text></text><text>通知设置</text></view>
+  <view class="notify-panel"><view><view class="bell">♢</view><view><text>通知学员家长</text><text>课程创建后，自动通知相关学员家长</text></view><switch checked="{{notifyParent}}" color="#ff7900" data-key="notifyParent" bindchange="toggleNotify"/></view><view><view class="bell">♢</view><view><text>通知教练</text><text>课程创建后，自动通知相关教练</text></view><switch checked="{{notifyCoach}}" color="#ff7900" data-key="notifyCoach" bindchange="toggleNotify"/></view></view>
+  <view class="create" bindtap="createCourse">▣　创建课程并通知</view><view class="tip">◇ 创建后，课程将自动加入课表并进行冲突检测</view><view class="safe"></view>
+</view></scroll-view></view>

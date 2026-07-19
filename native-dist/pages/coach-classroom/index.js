@@ -1,3 +1,5 @@
+const { requireEducationAccess } = require('../../utils/education-access');
+
 const MODULES = [
   { id: 'm1', title: '动态热身', desc: '慢跑、关节激活、反应游戏', minutes: 10, intensity: '低' },
   { id: 'm2', title: '球感与原地控球', desc: '双手交替、低重心控制、弱侧手强化', minutes: 20, intensity: '中' },
@@ -100,7 +102,8 @@ Page({
     wx.showToast({ title: '进入下一训练模块', icon: 'none' });
   },
 
-  finishLesson() {
+  async finishLesson() {
+    if (!(await requireEducationAccess())) return;
     if (!this.data.allCompleted) {
       wx.showToast({ title: '请先完成全部训练模块', icon: 'none' });
       return;

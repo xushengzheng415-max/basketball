@@ -2,6 +2,10 @@ const CLOUD_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re
 
 Page({
   data: {
+    accessEyebrow: '\u6559\u52a1\u8d26\u6237\u7531 PC \u7aef\u7edf\u4e00\u4e0b\u53d1',
+    accessTitle: '\u5b8c\u6210\u5f00\u6237\u540e\u8fdb\u5165\u771f\u5b9e\u6559\u52a1\u5de5\u4f5c\u6d41',
+    accessNote: '\u5c0f\u7a0b\u5e8f\u5185\u4e0d\u76f4\u63a5\u8d2d\u4e70\uff1b\u8bf7\u8054\u7cfb\u5e73\u53f0\u5b8c\u6210\u673a\u6784\u5f00\u6237\u3001\u8d26\u6237\u4e0b\u53d1\u548c\u6743\u9650\u914d\u7f6e',
+    accessButtonLabel: '\u54a8\u8be2\u5f00\u6237',
     logo: CLOUD_ROOT + 'home/brand-horizontal-logo.png',
     heroBackground: CLOUD_ROOT + 'pages/education/education-top-bg-clean.png',
     capabilities: [

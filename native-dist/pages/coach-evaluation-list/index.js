@@ -1,20 +1,24 @@
 const ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
+const { requireEducationAccess } = require('../../utils/education-access');
 const FALLBACK = [
   { id: 's1', name: '林浩', number: '23', avatar: ROOT + 'avatar-linhao.png', attendanceStatus: 'present' },
+  { id: 's2', name: '刘宇辰', number: '8', avatar: ROOT + 'avatar-liuyuchen.png', attendanceStatus: 'present' },
   { id: 's3', name: '张子轩', number: '11', avatar: ROOT + 'avatar-zhangzixuan.png', attendanceStatus: 'makeup' },
-  { id: 's4', name: '赵子墨', number: '5', avatar: ROOT + 'avatar-zhaozimo.png', attendanceStatus: 'present' }
+  { id: 's4', name: '赵子墨', number: '5', avatar: ROOT + 'avatar-zhaozimo.png', attendanceStatus: 'present' },
+  { id: 's5', name: '廖然', number: '17', avatar: ROOT + 'avatar-liaoran.png', attendanceStatus: 'present' }
 ];
 
 function decorate(students, statusMap) {
   return students.map((item, index) => {
-    const completed = !!statusMap[item.id];
+    const returned = statusMap[item.id] === 'returned';
+    const completed = statusMap[item.id] === true;
     return {
       ...item,
       index,
       attendanceLabel: item.attendanceStatus === 'makeup' ? '补课' : '到课',
-      status: completed ? '已完成' : '待评价',
-      statusClass: completed ? 'done' : 'pending',
-      actionLabel: completed ? '查看评价' : '开始评价'
+      status: returned ? '退回修改' : completed ? '已完成' : '待评价',
+      statusClass: returned ? 'returned' : completed ? 'done' : 'pending',
+      actionLabel: returned ? '查看反馈' : completed ? '查看评价' : '开始评价'
     };
   });
 }
@@ -28,7 +32,8 @@ Page({
 
   onShow() {
     const students = wx.getStorageSync('sxf_attendance_course-2') || FALLBACK;
-    const statusMap = wx.getStorageSync('sxf_evaluation_status_course-2') || {};
+    const storedStatus = wx.getStorageSync('sxf_evaluation_status_course-2') || {};
+    const statusMap = Object.keys(storedStatus).length ? storedStatus : { s1: true, s5: 'returned' };
     const decorated = decorate(students, statusMap);
     const completedCount = decorated.filter((item) => item.statusClass === 'done').length;
     this.setData({
@@ -53,13 +58,14 @@ Page({
     wx.navigateTo({ url: '/pages/coach-evaluation/index?studentId=' + id + '&index=' + index + '&total=' + this.data.totalCount + '&source=evaluation-list' });
   },
 
-  finishAll() {
+  async finishAll() {
     if (this.data.submitting) return;
     if (!this.data.allCompleted) {
       const next = this.data.students.find((item) => item.statusClass !== 'done');
       if (next) this.openEvaluation({ currentTarget: { dataset: { id: next.id, index: next.index } } });
       return;
     }
+    if (!(await requireEducationAccess())) return;
     if (!wx.cloud || !wx.cloud.callFunction) {
       this.finishWithoutQueue();
       return;

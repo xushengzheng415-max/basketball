@@ -1,0 +1,33 @@
+<view class="page">
+  <view class="nav" style="padding-top:{{navTop}}px;height:{{navHeight}}px">
+    <view class="back" bindtap="goBack"><image src="{{icons.back}}"/><text>返回班级管理</text></view>
+    <text>班级学员调整</text>
+  </view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{navSpacer}}px"></view>
+    <view class="content">
+      <view class="class-summary">
+        <view class="shield"><text>★★★</text><text>U10</text><text>🏀</text></view>
+        <view class="summary-main"><view><text>U10基础训练班</text><text>正常</text></view><text>♙ 当前 <text>18</text> / 20 人　|　容量 20 人</text><text>▣ 周三 18:30-20:00　2号馆 · 基础区</text></view>
+        <view class="ring"><text>90%</text><text>出勤率</text></view>
+      </view>
+
+      <view class="tabs"><view>班级学员 (18)</view><view>可调整学员</view></view>
+      <view class="search-row"><view><image src="{{icons.search}}"/><input placeholder="搜索学员姓名 / 当前班级" value="{{query}}" bindinput="onSearch"/></view><view bindtap="showFilter"><text class="filter-symbol">⌁</text><text>筛选</text></view></view>
+
+      <view class="student-list">
+        <view class="student-card" wx:for="{{students}}" wx:key="id" data-id="{{item.id}}" bindtap="toggleStudent">
+          <image class="avatar" src="{{item.avatar}}" mode="aspectFill"/>
+          <view class="student-main"><view><text>{{item.name}}</text><text>{{item.age}}</text><text>{{item.gender}}</text></view><text>当前班级：{{item.currentClass}}</text><view class="availability {{item.toneClass}}"><text>{{item.toneClass}}</text><text>{{item.status}}</text></view></view>
+          <view class="student-side"><text>可移入</text><view class="checkbox {{item.selectedClass}}">{{item.selectedMark}}</view></view>
+        </view>
+      </view>
+      <view class="scroll-safe"></view>
+    </view>
+  </scroll-view>
+
+  <view class="bottom-bar">
+    <view class="selected-row"><view><text class="people">♧</text><text>已选 <text>{{selectedCount}}</text> 人</text></view><view class="selected-avatars"><image wx:for="{{selectedAvatars}}" wx:key="*this" src="{{item}}" mode="aspectFill"/></view><view bindtap="clearSelection">清空</view></view>
+    <view class="bottom-actions"><view bindtap="moveOut">↩　移出班级</view><view bindtap="moveIn">↗　移入班级</view><view bindtap="confirm">✓　确认调整并通知</view></view>
+  </view>
+</view>

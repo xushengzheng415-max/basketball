@@ -1,0 +1,125 @@
+<view class="page-shell">
+  <view class="glow glow-top"></view>
+  <view class="custom-nav" style="top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-control" bindtap="handleBack" aria-role="button" aria-label="{{screen.backLabel}}">
+      <text class="back-icon">‹</text>
+      <text class="back-text">返回</text>
+    </view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="manager-brand-row" wx:if="{{screen.brandLogo}}">
+        <image class="manager-brand-logo" src="{{screen.brandLogo}}" mode="aspectFit" />
+        <view class="role-pill" bindtap="openRoleTester" aria-role="button" aria-label="开发工具测试身份切换">
+          <text>校区负责人端</text>
+          <text class="role-test-mark" wx:if="{{showRoleTester}}">测试⌄</text>
+        </view>
+      </view>
+      <view class="role-pill" wx:else bindtap="openRoleTester" aria-role="button" aria-label="开发工具测试身份切换">
+        <text>校区负责人端</text>
+        <text class="role-test-mark" wx:if="{{showRoleTester}}">测试⌄</text>
+      </view>
+      <view class="hero">
+        <text class="eyebrow">{{screen.eyebrow}}</text>
+        <text class="title">{{screen.title}}</text>
+        <text class="subtitle">{{screen.subtitle}}</text>
+      </view>
+
+      <view class="metrics metrics-{{screen.metrics.length}}">
+        <view class="metric" wx:for="{{screen.metrics}}" wx:key="label">
+          <text class="metric-label">{{item.label}}</text>
+          <view class="metric-number tone-{{item.tone}}">
+            <text class="metric-value">{{item.value}}</text>
+            <text class="metric-suffix">{{item.suffix}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="cockpit" wx:if="{{screen.dashboard}}">
+        <view class="dashboard-notice" data-route="{{screen.dashboard.notice.route}}" bindtap="handleNavigate">
+          <view class="dashboard-notice-icon">待</view>
+          <view class="dashboard-notice-main">
+            <text class="dashboard-notice-title">{{screen.dashboard.notice.title}}</text>
+            <text class="dashboard-notice-caption">{{screen.dashboard.notice.caption}}</text>
+          </view>
+          <view class="dashboard-notice-badge" wx:if="{{screen.dashboard.notice.count}}">{{screen.dashboard.notice.count}}</view>
+          <text class="dashboard-notice-arrow">›</text>
+        </view>
+        <view class="cockpit-row">
+          <view class="cockpit-card cockpit-pending">
+            <view class="cockpit-head"><text>今日待处理</text><text class="cockpit-link">优先事项</text></view>
+            <view class="pending-item" wx:for="{{screen.dashboard.pending}}" wx:key="label" data-route="{{item.route}}" bindtap="handleNavigate">
+              <view class="pending-copy"><text class="pending-label">{{item.label}}</text><text class="pending-caption">{{item.caption}}</text></view>
+              <view class="pending-side"><view class="pending-value tone-{{item.tone}}"><text>{{item.value}}</text><text class="pending-suffix">{{item.suffix}}</text></view><text class="pending-guide">{{item.action}}</text></view>
+            </view>
+          </view>
+          <view class="cockpit-card cockpit-health">
+            <view class="cockpit-head"><text>经营健康</text><text class="cockpit-link">实时</text></view>
+            <view class="health-item" wx:for="{{screen.dashboard.health}}" wx:key="label" data-route="{{item.route}}" bindtap="handleNavigate">
+              <view class="health-copy"><text>{{item.label}}</text><text class="tone-{{item.tone}}">{{item.value}}</text></view>
+              <view class="health-track"><view class="health-progress tone-bg-{{item.tone}}" style="width: {{item.progress}};"></view></view>
+            </view>
+          </view>
+        </view>
+
+        <view class="cockpit-card cockpit-quick">
+          <view class="cockpit-head"><text>教务快捷入口</text><text class="cockpit-link">核心经营</text></view>
+          <view class="quick-grid">
+            <view class="quick-item" wx:for="{{screen.dashboard.quick}}" wx:key="label" data-route="{{item.route}}" bindtap="handleNavigate">
+              <text class="quick-badge" wx:if="{{item.badge}}">{{item.badge}}</text>
+              <view class="quick-symbol">{{item.symbol}}</view>
+              <view class="quick-copy"><text class="quick-label">{{item.label}}</text><text class="quick-caption">{{item.caption}}</text></view>
+            </view>
+          </view>
+        </view>
+
+        <view class="cockpit-card cockpit-opportunity">
+          <view class="cockpit-head"><text>增长机会</text><text class="cockpit-link">今日经营线索</text></view>
+          <view class="opportunity-grid">
+            <view class="opportunity-item" wx:for="{{screen.dashboard.opportunities}}" wx:key="label" data-route="{{item.route}}" bindtap="handleNavigate">
+              <view><text class="opportunity-label">{{item.label}}</text><text class="opportunity-value tone-{{item.tone}}">{{item.value}}</text></view>
+              <text class="opportunity-arrow">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <block wx:else>
+        <view class="section" wx:for="{{screen.sections}}" wx:key="title" wx:for-item="section">
+          <view class="section-head">
+            <text class="section-title">{{section.title}}</text>
+            <text class="section-caption">{{section.caption}}</text>
+          </view>
+          <view class="item-list">
+            <view class="business-item" wx:for="{{section.items}}" wx:key="title" wx:for-item="item" data-route="{{item.route}}" bindtap="handleNavigate">
+              <view class="item-mark tone-bg-{{item.tone}}"></view>
+              <view class="item-main">
+                <text class="item-title">{{item.title}}</text>
+                <text class="item-meta">{{item.meta}}</text>
+              </view>
+              <view class="item-side">
+                <text class="item-value tone-{{item.tone}}">{{item.value}}</text>
+                <text class="item-status">{{item.status}}</text>
+              </view>
+              <text class="item-arrow" wx:if="{{item.route}}">›</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="notice">
+          <text class="notice-icon">i</text>
+          <text class="notice-text">{{screen.note}}</text>
+        </view>
+
+        <view class="actions">
+          <button class="action-button action-{{item.style}}" wx:for="{{screen.actions}}" wx:key="label" data-route="{{item.route}}" data-toast="{{item.toast}}" bindtap="handleAction">{{item.label}}</button>
+        </view>
+      </block>
+      <view class="bottom-space bottom-space-tabbar" wx:if="{{showTabbar}}"></view>
+      <view class="bottom-space" wx:else></view>
+    </view>
+  </scroll-view>
+  <sxf-tabbar wx:if="{{showTabbar}}" active="education" />
+</view>

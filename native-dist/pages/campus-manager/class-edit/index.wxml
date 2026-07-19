@@ -1,0 +1,45 @@
+<view class="page">
+  <view class="nav" style="padding-top:{{navTop}}px;height:{{navHeight}}px">
+    <view class="back" bindtap="goBack"><image src="{{icons.back}}"/><text>返回</text></view>
+    <text>{{pageTitle}}</text>
+  </view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{navSpacer}}px"></view>
+    <view class="content">
+      <view class="intro"><text>{{pageTitle}}</text><text>完善班级信息，开启高效教学管理</text></view>
+
+      <view class="form-card">
+        <view class="card-title"><image src="{{icons.edit}}"/><text>基本信息</text></view>
+        <view class="field"><text>班级名称 <text>*</text></text><view class="input-box"><input maxlength="20" placeholder="请输入班级名称" value="{{form.name}}" bindinput="onNameInput"/><text>{{form.name.length}}/20</text></view></view>
+        <view class="field stage-field"><text>班型 <text>*</text></text><view class="stage-options"><view class="stage {{item.activeClass}}" wx:for="{{stages}}" wx:key="key" data-stage="{{item.key}}" bindtap="selectStage"><view>{{item.mark}}</view><text>{{item.label}}</text></view></view></view>
+        <view class="field"><text>年龄段 <text>*</text></text><picker mode="selector" range="{{ageOptions}}" data-key="age" data-source="ageOptions" bindchange="onPicker"><view class="picker"><text>{{form.age}}</text><text wx:if="{{!form.age}}">请选择年龄段</text><text>⌄</text></view></picker></view>
+        <view class="field"><text>主教练 <text>*</text></text><picker mode="selector" range="{{coachOptions}}" data-key="coach" data-source="coachOptions" bindchange="onPicker"><view class="picker"><text>{{form.coach}}</text><text wx:if="{{!form.coach}}">请选择主教练</text><text>›</text></view></picker></view>
+        <view class="field"><text>助教</text><picker mode="selector" range="{{assistantOptions}}" data-key="assistant" data-source="assistantOptions" bindchange="onPicker"><view class="picker"><text>{{form.assistant}}</text><text wx:if="{{!form.assistant}}">请选择助教（可不选）</text><text>›</text></view></picker></view>
+      </view>
+
+      <view class="form-card compact-card">
+        <view class="card-title"><image src="{{icons.coach}}"/><text>教学配置</text></view>
+        <view class="field"><text>上课周期 <text>*</text></text><view class="weekdays"><view class="day {{item.activeClass}}" wx:for="{{weekdays}}" wx:key="label" data-day="{{item.label}}" bindtap="selectDay">{{item.label}}</view></view></view>
+      </view>
+
+      <view class="form-card compact-card">
+        <view class="card-title"><image src="{{icons.user}}"/><text>容量与年龄</text></view>
+        <view class="field"><text>容量 <text>*</text></text><view class="stepper"><view data-delta="-1" bindtap="changeCapacity">−</view><text>{{form.capacity}}</text><view class="plus" data-delta="1" bindtap="changeCapacity">＋</view><text>人</text></view></view>
+      </view>
+
+      <view class="form-card compact-card">
+        <view class="card-title"><image src="{{icons.clock}}"/><text>固定时间</text></view>
+        <view class="field"><text>上课时间 <text>*</text></text><view class="time-select"><picker mode="selector" range="{{startOptions}}" data-key="start" data-source="startOptions" bindchange="onPicker"><view>{{form.start}}　⌄</view></picker><text>—</text><picker mode="selector" range="{{endOptions}}" data-key="end" data-source="endOptions" bindchange="onPicker"><view>{{form.end}}　⌄</view></picker></view></view>
+        <view class="duration">课程时长：90 分钟</view>
+      </view>
+
+      <view class="form-card compact-card">
+        <view class="card-title"><image src="{{icons.location}}"/><text>场馆</text></view>
+        <view class="field"><text>场馆 <text>*</text></text><picker mode="selector" range="{{venueOptions}}" data-key="venue" data-source="venueOptions" bindchange="onPicker"><view class="picker"><text>{{form.venue}}</text><text wx:if="{{!form.venue}}">请选择场馆</text><text>›</text></view></picker></view>
+      </view>
+
+      <view class="actions"><view bindtap="saveClass">保存班级</view><view bindtap="saveAndAdd">保存并添加学员</view></view>
+      <view class="safe"></view>
+    </view>
+  </scroll-view>
+</view>

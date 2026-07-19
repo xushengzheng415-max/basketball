@@ -1,0 +1,74 @@
+<view class="page">
+  <view class="nav" style="padding-top:{{navTop}}px;height:{{navHeight}}px">
+    <view class="back" bindtap="goBack"><image src="{{icons.back}}"/><text>班级详情</text></view>
+  </view>
+  <scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height:{{navSpacer}}px"></view>
+    <view class="content">
+      <view class="hero panel">
+        <view class="shield"><text>★★★</text><text>U10</text><text>🏀</text></view>
+        <view class="hero-main">
+          <view class="hero-title"><text>U10基础训练班</text><text>正常</text></view>
+          <view class="hero-location"><image src="{{icons.location}}"/><text>浦东校区 · 2号馆</text></view>
+        </view>
+        <view class="hero-metrics">
+          <view><image src="{{icons.user}}"/><view><text>学员</text><text>18<text>人</text></text></view></view>
+          <view><view class="metric-icon">人</view><view><text>容量</text><text>20<text>人</text></text></view></view>
+          <view><view class="attendance-ring">94%</view><view><text>出勤率</text><text>94<text>%</text></text></view></view>
+          <view><image src="{{icons.calendar}}"/><view><text>本周课程</text><text>2<text>节</text></text></view></view>
+        </view>
+      </view>
+
+      <view class="section panel">
+        <view class="section-title"><image src="{{icons.edit}}"/><text>基本信息</text></view>
+        <view class="info-box">
+          <view><text>班级编号</text><text>U10-2024-002</text></view>
+          <view><text>创建时间</text><text>2024-05-20</text></view>
+          <view><text>训练阶段</text><text>基础训练</text></view>
+          <view><text>上课场馆</text><text>浦东校区 · 2号馆</text></view>
+          <view><text>上课时间</text><text>每周二、周四 14:00-15:30</text></view>
+        </view>
+      </view>
+
+      <view class="section panel">
+        <view class="section-title between"><view><image src="{{icons.coach}}"/><text>主教练与助教</text></view><text>共 2 人</text></view>
+        <view class="coach-box">
+          <view class="coach-item" wx:for="{{coaches}}" wx:key="name">
+            <image src="{{item.avatar}}" mode="aspectFill"/>
+            <view><view><text>{{item.name}}</text><text>{{item.role}}</text></view><text>教练资质：{{item.level}}</text><text>执教年限：{{item.years}}</text></view>
+          </view>
+        </view>
+      </view>
+
+      <view class="section panel">
+        <view class="section-title between"><view><image src="{{icons.user}}"/><text>在班学员（18人）</text></view><text bindtap="adjustStudents">查看全部 ›</text></view>
+        <view class="student-row">
+          <view class="student" wx:for="{{students}}" wx:key="name"><image src="{{item.avatar}}" mode="aspectFill"/><text>{{item.name}}</text></view>
+          <view class="student more" bindtap="adjustStudents"><view>+13</view><text>更多学员</text></view>
+        </view>
+      </view>
+
+      <view class="section panel">
+        <view class="section-title between"><view><image src="{{icons.calendar}}"/><text>固定课表</text></view><text data-message="固定课表详情" bindtap="showInfo">查看课表 ›</text></view>
+        <view class="schedule-box"><view><text>周二</text><text>周四</text></view><view><text>14:00-15:30</text><text>基础训练课</text><text>运球 · 传球 · 投篮 · 团队配合</text></view><text>2号馆</text></view>
+      </view>
+
+      <view class="section panel">
+        <view class="section-title between"><view><image src="{{icons.clock}}"/><text>最近课程</text></view><text data-message="全部课程记录" bindtap="showInfo">查看全部 ›</text></view>
+        <view class="recent-row" wx:for="{{recentCourses}}" wx:key="date"><view><text>{{item.date}}</text><text>{{item.day}}</text></view><view><text>{{item.title}}</text><text>{{item.attendance}}</text></view><text>已完成 ›</text></view>
+      </view>
+
+      <view class="section panel warning-panel">
+        <view class="section-title between"><view><image src="{{icons.warning}}"/><text>班级预警</text></view><text data-message="全部班级预警" bindtap="showInfo">查看全部 ›</text></view>
+        <view class="warning-row" wx:for="{{warnings}}" wx:key="title"><view class="warning-icon {{item.tone}}">{{item.icon}}</view><view><text>{{item.title}}</text><text>{{item.note}}</text></view><text>{{item.count}} ›</text></view>
+      </view>
+
+      <view class="actions">
+        <view class="primary" bindtap="editClass">✎　编辑班级</view>
+        <view bindtap="adjustStudents">♧　调整学员</view>
+        <view bindtap="replaceCoach">⟳　更换教练</view>
+      </view>
+      <view class="safe"></view>
+    </view>
+  </scroll-view>
+</view>

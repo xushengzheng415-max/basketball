@@ -24,12 +24,12 @@
       </view>
 
       <view class="unlock-card">
-        <view class="unlock-top"><view><text class="unlock-eyebrow">按校区付费授权</text><text class="unlock-title">开通后即可进入真实教务工作流</text></view><text class="unlock-mark">PRO</text></view>
+        <view class="unlock-top"><view><text class="unlock-eyebrow">{{accessEyebrow}}</text><text class="unlock-title">{{accessTitle}}</text></view><text class="unlock-mark">PRO</text></view>
         <view class="unlock-list"><text>PC端账号与员工权限</text><text>小程序校区负责人端与教练端</text><text>云端数据、AI报告与持续升级</text></view>
-        <view class="unlock-note">具体方案根据校区数量、员工账号和功能范围确定</view>
+        <view class="unlock-note">{{accessNote}}</view>
       </view>
       <view class="safe-space"></view>
     </view>
   </scroll-view>
-  <view class="footer"><view><text>教务系统专业版</text><text>按机构需求配置授权</text></view><button class="unlock-button" open-type="contact" show-message-card="{{true}}" send-message-title="咨询赛小蜂教务系统专业版" send-message-path="/pages/education-product/index" bindtap="recordUnlockLead">付费解锁</button></view>
+  <view class="footer"><view><text>教务系统专业版</text><text>PC 端下发账户并完成开户</text></view><button class="unlock-button" open-type="contact" show-message-card="{{true}}" send-message-title="咨询赛小蜂教务系统专业版" send-message-path="/pages/education-product/index" bindtap="recordUnlockLead">{{accessButtonLabel}}</button></view>
 </view>

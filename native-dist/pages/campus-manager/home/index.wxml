@@ -1,0 +1,131 @@
+<view class="page-shell">
+  <view class="ambient ambient-top"></view>
+  <view class="ambient-dots"></view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-into-view="{{guideScrollTarget}}" scroll-with-animation>
+    <view class="content">
+      <view class="role-row" style="height: {{navSpacer}}px; padding-top: {{navTop}}px;">
+        <view id="guide-role" class="role-pill" bindtap="openRoleTester" aria-role="button" aria-label="预览身份切换">
+          <text>校区端</text>
+          <text class="role-switch-mark" wx:if="{{showRoleTester}}">⌄</text>
+        </view>
+      </view>
+
+      <view class="education-mode {{educationModeClass}}" bindtap="openEducationAccount">
+        <view class="education-mode-dot"></view>
+        <view class="education-mode-copy"><text>{{educationModeTitle}}</text><text>{{educationModeCopy}}</text></view>
+        <text class="education-mode-arrow" wx:if="{{!educationAccessActive}}">›</text>
+      </view>
+
+      <view class="hero">
+        <text class="greeting">{{screen.greeting}}</text>
+        <text class="page-title">{{screen.title}}</text>
+        <text class="subtitle">{{screen.subtitle}}</text>
+      </view>
+
+      <view class="metrics-panel">
+        <view class="metric" wx:for="{{screen.metrics}}" wx:key="label">
+          <text class="metric-label">{{item.label}}</text>
+          <view class="metric-number tone-{{item.tone}}">
+            <text class="metric-value">{{item.value}}</text><text class="metric-suffix">{{item.suffix}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view id="guide-pending" class="task-notice" data-route="{{screen.notice.route}}" bindtap="openRoute">
+        <view class="task-notice-icon">待</view>
+        <view class="task-notice-copy">
+          <text class="task-notice-title">{{screen.notice.title}}</text>
+          <text class="task-notice-caption">{{screen.notice.caption}}</text>
+        </view>
+        <text class="task-notice-count" wx:if="{{screen.notice.count}}">{{screen.notice.count}}</text>
+        <text class="task-notice-arrow">›</text>
+      </view>
+
+      <view id="guide-focus" class="focus-card" data-route="{{screen.focus.route}}" bindtap="openRoute">
+        <view class="focus-accent"></view>
+        <view class="focus-watermark">!</view>
+        <view class="focus-copy">
+          <text class="focus-eyebrow">{{screen.focus.eyebrow}}</text>
+          <text class="focus-title">{{screen.focus.title}}</text>
+          <view class="focus-caption"><text>{{screen.focus.caption}} </text><text class="focus-amount">{{screen.focus.amount}}</text><text>元</text></view>
+        </view>
+        <view class="focus-side">
+          <view class="focus-count"><text class="focus-count-value">{{screen.focus.value}}</text><text class="focus-count-unit">{{screen.focus.unit}}</text></view>
+          <view class="focus-action"><text>{{screen.focus.action}}</text><text class="focus-action-arrow">›</text></view>
+        </view>
+      </view>
+
+      <view class="panel pending-panel">
+        <view class="section-head"><text class="section-title">今日待处理</text></view>
+        <view class="pending-list">
+          <view class="pending-row" wx:for="{{screen.pending}}" wx:key="key" data-route="{{item.route}}" bindtap="openRoute">
+            <view class="pending-icon-wrap icon-{{item.iconKind}} tone-surface-{{item.iconTone}}"><text class="pending-symbol">{{item.symbol}}</text></view>
+            <text class="pending-label">{{item.label}}</text>
+            <text class="pending-value tone-{{item.tone}}">{{item.value}}</text>
+            <text class="row-chevron">›</text>
+          </view>
+        </view>
+      </view>
+
+      <view id="guide-quick" class="panel quick-panel">
+        <view class="section-head"><text class="section-title">常用操作</text></view>
+        <view class="quick-grid">
+          <view class="quick-item" wx:for="{{screen.quick}}" wx:key="key" data-route="{{item.route}}" bindtap="openRoute">
+            <text class="quick-badge" wx:if="{{item.badge}}">{{item.badge}}</text>
+            <view class="quick-symbol quick-icon-{{item.iconKind}}"><view class="quick-icon-core"></view></view>
+            <text class="quick-label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="panel opportunity-panel">
+        <view class="section-head"><text class="section-title">增长机会</text><text class="section-caption">今日经营线索</text></view>
+        <view class="opportunity-grid">
+          <view class="opportunity-item" wx:for="{{screen.opportunities}}" wx:key="key" data-route="{{item.route}}" bindtap="openRoute">
+            <view><text class="opportunity-label">{{item.label}}</text><text class="opportunity-value tone-{{item.tone}}">{{item.value}}</text></view>
+            <text class="opportunity-arrow">›</text>
+          </view>
+        </view>
+      </view>
+
+      <view id="guide-summary" class="summary-grid">
+        <view class="summary-card" wx:for="{{screen.summaries}}" wx:key="key" wx:for-item="summary" data-route="{{summary.route}}" bindtap="openRoute">
+          <view class="summary-head"><view class="summary-symbol">{{summary.symbol}}</view><text>{{summary.title}}</text></view>
+          <view class="summary-stats">
+            <view class="summary-stat" wx:for="{{summary.items}}" wx:key="label" wx:for-item="stat">
+              <text class="summary-label">{{stat.label}}</text>
+              <text class="summary-value tone-{{stat.tone}}">{{stat.value}}</text>
+              <view class="summary-track"><view class="summary-progress tone-bg-{{stat.tone}}" style="width: {{stat.progress}};"></view></view>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <view class="tabbar-space"></view>
+    </view>
+  </scroll-view>
+  <sxf-tabbar active="education" />
+
+  <view class="guide-layer" wx:if="{{guideVisible}}" catchtouchmove="blockGuideTouch">
+    <view class="guide-spotlight" style="{{guideSpotlightStyle}}"></view>
+    <view class="guide-card">
+      <view class="guide-meta">
+        <text class="guide-kicker">首次使用引导</text>
+        <text class="guide-step">{{guide.stepText}}</text>
+      </view>
+      <text class="guide-title">{{guide.title}}</text>
+      <text class="guide-description">{{guide.description}}</text>
+      <view class="guide-dots">
+        <view class="guide-dot {{item.activeClass}}" wx:for="{{guide.dots}}" wx:key="key"></view>
+      </view>
+      <view class="guide-actions">
+        <text class="guide-exit" bindtap="exitGuide">退出引导</text>
+        <view class="guide-nav-actions">
+          <view class="guide-button guide-button-secondary" wx:if="{{guide.showPrevious}}" bindtap="previousGuideStep">上一步</view>
+          <view class="guide-button guide-button-primary" bindtap="nextGuideStep">{{guide.primaryText}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

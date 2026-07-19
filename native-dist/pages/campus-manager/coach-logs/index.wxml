@@ -1,0 +1,39 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>教练详情</text></view>
+    <text class="nav-title">教练操作记录</text>
+  </view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="coach-card">
+        <image class="avatar" src="{{avatar}}" mode="aspectFill" />
+        <view class="coach-copy"><text>陈教练</text><text>浦东校区 · 全职教练</text></view>
+        <view class="metric-row">
+          <view wx:for="{{metrics}}" wx:key="label"><text class="{{item.tone}}">{{item.value}}</text><text>{{item.label}}</text></view>
+        </view>
+      </view>
+
+      <view class="filter-bar">
+        <scroll-view scroll-x enhanced show-scrollbar="{{false}}">
+          <view class="filter {{item.activeClass}}" wx:for="{{filters}}" wx:key="key" data-key="{{item.key}}" bindtap="switchFilter">{{item.label}}</view>
+        </scroll-view>
+        <view class="date-filter"><image src="{{icons.calendar}}" mode="aspectFit" /><text>近 7 天</text></view>
+      </view>
+
+      <view class="group" wx:for="{{groups}}" wx:key="date">
+        <view class="date-heading">{{item.date}}</view>
+        <view class="event-card" wx:for="{{item.events}}" wx:key="id" wx:for-item="event" data-id="{{event.id}}" bindtap="openLog">
+          <view class="event-time">{{event.time}}</view>
+          <view class="timeline"><view class="dot {{event.tone}}"></view><view class="line"></view></view>
+          <view class="event-icon"><image src="{{event.icon}}" mode="aspectFit" /></view>
+          <view class="event-copy"><text>{{event.title}}</text><text>{{event.detail}}</text><text class="result {{event.tone}}">{{event.result}}</text></view>
+          <image class="chevron" src="{{icons.chevron}}" mode="aspectFit" />
+        </view>
+      </view>
+
+      <view class="only-abnormal" bindtap="toggleAbnormal"><view><text>只看异常操作</text><text>快速聚焦需要处理的记录</text></view><view class="switch {{switchClass}}"><view></view></view></view>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

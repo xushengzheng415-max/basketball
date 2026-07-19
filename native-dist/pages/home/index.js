@@ -210,7 +210,11 @@ Page({
       itemList: ['校区负责人', '教练'],
       success: (res) => {
         const roles = ['校区负责人', '教练'];
-        this.setData({ currentRole: roles[res.tapIndex] || '校区管理员' });
+        const role = roles[res.tapIndex] || '校区管理员';
+        this.setData({ currentRole: role });
+        wx.navigateTo({
+          url: res.tapIndex === 0 ? '/pages/campus-manager/home/index' : '/pages/education/index'
+        });
       }
     });
   },

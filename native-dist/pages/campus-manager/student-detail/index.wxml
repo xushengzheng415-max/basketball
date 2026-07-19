@@ -1,0 +1,71 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack" aria-role="button" aria-label="返回学员管理">
+      <image src="{{icons.back}}" mode="aspectFit" />
+    </view>
+    <text class="nav-title">学员详情</text>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="profile-section">
+        <image class="profile-avatar" src="{{avatar}}" mode="aspectFill" />
+        <view class="profile-copy">
+          <text class="student-name">刘承宇</text>
+          <view class="identity-line"><text>♂</text><text>10岁</text><view></view><text>U10 提高班</text></view>
+          <view class="reading-state"><view></view><text>在读</text></view>
+        </view>
+      </view>
+
+      <view class="course-summary">
+        <view class="lesson-summary">
+          <view class="summary-heading"><image src="{{icons.clock}}" mode="aspectFit" /><text>剩余课时</text></view>
+          <view class="lesson-value"><text>6</text><text>课时</text></view>
+        </view>
+        <view class="summary-divider"></view>
+        <view class="next-course">
+          <view class="summary-heading"><image src="{{icons.calendar}}" mode="aspectFit" /><text>下一次课程</text></view>
+          <view class="date-line"><text>07-30</text><text>周二</text><text>18:30-20:00</text></view>
+          <view class="location-line"><image src="{{icons.location}}" mode="aspectFit" /><text>1号馆 · 1号场</text></view>
+        </view>
+        <view class="basketball-mark"></view>
+      </view>
+
+      <view class="status-grid">
+        <view class="status-card">
+          <view class="card-heading"><image src="{{icons.check}}" mode="aspectFit" /><text>近期出勤</text></view>
+          <view class="attendance-value"><text>3</text><text>/ 4</text><text>次</text></view>
+          <text class="card-caption">最近4次课程</text>
+        </view>
+        <view class="status-card">
+          <view class="card-heading"><image src="{{icons.download}}" mode="aspectFit" /><text>成长报告</text></view>
+          <text class="report-value">未查看</text>
+          <text class="card-caption">最新报告状态</text>
+        </view>
+        <view class="status-card">
+          <view class="card-heading"><image src="{{icons.warning}}" mode="aspectFit" /><text>风险状态</text></view>
+          <text class="risk-value">高风险</text>
+          <text class="card-caption">需要重点关注</text>
+        </view>
+      </view>
+
+      <view class="quick-grid">
+        <view class="quick-card" wx:for="{{quickEntries}}" wx:key="label" data-route="{{item.route}}" bindtap="openEntry">
+          <image src="{{item.icon}}" mode="aspectFit" />
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+
+      <view class="recommend-title"><view></view><text>推荐行动</text></view>
+      <view class="recommend-card" bindtap="openRecommendation">
+        <view class="send-symbol">➤</view>
+        <view class="recommend-copy"><text>发送阶段报告并联系家长</text><text>学员成长报告未查看，建议主动沟通</text></view>
+        <image src="{{icons.chevron}}" mode="aspectFit" />
+      </view>
+
+      <button class="primary-button" bindtap="createFollowUp">创建跟进任务</button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

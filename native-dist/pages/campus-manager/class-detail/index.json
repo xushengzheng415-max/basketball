@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "班级详情",
+  "navigationStyle": "custom",
+  "disableScroll": true,
+  "backgroundColor": "#05080b",
+  "backgroundTextStyle": "dark"
+}

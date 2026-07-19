@@ -1,0 +1,52 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>教练详情</text></view>
+    <text class="nav-title">教练班级分配</text>
+  </view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="coach-card">
+        <image class="avatar" src="{{avatar}}" mode="aspectFill" />
+        <view class="coach-copy">
+          <view class="name-line"><text>陈教练</text><text>正常</text></view>
+          <text>浦东校区 · 主教练</text>
+          <text>138****5628</text>
+        </view>
+        <view class="lesson-progress"><text>本月授课</text><view><text>46</text><text>/60节</text></view></view>
+        <view class="progress-track"><view></view></view>
+      </view>
+
+      <view class="section-heading"><view><text>当前负责班级</text><text>已分配 2 个班级</text></view><text>2</text></view>
+      <view class="current-card" wx:for="{{currentClasses}}" wx:key="name">
+        <view class="class-title"><text>{{item.name}}</text><text>{{item.role}}</text></view>
+        <view class="class-meta"><image src="{{icons.clock}}" mode="aspectFit" /><text>{{item.time}}</text></view>
+        <view class="class-meta"><image src="{{icons.location}}" mode="aspectFit" /><text>{{item.place}}</text></view>
+      </view>
+
+      <view class="section-heading available-heading"><view><text>可分配班级</text><text>选择班级及授课角色</text></view><text>3</text></view>
+      <view class="available-card {{item.selectedClass}}" wx:for="{{availableClasses}}" wx:key="id">
+        <view class="select-line" bindtap="toggleClass" data-id="{{item.id}}">
+          <view class="check-box"><image wx:if="{{item.selected}}" src="{{icons.check}}" mode="aspectFit" /></view>
+          <view class="select-copy"><text>{{item.name}}</text><text>{{item.time}} · {{item.place}}</text></view>
+          <text wx:if="{{item.conflict}}" class="conflict">时间冲突</text>
+        </view>
+        <view class="role-row">
+          <text>授课角色</text>
+          <view class="role-pills">
+            <text class="{{item.mainClass}}" data-id="{{item.id}}" data-role="主教练" bindtap="setRole">主教练</text>
+            <text class="{{item.assistantClass}}" data-id="{{item.id}}" data-role="助理教练" bindtap="setRole">助理教练</text>
+          </view>
+        </view>
+      </view>
+
+      <view class="date-card">
+        <view><image src="{{icons.calendar}}" mode="aspectFit" /><view><text>生效日期</text><text>分配将在该日期开始生效</text></view></view>
+        <picker mode="date" value="{{effectiveDate}}" bindchange="onDateChange"><view class="date-value">{{effectiveDate}} ›</view></picker>
+      </view>
+      <view class="tip"><image src="{{icons.warning}}" mode="aspectFit" /><text>班级分配变更后，系统将同步通知教练并更新其数据权限。</text></view>
+      <button class="primary-button" bindtap="submitAssignment">确认分配并通知</button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

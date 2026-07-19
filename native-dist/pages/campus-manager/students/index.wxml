@@ -1,0 +1,69 @@
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack" aria-role="button" aria-label="返回校区经营工作台">
+      <image src="{{icons.back}}" mode="aspectFit" />
+      <text>返回</text>
+    </view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <text class="page-title">学员管理</text>
+
+      <view class="search-bar">
+        <image class="search-icon" src="{{icons.search}}" mode="aspectFit" />
+        <input value="{{query}}" placeholder="搜索学员姓名 / 手机号" bindinput="onSearchInput" />
+        <view class="search-divider"></view>
+        <image class="filter-icon" src="{{icons.filter}}" mode="aspectFit" bindtap="openFilter" />
+      </view>
+
+      <view class="tab-row">
+        <view class="tab-item {{item.activeClass}}" wx:for="{{tabs}}" wx:key="key" data-key="{{item.key}}" bindtap="selectTab">{{item.label}}</view>
+      </view>
+
+      <view class="summary-grid">
+        <view class="summary-card">
+          <image src="{{icons.students}}" mode="aspectFit" />
+          <view><text>在读</text><text>128</text></view>
+        </view>
+        <view class="summary-card">
+          <view class="bell-icon"><view class="bell-body"></view><view class="bell-clapper"></view></view>
+          <view><text>需关注</text><text>12</text></view>
+        </view>
+      </view>
+
+      <view class="student-list">
+        <view class="student-card" wx:for="{{students}}" wx:key="id" data-id="{{item.id}}" bindtap="openStudent">
+          <image class="student-avatar" src="{{item.avatar}}" mode="aspectFill" />
+          <view class="student-main">
+            <view class="student-name-line">
+              <text class="student-name">{{item.name}}</text>
+              <text class="gender {{item.genderClass}}">{{item.gender}}</text>
+              <text class="student-age">{{item.age}}</text>
+            </view>
+            <text class="class-name">{{item.className}}</text>
+            <view class="student-data">
+              <view class="lesson-block">
+                <text>剩余课时</text>
+                <view><text>{{item.lessons}}</text><text>课时</text></view>
+              </view>
+              <view class="data-divider"></view>
+              <view class="attendance-block">
+                <text>最新出勤</text>
+                <text>{{item.attendanceTime}}</text>
+                <view><view class="status-dot {{item.attendanceClass}}"></view><text>{{item.attendance}}</text></view>
+              </view>
+            </view>
+          </view>
+          <view class="view-action"><text>查看</text><image src="{{icons.chevron}}" mode="aspectFit" /></view>
+        </view>
+
+        <view class="empty-state" wx:if="{{showEmpty}}">当前筛选条件下暂无学员</view>
+      </view>
+
+      <button class="add-button" bindtap="addStudent"><text>＋</text>新增学员</button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

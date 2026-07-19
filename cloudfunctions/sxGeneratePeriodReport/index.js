@@ -27,6 +27,28 @@ function number(value, fallback = 0) {
   return Number.isFinite(parsed) ? parsed : fallback;
 }
 
+function toTime(value) {
+  if (!value) return 0;
+  if (value instanceof Date) return value.getTime();
+  if (typeof value === 'string' || typeof value === 'number') return new Date(value).getTime();
+  if (value.$date) return new Date(value.$date).getTime();
+  return 0;
+}
+
+async function hasEducationAccess(openid) {
+  try {
+    const result = await db.collection('sx_entitlements').where({ openid, status: 'active' }).limit(100).get();
+    return (result.data || []).some((item) => {
+      const features = Array.isArray(item.features) ? item.features : [];
+      const expiresAt = toTime(item.expiresAt);
+      return features.indexOf('education_system') >= 0 && (!expiresAt || expiresAt > Date.now());
+    });
+  } catch (error) {
+    console.warn('[sxGeneratePeriodReport] education entitlement unavailable', error);
+    return false;
+  }
+}
+
 function dateText(value) {
   if (!value) return '';
   if (/^\d{4}-\d{2}-\d{2}$/.test(String(value))) return String(value);
@@ -390,6 +412,13 @@ exports.main = async (event = {}) => {
   const openid = wxContext.OPENID || text(event.validationOwner || '', 80);
   if (!openid) return { ok: false, code: 'UNAUTHENTICATED', message: '无法识别当前微信用户' };
   try {
+    if (!(await hasEducationAccess(openid))) {
+      return {
+        ok: false,
+        code: 'EDUCATION_ACCOUNT_REQUIRED',
+        message: '当前为教务演示模式，请由 PC 端下发账户并完成开户后再使用真实业务功能'
+      };
+    }
     if (event.action === 'saveDaily') return await saveDaily(event, openid);
     if (event.action === 'publish') return await publish(event, openid);
     if (event.action === 'generate') return await generate(event, openid);

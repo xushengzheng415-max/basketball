@@ -1,0 +1,59 @@
+<view class="task-page">
+  <view class="page-glow"></view>
+  <view class="custom-nav" style="top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-control" bindtap="goBack" aria-role="button" aria-label="返回校区经营工作台">
+      <text class="back-icon">‹</text>
+      <text>返回</text>
+    </view>
+  </view>
+
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="role-pill">校区负责人端</view>
+      <view class="hero">
+        <text class="eyebrow">行动通知</text>
+        <text class="title">负责人待办中心</text>
+        <text class="subtitle">按优先级逐项处理，完成步骤后角标自动消减</text>
+      </view>
+
+      <view class="summary-card">
+        <view class="summary-main">
+          <view><text class="summary-value danger">{{summary.pendingCount}}</text><text class="summary-unit">项待处理</text></view>
+          <text class="summary-note">已完成 {{summary.completedCount}} / {{summary.totalCount}} 项</text>
+        </view>
+        <view class="summary-percent">{{summary.progressPercent}}%</view>
+        <view class="summary-track"><view class="summary-progress" style="width: {{summary.progressWidth}};"></view></view>
+      </view>
+
+      <view class="section-head">
+        <view><text class="section-title">按优先级处理</text><text class="section-caption">每项均提供明确操作步骤和业务入口</text></view>
+        <text class="section-count">{{tasks.length}} 组任务</text>
+      </view>
+
+      <view class="task-card {{task.completedClass}}" wx:for="{{tasks}}" wx:key="id" wx:for-item="task">
+        <view class="task-head">
+          <view class="priority priority-{{task.priorityClass}}">{{task.priority}}</view>
+          <view class="task-count"><text>{{task.count}}</text><text>{{task.unit}}</text></view>
+        </view>
+        <text class="task-title">{{task.title}}</text>
+        <text class="task-description">{{task.description}}</text>
+
+        <view class="steps">
+          <view class="step-row step-{{step.statusClass}}" wx:for="{{task.steps}}" wx:key="order" wx:for-item="step">
+            <view class="step-index">{{step.order}}</view>
+            <text class="step-label">{{step.label}}</text>
+            <text class="step-status">{{step.statusText}}</text>
+          </view>
+        </view>
+
+        <view class="task-actions">
+          <view class="business-button" data-route="{{task.route}}" catchtap="openTask">进入业务页面</view>
+          <button class="step-button {{task.buttonClass}}" disabled="{{task.completed}}" data-id="{{task.id}}" catchtap="completeStep">{{task.actionText}}</button>
+        </view>
+        <text class="task-state">{{task.stateText}}</text>
+      </view>
+      <view class="bottom-space"></view>
+    </view>
+  </scroll-view>
+</view>

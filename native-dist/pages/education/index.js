@@ -1,7 +1,25 @@
 const ASSET_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const { refreshEducationAccess, openEducationAccountPage } = require('../../utils/education-access');
+
+function isRolePreviewEnabled() {
+  try {
+    const system = wx.getSystemInfoSync();
+    const account = wx.getAccountInfoSync && wx.getAccountInfoSync();
+    const envVersion = account && account.miniProgram && account.miniProgram.envVersion;
+    return system.platform === 'devtools' && (!envVersion || envVersion === 'develop');
+  } catch (error) {
+    console.warn('[education] role preview unavailable', error);
+    return false;
+  }
+}
 
 Page({
   data: {
+    showRoleTester: false,
+    educationAccessActive: false,
+    educationModeClass: '',
+    educationModeTitle: '\u6f14\u793a\u6a21\u5f0f',
+    educationModeCopy: '\u4ec5\u4f9b\u9884\u89c8\uff0cPC \u7aef\u4e0b\u53d1\u8d26\u6237\u5e76\u5f00\u6237\u540e\u53ef\u6b63\u5f0f\u4f7f\u7528',
     assets: {
       background: ASSET_ROOT + 'pages/education/education-top-bg-clean.png',
       logo: ASSET_ROOT + 'home/brand-horizontal-logo.png',
@@ -50,6 +68,37 @@ Page({
       { id: 'student-2', name: '刘宇辰', tag: '需关注', message: '本月出勤率低于80%', avatar: ASSET_ROOT + 'pages/team/avatar-liuyuchen.png' },
       { id: 'student-3', name: '张子轩', tag: '评价待写', message: '上一节课评价尚未完成', avatar: ASSET_ROOT + 'pages/team/avatar-zhangzixuan.png' }
     ]
+  },
+  onLoad() {
+    this.setData({ showRoleTester: isRolePreviewEnabled() });
+    refreshEducationAccess().then((access) => {
+      const active = !!(access && access.active);
+      this.setData({
+        educationAccessActive: active,
+        educationModeClass: active ? 'active' : '',
+        educationModeTitle: active ? '\u5df2\u5f00\u6237' : '\u6f14\u793a\u6a21\u5f0f',
+        educationModeCopy: active
+          ? '\u6559\u52a1\u8d26\u6237\u5df2\u6fc0\u6d3b\uff0c\u771f\u5b9e\u4e1a\u52a1\u64cd\u4f5c\u5df2\u5f00\u653e'
+          : '\u4ec5\u4f9b\u9884\u89c8\uff0cPC \u7aef\u4e0b\u53d1\u8d26\u6237\u5e76\u5f00\u6237\u540e\u53ef\u6b63\u5f0f\u4f7f\u7528'
+      });
+    });
+  },
+  openEducationAccount() {
+    if (this.data.educationAccessActive) {
+      wx.showToast({ title: '\u6559\u52a1\u8d26\u6237\u5df2\u5f00\u901a', icon: 'success' });
+      return;
+    }
+    openEducationAccountPage();
+  },
+  openRoleTester() {
+    if (!this.data.showRoleTester) return;
+    wx.showActionSheet({
+      itemList: ['校区端', '教练端（当前）'],
+      success: (result) => {
+        if (result.tapIndex !== 0) return;
+        wx.redirectTo({ url: '/pages/campus-manager/home/index?rolePreview=1' });
+      }
+    });
   },
   openClasses() { wx.navigateTo({ url: '/pages/coach-classes/index' }); },
   openCourses() { wx.navigateTo({ url: '/pages/coach-courses/index' }); },
