@@ -26,9 +26,22 @@
     </view>
 
     <view class="event-list" wx:if="{{hasVisibleTournaments}}">
-      <view wx:for="{{visibleTournaments}}" wx:key="id" class="event-card" data-id="{{item.id}}" bindtap="openTournament">
-        <image class="event-card-img" src="{{item.cardImage}}" mode="scaleToFill" data-id="{{item.id}}" />
-        <view class="detail-hit" data-id="{{item.id}}" catchtap="openTournament">杩涘叆璇︽儏</view>
+      <view wx:for="{{visibleTournaments}}" wx:key="id" class="event-card" data-id="{{item.id}}" bindtap="openTournament" bindlongpress="deleteTournament">
+        <view class="event-status {{item.statusClass}}">{{item.statusLabel}}</view>
+        <view class="event-main">
+          <image wx:if="{{item.logoUrl}}" class="event-logo" src="{{item.logoUrl}}" mode="aspectFill" />
+          <view wx:else class="event-logo event-logo-fallback"><text>{{item.logoText}}</text></view>
+          <view class="event-info">
+            <text class="event-name">{{item.name}}</text>
+            <text class="event-meta">{{item.dateText}}</text>
+            <text class="event-meta">{{item.locationText}}</text>
+            <view class="event-counts">
+              <text>{{item.teamText}}</text>
+              <text>{{item.gameText}}</text>
+            </view>
+          </view>
+        </view>
+        <view class="detail-hit" data-id="{{item.id}}" catchtap="openTournament">进入详情</view>
       </view>
       <image class="list-footer" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/list-footer-no-more.png" mode="aspectFit" />
     </view>

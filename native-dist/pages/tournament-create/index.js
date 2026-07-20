@@ -28,8 +28,36 @@ function addDaysText(days) {
   return `${year}-${month}-${day}`;
 }
 
+function getImageExtension(filePath) {
+  const match = String(filePath || '').match(/\.([a-zA-Z0-9]+)(?:\?|$)/);
+  const extension = match ? match[1].toLowerCase() : 'jpg';
+  return ['jpg', 'jpeg', 'png', 'webp'].includes(extension) ? extension : 'jpg';
+}
+
+function uploadTournamentLogo(filePath) {
+  return new Promise((resolve, reject) => {
+    if (!wx.cloud || !wx.cloud.uploadFile) {
+      reject(new Error('云存储未初始化'));
+      return;
+    }
+    const extension = getImageExtension(filePath);
+    const random = Math.random().toString(36).slice(2, 8);
+    wx.cloud.uploadFile({
+      cloudPath: `tournament-logos/${Date.now()}-${random}.${extension}`,
+      filePath,
+      success: (result) => {
+        const fileID = result && result.fileID;
+        if (fileID) resolve(fileID);
+        else reject(new Error('赛事 Logo 上传未返回云文件 ID'));
+      },
+      fail: reject
+    });
+  });
+}
+
 function createDefaultForm() {
   return {
+    logoUrl: '',
     name: '',
     type: typeOptions[0],
     startDate: todayText(),
@@ -58,9 +86,64 @@ Page({
     typeOptions,
     ageOptions,
     systemOptions,
+    uploadingLogo: false,
+    editingTournamentId: '',
+    originalTournament: null,
+    pageTitle: '创建赛事',
+    primaryActionText: '保存并创建',
     typeIndex: 0,
     ageIndex: 2,
     systemIndex: 0
+  },
+
+  onLoad(options) {
+    const id = decodeURIComponent(String(options && options.id || ''));
+    if (!id) return;
+    const stored = wx.getStorageSync('tournaments') || [];
+    const item = (Array.isArray(stored) ? stored : []).find((entry) => String(entry.id) === id);
+    if (!item) {
+      wx.showToast({ title: '未找到该赛事', icon: 'none' });
+      return;
+    }
+
+    const defaults = createDefaultForm();
+    const startDate = item.startDate || String(item.date || '').split(' ~ ')[0] || defaults.startDate;
+    const endDate = item.endDate || String(item.date || '').split(' ~ ')[1] || defaults.endDate;
+    const form = Object.assign({}, defaults, {
+      logoUrl: item.logoUrl || item.logoFileID || item.logo || '',
+      name: item.name || '',
+      type: item.type || defaults.type,
+      startDate,
+      endDate,
+      registrationDeadline: item.registrationDeadline || startDate,
+      venue: item.venue || item.location || '',
+      ageGroup: item.ageGroup || defaults.ageGroup,
+      teamCount: Number(item.teams || defaults.teamCount),
+      system: item.system || defaults.system,
+      playerLimit: Number(item.playerLimit || defaults.playerLimit),
+      openRegistration: item.openRegistration !== false,
+      requireApproval: item.requireApproval !== false,
+      periodMinutes: Number(item.periodMinutes || defaults.periodMinutes),
+      periodCount: Number(item.periodCount || item.periods || defaults.periodCount),
+      overtimeMinutes: Number(item.overtimeMinutes || defaults.overtimeMinutes),
+      timeoutCount: Number(item.timeoutCount || defaults.timeoutCount),
+      enableStats: item.enableStats !== false,
+      showLiveScore: item.showLiveScore !== false
+    });
+    const typeIndex = Math.max(0, typeOptions.indexOf(form.type));
+    const ageIndex = Math.max(0, ageOptions.indexOf(form.ageGroup));
+    const systemIndex = Math.max(0, systemOptions.indexOf(form.system));
+    this.setData({
+      editingTournamentId: id,
+      originalTournament: item,
+      pageTitle: '编辑赛事',
+      primaryActionText: '保存修改',
+      form,
+      hasName: Boolean(form.name.trim()),
+      typeIndex,
+      ageIndex,
+      systemIndex
+    });
   },
 
   goBack() {
@@ -85,6 +168,38 @@ Page({
 
   clearName() {
     this.updateForm('name', '');
+  },
+
+  chooseLogo() {
+    if (this.data.uploadingLogo) return;
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sizeType: ['compressed'],
+      success: (result) => {
+        const file = result.tempFiles && result.tempFiles[0];
+        if (!file || !file.tempFilePath) return;
+        this.setData({ uploadingLogo: true });
+        wx.showLoading({ title: '上传赛事 Logo' });
+        uploadTournamentLogo(file.tempFilePath)
+          .then((logoUrl) => {
+            this.updateForm('logoUrl', logoUrl);
+            wx.showToast({ title: 'Logo 已上传', icon: 'success' });
+          })
+          .catch((error) => {
+            console.warn('[tournament-create] upload logo failed', error);
+            wx.showToast({ title: 'Logo 上传失败，请检查网络', icon: 'none' });
+          })
+          .finally(() => {
+            wx.hideLoading();
+            this.setData({ uploadingLogo: false });
+          });
+      }
+    });
+  },
+
+  removeLogo() {
+    this.updateForm('logoUrl', '');
   },
 
   onVenueInput(event) {
@@ -171,9 +286,13 @@ Page({
   },
   buildTournament(status) {
     const form = this.data.form;
-    const games = this.estimateGameCount(form);
-    return {
-      id: `tournament-${Date.now()}`,
+    const existing = this.data.originalTournament || {};
+    const editingId = this.data.editingTournamentId;
+    const games = editingId ? Number(existing.games || 0) : this.estimateGameCount(form);
+    return Object.assign({}, existing, {
+      id: editingId || `tournament-${Date.now()}`,
+      logoUrl: form.logoUrl || '',
+      logoFileID: form.logoUrl || '',
       name: form.name.trim(),
       type: form.type,
       ageGroup: form.ageGroup,
@@ -196,21 +315,33 @@ Page({
       timeoutCount: form.timeoutCount,
       enableStats: form.enableStats,
       showLiveScore: form.showLiveScore,
-      createdAt: new Date().toISOString()
-    };
+      createdAt: existing.createdAt || new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    });
   },
 
   persistTournament(status) {
     if (!this.validateForm()) return;
 
-    const tournament = this.buildTournament(status);
+    const editingId = this.data.editingTournamentId;
+    const nextStatus = editingId && this.data.originalTournament ? (this.data.originalTournament.status || status) : status;
+    const tournament = this.buildTournament(nextStatus);
     const stored = wx.getStorageSync('tournaments') || [];
-    const tournaments = [tournament].concat(stored);
+    const tournaments = editingId
+      ? stored.map((item) => String(item.id) === String(editingId) ? tournament : item)
+      : [tournament].concat(stored);
     wx.setStorageSync('tournaments', tournaments);
 
-    wx.showToast({ title: status === 'draft' ? '草稿已保存' : '赛事已创建', icon: 'success' });
+    wx.showToast({ title: editingId ? '赛事已更新' : (status === 'draft' ? '草稿已保存' : '赛事已创建'), icon: 'success' });
     setTimeout(() => {
-      wx.redirectTo({ url: status === 'draft' ? '/pages/tournament/index' : `/pages/tournament-detail/index?id=${tournament.id}` });
+      if (editingId) {
+        const pages = getCurrentPages();
+        if (pages.length > 1) {
+          wx.navigateBack();
+          return;
+        }
+      }
+      wx.redirectTo({ url: status !== 'draft' ? `/pages/tournament-detail/index?id=${tournament.id}` : '/pages/tournament/index' });
     }, 450);
   },
 

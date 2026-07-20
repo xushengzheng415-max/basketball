@@ -1,8 +1,170 @@
-﻿<view class="page-wrap" wx:if="{{tournament}}">
-  <view class="hero"><text class="eyebrow">当前赛事</text><text class="title">{{tournament.name}}</text><text class="desc">{{tournament.metaText}}</text></view>
-  <view class="section-row"><text class="section">赛程管理</text><text class="section-tip">简约添加或自动编排</text></view>
-  <view class="mode-switch"><view class="{{simpleClass}}" data-mode="simple" bindtap="changeMode"><text class="mode-title">简约模式</text><text class="mode-desc">逐场添加，自由安排</text></view><view class="{{regularClass}}" data-mode="regular" bindtap="changeMode"><text class="mode-title">常规模式</text><text class="mode-desc">选择球队，自动生成</text></view></view>
-  <view wx:if="{{simpleMode}}"><view class="section-row"><text class="section">添加场次</text><text class="section-tip">球队信息来自球队库</text></view><view wx:if="{{hasTeams}}" class="form-card"><input value="{{gameName}}" placeholder="场次名称" bindinput="onName"/><picker mode="date" value="{{gameDate}}" bindchange="onDate"><view class="date-picker">{{gameDateText}}</view></picker><view class="team-grid"><picker mode="selector" range="{{teamOptions}}" range-key="label" value="{{homeIndex}}" bindchange="onHome"><view class="team-picker">{{homeText}}</view></picker><picker mode="selector" range="{{teamOptions}}" range-key="label" value="{{awayIndex}}" bindchange="onAway"><view class="team-picker">{{awayText}}</view></picker></view><view class="primary" bindtap="saveGame">保存场次</view></view><view wx:else class="empty team-empty"><text>暂无可用球队，请先创建球队。</text><view class="outline-btn" bindtap="goTeam">去创建球队</view></view></view>
-  <view wx:if="{{regularMode}}" class="regular-panel"><view wx:if="{{hasTeams}}" class="form-card"><view class="field-label-row"><text class="field-label">选择参赛球队</text><text class="field-count">已选 {{selectedCount}} 支</text></view><view class="team-select-list"><view wx:for="{{scheduleTeams}}" wx:key="key" class="{{item.className}}" data-key="{{item.key}}" bindtap="toggleTeam"><view class="select-check">{{item.mark}}</view><view class="select-team-info"><text class="select-team-name">{{item.label}}</text><text class="select-team-meta">{{item.playerCount}} 名球员</text></view></view></view><text class="field-label">赛制</text><picker mode="selector" range="{{formatOptions}}" value="{{formatIndex}}" bindchange="onFormat"><view class="date-picker has-value">{{formatText}}</view></picker><text class="field-help">单循环生成全部对阵；单败淘汰先生成首轮实际球队对阵。</text><text class="field-label">开始日期</text><picker mode="date" value="{{startDate}}" bindchange="onStart"><view class="date-picker">{{startDateText}}</view></picker><view class="primary" bindtap="generate">生成赛程预览</view></view><view wx:else class="empty team-empty"><text>常规编排至少需要 2 支球队。</text><view class="outline-btn" bindtap="goTeam">去创建球队</view></view><view wx:if="{{hasPreview}}"><view class="section-row"><text class="section">赛程预览</text><text class="section-tip">{{previewCount}} 场</text></view><view wx:for="{{preview}}" wx:key="id" class="preview-item"><text class="preview-stage">{{item.stageText}}</text><view class="preview-versus"><text>{{item.homeText}}</text><text class="preview-vs">VS</text><text>{{item.awayText}}</text></view><text class="preview-date">{{item.dateText}}</text></view><view class="publish-btn" bindtap="publish">确认并发布赛程</view></view></view>
-  <view class="section-row list-head"><text class="section">赛事场次</text><text class="section-tip">{{games.length}} 场</text></view><view wx:if="{{emptyGames}}" class="empty">暂无场次。</view><view wx:for="{{games}}" wx:key="id" class="item game-card" data-id="{{item.id}}" bindtap="openGame"><view class="item-main"><view class="item-topline"><text class="item-order">{{item.orderText}}</text><text class="item-status">{{item.statusText}}</text></view><text class="item-title">{{item.name}}</text><view class="logo-versus"><view class="logo-team"><image class="team-crest" src="{{item.homeLogo}}" mode="aspectFit"/><text class="team-name">{{item.homeTeamText}}</text></view><text class="vs-text">VS</text><view class="logo-team away"><image class="team-crest" src="{{item.awayLogo}}" mode="aspectFit"/><text class="team-name">{{item.awayTeamText}}</text></view></view><text class="item-desc">{{item.dateText}}</text></view><text class="item-action">开始比赛</text></view>
-</view><view class="page-wrap" wx:else><view class="empty">没有找到这个赛事，请返回赛事页重新进入。</view></view>
+<view class="page-wrap" wx:if="{{tournament}}">
+  <view class="hero">
+    <view class="hero-main">
+      <image wx:if="{{tournament.logoUrl}}" class="tournament-logo" src="{{tournament.logoUrl}}" mode="aspectFill" />
+      <view wx:else class="tournament-logo tournament-logo-fallback">
+        <text>{{tournament.logoText}}</text>
+      </view>
+      <view class="hero-copy">
+        <text class="eyebrow">当前赛事</text>
+        <text class="title">{{tournament.name}}</text>
+        <text class="desc">{{tournament.metaText}}</text>
+      </view>
+    </view>
+    <view class="hero-actions">
+      <view class="small-btn" bindtap="editTournament">编辑赛事</view>
+      <view class="small-btn danger" bindtap="deleteTournament">删除赛事</view>
+    </view>
+  </view>
+
+  <view class="section-row">
+    <text class="section">参赛球队</text>
+    <text class="section-tip">{{tournamentTeams.length}} 支</text>
+  </view>
+  <view class="tournament-team-card">
+    <view wx:if="{{hasTournamentTeams}}" class="tournament-team-list">
+      <view wx:for="{{tournamentTeams}}" wx:key="key" class="tournament-team-item">
+        <image class="tournament-team-logo" src="{{item.logoUrl}}" mode="aspectFit" />
+        <view class="tournament-team-copy">
+          <text class="tournament-team-name">{{item.label}}</text>
+          <text class="tournament-team-meta">{{item.playerCount}} 名球员</text>
+        </view>
+        <text class="tournament-team-remove" data-key="{{item.key}}" catchtap="removeTournamentTeam">移除</text>
+      </view>
+    </view>
+    <view wx:else class="tournament-team-empty">还没有参赛球队，请从球队库添加。</view>
+    <picker wx:if="{{hasAvailableTeams}}" mode="selector" range="{{availableTeamOptions}}" range-key="label" bindchange="addTournamentTeam">
+      <view class="add-team-btn">＋ 添加球队</view>
+    </picker>
+    <view wx:else class="add-team-btn disabled">球队库中暂无更多球队</view>
+    <view class="create-team-link" bindtap="goTeam">新建球队</view>
+  </view>
+
+  <view class="section-row">
+    <text class="section">赛程管理</text>
+    <text class="section-tip">简约添加或自动编排</text>
+  </view>
+  <view class="mode-switch">
+    <view class="{{simpleClass}}" data-mode="simple" bindtap="changeMode">
+      <text class="mode-title">简约模式</text>
+      <text class="mode-desc">逐场添加，自由安排</text>
+    </view>
+    <view class="{{regularClass}}" data-mode="regular" bindtap="changeMode">
+      <text class="mode-title">常规模式</text>
+      <text class="mode-desc">选择球队，自动生成</text>
+    </view>
+  </view>
+
+  <view wx:if="{{simpleMode}}">
+    <view class="section-row">
+      <text class="section">{{gameFormTitle}}</text>
+      <text class="section-tip">球队信息来自球队库</text>
+    </view>
+    <view wx:if="{{hasTeams}}" class="form-card">
+      <input value="{{gameName}}" placeholder="场次名称" bindinput="onName" />
+      <picker mode="date" value="{{gameDate}}" bindchange="onDate">
+        <view class="date-picker">{{gameDateText}}</view>
+      </picker>
+      <view class="team-grid">
+        <picker mode="selector" range="{{teamOptions}}" range-key="label" value="{{homeIndex}}" bindchange="onHome">
+          <view class="team-picker">{{homeText}}</view>
+        </picker>
+        <picker mode="selector" range="{{teamOptions}}" range-key="label" value="{{awayIndex}}" bindchange="onAway">
+          <view class="team-picker">{{awayText}}</view>
+        </picker>
+      </view>
+      <view class="form-actions">
+        <view class="primary" bindtap="saveGame">{{gameSubmitText}}</view>
+        <view wx:if="{{editingGameId}}" class="secondary" bindtap="cancelEditGame">取消</view>
+      </view>
+    </view>
+    <view wx:else class="empty team-empty">
+      <text>当前赛事还没有参赛球队，请先在上方添加。</text>
+      <view class="outline-btn" bindtap="goTeam">去创建球队</view>
+    </view>
+  </view>
+
+  <view wx:if="{{regularMode}}" class="regular-panel">
+    <view wx:if="{{hasTeams}}" class="form-card">
+      <view class="field-label-row">
+        <text class="field-label">选择参赛球队</text>
+        <text class="field-count">已选 {{selectedCount}} 支</text>
+      </view>
+      <view class="team-select-list">
+        <view wx:for="{{scheduleTeams}}" wx:key="key" class="{{item.className}}" data-key="{{item.key}}" bindtap="toggleTeam">
+          <view class="select-check">{{item.mark}}</view>
+          <view class="select-team-info">
+            <text class="select-team-name">{{item.label}}</text>
+            <text class="select-team-meta">{{item.playerCount}} 名球员</text>
+          </view>
+        </view>
+      </view>
+      <text class="field-label">赛制</text>
+      <picker mode="selector" range="{{formatOptions}}" value="{{formatIndex}}" bindchange="onFormat">
+        <view class="date-picker has-value">{{formatText}}</view>
+      </picker>
+      <text class="field-help">单循环生成全部对阵；单败淘汰先生成首轮实际球队对阵。</text>
+      <text class="field-label">开始日期</text>
+      <picker mode="date" value="{{startDate}}" bindchange="onStart">
+        <view class="date-picker">{{startDateText}}</view>
+      </picker>
+      <view class="primary" bindtap="generate">生成赛程预览</view>
+    </view>
+    <view wx:else class="empty team-empty">
+      <text>常规编排至少需要添加 2 支参赛球队。</text>
+      <view class="outline-btn" bindtap="goTeam">去创建球队</view>
+    </view>
+    <view wx:if="{{hasPreview}}">
+      <view class="section-row">
+        <text class="section">赛程预览</text>
+        <text class="section-tip">{{previewCount}} 场</text>
+      </view>
+      <view wx:for="{{preview}}" wx:key="id" class="preview-item">
+        <text class="preview-stage">{{item.stageText}}</text>
+        <view class="preview-versus">
+          <text>{{item.homeText}}</text>
+          <text class="preview-vs">VS</text>
+          <text>{{item.awayText}}</text>
+        </view>
+        <text class="preview-date">{{item.dateText}}</text>
+      </view>
+      <view class="publish-btn" bindtap="publish">确认并发布赛程</view>
+    </view>
+  </view>
+
+  <view class="section-row list-head">
+    <text class="section">赛事场次</text>
+    <text class="section-tip">{{games.length}} 场</text>
+  </view>
+  <view wx:if="{{emptyGames}}" class="empty">暂无场次。</view>
+  <view wx:for="{{games}}" wx:key="id" class="item game-card" data-id="{{item.id}}" bindtap="openGame">
+    <view class="item-main">
+      <view class="item-topline">
+        <text class="item-order">{{item.orderText}}</text>
+        <text class="item-status">{{item.statusText}}</text>
+      </view>
+      <text class="item-title">{{item.name}}</text>
+      <view class="logo-versus">
+        <view class="logo-team">
+          <image class="team-crest" src="{{item.homeLogo}}" mode="aspectFit" />
+          <text class="team-name">{{item.homeTeamText}}</text>
+        </view>
+        <text class="vs-text">VS</text>
+        <view class="logo-team away">
+          <image class="team-crest" src="{{item.awayLogo}}" mode="aspectFit" />
+          <text class="team-name">{{item.awayTeamText}}</text>
+        </view>
+      </view>
+      <text class="item-desc">{{item.dateText}}</text>
+    </view>
+    <view class="game-actions">
+      <text class="game-link" data-id="{{item.id}}" catchtap="editGame">编辑</text>
+      <text class="game-link danger" data-id="{{item.id}}" catchtap="deleteGame">删除</text>
+      <text class="item-action">开始比赛</text>
+    </view>
+  </view>
+</view>
+
+<view class="page-wrap" wx:else>
+  <view class="empty">没有找到这个赛事，请返回赛事页重新进入。</view>
+</view>

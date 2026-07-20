@@ -7,6 +7,12 @@ const mainRoutes = {
   mine: '/pages/mine/index'
 };
 
+const DEMO_TOURNAMENT_IDS = [
+  'seed-elite-u10',
+  'seed-u12-weekend',
+  'seed-training-internal'
+];
+
 function hasPhoneLogin() {
   const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
   return !!(profile && profile.loggedIn && profile.mode !== 'guest' && profile.phoneNumber);
@@ -59,41 +65,6 @@ Page({
     }));
   },
 
-  getSeedTournaments() {
-    return [
-      {
-        id: 'seed-elite-u10',
-        name: '蜂巢U10精英联赛',
-        location: '蜂巢篮球馆 A1 主场',
-        date: '2026-05-10 ~ 2026-05-24',
-        status: 'running',
-        teams: 12,
-        games: 36,
-        cardImage: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-elite-u10.png'
-      },
-      {
-        id: 'seed-u12-weekend',
-        name: 'U12周末积分赛',
-        location: '城北体育中心 2 号馆',
-        date: '2026-05-31 ~ 2026-07-12',
-        status: 'draft',
-        teams: 16,
-        games: 48,
-        cardImage: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-u12-weekend.png'
-      },
-      {
-        id: 'seed-training-internal',
-        name: '训练营内部对抗赛',
-        location: '赛小蜂训练营',
-        date: '2026-04-12 ~ 2026-04-13',
-        status: 'ended',
-        teams: 8,
-        games: 12,
-        cardImage: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-training-internal.png'
-      }
-    ];
-  },
-
   getStatusMeta(status) {
     const statusMap = {
       running: { label: '进行中', className: 'status running' },
@@ -103,23 +74,15 @@ Page({
     return statusMap[status] || statusMap.draft;
   },
 
-  normalizeTournament(tournament, index) {
-    const covers = [
-      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/cover-elite-u10.png',
-      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/cover-u12-weekend.png',
-      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/cover-training-internal.png'
-    ];
-    const cardImages = [
-      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-elite-u10.png',
-      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-u12-weekend.png',
-      'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/tournament-card-training-internal.png'
-    ];
+  normalizeTournament(tournament) {
     const status = tournament.status || 'draft';
     const statusMeta = this.getStatusMeta(status);
     const teamCount = tournament.teams || 0;
     const gameCount = tournament.games || 0;
+    const name = String(tournament.name || '未命名赛事').trim();
 
     return Object.assign({}, tournament, {
+      name,
       status,
       statusLabel: statusMeta.label,
       statusClass: statusMeta.className,
@@ -127,27 +90,24 @@ Page({
       dateText: tournament.date || '未选择日期',
       teamText: `${teamCount} 支球队`,
       gameText: `${gameCount} 场比赛`,
-      cover: tournament.cover || covers[index % covers.length],
-      cardImage: tournament.cardImage || cardImages[index % cardImages.length]
+      logoUrl: tournament.logoUrl || tournament.logoFileID || tournament.logo || '',
+      logoText: name.slice(0, 1)
     });
   },
 
   loadTournaments() {
     const stored = wx.getStorageSync('tournaments') || [];
-    const seedTournaments = this.getSeedTournaments();
-    const storedIds = stored.map((item) => String(item.id));
-    const missingSeeds = seedTournaments.filter((item) => storedIds.indexOf(String(item.id)) === -1);
-    const tournaments = missingSeeds.concat(stored);
+    const tournaments = stored.filter((item) => DEMO_TOURNAMENT_IDS.indexOf(String(item.id)) === -1);
 
-    if (missingSeeds.length > 0) {
+    if (tournaments.length !== stored.length) {
       wx.setStorageSync('tournaments', tournaments);
+      DEMO_TOURNAMENT_IDS.forEach((id) => wx.removeStorageSync(`games:${id}`));
     }
 
     this.setData({ tournaments }, () => {
       this.applyFilter();
     });
   },
-
   applyFilter() {
     const activeStatus = this.data.activeStatus;
     const filtered = this.data.tournaments
@@ -247,14 +207,44 @@ Page({
   },
 
   openTournament(event) {
+    if (this.suppressOpenUntil && Date.now() < this.suppressOpenUntil) return;
     const id = event.currentTarget.dataset.id || event.target.dataset.id;
     if (!id) {
-      wx.showToast({ title: '璧涗簨淇℃伅缂哄け', icon: 'none' });
+      wx.showToast({ title: '赛事信息缺失', icon: 'none' });
       return;
     }
     wx.navigateTo({
       url: '/pages/tournament-detail/index?id=' + encodeURIComponent(String(id)),
-      fail: () => wx.showToast({ title: '璧涗簨璇︽儏鎵撳紑澶辫触', icon: 'none' })
+      fail: () => wx.showToast({ title: '赛事详情打开失败', icon: 'none' })
+    });
+  },
+
+  deleteTournament(event) {
+    const id = String(event.currentTarget.dataset.id || event.target.dataset.id || '');
+    if (!id) {
+      wx.showToast({ title: '赛事信息缺失', icon: 'none' });
+      return;
+    }
+    const tournament = this.data.tournaments.find((item) => String(item.id) === id);
+    if (!tournament) {
+      wx.showToast({ title: '未找到该赛事', icon: 'none' });
+      return;
+    }
+
+    this.suppressOpenUntil = Date.now() + 1000;
+    wx.showModal({
+      title: '删除赛事',
+      content: `确认删除“${tournament.name || '未命名赛事'}”吗？赛事和赛程删除后不可恢复，已完成的比赛记录仍会保留。`,
+      confirmText: '删除',
+      confirmColor: '#d93025',
+      success: (result) => {
+        if (!result.confirm) return;
+        const tournaments = this.data.tournaments.filter((item) => String(item.id) !== id);
+        wx.setStorageSync('tournaments', tournaments);
+        wx.removeStorageSync(`games:${id}`);
+        this.setData({ tournaments }, () => this.applyFilter());
+        wx.showToast({ title: '赛事已删除', icon: 'success' });
+      }
     });
   }
 });

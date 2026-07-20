@@ -12,9 +12,6 @@ const TEAM_LOGO_BASE = '/assets/pages/scorer-v2/teams/';
 const STATUS_ICON_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/recent-matches/';
 const CLOUD_ASSET_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
 const TAB_PREFETCH_ASSETS = [
-  CLOUD_ASSET_ROOT + 'tournament/tournament-card-elite-u10.png',
-  CLOUD_ASSET_ROOT + 'tournament/tournament-card-u12-weekend.png',
-  CLOUD_ASSET_ROOT + 'tournament/tournament-card-training-internal.png',
   CLOUD_ASSET_ROOT + 'pages/team/player-library-bg.png',
   CLOUD_ASSET_ROOT + 'pages/team/logo-and-title.png',
   CLOUD_ASSET_ROOT + 'pages/education/education-top-bg-clean.png',

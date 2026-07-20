@@ -80,16 +80,6 @@
     <view class="dark-panel rules-panel">
       <view class="section-title"><view class="title-mark"></view><text>播放规则</text></view>
       <view class="rule-row">
-        <view class="icon-tile small"><text>2</text></view>
-        <text class="rule-name">2分音效播放</text>
-        <switch class="row-switch" color="#ff4b0b" checked="{{settings.twoEnabled}}" data-key="twoEnabled" bindchange="updateSetting" />
-      </view>
-      <view class="rule-row">
-        <view class="icon-tile small"><text>3</text></view>
-        <text class="rule-name">3分音效播放</text>
-        <switch class="row-switch" color="#ff4b0b" checked="{{settings.threeEnabled}}" data-key="threeEnabled" bindchange="updateSetting" />
-      </view>
-      <view class="rule-row">
         <view class="icon-tile small"><image src="{{assetBase}}icon-whistle-common.png" mode="aspectFit" /></view>
         <text class="rule-name">蜂鸣器开关</text>
         <switch class="row-switch" color="#ff4b0b" checked="{{settings.buzzerEnabled}}" data-key="buzzerEnabled" bindchange="updateSetting" />
@@ -108,12 +98,12 @@
       <view class="section-title">
         <view class="title-mark"></view>
         <text>自定义音效设置</text>
-        <text class="section-badge">7选6</text>
+        <text class="section-badge">9选6</text>
       </view>
       <view class="custom-grid">
         <view wx:for="{{customSlots}}" wx:key="position" class="custom-slot">
           <view class="slot-topline">
-            <text class="slot-number">{{item.position}}</text>
+            <text class="slot-number">{{item.displayIcon}}</text>
             <view class="slot-play" data-index="{{index}}" bindtap="playCustomSlot">
               <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
             </view>
@@ -139,7 +129,7 @@
         <view class="modal-close" bindtap="closeModal">×</view>
       </view>
       <scroll-view class="modal-list" scroll-y>
-        <view wx:for="{{modalOptions}}" wx:key="id" class="modal-option" data-id="{{item.id}}" bindtap="chooseModalOption">
+        <view wx:for="{{modalOptions}}" wx:key="id" class="modal-option" data-index="{{index}}" bindtap="chooseModalOption">
           <view>
             <text class="modal-option-name">{{item.name}}</text>
             <text wx:if="{{item.note}}" class="modal-option-note">{{item.note}}</text>

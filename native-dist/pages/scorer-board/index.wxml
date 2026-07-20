@@ -48,6 +48,32 @@
           <view wx:for="{{setupPresetPeriods}}" wx:key="*this" class="preset" data-value="{{item}}" bindtap="setPeriodCountPreset">{{item}}节</view>
         </view>
       </view>
+      <view class="setup-field">
+        <text>节间休息时间</text>
+        <view class="stepper">
+          <view bindtap="decreaseIntervalMinutes">-</view>
+          <text>{{intervalMinutes}} 分钟</text>
+          <view bindtap="increaseIntervalMinutes">+</view>
+        </view>
+        <view class="preset-row">
+          <view wx:for="{{setupPresetIntervalMinutes}}" wx:key="*this" class="preset" data-value="{{item}}" bindtap="setIntervalPreset">{{item}}分</view>
+        </view>
+      </view>
+      <view class="setup-field">
+        <text>中场休息时间</text>
+        <view class="stepper">
+          <view bindtap="decreaseHalftimeMinutes">-</view>
+          <text>{{halftimeMinutes}} 分钟</text>
+          <view bindtap="increaseHalftimeMinutes">+</view>
+        </view>
+        <view class="preset-row">
+          <view wx:for="{{setupPresetHalftimeMinutes}}" wx:key="*this" class="preset" data-value="{{item}}" bindtap="setHalftimePreset">{{item}}分</view>
+        </view>
+      </view>
+      <view class="setup-field wide">
+        <text>球队暂停时间</text>
+        <view class="stepper"><text>{{timeoutMinutes}} 分钟（FIBA标准）</text></view>
+      </view>
       <view class="setup-field wide">
         <text>计时方式</text>
         <view class="mode-row">
@@ -67,7 +93,7 @@
     <view class="top-icon back" bindtap="goBack">‹</view>
     <text class="header-console-title">赛小蜂比赛控制台</text>
     <view class="match-block"><text class="match-caption">比赛名称 / 场次</text><text class="match-name">{{matchName}}</text></view>
-    <view class="top-actions"><text class="period-pill">第 {{period}} 节</text><view wx:if="{{rosterDrawerToggleVisible}}" class="top-pill roster-drawer-toggle {{rosterDrawerButtonClass}}" bindtap="toggleRosterDrawer">{{rosterDrawerButtonText}}</view><view class="top-pill" bindtap="confirmReset">重置</view><view class="top-icon set" bindtap="goSettings" aria-label="设置">⚙</view></view>
+    <view class="top-actions"><text class="period-pill">第 {{period}} 节</text><view wx:if="{{rosterDrawerToggleVisible}}" class="top-pill top-action-large roster-drawer-toggle {{rosterDrawerButtonClass}}" bindtap="toggleRosterDrawer">{{rosterDrawerButtonText}}</view><view class="top-pill top-action-large" bindtap="confirmReset">重置</view><view class="top-pill top-action-large mc-settings-top" bindtap="goSettings">MC设置</view></view>
   </view>
 
   <view class="board-grid {{rosterDrawerClass}}">
@@ -187,12 +213,22 @@
 
   </view>
 
+  <view wx:if="{{restCountdownVisible}}" class="period-rest-mask"></view>
+  <view wx:if="{{restCountdownVisible}}" class="period-rest-panel" catchtap="noop">
+    <text class="period-rest-title">{{restTitle}}</text>
+    <text class="period-rest-clock">{{restText}}</text>
+    <text class="period-rest-hint">{{restHint}}</text>
+    <view class="period-rest-actions"><view bindtap="toggleRestCountdown">{{restButtonText}}</view><view class="skip" bindtap="skipRestCountdown">{{restSkipText}}</view></view>
+  </view>
+
   <view wx:if="{{showPlayerStats}}" class="stat-mask" bindtap="closePlayerStats"></view>
   <view wx:if="{{showPlayerStats}}" class="stat-popover {{statPopoverClass}}" catchtap="noop">
     <view class="stat-head"><text>#{{selectedPlayer.number}} {{selectedPlayer.name}}</text><text bindtap="closePlayerStats">×</text></view>
     <text class="stat-side">{{selectedPlayer.sideText}} · {{selectedPlayer.position}}</text>
-    <view class="stat-score-row stat-score-single">
-      <view class="stat-score-btn" data-key="score1" bindtap="playerStatAction"><text class="stat-score-label">球员得分</text><text class="stat-score-value">+1</text></view>
+    <view class="stat-score-row">
+      <view class="stat-score-btn" data-key="score1" bindtap="playerStatAction"><text class="stat-score-label">罚球</text><text class="stat-score-value">+1</text></view>
+      <view class="stat-score-btn secondary" data-key="score2" bindtap="playerStatAction"><text class="stat-score-label">两分</text><text class="stat-score-value">+2</text></view>
+      <view class="stat-score-btn" data-key="score3" bindtap="playerStatAction"><text class="stat-score-label">三分</text><text class="stat-score-value">+3</text></view>
     </view>
     <view class="stat-actions stat-tech-actions"><view wx:for="{{techStatActions}}" wx:key="key" data-key="{{item.key}}" bindtap="playerStatAction"><image src="{{item.icon}}" mode="aspectFit" /><text>{{item.label}}</text><text class="stat-action-value">{{item.value}}</text></view></view>
   </view>
@@ -229,7 +265,7 @@
     </view>
     <view class="mc-section sound-section">
       <view class="mc-section-head"><image src="{{mcSoundIcon}}" mode="aspectFit" /><text class="mc-title">音效键</text><text class="mc-info">i</text></view>
-      <view class="sound-groups"><view class="sound-group common-sound-group"><text class="mc-subtitle">常用音效</text><view class="sound-grid common-sound-grid"><view wx:for="{{commonSounds}}" wx:key="type" class="sound-btn {{item.activeClass}}" data-type="{{item.type}}" bindtap="playSound"><view class="sound-icon sound-glyph">{{item.glyph}}</view><text>{{item.name}}</text></view></view></view><view class="sound-group scoring-sound-group"><text class="mc-subtitle">得分音效</text><view class="sound-grid scoring-sound-grid"><view wx:for="{{scoringSounds}}" wx:key="type" class="sound-btn {{item.activeClass}}" data-type="{{item.type}}" bindtap="playSound"><view class="sound-icon sound-glyph">{{item.glyph}}</view><text>{{item.name}}</text></view></view></view><view class="sound-group custom-sound-group"><view class="custom-sound-head"><text class="mc-subtitle">自定义音效</text><text>后台可替换</text></view><view class="sound-grid custom-sound-grid"><view wx:for="{{customSounds}}" wx:key="type" class="sound-btn {{item.activeClass}}" data-type="{{item.type}}" bindtap="playSound"><view class="sound-icon sound-glyph">{{item.glyph}}</view><text>{{item.name}}</text></view></view></view></view>
+      <view class="sound-groups"><view class="sound-group common-sound-group"><text class="mc-subtitle">常用音效</text><view class="sound-grid common-sound-grid"><view wx:for="{{commonSounds}}" wx:key="type" class="sound-btn {{item.activeClass}}" data-type="{{item.type}}" bindtap="playSound"><view class="sound-icon sound-glyph">{{item.glyph}}</view><text>{{item.name}}</text></view></view></view><view class="sound-group custom-sound-group"><view class="custom-sound-head"><text class="mc-subtitle">自定义音效</text><text>后台可替换</text></view><view class="sound-grid custom-sound-grid"><view wx:for="{{customSounds}}" wx:key="type" class="sound-btn {{item.activeClass}}" data-type="{{item.type}}" bindtap="playSound"><view class="sound-icon sound-glyph">{{item.glyph}}</view><text>{{item.name}}</text></view></view></view></view>
       <view class="rest-audio-controls"><view wx:if="{{showRestAudioControls}}" class="rest-audio-toggle" catchtap="toggleRestAudio">{{restAudioButtonText}}</view><view wx:else class="rest-audio-label">音效读秒</view><view id="restAudioTrack" class="rest-audio-track" catchtouchstart="startRestAudioSeek" catchtouchmove="moveRestAudioSeek" catchtouchend="endRestAudioSeek" catchtouchcancel="endRestAudioSeek"><view class="rest-audio-progress" style="width: {{restAudioProgress}}%;"></view><view class="rest-audio-thumb" style="left: {{restAudioProgress}}%;"></view></view><text class="rest-audio-time">{{restAudioCurrentText}} / {{restAudioDurationText}}</text></view>
     </view>
   </view>

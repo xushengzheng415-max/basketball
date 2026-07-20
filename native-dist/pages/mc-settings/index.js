@@ -49,8 +49,10 @@ const defaultAudioItems = [
   { channel: 'pause', name: '暂停音乐2', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/暂停休息音乐/暂停音乐2.mp3' },
   { channel: 'buzzer', name: '蜂鸣器', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/蜂鸣器.mp3' },
   { channel: 'countdown', name: '倒计时5秒', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/倒计时5秒.mp3' },
+  { channel: 'two', name: '2分音效', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/2分进球音效.mp3' },
+  { channel: 'three', name: '3分音效', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/三分球.mp3' },
   { channel: 'miss', name: '投篮未进', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/投篮未进音效.mp3' },
-  { channel: 'cheer', name: '欢呼声', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声.mp3' },
+  { channel: 'cheer', name: '欢呼声', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声(1).mp3' },
   { channel: 'shout', name: '冲锋号', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/冲锋号.mp3' },
   { channel: 'entry', name: '出场音乐', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/出场音乐.mp3' },
   { channel: 'anthem', name: '国歌', fileID: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3' },
@@ -83,17 +85,21 @@ const categorySeed = [
   { key: 'countdown', name: '倒计时音效', icon: 'icon-pause-common.png', sourceKeys: ['countdown'] }
 ];
 
+const customAudioSourceKeys = ['two', 'three', 'miss', 'cheer', 'shout', 'horn', 'entry', 'anthem', 'freeThrowMade', 'freeThrowMiss'];
+
 const customCategory = {
   key: 'custom',
   name: '自定义音效',
-  sourceKeys: ['miss', 'cheer', 'shout', 'horn', 'entry', 'anthem', 'freeThrowMade', 'freeThrowMiss'],
-  fallbackNames: ['投篮未进', '欢呼声', '冲锋号', '出场音乐', '国歌', '罚进音效', '罚球失误'],
-  fallbackChannels: ['miss', 'cheer', 'horn', 'entry', 'anthem', 'freeThrowMade', 'freeThrowMiss']
+  sourceKeys: customAudioSourceKeys,
+  fallbackNames: ['2分音效', '3分音效', '投篮未进', '欢呼声', '冲锋号', '出场音乐', '国歌', '罚进音效', '罚球失误'],
+  fallbackChannels: ['two', 'three', 'miss', 'cheer', 'horn', 'entry', 'anthem', 'freeThrowMade', 'freeThrowMiss']
 };
 
 function normalizeSettings(saved) {
   const value = saved && typeof saved === 'object' ? saved : {};
   return Object.assign({}, defaultSettings, value, {
+    twoEnabled: true,
+    threeEnabled: true,
     categoryEnabled: Object.assign({}, defaultSettings.categoryEnabled, value.categoryEnabled || {}),
     modes: Object.assign({}, defaultSettings.modes, value.modes || {}),
     selectedAudio: Object.assign({}, value.selectedAudio || {})
@@ -169,6 +175,13 @@ function buildCategories(settings, audioMap, audioItems) {
   });
 }
 
+function decorateCustomSlots(slots) {
+  return (Array.isArray(slots) ? slots : []).map((item, index) => Object.assign({}, item, {
+    position: index + 1,
+    displayIcon: item.channel === 'two' ? '2' : (item.channel === 'three' ? '3' : String(index + 1))
+  }));
+}
+
 function buildCustomSlots(audioMap, audioItems) {
   const options = collectAudioOptions(customCategory, audioMap, audioItems);
   customCategory.fallbackNames.forEach((name, index) => {
@@ -192,7 +205,7 @@ function buildCustomSlots(audioMap, audioItems) {
   });
   return {
     options,
-    slots: selected.slice(0, 6).map((item, index) => Object.assign({}, item, { position: index + 1 }))
+    slots: decorateCustomSlots(selected.slice(0, 6))
   };
 }
 
@@ -363,15 +376,14 @@ Page({
   },
 
   applySettings(settings) {
-    wx.setStorageSync(AUDIO_SETTINGS_KEY, settings);
+    const normalized = normalizeSettings(settings);
+    const audioMap = wx.getStorageSync(CLOUD_AUDIO_MAP_KEY) || {};
+    const audioItems = wx.getStorageSync(CLOUD_AUDIO_ITEMS_KEY) || [];
+    wx.setStorageSync(AUDIO_SETTINGS_KEY, normalized);
     this.setData({
-      settings,
-      categories: buildCategories(
-        settings,
-        wx.getStorageSync(CLOUD_AUDIO_MAP_KEY) || {},
-        wx.getStorageSync(CLOUD_AUDIO_ITEMS_KEY) || []
-      ),
-      packageName: settings.soundPackage === 'custom' ? '自定义音效包' : '默认音效包'
+      settings: normalized,
+      categories: buildCategories(normalized, audioMap, audioItems),
+      packageName: normalized.soundPackage === 'custom' ? '自定义音效包' : '默认音效包'
     });
   },
 
@@ -441,7 +453,7 @@ Page({
     const current = slots[index];
     slots[index] = slots[target];
     slots[target] = current;
-    const normalized = slots.map((item, slotIndex) => Object.assign({}, item, { position: slotIndex + 1 }));
+    const normalized = decorateCustomSlots(slots);
     saveCustomSlots(normalized);
     this.setData({ customSlots: normalized });
   },
@@ -457,7 +469,10 @@ Page({
   },
 
   chooseModalOption(event) {
-    const id = event.currentTarget.dataset.id;
+    const optionIndex = Number(event.currentTarget.dataset.index);
+    const modalOption = this.data.modalOptions[optionIndex];
+    if (!modalOption) return;
+    const id = modalOption.id;
     const type = this.data.modalType;
     if (type === 'package') {
       this.applySettings(Object.assign({}, this.data.settings, { soundPackage: id }));
@@ -482,7 +497,7 @@ Page({
         } else {
           slots[index] = option;
         }
-        const normalized = slots.map((item, slotIndex) => Object.assign({}, item, { position: slotIndex + 1 }));
+        const normalized = decorateCustomSlots(slots);
         saveCustomSlots(normalized);
         this.setData({ customSlots: normalized });
       }

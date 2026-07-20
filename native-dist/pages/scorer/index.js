@@ -47,7 +47,7 @@ const AUDIO_FILE_IDS = {
     'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/防守音效3.mp3'
   ],
   miss: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/投篮未进音效.mp3'],
-  cheer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声.mp3'],
+  cheer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声(1).mp3'],
   horn: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/冲锋号.mp3'],
   entry: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/出场音乐.mp3'],
   anthem: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3'],
@@ -374,20 +374,22 @@ Page({
     scorePageClass: 'score-page landscape-board tablet-board',
     setupPresetMinutes: [6, 8, 10, 12],
     setupPresetPeriods: [2, 4, 6],
-    homeName: '蜂巢U10A',
-    awayName: '星火U10',
+    setupPresetIntervalMinutes: [1, 2, 3, 5],
+    setupPresetHalftimeMinutes: [5, 10, 15, 20],
+    homeName: '赛小蜂勇者',
+    awayName: '赛小蜂闪电',
     teamOptions: [],
     hasExistingTeams: false,
-    homeTeamUseExisting: true,
-    awayTeamUseExisting: true,
-    homeExistingModeClass: 'active',
-    homeTemporaryModeClass: '',
-    awayExistingModeClass: 'active',
-    awayTemporaryModeClass: '',
-    homeTeamIndex: 0,
-    awayTeamIndex: 1,
-    homeTeamPickerText: '蜂巢U10A',
-    awayTeamPickerText: '星火U10',
+    homeTeamUseExisting: false,
+    awayTeamUseExisting: false,
+    homeExistingModeClass: '',
+    homeTemporaryModeClass: 'active',
+    awayExistingModeClass: '',
+    awayTemporaryModeClass: 'active',
+    homeTeamIndex: -1,
+    awayTeamIndex: -1,
+    homeTeamPickerText: '请选择主队',
+    awayTeamPickerText: '请选择客队',
     matchName: 'U10组 决赛',
     homeLogo: TEAM_ASSET + 'team-logo-left.png',
     awayLogo: TEAM_ASSET + 'team-logo-right.png',
@@ -407,6 +409,9 @@ Page({
     period: 1,
     totalPeriods: 4,
     periodMinutes: 10,
+    intervalMinutes: 2,
+    halftimeMinutes: 15,
+    timeoutMinutes: 1,
     timerMode: 'down',
     timerModeDownClass: 'active',
     timerModeUpClass: '',
@@ -441,7 +446,7 @@ Page({
     possession: 'left',
     leftPossessionClass: 'active',
     rightPossessionClass: '',
-    shotClockEnabled: true,
+    shotClockEnabled: false,
     shotClock: 24,
     shotClockDigits: buildDigitalItems('24', 'shot'),
     shotClockRunning: false,
@@ -605,8 +610,8 @@ Page({
   loadTeamOptions() {
     const libraryTeams = normalizeLibraryTeams();
     const fallbackTeams = [
-      { key: 'fallback-home', label: this.data.homeName || '蜂巢U10A', name: this.data.homeName || '蜂巢U10A', logoUrl: this.data.homeLogo },
-      { key: 'fallback-away', label: this.data.awayName || '星火U10', name: this.data.awayName || '星火U10', logoUrl: this.data.awayLogo }
+      { key: 'fallback-home', label: this.data.homeName || '赛小蜂勇者', name: this.data.homeName || '赛小蜂勇者', logoUrl: this.data.homeLogo },
+      { key: 'fallback-away', label: this.data.awayName || '赛小蜂闪电', name: this.data.awayName || '赛小蜂闪电', logoUrl: this.data.awayLogo }
     ];
     const teamOptions = libraryTeams.length ? libraryTeams : fallbackTeams;
     const homeTeamIndex = Math.min(Number(this.data.homeTeamIndex) || 0, teamOptions.length - 1);
@@ -617,8 +622,8 @@ Page({
     const editedNames = this.setupTeamNameEdited || {};
     const touchedModes = this.setupTeamModeTouched || {};
     const hasExistingTeams = libraryTeams.length > 0;
-    const homeTeamUseExisting = touchedModes.home ? !!this.data.homeTeamUseExisting : hasExistingTeams;
-    const awayTeamUseExisting = touchedModes.away ? !!this.data.awayTeamUseExisting : hasExistingTeams;
+    const homeTeamUseExisting = touchedModes.home ? !!this.data.homeTeamUseExisting : false;
+    const awayTeamUseExisting = touchedModes.away ? !!this.data.awayTeamUseExisting : false;
     this.setData({
       teamOptions,
       hasExistingTeams,
@@ -732,6 +737,21 @@ Page({
   increasePeriodCount() { this.applyPeriodCount(this.data.totalPeriods + 1); },
   setPeriodCountPreset(event) { this.applyPeriodCount(Number(event.currentTarget.dataset.value)); },
 
+  applyRestMinutes(kind, value) {
+    const key = kind === 'halftime' ? 'halftimeMinutes' : 'intervalMinutes';
+    const fallback = key === 'halftimeMinutes' ? 15 : 2;
+    const max = key === 'halftimeMinutes' ? 30 : 10;
+    const patch = {};
+    patch[key] = Math.max(1, Math.min(max, Number(value) || fallback));
+    this.setData(patch);
+  },
+  decreaseIntervalMinutes() { this.applyRestMinutes('interval', this.data.intervalMinutes - 1); },
+  increaseIntervalMinutes() { this.applyRestMinutes('interval', this.data.intervalMinutes + 1); },
+  setIntervalPreset(event) { this.applyRestMinutes('interval', Number(event.currentTarget.dataset.value)); },
+  decreaseHalftimeMinutes() { this.applyRestMinutes('halftime', this.data.halftimeMinutes - 1); },
+  increaseHalftimeMinutes() { this.applyRestMinutes('halftime', this.data.halftimeMinutes + 1); },
+  setHalftimePreset(event) { this.applyRestMinutes('halftime', Number(event.currentTarget.dataset.value)); },
+
   applyQuickMatchConfig(options) {
     if (!options || options.mode !== 'quick') return;
     const config = wx.getStorageSync('quickMatchActiveConfig');
@@ -740,6 +760,9 @@ Page({
     const awayName = (config.awayTeam && config.awayTeam.name) || 'B?';
     const periodMinutes = Math.max(1, Number(config.periodMinutes) || 10);
     const totalPeriods = Math.max(1, Number(config.periods) || 4);
+    const intervalMinutes = Math.max(1, Number(config.intervalMinutes) || 2);
+    const halftimeMinutes = Math.max(1, Number(config.halftimeMinutes) || 15);
+    const timeoutMinutes = Math.max(1, Number(config.timeoutMinutes) || 1);
     const timerMode = config.timerMode === 'up' ? 'up' : 'down';
     const clockSeconds = timerMode === 'down' ? periodMinutes * 60 : 0;
     const homePlayers = buildQuickPlayers('home', config.homePlayers);
@@ -754,6 +777,9 @@ Page({
       period: 1,
       totalPeriods,
       periodMinutes,
+      intervalMinutes,
+      halftimeMinutes,
+      timeoutMinutes,
       timerMode,
       clockSeconds,
       clockText: formatClock(clockSeconds),
@@ -784,6 +810,9 @@ Page({
       matchName: this.data.matchName || '快捷比赛',
       periods: this.data.totalPeriods,
       periodMinutes: this.data.periodMinutes,
+      intervalMinutes: this.data.intervalMinutes,
+      halftimeMinutes: this.data.halftimeMinutes,
+      timeoutMinutes: this.data.timeoutMinutes,
       timerMode: this.data.timerMode,
       homeTeam: { name: homeName, logoUrl: getTeamLogo(homeTeam, 'home') },
       awayTeam: { name: awayName, logoUrl: getTeamLogo(awayTeam, 'away') },

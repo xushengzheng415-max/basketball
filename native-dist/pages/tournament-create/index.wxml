@@ -5,7 +5,7 @@
     <view class="back-hit" bindtap="goBack">
       <view class="back-icon"></view>
     </view>
-    <text class="nav-title">创建赛事</text>
+    <text class="nav-title">{{pageTitle}}</text>
   </view>
 
   <scroll-view class="form-scroll" scroll-y enhanced show-scrollbar="{{false}}">
@@ -21,6 +21,22 @@
           <view class="control input-control">
             <input value="{{form.name}}" placeholder="请输入赛事名称" bindinput="onNameInput" />
             <image wx:if="{{hasName}}" class="control-icon clear" src="/assets/pages/tournament-create/icon-close-common.svg" mode="aspectFit" bindtap="clearName" />
+          </view>
+        </view>
+
+        <view class="form-row logo-row">
+          <view class="row-label">赛事 Logo</view>
+          <view class="logo-control" bindtap="chooseLogo">
+            <image wx:if="{{form.logoUrl}}" class="logo-preview" src="{{form.logoUrl}}" mode="aspectFill" />
+            <view wx:else class="logo-placeholder">
+              <text class="logo-plus">+</text>
+              <text wx:if="{{uploadingLogo}}">上传中</text>
+              <text wx:else>点击上传</text>
+            </view>
+            <view wx:if="{{form.logoUrl}}" class="logo-actions">
+              <text>点击更换</text>
+              <text class="logo-remove" catchtap="removeLogo">移除</text>
+            </view>
           </view>
         </view>
 
@@ -197,8 +213,8 @@
       </view>
 
       <view class="action-area">
-        <button class="primary-action" bindtap="saveAndCreate">保存并创建</button>
-        <button class="secondary-action" bindtap="saveDraft">保存草稿</button>
+        <button class="primary-action" bindtap="saveAndCreate">{{primaryActionText}}</button>
+        <button wx:if="{{!editingTournamentId}}" class="secondary-action" bindtap="saveDraft">保存草稿</button>
       </view>
 
       <view class="bottom-space"></view>

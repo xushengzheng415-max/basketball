@@ -985,24 +985,50 @@
   font-size: 2.15vh !important;
 }
 
-.score-page.landscape-board .stat-score-single {
-  grid-template-columns: minmax(0, 1fr) !important;
+/* Official interval flow and enlarged top controls. */
+.score-page.landscape-board .top-actions .top-action-large {
+  height: 6.2vh !important;
+  min-height: 6.2vh !important;
+  padding: 0 1.55vw !important;
+  font-size: 1.85vh !important;
 }
 
-.score-page.landscape-board .stat-score-single .stat-score-btn {
-  flex-direction: row;
-  justify-content: center;
-  gap: 1vw;
-  min-height: 7.4vh;
+.period-rest-mask {
+  position: fixed;
+  z-index: 120;
+  inset: 0;
+  background: rgba(0,0,0,.72);
 }
 
-.score-page.landscape-board .stat-score-single .stat-score-label {
-  font-size: 2.25vh;
+.period-rest-panel {
+  position: fixed;
+  z-index: 121;
+  top: 50%;
+  left: 50%;
+  box-sizing: border-box;
+  transform: translate(-50%, -50%);
+  border: 1px solid rgba(255,100,0,.9);
+  border-radius: 1.8vh;
+  background: linear-gradient(180deg,rgba(28,31,34,.99),rgba(7,9,11,.99));
+  box-shadow: 0 2vh 6vh rgba(0,0,0,.75), 0 0 3vh rgba(255,100,0,.18);
+  color: #fff;
 }
 
-.score-page.landscape-board .stat-score-single .stat-score-value {
-  font-size: 3.8vh;
+.period-rest-panel {
+  display: flex;
+  width: 34vw;
+  min-width: 420px;
+  padding: 3.2vh 3vw;
+  flex-direction: column;
+  align-items: center;
 }
+
+.period-rest-title { color: #ff761a; font-size: 3vh; font-weight: 900; }
+.period-rest-clock { margin-top: 1.3vh; color: #fff; font-family: Impact, DIN Alternate, Arial Black, sans-serif; font-size: 10vh; line-height: 1; letter-spacing: .2vw; text-shadow: 0 0 2vh rgba(255,100,0,.35); }
+.period-rest-hint { margin-top: 1.3vh; color: rgba(255,255,255,.72); font-size: 1.8vh; }
+.period-rest-actions { display: grid; width: 100%; margin-top: 2.4vh; grid-template-columns: 1fr 1fr; gap: 1vw; }
+.period-rest-actions view { display: flex; height: 6.5vh; align-items: center; justify-content: center; border-radius: 1vh; background: linear-gradient(180deg,#ff7800,#e84900); font-size: 2vh; font-weight: 900; }
+.period-rest-actions view.skip { border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.07); }
 
 /* Final control shape: symbol-only scoring and four separate counter blocks. */
 .score-page.landscape-board .score-step-row {

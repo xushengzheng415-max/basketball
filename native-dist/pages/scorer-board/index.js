@@ -53,7 +53,7 @@ const AUDIO_FILE_IDS = {
     'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/防守音效3.mp3'
   ],
   miss: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/投篮未进音效.mp3'],
-  cheer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声.mp3'],
+  cheer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声(1).mp3'],
   horn: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/冲锋号.mp3'],
   entry: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/出场音乐.mp3'],
   anthem: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3'],
@@ -416,6 +416,10 @@ function playerAgeGroup(player) {
 Page({
   timer: null,
   shotTimer: null,
+  restTimer: null,
+  restEndsAt: 0,
+  periodEndPromptTimer: null,
+  periodEndHandled: 0,
   resizeHandler: null,
   longPressTimer: null,
   longPressTick: null,
@@ -459,20 +463,22 @@ Page({
     rosterDrawerButtonText: '显示阵容',
     setupPresetMinutes: [6, 8, 10, 12],
     setupPresetPeriods: [2, 4, 6],
-    homeName: '蜂巢U10A',
-    awayName: '星火U10',
+    setupPresetIntervalMinutes: [1, 2, 3, 5],
+    setupPresetHalftimeMinutes: [5, 10, 15, 20],
+    homeName: '赛小蜂勇者',
+    awayName: '赛小蜂闪电',
     teamOptions: [],
     hasExistingTeams: false,
-    homeTeamUseExisting: true,
-    awayTeamUseExisting: true,
-    homeExistingModeClass: 'active',
-    homeTemporaryModeClass: '',
-    awayExistingModeClass: 'active',
-    awayTemporaryModeClass: '',
-    homeTeamIndex: 0,
-    awayTeamIndex: 1,
-    homeTeamPickerText: '蜂巢U10A',
-    awayTeamPickerText: '星火U10',
+    homeTeamUseExisting: false,
+    awayTeamUseExisting: false,
+    homeExistingModeClass: '',
+    homeTemporaryModeClass: 'active',
+    awayExistingModeClass: '',
+    awayTemporaryModeClass: 'active',
+    homeTeamIndex: -1,
+    awayTeamIndex: -1,
+    homeTeamPickerText: '请选择主队',
+    awayTeamPickerText: '请选择客队',
     matchName: 'U10组 决赛',
     homeLogo: TEAM_ASSET + 'team-logo-left.png',
     awayLogo: TEAM_ASSET + 'team-logo-right.png',
@@ -492,6 +498,19 @@ Page({
     period: 1,
     totalPeriods: 4,
     periodMinutes: 10,
+    intervalMinutes: 2,
+    halftimeMinutes: 15,
+    timeoutMinutes: 1,
+    restCountdownVisible: false,
+    restCountdownRunning: false,
+    restKind: 'period',
+    restSeconds: 0,
+    restText: '00:00',
+    restTitle: '节间休息',
+    restHint: '倒计时结束后进入下一节',
+    restNextPeriod: 2,
+    restButtonText: '暂停倒计时',
+    restSkipText: '跳过休息',
     timerMode: 'down',
     clockSeconds: 600,
     clockText: '10:00',
@@ -536,7 +555,7 @@ Page({
     possession: 'left',
     leftPossessionClass: 'active',
     rightPossessionClass: '',
-    shotClockEnabled: true,
+    shotClockEnabled: false,
     shotClock: 24,
     shotClockDigits: buildDigitalItems('24', 'shot'),
     shotClockRunning: false,
@@ -573,12 +592,7 @@ Page({
       { type: 'attack', name: '进攻音效', icon: ICON_ASSET + 'icon-tech-score-clean.png', glyph: SOUND_GLYPHS.attack, audioIds: AUDIO_FILE_IDS.attack, activeClass: '' },
       { type: 'defense', name: '防守音效', icon: ICON_ASSET + 'icon-mc-defense-clean.png', glyph: SOUND_GLYPHS.defense, audioIds: AUDIO_FILE_IDS.defense, activeClass: '' }
     ],
-    scoringSounds: [
-      { type: 'two', name: '2分音效', glyph: '2', audioIds: AUDIO_FILE_IDS.two, activeClass: '' },
-      { type: 'three', name: '3分音效', glyph: '3', audioIds: AUDIO_FILE_IDS.three, activeClass: '' },
-      { type: 'freeThrowMade', name: '罚球音效', glyph: SOUND_GLYPHS.freeThrowMade, audioIds: AUDIO_FILE_IDS.freeThrowMade, activeClass: '' },
-      { type: 'freeThrowMiss', name: '罚球未进音效', glyph: SOUND_GLYPHS.freeThrowMiss, audioIds: AUDIO_FILE_IDS.freeThrowMiss, activeClass: '' }
-    ],
+    scoringSounds: [],
     customSounds: buildConfiguredCustomSounds(),
     shortcutListening: false,
     shortcutCompatMode: false,
@@ -646,7 +660,9 @@ Page({
   onShow() {
     this.detectBoardSize();
     this.syncVoiceStyle();
+    this.syncCustomSounds();
     this.refreshCloudAudioLibrary().finally(() => this.preloadCommonAudio());
+    if (this.data.restCountdownVisible && this.data.restCountdownRunning) this.resumeRestCountdown();
     if (this.data.started && this.matchHiddenAt) {
       const elapsedSeconds = Math.max(0, Math.floor((Date.now() - this.matchHiddenAt) / 1000));
       this.resumeElapsedMatchClock(elapsedSeconds, this.matchClockWasRunning, this.matchShotClockWasRunning);
@@ -660,6 +676,7 @@ Page({
     this.matchShotClockWasRunning = !!this.data.shotClockRunning;
     this.clearClock();
     this.clearShotClock();
+    this.clearRestCountdownTimer();
     this.persistMatchRecord(this.matchEnded);
   },
 
@@ -670,6 +687,9 @@ Page({
     if (this.data.started) this.persistMatchRecord(this.matchEnded);
     this.clearClock();
     this.clearShotClock();
+    this.clearRestCountdownTimer();
+    if (this.periodEndPromptTimer) clearTimeout(this.periodEndPromptTimer);
+    this.periodEndPromptTimer = null;
     this.clearLongPress();
     this.stopNativeAudio();
     this.disconnectShortcutBle(true);
@@ -716,8 +736,8 @@ Page({
   loadTeamOptions() {
     const libraryTeams = normalizeLibraryTeams();
     const fallbackTeams = [
-      { key: 'fallback-home', label: this.data.homeName || '蜂巢U10A', name: this.data.homeName || '蜂巢U10A', logoUrl: this.data.homeLogo },
-      { key: 'fallback-away', label: this.data.awayName || '星火U10', name: this.data.awayName || '星火U10', logoUrl: this.data.awayLogo }
+      { key: 'fallback-home', label: this.data.homeName || '赛小蜂勇者', name: this.data.homeName || '赛小蜂勇者', logoUrl: this.data.homeLogo },
+      { key: 'fallback-away', label: this.data.awayName || '赛小蜂闪电', name: this.data.awayName || '赛小蜂闪电', logoUrl: this.data.awayLogo }
     ];
     const teamOptions = libraryTeams.length ? libraryTeams : fallbackTeams;
     const homeTeamIndex = Math.min(Number(this.data.homeTeamIndex) || 0, teamOptions.length - 1);
@@ -728,8 +748,8 @@ Page({
     const editedNames = this.setupTeamNameEdited || {};
     const touchedModes = this.setupTeamModeTouched || {};
     const hasExistingTeams = libraryTeams.length > 0;
-    const homeTeamUseExisting = touchedModes.home ? !!this.data.homeTeamUseExisting : hasExistingTeams;
-    const awayTeamUseExisting = touchedModes.away ? !!this.data.awayTeamUseExisting : hasExistingTeams;
+    const homeTeamUseExisting = touchedModes.home ? !!this.data.homeTeamUseExisting : false;
+    const awayTeamUseExisting = touchedModes.away ? !!this.data.awayTeamUseExisting : false;
     this.setData({
       teamOptions,
       hasExistingTeams,
@@ -835,6 +855,21 @@ Page({
   increasePeriodCount() { this.applyPeriodCount(this.data.totalPeriods + 1); },
   setPeriodCountPreset(event) { this.applyPeriodCount(Number(event.currentTarget.dataset.value)); },
 
+  applyRestMinutes(kind, value) {
+    const key = kind === 'halftime' ? 'halftimeMinutes' : 'intervalMinutes';
+    const fallback = key === 'halftimeMinutes' ? 15 : 2;
+    const max = key === 'halftimeMinutes' ? 30 : 10;
+    const patch = {};
+    patch[key] = Math.max(1, Math.min(max, Number(value) || fallback));
+    this.setData(patch);
+  },
+  decreaseIntervalMinutes() { this.applyRestMinutes('interval', this.data.intervalMinutes - 1); },
+  increaseIntervalMinutes() { this.applyRestMinutes('interval', this.data.intervalMinutes + 1); },
+  setIntervalPreset(event) { this.applyRestMinutes('interval', Number(event.currentTarget.dataset.value)); },
+  decreaseHalftimeMinutes() { this.applyRestMinutes('halftime', this.data.halftimeMinutes - 1); },
+  increaseHalftimeMinutes() { this.applyRestMinutes('halftime', this.data.halftimeMinutes + 1); },
+  setHalftimePreset(event) { this.applyRestMinutes('halftime', Number(event.currentTarget.dataset.value)); },
+
   applyQuickMatchConfig(options) {
     if (!options || options.mode !== 'quick') return;
     const config = wx.getStorageSync('quickMatchActiveConfig');
@@ -843,6 +878,9 @@ Page({
     const awayName = (config.awayTeam && config.awayTeam.name) || 'B?';
     const periodMinutes = Math.max(1, Number(config.periodMinutes) || 10);
     const totalPeriods = Math.max(1, Number(config.periods) || 4);
+    const intervalMinutes = Math.max(1, Number(config.intervalMinutes) || 2);
+    const halftimeMinutes = Math.max(1, Number(config.halftimeMinutes) || 15);
+    const timeoutMinutes = Math.max(1, Number(config.timeoutMinutes) || 1);
     const timerMode = config.timerMode === 'up' ? 'up' : 'down';
     const clockSeconds = timerMode === 'down' ? periodMinutes * 60 : 0;
     const homePlayers = buildQuickPlayers('home', config.homePlayers);
@@ -859,6 +897,9 @@ Page({
       period: 1,
       totalPeriods,
       periodMinutes,
+      intervalMinutes,
+      halftimeMinutes,
+      timeoutMinutes,
       timerMode,
       clockSeconds,
       clockText: formatClock(clockSeconds),
@@ -889,6 +930,9 @@ Page({
       matchName: this.data.matchName || '快捷比赛',
       periods: this.data.totalPeriods,
       periodMinutes: this.data.periodMinutes,
+      intervalMinutes: this.data.intervalMinutes,
+      halftimeMinutes: this.data.halftimeMinutes,
+      timeoutMinutes: this.data.timeoutMinutes,
       timerMode: this.data.timerMode,
       homeTeam: { name: homeName, logoUrl: getTeamLogo(homeTeam, 'home') },
       awayTeam: { name: awayName, logoUrl: getTeamLogo(awayTeam, 'away') },
@@ -1018,6 +1062,10 @@ Page({
     });
   },
   toggleClock(options) {
+    if (this.data.restCountdownVisible) {
+      wx.showToast({ title: '请先结束节间休息', icon: 'none' });
+      return;
+    }
     const skipShotClock = !!(options && options.skipShotClock === true);
     if (this.data.clockRunning) {
       this.clearClock();
@@ -1049,20 +1097,132 @@ Page({
     }, 1000);
   },
   handlePeriodEnd() {
-    const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
-    this.playMcAudio('buzzer', '蜂鸣器');
-    if (settings.pauseAutoEnabled === false) return;
-    setTimeout(() => {
+    const currentPeriod = Math.max(1, Number(this.data.period) || 1);
+    if (this.periodEndHandled === currentPeriod || this.data.restCountdownVisible) return;
+    this.periodEndHandled = currentPeriod;
+    this.playMcAudio('buzzer', '本节结束蜂鸣器');
+    if (currentPeriod >= Number(this.data.totalPeriods || 4)) return;
+    if (this.periodEndPromptTimer) clearTimeout(this.periodEndPromptTimer);
+    this.periodEndPromptTimer = setTimeout(() => {
+      this.periodEndPromptTimer = null;
       wx.showModal({
-        title: '本节结束',
-        content: '蜂鸣器已响，是否播放暂停休息音乐？',
-        confirmText: '播放',
-        cancelText: '不播放',
-        success: (result) => {
-          if (result.confirm) this.playMcAudio('rest', '暂停音乐');
-        }
+        title: '第 ' + currentPeriod + ' 节结束',
+        content: '是否播放休息音乐？确认后开始休息倒计时。',
+        confirmText: '播放音乐',
+        cancelText: '仅倒计时',
+        success: (result) => this.startPeriodRest(!!result.confirm),
+        fail: () => this.startPeriodRest(false)
       });
     }, 900);
+  },
+  clearRestCountdownTimer() {
+    if (this.restTimer) clearInterval(this.restTimer);
+    this.restTimer = null;
+  },
+  restDurationForPeriod(period) {
+    const halftimeAfter = Math.ceil(Math.max(2, Number(this.data.totalPeriods) || 4) / 2);
+    const isHalftime = Number(period) === halftimeAfter;
+    return {
+      isHalftime,
+      minutes: isHalftime ? Number(this.data.halftimeMinutes || 15) : Number(this.data.intervalMinutes || 2)
+    };
+  },
+  startPeriodRest(playMusic) {
+    const currentPeriod = Math.max(1, Number(this.data.period) || 1);
+    if (currentPeriod >= Number(this.data.totalPeriods || 4)) return;
+    const duration = this.restDurationForPeriod(currentPeriod);
+    const seconds = Math.max(1, duration.minutes * 60);
+    this.clearRestCountdownTimer();
+    this.restEndsAt = Date.now() + seconds * 1000;
+    this.setData({
+      restCountdownVisible: true,
+      restCountdownRunning: true,
+      restKind: 'period',
+      restSeconds: seconds,
+      restText: formatClock(seconds),
+      restTitle: duration.isHalftime ? '中场休息' : '节间休息',
+      restHint: '倒计时结束后进入第 ' + (currentPeriod + 1) + ' 节',
+      restNextPeriod: currentPeriod + 1,
+      restButtonText: '暂停倒计时',
+      restSkipText: '跳过休息'
+    }, () => {
+      if (playMusic) this.playMcAudio('rest', duration.isHalftime ? '中场休息音乐' : '节间休息音乐');
+      this.resumeRestCountdown();
+    });
+  },
+  startTeamTimeout(playMusic) {
+    const seconds = Math.max(1, Number(this.data.timeoutMinutes || 1) * 60);
+    this.clearRestCountdownTimer();
+    this.restEndsAt = Date.now() + seconds * 1000;
+    this.setData({
+      restCountdownVisible: true,
+      restCountdownRunning: true,
+      restKind: 'timeout',
+      restSeconds: seconds,
+      restText: formatClock(seconds),
+      restTitle: '球队暂停',
+      restHint: '倒计时结束后比赛准备继续',
+      restNextPeriod: this.data.period,
+      restButtonText: '暂停倒计时',
+      restSkipText: '结束暂停'
+    }, () => {
+      if (playMusic) this.playMcAudio('rest', '暂停音乐');
+      this.resumeRestCountdown();
+    });
+  },
+  resumeRestCountdown() {
+    if (!this.data.restCountdownVisible || !this.data.restCountdownRunning) return;
+    if (!this.restEndsAt) this.restEndsAt = Date.now() + Math.max(0, Number(this.data.restSeconds) || 0) * 1000;
+    this.clearRestCountdownTimer();
+    const tick = () => {
+      const remaining = Math.max(0, Math.ceil((this.restEndsAt - Date.now()) / 1000));
+      if (remaining !== this.data.restSeconds) this.setData({ restSeconds: remaining, restText: formatClock(remaining) });
+      if (remaining <= 0) this.finishRestCountdown(true);
+    };
+    tick();
+    if (this.data.restCountdownVisible) this.restTimer = setInterval(tick, 250);
+  },
+  toggleRestCountdown() {
+    if (!this.data.restCountdownVisible) return;
+    if (this.data.restCountdownRunning) {
+      const remaining = Math.max(0, Math.ceil((this.restEndsAt - Date.now()) / 1000));
+      this.clearRestCountdownTimer();
+      this.restEndsAt = 0;
+      this.setData({ restCountdownRunning: false, restSeconds: remaining, restText: formatClock(remaining), restButtonText: '继续倒计时' });
+      return;
+    }
+    this.restEndsAt = Date.now() + Math.max(0, Number(this.data.restSeconds) || 0) * 1000;
+    this.setData({ restCountdownRunning: true, restButtonText: '暂停倒计时' }, () => this.resumeRestCountdown());
+  },
+  finishRestCountdown(playEndBuzzer) {
+    if (!this.data.restCountdownVisible) return;
+    const isTimeout = this.data.restKind === 'timeout';
+    const nextPeriod = Math.min(Number(this.data.totalPeriods || 4), Number(this.data.restNextPeriod || this.data.period + 1));
+    this.clearRestCountdownTimer();
+    this.restEndsAt = 0;
+    if (this.data.playingType === 'rest') this.stopAudio();
+    this.periodEndHandled = 0;
+    const patch = {
+      restCountdownVisible: false,
+      restCountdownRunning: false,
+      restSeconds: 0,
+      restText: '00:00'
+    };
+    if (!isTimeout) {
+      patch.period = nextPeriod;
+      patch.maxPeriodReached = Math.max(Number(this.data.maxPeriodReached || 1), nextPeriod);
+    }
+    this.setData(patch, () => {
+      if (!isTimeout) this.resetClock();
+      if (playEndBuzzer) this.playMcAudio('buzzer', isTimeout ? '暂停结束蜂鸣器' : '休息结束蜂鸣器');
+      wx.showToast({ title: isTimeout ? '暂停结束，比赛准备继续' : ('第 ' + nextPeriod + ' 节准备开始'), icon: 'none' });
+    });
+  },
+  skipRestCountdown() { this.finishRestCountdown(false); },
+  cancelPeriodEndPrompt() {
+    if (this.periodEndPromptTimer) clearTimeout(this.periodEndPromptTimer);
+    this.periodEndPromptTimer = null;
+    this.periodEndHandled = 0;
   },
   resetClock() {
     const clockSeconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
@@ -1070,9 +1230,18 @@ Page({
     this.clearShotClock();
     this.setData({ clockRunning: false, clockButtonText: '开始', clockSeconds, clockText: formatClock(clockSeconds), shotClock: 24, shotClockDigits: buildDigitalItems('24', 'shot'), shotClockRunning: false, shotClockButtonText: '开始' }, () => this.updateDigital());
   },
-  prevPeriod() { this.setData({ period: Math.max(1, this.data.period - 1) }); this.resetClock(); },
+  prevPeriod() {
+    if (this.data.restCountdownVisible) this.finishRestCountdown(false);
+    this.cancelPeriodEndPrompt();
+    this.setData({ period: Math.max(1, this.data.period - 1) });
+    this.resetClock();
+  },
   nextPeriod() {
-    this.handlePeriodEnd();
+    if (this.data.restCountdownVisible) {
+      this.finishRestCountdown(false);
+      return;
+    }
+    this.cancelPeriodEndPrompt();
     const period = Math.min(this.data.totalPeriods, this.data.period + 1);
     this.setData({ period, maxPeriodReached: Math.max(Number(this.data.maxPeriodReached || 1), period) });
     this.resetClock();
@@ -1186,33 +1355,39 @@ Page({
     this.setData(patch, () => this.scheduleMatchRecordSave());
   },
   handleTeamTimeout(side, key, team) {
+    if (this.data.restCountdownVisible) {
+      wx.showToast({ title: '当前已有休息倒计时', icon: 'none' });
+      return;
+    }
+    wx.showModal({
+      title: '暂停期间比赛计时',
+      content: '暂停期间，总比赛时间是否继续走？',
+      confirmText: '继续走时',
+      cancelText: '暂停计时',
+      success: (result) => this.beginTeamTimeout(side, key, team, !!result.confirm),
+      fail: () => this.beginTeamTimeout(side, key, team, false)
+    });
+  },
+  beginTeamTimeout(side, key, team, keepGameClockRunning) {
     this.addCounter(side, key, team, '暂停');
-    this.playMcAudio('buzzer', '暂停蜂鸣器');
-    this.clearClock();
     this.pauseShotClock();
-    this.setData({ clockRunning: false, clockButtonText: '开始' });
+    if (keepGameClockRunning) {
+      if (!this.data.clockRunning) this.toggleClock({ skipShotClock: true });
+    } else {
+      this.clearClock();
+      this.setData({ clockRunning: false, clockButtonText: '开始' });
+    }
+    this.playMcAudio('buzzer', '暂停蜂鸣器');
     setTimeout(() => {
       wx.showModal({
-        title: '暂停计时',
-        content: '比赛时间已暂停，是否继续正常读秒？',
-        confirmText: '继续读秒',
-        cancelText: '保持暂停',
-        success: (result) => {
-          if (result.confirm && !this.data.clockRunning) this.toggleClock();
-          this.askPauseMusic();
-        },
-        fail: () => this.askPauseMusic()
+        title: '球队暂停',
+        content: '是否播放暂停音乐？确认后开始 1 分钟倒计时。',
+        confirmText: '播放音乐',
+        cancelText: '仅倒计时',
+        success: (result) => this.startTeamTimeout(!!result.confirm),
+        fail: () => this.startTeamTimeout(false)
       });
     }, 500);
-  },
-  askPauseMusic() {
-    wx.showModal({
-      title: '暂停音乐',
-      content: '是否播放暂停休息音乐？',
-      confirmText: '播放',
-      cancelText: '不播放',
-      success: (result) => { if (result.confirm) this.playMcAudio('rest', '暂停音乐'); }
-    });
   },
 
   confirmEndMatch() {
@@ -1238,6 +1413,8 @@ Page({
   finishMatch(reportMode) {
     this.clearClock();
     this.pauseShotClock();
+    this.clearRestCountdownTimer();
+    this.cancelPeriodEndPrompt();
     this.stopAudio();
     if (this.matchRecordSaveTimer) clearTimeout(this.matchRecordSaveTimer);
     this.matchRecordSaveTimer = null;
@@ -1258,6 +1435,9 @@ Page({
         if (!res.confirm) return;
         this.undoStack = [];
         this.clearClock();
+        this.clearRestCountdownTimer();
+        this.cancelPeriodEndPrompt();
+        if (this.data.playingType === 'rest') this.stopAudio();
         const clockSeconds = this.data.timerMode === 'down' ? this.data.periodMinutes * 60 : 0;
         this.setData({
           homeScore: 0,
@@ -1272,6 +1452,10 @@ Page({
           homeEvents: [],
           awayEvents: [],
           period: 1,
+          restCountdownVisible: false,
+          restCountdownRunning: false,
+          restSeconds: 0,
+          restText: '00:00',
           clockRunning: false,
           clockButtonText: '开始',
           clockSeconds,
@@ -2021,6 +2205,9 @@ Page({
       awayPlayers: awayStarters.concat(awayBench),
       periodMinutes: Number(record.periodMinutes || 10),
       periods: Number(record.totalPeriods || 4),
+      intervalMinutes: Number(record.intervalMinutes || 2),
+      halftimeMinutes: Number(record.halftimeMinutes || 15),
+      timeoutMinutes: Number(record.timeoutMinutes || 1),
       timerMode: record.timerMode || 'down'
     }));
     this.setData({
@@ -2041,12 +2228,15 @@ Page({
       period: Number(record.period || 1),
       totalPeriods: Number(record.totalPeriods || 4),
       periodMinutes: Number(record.periodMinutes || 10),
+      intervalMinutes: Number(record.intervalMinutes || 2),
+      halftimeMinutes: Number(record.halftimeMinutes || 15),
+      timeoutMinutes: Number(record.timeoutMinutes || 1),
       timerMode: record.timerMode || 'down',
       clockSeconds,
       clockText: formatClock(clockSeconds),
       clockRunning: false,
       clockButtonText: '\u5f00\u59cb',
-      shotClockEnabled: record.shotClockEnabled !== false,
+      shotClockEnabled: record.shotClockEnabled === true,
       shotClock,
       shotClockDigits: buildDigitalItems(String(Math.max(0, shotClock)).padStart(2, '0'), 'shot'),
       shotClockRunning: false,
@@ -2127,6 +2317,9 @@ Page({
       period: Number(this.data.period || 1),
       totalPeriods: Number(this.data.totalPeriods || 4),
       periodMinutes: Number(this.data.periodMinutes || 10),
+      intervalMinutes: Number(this.data.intervalMinutes || 2),
+      halftimeMinutes: Number(this.data.halftimeMinutes || 15),
+      timeoutMinutes: Number(this.data.timeoutMinutes || 1),
       clockSeconds: Number(this.data.clockSeconds || 0),
       clockText: this.data.clockText || '',
       clockRunning: !!this.data.clockRunning,
@@ -2422,8 +2615,6 @@ Page({
   },
   audioEnabledForType(type, settings) {
     if (settings.masterEnabled === false) return false;
-    if (type === 'two' && settings.twoEnabled === false) return false;
-    if (type === 'three' && settings.threeEnabled === false) return false;
     if (type === 'buzzer' && settings.buzzerEnabled === false) return false;
     const categoryKey = AUDIO_CATEGORY_BY_TYPE[type];
     if (categoryKey && settings.categoryEnabled && settings.categoryEnabled[categoryKey] === false) return false;

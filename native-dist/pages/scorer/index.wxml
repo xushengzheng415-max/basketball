@@ -48,6 +48,20 @@
           <view wx:for="{{setupPresetPeriods}}" wx:key="*this" class="preset" data-value="{{item}}" bindtap="setPeriodCountPreset">{{item}}节</view>
         </view>
       </view>
+      <view class="setup-field">
+        <text>节间休息时间</text>
+        <view class="stepper"><view bindtap="decreaseIntervalMinutes">-</view><text>{{intervalMinutes}} 分钟</text><view bindtap="increaseIntervalMinutes">+</view></view>
+        <view class="preset-row"><view wx:for="{{setupPresetIntervalMinutes}}" wx:key="*this" class="preset" data-value="{{item}}" bindtap="setIntervalPreset">{{item}}分</view></view>
+      </view>
+      <view class="setup-field">
+        <text>中场休息时间</text>
+        <view class="stepper"><view bindtap="decreaseHalftimeMinutes">-</view><text>{{halftimeMinutes}} 分钟</text><view bindtap="increaseHalftimeMinutes">+</view></view>
+        <view class="preset-row"><view wx:for="{{setupPresetHalftimeMinutes}}" wx:key="*this" class="preset" data-value="{{item}}" bindtap="setHalftimePreset">{{item}}分</view></view>
+      </view>
+      <view class="setup-field wide">
+        <text>球队暂停时间</text>
+        <view class="stepper"><text>{{timeoutMinutes}} 分钟（FIBA标准）</text></view>
+      </view>
       <view class="setup-field wide">
         <text>计时方式</text>
         <view class="mode-row">
