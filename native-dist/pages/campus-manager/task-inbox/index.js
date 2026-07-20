@@ -56,7 +56,12 @@ Page({
 
   openTask(event) {
     const route = event.currentTarget.dataset.route;
-    if (route) wx.navigateTo({ url: route });
+    const taskId = event.currentTarget.dataset.id;
+    const businessManaged = event.currentTarget.dataset.businessManaged;
+    if (!route) return;
+    const separator = route.indexOf('?') >= 0 ? '&' : '?';
+    const url = taskId && businessManaged ? route + separator + 'taskId=' + encodeURIComponent(taskId) : route;
+    wx.navigateTo({ url });
   },
 
   completeStep(event) {

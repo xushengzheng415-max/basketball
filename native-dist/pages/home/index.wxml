@@ -59,44 +59,36 @@
 
   <view class="content-scroll">
     <view class="version-panel" bindtap="openEducationProduct">
-      <view class="version-ad paid-entry">
+      <view class="version-ad growth-entry">
         <view class="version-orbit orbit-one"></view>
         <view class="version-orbit orbit-two"></view>
-        <text class="version-watermark">2.0</text>
+        <text class="version-watermark">GROW</text>
 
         <view class="version-ad-head">
-          <view class="version-badge">赛小蜂篮球 2.0</view>
-          <text class="version-status">PRO ACCESS</text>
+          <view class="version-badge">机构训赛经营增长平台</view>
+          <text class="version-status">TRAIN · GAME · GROW</text>
         </view>
 
-        <text class="version-kicker">教务系统专业版</text>
-        <view class="version-title"><text>从一节课开始</text><text class="version-title-accent">跑通校区增长</text></view>
-        <text class="version-desc">排课有秩序、课堂有标准、课消可追溯、成长可量化、经营看得见。</text>
+        <text class="version-kicker">不只是记录，更要推动下一步</text>
+        <view class="version-title"><text>让训练与比赛</text><text class="version-title-accent">持续转化为增长</text></view>
+        <text class="version-desc">把每一次训练和比赛，连接到家长认可、续费行动与机构经营。</text>
 
-        <view class="version-features">
-          <view class="version-feature">
-            <view class="feature-dot"></view>
-            <text>智能排课</text>
-          </view>
-          <view class="version-feature">
-            <view class="feature-dot"></view>
-            <text>销课统计</text>
-          </view>
-          <view class="version-feature">
-            <view class="feature-dot"></view>
-            <text>课后评价</text>
-          </view>
+        <view class="version-chain">
+          <view class="version-chain-item"><text class="version-chain-no">01</text><text class="version-chain-title">训练</text><text class="version-chain-note">计划 · 出勤 · 评价</text></view>
+          <view class="version-chain-item"><text class="version-chain-no">02</text><text class="version-chain-title">比赛</text><text class="version-chain-note">计分 · 统计 · 高光</text></view>
+          <view class="version-chain-item"><text class="version-chain-no">03</text><text class="version-chain-title">家长价值</text><text class="version-chain-note">报告 · 周报</text></view>
+          <view class="version-chain-item"><text class="version-chain-no">04</text><text class="version-chain-title">经营动作</text><text class="version-chain-note">续费 · 召回</text></view>
         </view>
 
         <view class="version-benefits">
-          <view class="version-benefit"><text>多校区协同</text><text>统一排课与权限</text></view>
-          <view class="version-benefit"><text>教练工作端</text><text>备课点名与评价</text></view>
-          <view class="version-benefit"><text>PC管理后台</text><text>财务与经营数据</text></view>
+          <view class="version-benefit"><text>校区负责人</text><text>先看结果再行动</text></view>
+          <view class="version-benefit"><text>教练工作端</text><text>聚焦把课上好</text></view>
+          <view class="version-benefit"><text>PC主控台</text><text>角色权限与数据</text></view>
         </view>
 
         <view class="version-conversion">
-          <view><text class="version-conversion-label">教务系统专业版</text><text class="version-conversion-note">按机构需求配置授权</text></view>
-          <text class="version-conversion-action">点击解锁 ›</text>
+          <view><text class="version-conversion-label">从一个校区开始试点</text><text class="version-conversion-note">识别 · 分配 · 执行 · 复盘</text></view>
+          <text class="version-conversion-action">了解平台 ›</text>
         </view>
       </view>
     </view>

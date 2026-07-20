@@ -6,8 +6,5 @@ const statGroups = [
 ];
 
 Page({
-  data: { statGroups },
-  goBuy() {
-    wx.navigateTo({ url: '/pages/products/index' });
-  }
+  data: { statGroups }
 });

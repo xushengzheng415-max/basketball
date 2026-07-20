@@ -11,6 +11,22 @@
         <text class="greeting">下午好，王校长</text>
       </view>
 
+      <view wx:if="{{taskMode}}" class="task-guide">
+        <view class="task-guide-head">
+          <view><text class="task-guide-tag">待办处理</text><text>超时未点名课程</text></view>
+          <text>{{taskGuide.progress}} / 3</text>
+        </view>
+        <view wx:if="{{taskGuide.completed}}" class="task-guide-complete">已完成全部业务动作，该待办已自动结束</view>
+        <view wx:else>
+          <view class="task-guide-row" wx:for="{{taskGuide.remainingSteps}}" wx:key="order">
+            <view class="task-guide-number">{{item.order}}</view>
+            <text>{{item.label}}</text>
+          </view>
+          <view wx:if="{{showTaskAction}}" style="display:flex;align-items:center;justify-content:center;min-height:68rpx;margin-top:14rpx;padding:0 18rpx;border-radius:13rpx;background:linear-gradient(100deg,#ff5c00,#ff921d);color:#fff;font-size:19rpx;font-weight:800;text-align:center;" aria-role="button" bindtap="runTaskAction">{{taskActionText}}</view>
+          <text class="task-guide-note">{{taskActionHint}}</text>
+        </view>
+      </view>
+
       <view class="summary-card">
         <view class="summary-icon"><text>✓</text></view>
         <view class="metric" wx:for="{{metrics}}" wx:key="label">
@@ -28,12 +44,13 @@
         <view class="coach-avatar">{{item.symbol}}</view>
         <view class="course-main">
           <text class="course-title">{{item.title}}</text>
+          <view class="course-meta"><image src="{{icons.user}}" mode="aspectFit" /><text>负责教练：{{item.coach}}</text></view>
           <view class="course-meta"><image src="{{icons.location}}" mode="aspectFit" /><text>{{item.venue}}</text></view>
           <view class="course-meta"><image src="{{icons.clock}}" mode="aspectFit" /><text>{{item.time}}</text></view>
         </view>
         <view class="course-side">
           <view class="overdue-copy">超时 <text class="tone-{{item.tone}}">{{item.minutes}}</text> 分钟</view>
-          <button catchtap="remindCoach" data-title="{{item.symbol}}">提醒教练</button>
+          <button catchtap="remindCoach" data-coach="{{item.coach}}">提醒教练</button>
         </view>
       </view>
 

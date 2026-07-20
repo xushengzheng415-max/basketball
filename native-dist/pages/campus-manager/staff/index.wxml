@@ -1,1 +1,26 @@
-<view class="page-shell"><view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;"><view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>返回工作台</text></view><text>校区员工</text></view><scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}"><view style="height: {{navSpacer}}px;"></view><view class="content"><view class="metric-grid"><view wx:for="{{metrics}}" wx:key="label"><text>{{item.symbol}}</text><view><text>{{item.label}}</text><text>{{item.value}}<text>{{item.suffix}}</text></text></view></view></view><view class="search">⌕　搜索员工姓名/手机号 <text>⌘ 筛选</text></view><text class="count">共 18 人</text><view class="staff-card" wx:for="{{staff}}" wx:key="name" bindtap="openStaff"><image src="{{item.avatar}}" mode="aspectFill" /><view><view><text>{{item.name}}</text><text>{{item.role}}</text></view><text>负责班级：{{item.classes}}</text><text>{{item.phone}}</text></view><view><text>最后登录：{{item.login}}</text><text>{{item.status}}</text></view><text>›</text></view><view class="section-heading"><text>角色权限概览</text><text bindtap="openPermissions">查看全部权限 ›</text></view><view class="role-grid"><view wx:for="{{roles}}" wx:key="name"><text>{{item.symbol}}</text><view><text>{{item.name}}</text><text>{{item.caption}}</text><text>权限范围：{{item.scope}}</text></view></view></view><view class="section-heading"><text>安全提醒</text></view><view class="notice-card" bindtap="openInvites"><view><text>♙◷</text><text>2名员工待激活<text>新员工账号尚未激活，请尽快完成邀请</text></text></view><view><text>⚠</text><text>1项跨校区权限待复核<text>李老师拥有跨校区权限，请定期复核确保合规</text></text></view></view><button class="primary-button" bindtap="addStaff">♙＋ 添加员工</button><view class="pc-tip">ⓘ 复杂角色、数据范围和功能权限，请前往机构PC端管理</view><view class="safe-space"></view></view></scroll-view></view>
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>返回负责人首页</text></view>
+    <text>{{pageTitle}}</text>
+  </view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="page-intro" style="margin-bottom:18rpx;"><text style="display:block;font-size:34rpx;font-weight:900;">{{pageTitle}}</text><text style="display:block;margin-top:7rpx;color:#858e95;font-size:20rpx;">{{pageDescription}}</text></view>
+      <view class="metric-grid"><view wx:for="{{metrics}}" wx:key="label"><text>{{item.symbol}}</text><view><text>{{item.label}}</text><text>{{item.value}}<text>{{item.suffix}}</text></text></view></view></view>
+      <view class="search">搜索姓名/手机号 <text>筛选</text></view>
+      <text class="count">{{countText}}</text>
+      <view class="staff-card" wx:for="{{staff}}" wx:key="id" data-id="{{item.id}}" bindtap="openStaff"><image src="{{item.avatar}}" mode="aspectFill" /><view><view><text>{{item.name}}</text><text>{{item.role}}</text></view><text>负责班级：{{item.classes}}</text><text>{{item.phone}}</text></view><view><text>最后登录：{{item.login}}</text><text>{{item.status}}</text></view><text>›</text></view>
+
+      <block wx:if="{{showStaffOverview}}">
+        <view class="section-heading"><text>角色权限概览</text><text bindtap="openPermissions">查看教练权限 ›</text></view>
+        <view class="role-grid"><view wx:for="{{roles}}" wx:key="name"><text>{{item.symbol}}</text><view><text>{{item.name}}</text><text>{{item.caption}}</text><text>权限范围：{{item.scope}}</text></view></view></view>
+        <view class="section-heading"><text>安全提醒</text></view>
+        <view class="notice-card" bindtap="openInvites"><view><text>待</text><text>2名员工待激活<text>新员工账号尚未激活，请尽快完成邀请</text></text></view><view><text>!</text><text>1项跨校区权限待复核<text>请前往PC端完成复杂权限复核</text></text></view></view>
+      </block>
+      <button class="primary-button" bindtap="addStaff">＋ 添加教练</button>
+      <view class="pc-tip">复杂角色、数据范围和功能权限，请前往机构PC端管理</view>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

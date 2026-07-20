@@ -1,14 +1,50 @@
 <view class="page-shell">
-  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;"><view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /></view><text class="nav-title">报表筛选导出</text></view>
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /></view>
+    <text class="nav-title">{{reportTitle}}</text>
+  </view>
   <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view style="height: {{navSpacer}}px;"></view><view class="content">
-      <view class="section-card overview-card">
-        <view class="section-title"><text class="title-icon">▤</text><text>教务报表</text></view>
-        <view class="overview-panel"><text class="panel-label">本月概览</text><view class="metric-grid"><view class="metric-item" wx:for="{{metrics}}" wx:key="label"><text>{{item.label}}</text><view><text>{{item.value}}</text><text>{{item.suffix}}</text></view></view></view></view>
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="summary-card">
+        <text class="summary-title">{{reportTitle}}</text>
+        <text class="summary-description">{{reportDescription}}</text>
+        <view class="metric-grid">
+          <view class="metric-item" wx:for="{{metrics}}" wx:key="label">
+            <text>{{item.label}}</text>
+            <view><text>{{item.value}}</text><text>{{item.suffix}}</text></view>
+          </view>
+        </view>
       </view>
-      <view class="section-card"><view class="section-title"><image src="{{icons.filter}}" mode="aspectFit" /><text>筛选条件</text></view><view class="filter-list"><view class="filter-row" wx:for="{{filters}}" wx:key="label" data-label="{{item.label}}" bindtap="editFilter"><view><image src="{{item.icon}}" mode="aspectFit" /><text>{{item.label}}</text></view><view><text>{{item.value}}</text><image src="{{icons.chevron}}" mode="aspectFit" /></view></view></view></view>
-      <view class="section-card"><view class="section-title"><text class="title-icon">▱</text><text>报表类型</text></view><view class="type-grid"><view class="type-item {{item.selectedClass}}" wx:for="{{reportTypes}}" wx:key="key" data-key="{{item.key}}" bindtap="selectType"><text>{{item.symbol}}</text><text>{{item.label}}</text></view></view></view>
-      <view class="section-card export-card"><view class="section-title"><text class="title-icon">▤</text><text>导出预览</text></view><view class="preview-row"><view class="preview-icon">▤</view><view><text>预计 <text>42</text> 条记录</text><text>{{selectedType}} · 生成后可在导出任务中查看</text></view></view><button bindtap="generateExport"><image src="{{icons.download}}" mode="aspectFit" />生成导出</button><view class="export-note">导出任务将在后台生成，完成后将通过消息通知您。</view></view>
+
+      <view class="filter-bar">
+        <picker class="filter-picker" mode="selector" range="{{periodOptions}}" value="{{periodIndex}}" bindchange="onPeriodChange"><view class="filter-item"><image src="{{icons.calendar}}" mode="aspectFit" /><text>{{selectedPeriod}}</text><image src="{{icons.chevron}}" mode="aspectFit" /></view></picker>
+        <picker class="filter-picker" mode="selector" range="{{campusOptions}}" value="{{campusIndex}}" bindchange="onCampusChange"><view class="filter-item"><image src="{{icons.user}}" mode="aspectFit" /><text>{{selectedCampus}}</text><image src="{{icons.chevron}}" mode="aspectFit" /></view></picker>
+      </view>
+
+      <view class="detail-card">
+        <view class="detail-heading"><text>明细记录</text><text>共{{rows.length}}条</text></view>
+        <view class="detail-list">
+          <view class="detail-row" wx:for="{{rows}}" wx:key="id">
+            <view class="detail-time">{{item.time}}</view>
+            <view class="detail-main">
+              <view><text>{{item.title}}</text><text>{{item.meta}}</text></view>
+              <text>{{item.value}}</text>
+            </view>
+            <view class="detail-status">{{item.status}}</view>
+          </view>
+          <view class="empty-state" wx:if="{{showEmpty}}"><text>今日暂无记录</text><text>当前筛选范围内没有需要展示的明细</text></view>
+        </view>
+      </view>
+
+      <view class="export-toggle" bindtap="toggleExportPanel">
+        <image src="{{icons.download}}" mode="aspectFit" /><text>{{exportToggleText}}</text><image src="{{icons.chevron}}" mode="aspectFit" />
+      </view>
+      <view class="export-card" wx:if="{{showExportPanel}}">
+        <text>按当前筛选条件导出 {{rows.length}} 条记录</text>
+        <button bindtap="generateExport"><image src="{{icons.download}}" mode="aspectFit" />生成导出文件</button>
+        <text>文件生成完成后，将通过消息通知您。</text>
+      </view>
       <view class="safe-space"></view>
     </view>
   </scroll-view>

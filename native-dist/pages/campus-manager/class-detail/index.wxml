@@ -6,15 +6,15 @@
     <view style="height:{{navSpacer}}px"></view>
     <view class="content">
       <view class="hero panel">
-        <view class="shield"><text>★★★</text><text>U10</text><text>🏀</text></view>
+        <view class="shield"><text>★★★</text><text>{{classInfo.badge}}</text><text>🏀</text></view>
         <view class="hero-main">
-          <view class="hero-title"><text>U10基础训练班</text><text>正常</text></view>
-          <view class="hero-location"><image src="{{icons.location}}"/><text>浦东校区 · 2号馆</text></view>
+          <view class="hero-title"><text>{{classInfo.title}}</text><text>正常</text></view>
+          <view class="hero-location"><image src="{{icons.location}}"/><text>{{classInfo.venue}}</text></view>
         </view>
         <view class="hero-metrics">
-          <view><image src="{{icons.user}}"/><view><text>学员</text><text>18<text>人</text></text></view></view>
-          <view><view class="metric-icon">人</view><view><text>容量</text><text>20<text>人</text></text></view></view>
-          <view><view class="attendance-ring">94%</view><view><text>出勤率</text><text>94<text>%</text></text></view></view>
+          <view><image src="{{icons.user}}"/><view><text>学员</text><text>{{classInfo.students}}<text>人</text></text></view></view>
+          <view><view class="metric-icon">人</view><view><text>容量</text><text>{{classInfo.capacity}}<text>人</text></text></view></view>
+          <view><view class="attendance-ring">{{classInfo.attendance}}%</view><view><text>出勤率</text><text>{{classInfo.attendance}}<text>%</text></text></view></view>
           <view><image src="{{icons.calendar}}"/><view><text>本周课程</text><text>2<text>节</text></text></view></view>
         </view>
       </view>
@@ -22,11 +22,11 @@
       <view class="section panel">
         <view class="section-title"><image src="{{icons.edit}}"/><text>基本信息</text></view>
         <view class="info-box">
-          <view><text>班级编号</text><text>U10-2024-002</text></view>
-          <view><text>创建时间</text><text>2024-05-20</text></view>
-          <view><text>训练阶段</text><text>基础训练</text></view>
-          <view><text>上课场馆</text><text>浦东校区 · 2号馆</text></view>
-          <view><text>上课时间</text><text>每周二、周四 14:00-15:30</text></view>
+          <view><text>班级编号</text><text>{{classInfo.code}}</text></view>
+          <view><text>创建时间</text><text>{{classInfo.createdAt}}</text></view>
+          <view><text>训练阶段</text><text>{{classInfo.stage}}</text></view>
+          <view><text>上课场馆</text><text>{{classInfo.venue}}</text></view>
+          <view><text>上课时间</text><text>{{classInfo.schedule}}</text></view>
         </view>
       </view>
 
@@ -50,7 +50,7 @@
 
       <view class="section panel">
         <view class="section-title between"><view><image src="{{icons.calendar}}"/><text>固定课表</text></view><text data-message="固定课表详情" bindtap="showInfo">查看课表 ›</text></view>
-        <view class="schedule-box"><view><text>周二</text><text>周四</text></view><view><text>14:00-15:30</text><text>基础训练课</text><text>运球 · 传球 · 投篮 · 团队配合</text></view><text>2号馆</text></view>
+        <view class="schedule-box"><view><text>固定</text><text>课表</text></view><view><text>{{classInfo.scheduleTime}}</text><text>{{classInfo.stage}}</text><text>运球 · 传球 · 投篮 · 团队配合</text></view><text>{{classInfo.badge}}</text></view>
       </view>
 
       <view class="section panel">

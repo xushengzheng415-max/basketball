@@ -5,10 +5,12 @@
   <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="hero">
       <view class="brand-row">
-        <view class="role-pill" bindtap="openRoleTester" aria-role="button" aria-label="预览身份切换">
-          <text>教练端</text>
-          <text class="role-switch-mark" wx:if="{{showRoleTester}}">⌄</text>
-        </view>
+        <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange" disabled="{{rolePickerDisabled}}">
+          <view class="role-pill" aria-role="button" aria-label="预览身份切换">
+            <text>教练端</text>
+            <text class="role-switch-mark" wx:if="{{showRoleTester}}">⌄</text>
+          </view>
+        </picker>
       </view>
       <view class="education-mode {{educationModeClass}}" bindtap="openEducationAccount">
         <view class="education-mode-dot"></view>

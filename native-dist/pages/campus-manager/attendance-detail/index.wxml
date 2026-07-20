@@ -7,6 +7,16 @@
     <view class="content">
       <view class="page-head"><text class="role-tag">校区负责人</text><text class="page-title">点名监督</text></view>
 
+      <view wx:if="{{taskMode}}" class="task-guide" style="margin-bottom:14rpx;padding:16rpx 20rpx;border:1rpx solid rgba(255,114,0,.7);border-radius:16rpx;background:rgba(28,21,16,.96);">
+        <view class="task-guide-head" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10rpx;color:#f1f3f4;font-size:19rpx;font-weight:800;"><text>待办处理 · 复核点名结果</text><text style="color:#ff8a14;">{{taskGuide.progress}} / 3</text></view>
+        <view wx:if="{{taskGuide.completed}}" class="task-guide-complete" style="padding:12rpx;border-radius:11rpx;background:rgba(97,206,64,.1);color:#78d85a;font-size:17rpx;text-align:center;">全部业务动作已完成，待办已自动结束</view>
+        <block wx:else>
+          <view class="task-guide-row" style="display:grid;grid-template-columns:34rpx 1fr;align-items:center;gap:10rpx;min-height:48rpx;border-top:1rpx solid rgba(255,255,255,.07);color:#d7dbde;font-size:17rpx;" wx:for="{{taskGuide.remainingSteps}}" wx:key="order">
+            <view class="task-guide-number" style="display:flex;align-items:center;justify-content:center;width:28rpx;height:28rpx;border-radius:50%;background:#ff7200;color:#fff;font-size:15rpx;font-weight:800;">{{item.order}}</view><text>{{item.label}}</text>
+          </view>
+        </block>
+      </view>
+
       <view class="course-summary">
         <view class="course-symbol">U8</view>
         <view class="course-copy"><text>U8启蒙班</text><text>浦东校区 · 1号馆</text></view>
@@ -41,6 +51,7 @@
       <view class="panel operation-panel">
         <view class="panel-head"><text>监督操作</text></view>
         <view class="operation-grid"><button data-message="提醒已发送" bindtap="showToast"><text>♢</text>提醒教练<text style="display:block;margin-top:5rpx;color:#858d95;font-size:14rpx;">发送点名提醒</text></button><button data-message="已打开异常学员" bindtap="showToast"><text>!</text>查看异常<text style="display:block;margin-top:5rpx;color:#858d95;font-size:14rpx;">异常学员详情</text></button><button data-message="已发起更正申请" bindtap="showToast"><text>✎</text>发起更正<text style="display:block;margin-top:5rpx;color:#858d95;font-size:14rpx;">申请数据更正</text></button></view>
+        <button wx:if="{{taskMode}}" class="task-review-button" style="height:68rpx;line-height:68rpx;margin:15rpx 0 0;border:0;border-radius:13rpx;background:#ff7200;color:#fff;font-size:20rpx;font-weight:800;" disabled="{{reviewButtonDisabled}}" bindtap="completeTaskReview">{{reviewActionText}}</button>
         <text class="operation-note">如需更正点名结果，请教练先提交更正申请后，由校区负责人审核。</text>
       </view>
       <view class="safe-space"></view>

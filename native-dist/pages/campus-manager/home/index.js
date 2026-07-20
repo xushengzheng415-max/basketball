@@ -1,57 +1,146 @@
-const { getScreen } = require('../screen-data');
-const { getTaskSummary } = require('../task-data');
-const { refreshEducationAccess, openEducationAccountPage } = require('../../../utils/education-access');
+const GUIDE_STORAGE_KEY = 'campusManagerHomeGuideV4';
+const ASSET_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const MORE_MANAGEMENT_ORDER_KEY = 'campusManagerMoreManagementOrderV1';
+const MORE_MANAGEMENT_COLUMNS_KEY = 'campusManagerMoreManagementColumnsV1';
 
-const QUICK_ICON_KINDS = {
-  courses: 'course',
-  students: 'student',
-  classes: 'class',
-  schedule: 'schedule',
-  packages: 'package',
-  leave: 'leave',
-  staff: 'staff',
-  corrections: 'correction'
-};
-
-const PENDING_META = {
-  courses: { symbol: '◷', iconKind: 'clock', iconTone: 'danger' },
-  students: { symbol: '续', iconKind: 'student', iconTone: 'orange' },
-  corrections: { symbol: '!', iconKind: 'shield', iconTone: 'orange' }
-};
-
-const GUIDE_STORAGE_KEY = 'campusManagerHomeGuideV3';
 const GUIDE_STEPS = [
   {
     selector: '#guide-role',
     scrollTarget: '',
-    title: '切换工作身份',
-    description: '需要查看教练工作台时，从这里切换到教练端。'
+    title: '确认当前身份',
+    description: '这里显示当前校长身份，开发环境下可以切换查看教练端。'
   },
   {
-    selector: '#guide-focus',
+    selector: '#guide-business',
     scrollTarget: 'guide-role',
-    title: '先处理今日重点',
-    description: '系统会把最需要关注的经营事项放在这里，点击卡片即可跟进。'
+    title: '先看经营结果',
+    description: '销课统计和实收统计放在第一屏，打开页面就能掌握校区经营结果。'
   },
   {
-    selector: '#guide-pending',
-    scrollTarget: 'guide-focus',
-    title: '集中处理待办',
-    description: '超时点名、异常审核和课包到期都可以从这里快速处理。'
+    selector: '#guide-tasks',
+    scrollTarget: 'guide-business',
+    title: '再处理今日待办',
+    description: '每组任务都有编号和数量，点击后直接进入对应业务页面处理。'
   },
   {
-    selector: '#guide-quick',
-    scrollTarget: 'guide-pending',
-    title: '进入常用操作',
-    description: '课程、学员、班级、排课、课包和员工管理都在这里。'
-  },
-  {
-    selector: '#guide-summary',
-    scrollTarget: 'guide-quick',
-    title: '查看经营结果',
-    description: '最后通过经营健康和教练执行，快速掌握校区当前状态。'
+    selector: '#guide-management',
+    scrollTarget: 'guide-tasks',
+    title: '管理功能放到二层',
+    description: '首页只保留教练管理和学员管理两个入口。'
   }
 ];
+
+const TASK_GROUPS = [
+  {
+    prefix: 'KX',
+    title: '课消异常',
+    description: '已上课记录与课时扣减结果不一致',
+    count: 3,
+    unit: '条',
+    icon: ASSET_ROOT + 'pages/education/icon-lesson-consume-stats.png',
+    toneClass: 'danger',
+    route: '/pages/campus-manager/corrections/index?type=consumption'
+  },
+  {
+    prefix: 'CW',
+    title: '财务异常',
+    description: '1 笔收款尚未匹配到学员订单',
+    count: 1,
+    unit: '笔',
+    icon: ASSET_ROOT + 'pages/education/icon-coach-salary.png',
+    toneClass: 'danger',
+    route: '/pages/campus-manager/reports/index?view=finance-anomaly&period=today'
+  },
+  {
+    prefix: 'XF',
+    title: '续费风险',
+    description: '剩余课时不足或近期到课率下降',
+    count: 5,
+    unit: '人',
+    icon: ASSET_ROOT + 'pages/data/icon-growth-trend.png',
+    toneClass: 'warning',
+    route: '/pages/campus-manager/renewal-risk/index'
+  },
+  {
+    prefix: 'QJ',
+    title: '请假补课',
+    description: '请假待审核或补课方案待确认',
+    count: 4,
+    unit: '项',
+    icon: ASSET_ROOT + 'pages/education/icon-course-schedule.png',
+    toneClass: 'normal',
+    route: '/pages/campus-manager/leave/index'
+  }
+];
+
+const MANAGEMENT_ITEMS = [
+  { key: 'coach', icon: ASSET_ROOT + 'pages/data/icon-parent-sync.png', label: '教练管理', caption: '教练、课程、班级', badge: '2', toneClass: 'orange' },
+  { key: 'student', icon: ASSET_ROOT + 'pages/education/icon-student-checkin.png', label: '学员管理', caption: '学员、续费、家长', badge: '5', toneClass: 'blue' }
+];
+
+const MANAGEMENT_ROUTES = {
+  coach: '/pages/campus-manager/staff/index?role=coach',
+  student: '/pages/campus-manager/students/index'
+};
+
+const MORE_MANAGEMENT_ITEMS = [
+  { key: 'course', icon: ASSET_ROOT + 'pages/education/icon-course-schedule.png', label: '课程与排课', caption: '课程、排课、调停课', route: '/pages/campus-manager/courses/index' },
+  { key: 'class', icon: ASSET_ROOT + 'pages/education/icon-multi-campus.png', label: '班级管理', caption: '班级、学员、教练', route: '/pages/campus-manager/classes/index' },
+  { key: 'package', icon: ASSET_ROOT + 'pages/education/icon-lesson-consume-stats.png', label: '课包管理', caption: '课包、价格、课时规则', route: '/pages/campus-manager/packages/index' },
+  { key: 'leave', icon: ASSET_ROOT + 'pages/education/icon-student-checkin.png', label: '请假与补课', caption: '请假、补课、代课', route: '/pages/campus-manager/leave/index' },
+  { key: 'report', icon: ASSET_ROOT + 'pages/data/icon-growth-trend.png', label: '经营报表', caption: '销课、收入、趋势', route: '/pages/campus-manager/reports/index?view=overview&period=month' }
+];
+
+function decorateMoreManagement(items, draggingIndex) {
+  return items.map((item, index) => Object.assign({}, item, {
+    dragClass: index === draggingIndex ? 'is-dragging' : ''
+  }));
+}
+
+function loadMoreManagementPreferences() {
+  let columns = 2;
+  let items = MORE_MANAGEMENT_ITEMS.slice();
+  try {
+    const savedColumns = Number(wx.getStorageSync(MORE_MANAGEMENT_COLUMNS_KEY));
+    if (savedColumns === 2 || savedColumns === 3) columns = savedColumns;
+
+    const savedOrder = wx.getStorageSync(MORE_MANAGEMENT_ORDER_KEY);
+    if (Array.isArray(savedOrder) && savedOrder.length) {
+      const itemMap = MORE_MANAGEMENT_ITEMS.reduce((result, item) => {
+        result[item.key] = item;
+        return result;
+      }, {});
+      const savedItems = savedOrder.map((key) => itemMap[key]).filter(Boolean);
+      const savedKeys = savedItems.reduce((result, item) => {
+        result[item.key] = true;
+        return result;
+      }, {});
+      items = savedItems.concat(MORE_MANAGEMENT_ITEMS.filter((item) => !savedKeys[item.key]));
+    }
+  } catch (error) {
+    console.warn('[campus-manager-home] more management preferences unavailable', error);
+  }
+  return {
+    moreManagement: decorateMoreManagement(items, -1),
+    moreColumnCount: columns,
+    moreColumnClass: columns === 3 ? 'columns-3' : 'columns-2',
+    moreColumnTwoClass: columns === 2 ? 'active' : '',
+    moreColumnThreeClass: columns === 3 ? 'active' : ''
+  };
+}
+
+function padNumber(value) {
+  return value < 10 ? `0${value}` : String(value);
+}
+
+function buildDateMeta() {
+  const now = new Date();
+  const weekNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  return {
+    label: `${now.getMonth() + 1}月${now.getDate()}日 ${weekNames[now.getDay()]}`,
+    token: `${now.getFullYear()}${padNumber(now.getMonth() + 1)}${padNumber(now.getDate())}`
+  };
+}
 
 function buildGuideStep(index) {
   const source = GUIDE_STEPS[index];
@@ -69,6 +158,12 @@ function buildGuideStep(index) {
   };
 }
 
+function buildGreetingTitle(hour) {
+  if (hour >= 5 && hour < 12) return '王校长，上午好！';
+  if (hour >= 12 && hour < 18) return '王校长，下午好！';
+  return '王校长，晚上好！';
+}
+
 function hasCompletedGuide() {
   try {
     return Boolean(wx.getStorageSync(GUIDE_STORAGE_KEY));
@@ -79,87 +174,51 @@ function hasCompletedGuide() {
 }
 
 function isRolePreviewEnabled() {
-  try {
-    const system = wx.getSystemInfoSync();
-    const account = wx.getAccountInfoSync && wx.getAccountInfoSync();
-    const envVersion = account && account.miniProgram && account.miniProgram.envVersion;
-    return system.platform === 'devtools' && (!envVersion || envVersion === 'develop');
-  } catch (error) {
-    console.warn('[campus-manager-home] role preview unavailable', error);
-    return false;
-  }
-}
-
-function getBadgeCount(badges, key, fallback) {
-  return typeof badges[key] === 'number' ? badges[key] : fallback;
+  return true;
 }
 
 function buildHomeScreen() {
-  const source = JSON.parse(JSON.stringify(getScreen('M01')));
-  const summary = getTaskSummary();
-  const badges = summary.badges || {};
-  const riskCount = getBadgeCount(badges, 'students', 4);
-
-  const metrics = source.metrics.map((metric) => {
-    if (metric.label !== '待处理') return metric;
-    return Object.assign({}, metric, { value: String(summary.pendingCount) });
-  });
+  const dateMeta = buildDateMeta();
+  const tasks = TASK_GROUPS.map((item, index) => Object.assign({}, item, {
+    code: `${item.prefix}-${dateMeta.token}-${padNumber(index + 1)}`
+  }));
+  const pendingCount = tasks.reduce((sum, item) => sum + item.count, 0);
 
   return {
-    greeting: '下午好，校区经理',
-    title: source.title,
-    subtitle: '浦东校区 · 关键事项一处处理',
-    metrics,
-    notice: Object.assign({}, source.dashboard.notice, {
-      count: summary.pendingCount ? String(summary.pendingCount) : '',
-      caption: summary.pendingCount
-        ? `${summary.pendingCount} 项待处理 · 建议按优先级逐项完成`
-        : '全部待办已完成 · 今日经营事项已清零'
-    }),
-    focus: {
-      eyebrow: '今日重点',
-      title: '续费风险学员',
-      value: String(riskCount),
-      unit: '人',
-      caption: '本周预计流失',
-      amount: '4,800',
-      action: '去跟进',
-      route: '/pages/campus-manager/renewal-risk/index'
-    },
-    pending: source.dashboard.pending.map((item) => Object.assign({}, item, PENDING_META[item.taskKey], {
-      key: item.taskKey,
-      value: String(getBadgeCount(badges, item.taskKey, Number(item.value) || 0))
-    })),
-    quick: source.dashboard.quick.map((item) => ({
-      key: item.taskKey,
-      iconKind: QUICK_ICON_KINDS[item.taskKey],
-      label: item.label,
-      route: item.route,
-      badge: getBadgeCount(badges, item.taskKey, Number(item.badge) || 0)
-    })),
-    opportunities: source.dashboard.opportunities.map((item, index) => Object.assign({ key: String(index) }, item)),
-    summaries: [
+    title: buildGreetingTitle(new Date().getHours()),
+    subtitle: `浦东校区 · ${dateMeta.label}`,
+    businessCards: [
       {
-        key: 'health',
-        symbol: '♥',
-        title: '经营健康',
-        route: '/pages/campus-manager/reports/index',
-        items: [
-          { label: '课消达成', value: '76%', progress: '76%', tone: 'orange' },
-          { label: '续费健康', value: '68%', progress: '68%', tone: 'orange' }
-        ]
+        key: 'consumption',
+        eyebrow: '销课统计',
+        value: '128',
+        unit: '课时',
+        amountLabel: '销课金额',
+        amount: '¥38,600',
+        detail: '已完成 12 节 · 到课 96 人',
+        trend: '较昨日 +12%',
+        trendClass: 'up',
+        toneClass: 'consumption',
+        route: '/pages/campus-manager/reports/index?view=consumption&period=today'
       },
       {
-        key: 'execution',
-        symbol: '★',
-        title: '教练执行',
-        route: '/pages/campus-manager/execution-index/index',
-        items: [
-          { label: '评价完成', value: '82%', progress: '82%', tone: 'success' },
-          { label: '点名及时', value: '93%', progress: '93%', tone: 'success' }
-        ]
+        key: 'finance',
+        eyebrow: '实收统计',
+        value: '12,680',
+        prefix: '¥',
+        unit: '净实收',
+        amountLabel: '续费 ¥8,800',
+        amount: '新报 ¥3,880',
+        detail: '今日退款 ¥0',
+        trend: '较昨日 +8%',
+        trendClass: 'up',
+        toneClass: 'finance',
+        route: '/pages/campus-manager/reports/index?view=finance&period=today'
       }
-    ]
+    ],
+    pendingCount,
+    tasks,
+    management: MANAGEMENT_ITEMS
   };
 }
 
@@ -169,10 +228,19 @@ Page({
     navSpacer: 76,
     navTop: 20,
     showRoleTester: false,
-    educationAccessActive: false,
-    educationModeClass: '',
-    educationModeTitle: '\u6f14\u793a\u6a21\u5f0f',
-    educationModeCopy: '\u4ec5\u4f9b\u9884\u89c8\uff0cPC \u7aef\u4e0b\u53d1\u8d26\u6237\u5e76\u5f00\u6237\u540e\u53ef\u6b63\u5f0f\u4f7f\u7528',
+    rolePickerDisabled: true,
+    roleOptions: ['校长端', '教练端'],
+    roleIndex: 0,
+    moreManagement: decorateMoreManagement(MORE_MANAGEMENT_ITEMS, -1),
+    moreManagementVisible: false,
+    moreEditMode: false,
+    moreEditLabel: '编辑排序',
+    moreSortHint: '长按卡片拖动排序',
+    moreColumnCount: 2,
+    moreColumnClass: 'columns-2',
+    moreColumnTwoClass: 'active',
+    moreColumnThreeClass: '',
+    draggingMoreIndex: -1,
     guideVisible: false,
     guideScrollTarget: '',
     guideSpotlightStyle: 'opacity:0;',
@@ -194,32 +262,17 @@ Page({
       console.warn('[campus-manager-home] nav metrics unavailable', error);
     }
     const shouldStartGuide = !hasCompletedGuide();
-    this.setData({
+    const moreManagementPreferences = loadMoreManagementPreferences();
+    const showRoleTester = isRolePreviewEnabled();
+    this.setData(Object.assign({
       navSpacer: top + height + 4,
       navTop: top,
-      showRoleTester: isRolePreviewEnabled()
-    }, () => {
+      showRoleTester,
+      rolePickerDisabled: !showRoleTester
+    }, moreManagementPreferences), () => {
       if (!shouldStartGuide) return;
       this.guideTimer = setTimeout(() => this.startGuide(), 500);
     });
-    refreshEducationAccess().then((access) => {
-      const active = !!(access && access.active);
-      this.setData({
-        educationAccessActive: active,
-        educationModeClass: active ? 'active' : '',
-        educationModeTitle: active ? '\u5df2\u5f00\u6237' : '\u6f14\u793a\u6a21\u5f0f',
-        educationModeCopy: active
-          ? '\u6559\u52a1\u8d26\u6237\u5df2\u6fc0\u6d3b\uff0c\u771f\u5b9e\u4e1a\u52a1\u64cd\u4f5c\u5df2\u5f00\u653e'
-          : '\u4ec5\u4f9b\u9884\u89c8\uff0cPC \u7aef\u4e0b\u53d1\u8d26\u6237\u5e76\u5f00\u6237\u540e\u53ef\u6b63\u5f0f\u4f7f\u7528'
-      });
-    });
-  },
-  openEducationAccount() {
-    if (this.data.educationAccessActive) {
-      wx.showToast({ title: '\u6559\u52a1\u8d26\u6237\u5df2\u5f00\u901a', icon: 'success' });
-      return;
-    }
-    openEducationAccountPage();
   },
   onShow() {
     this.setData({ screen: buildHomeScreen() });
@@ -227,6 +280,133 @@ Page({
   onUnload() {
     clearTimeout(this.guideTimer);
     clearTimeout(this.guideMeasureTimer);
+    this.moreItemRects = null;
+  },
+  onRoleChange(event) {
+    if (!this.data.showRoleTester) return;
+    const roleIndex = Number(event.detail.value);
+    this.setData({ roleIndex });
+    if (roleIndex === 1) wx.redirectTo({ url: '/pages/education/index?rolePreview=1' });
+  },
+  openRoute(event) {
+    const route = event.currentTarget.dataset.route;
+    if (route) wx.navigateTo({ url: route });
+  },
+  openManagement(event) {
+    const key = event.currentTarget.dataset.key;
+    const route = MANAGEMENT_ROUTES[key];
+    if (route) wx.navigateTo({ url: route });
+  },
+  openMoreManagement() {
+    this.setData({ moreManagementVisible: true });
+  },
+  closeMoreManagement() {
+    this.persistMoreManagementOrder(this.data.moreManagement);
+    this.moreItemRects = null;
+    this.setData({
+      moreManagementVisible: false,
+      moreEditMode: false,
+      moreEditLabel: '编辑排序',
+      moreSortHint: '长按卡片拖动排序',
+      draggingMoreIndex: -1,
+      moreManagement: decorateMoreManagement(this.data.moreManagement, -1)
+    });
+  },
+  openMoreRoute(event) {
+    if (this.data.moreEditMode || this.data.draggingMoreIndex >= 0) return;
+    const route = event.currentTarget.dataset.route;
+    if (!route) return;
+    this.setData({ moreManagementVisible: false }, () => {
+      wx.navigateTo({ url: route });
+    });
+  },
+  changeMoreColumns(event) {
+    if (this.data.draggingMoreIndex >= 0) return;
+    const columns = Number(event.currentTarget.dataset.columns) === 3 ? 3 : 2;
+    if (columns === this.data.moreColumnCount) return;
+    try {
+      wx.setStorageSync(MORE_MANAGEMENT_COLUMNS_KEY, columns);
+    } catch (error) {
+      console.warn('[campus-manager-home] more management columns not saved', error);
+    }
+    this.setData({
+      moreColumnCount: columns,
+      moreColumnClass: columns === 3 ? 'columns-3' : 'columns-2',
+      moreColumnTwoClass: columns === 2 ? 'active' : '',
+      moreColumnThreeClass: columns === 3 ? 'active' : ''
+    });
+  },
+  toggleMoreEdit() {
+    if (this.data.draggingMoreIndex >= 0) return;
+    const editing = !this.data.moreEditMode;
+    if (!editing) this.persistMoreManagementOrder(this.data.moreManagement);
+    this.setData({
+      moreEditMode: editing,
+      moreEditLabel: editing ? '完成' : '编辑排序',
+      moreSortHint: editing ? '按住卡片并拖到想要的位置' : '长按卡片拖动排序'
+    });
+  },
+  startMoreDrag(event) {
+    const index = Number(event.currentTarget.dataset.index);
+    if (!Number.isInteger(index) || index < 0 || index >= this.data.moreManagement.length) return;
+    try {
+      if (wx.vibrateShort) wx.vibrateShort({ type: 'light' });
+    } catch (error) {
+      console.warn('[campus-manager-home] drag vibration unavailable', error);
+    }
+    this.setData({
+      moreEditMode: true,
+      moreEditLabel: '完成',
+      moreSortHint: '拖到想要的位置后松手',
+      draggingMoreIndex: index,
+      moreManagement: decorateMoreManagement(this.data.moreManagement, index)
+    }, () => this.measureMoreManagementItems());
+  },
+  measureMoreManagementItems() {
+    if (!wx.createSelectorQuery) return;
+    const query = wx.createSelectorQuery();
+    if (query.in) query.in(this);
+    query.selectAll('.more-management-item').boundingClientRect((rects) => {
+      this.moreItemRects = rects || [];
+    }).exec();
+  },
+  moveMoreDrag(event) {
+    const fromIndex = this.data.draggingMoreIndex;
+    if (fromIndex < 0 || !this.moreItemRects || !this.moreItemRects.length) return;
+    const touch = event.touches && event.touches[0];
+    if (!touch) return;
+    const clientX = typeof touch.clientX === 'number' ? touch.clientX : touch.pageX;
+    const clientY = typeof touch.clientY === 'number' ? touch.clientY : touch.pageY;
+    const targetIndex = this.moreItemRects.findIndex((rect) => (
+      clientX >= rect.left && clientX <= rect.right && clientY >= rect.top && clientY <= rect.bottom
+    ));
+    if (targetIndex < 0 || targetIndex === fromIndex) return;
+
+    const items = this.data.moreManagement.slice();
+    const movingItems = items.splice(fromIndex, 1);
+    items.splice(targetIndex, 0, movingItems[0]);
+    this.setData({
+      draggingMoreIndex: targetIndex,
+      moreManagement: decorateMoreManagement(items, targetIndex)
+    });
+  },
+  finishMoreDrag() {
+    if (this.data.draggingMoreIndex < 0) return;
+    const items = this.data.moreManagement.slice();
+    this.persistMoreManagementOrder(items);
+    this.moreItemRects = null;
+    this.setData({
+      draggingMoreIndex: -1,
+      moreSortHint: '排序已保存，可继续调整',
+      moreManagement: decorateMoreManagement(items, -1)
+    });
+  },
+  persistMoreManagementOrder(items) {
+    try {
+      wx.setStorageSync(MORE_MANAGEMENT_ORDER_KEY, items.map((item) => item.key));
+    } catch (error) {
+      console.warn('[campus-manager-home] more management order not saved', error);
+    }
   },
   startGuide() {
     this.showGuideStep(0);
@@ -288,19 +468,5 @@ Page({
       guideSpotlightStyle: 'opacity:0;'
     });
   },
-  blockGuideTouch() {},
-  openRoleTester() {
-    if (!this.data.showRoleTester) return;
-    wx.showActionSheet({
-      itemList: ['校区端（当前）', '教练端'],
-      success: (result) => {
-        if (result.tapIndex !== 1) return;
-        wx.redirectTo({ url: '/pages/education/index?rolePreview=1' });
-      }
-    });
-  },
-  openRoute(event) {
-    const route = event.currentTarget.dataset.route;
-    if (route) wx.navigateTo({ url: route });
-  }
+  blockGuideTouch() {}
 });

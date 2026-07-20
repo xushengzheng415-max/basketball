@@ -13,9 +13,9 @@
       <view class="hero-card">
         <image class="coach-avatar" src="{{avatar}}" mode="aspectFill" />
         <view class="coach-copy">
-          <view class="name-line"><text>陈教练</text><text class="role-tag">全职教练</text></view>
-          <text class="coach-meta">浦东校区 · 主教练</text>
-          <view class="online-line"><view></view><text>当前在岗</text></view>
+          <view class="name-line"><text>{{coach.name}}</text><text class="role-tag">{{coach.employment}}</text></view>
+          <text class="coach-meta">{{coach.meta}}</text>
+          <view class="online-line"><view></view><text>{{coach.status}}</text></view>
         </view>
       </view>
 
@@ -27,7 +27,7 @@
       </view>
 
       <view class="section-card">
-        <view class="section-heading"><text>今日课程</text><text>共 2 节</text></view>
+        <view class="section-heading"><text>今日课程</text><text>共 {{courses.length}} 节</text></view>
         <view class="course-row" wx:for="{{courses}}" wx:key="time">
           <view class="course-time"><text>{{item.time}}</text><text>{{item.status}}</text></view>
           <view class="course-main"><text>{{item.name}}</text><view><image src="{{icons.location}}" mode="aspectFit" /><text>浦东校区 · {{item.place}}</text></view></view>

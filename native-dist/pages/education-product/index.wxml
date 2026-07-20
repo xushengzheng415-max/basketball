@@ -1,35 +1,60 @@
 <view class="product-page">
   <image class="page-bg" src="{{heroBackground}}" mode="aspectFill" />
   <view class="page-shade"></view>
-  <view class="nav"><view class="back" bindtap="goBack">‹</view><text>教务系统专业版</text><view class="nav-space"></view></view>
+  <view class="nav"><view class="back" bindtap="goBack">‹</view><text>机构训赛经营增长平台</text><view></view></view>
   <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
     <view class="hero">
       <image class="brand-logo" src="{{logo}}" mode="aspectFit" />
-      <view class="hero-badge"><text>赛小蜂篮球 2.0</text><text>PRO</text></view>
-      <text class="hero-kicker">TEACHING MANAGEMENT SYSTEM</text>
-      <view class="hero-title"><text>从一节课开始</text><text class="hero-title-accent">跑通校区增长</text></view>
-      <text class="hero-desc">排课有秩序、课堂有标准、课消可追溯、成长可量化、经营看得见，把每天的教学动作沉淀为机构增长能力。</text>
-      <view class="hero-points"><text>多校区协同</text><text>教练移动工作端</text><text>PC经营后台</text></view>
+      <view class="hero-badge"><text>赛小蜂篮球 · 机构版</text><text>GROWTH</text></view>
+      <text class="hero-kicker">TRAIN · GAME · GROWTH</text>
+      <view class="hero-title"><text>让训练与比赛</text><text class="hero-title-accent">持续转化为增长</text></view>
+      <text class="hero-desc">让每一次训练与比赛，持续转化为家长认可、续费行动与机构增长。</text>
+      <view class="hero-points"><text>训赛一体化</text><text>家长价值</text><text>经营增长</text></view>
     </view>
 
     <view class="content">
-      <view class="result-card"><view><text>教学动作标准化</text><text>备课、上课、评价有统一流程</text></view><view class="result-arrow">→</view><view><text>经营结果可追踪</text><text>课程、课消、员工、财务统一</text></view></view>
-
-      <view class="section-head"><view><text class="section-kicker">专业版能力</text><text class="section-title">不是多一套工具，而是少一堆重复工作</text></view><text class="section-no">01</text></view>
-      <view class="capability-grid"><view class="capability-card" wx:for="{{capabilities}}" wx:key="order"><text class="capability-order">{{item.order}}</text><text class="capability-title">{{item.title}}</text><text class="capability-desc">{{item.desc}}</text></view></view>
-
-      <view class="role-panel">
-        <view class="section-head light"><view><text class="section-kicker">角色分工</text><text class="section-title">每个人只看自己该看的</text></view><text class="section-no">02</text></view>
-        <view class="role-row" wx:for="{{roles}}" wx:key="label"><view class="role-dot"></view><view><text>{{item.label}}</text><text>{{item.desc}}</text></view><text class="role-check">✓</text></view>
+      <view class="position-card">
+        <view class="position-mark">核心差异</view>
+        <text class="position-title">不是增加一套管理工具，而是建立一条增长链路</text>
+        <text class="position-desc">平台不替代机构运营，但让关键经营动作更早发生、更容易执行。数据不只说明发生了什么，还要推动下一步行动。</text>
       </view>
 
-      <view class="unlock-card">
-        <view class="unlock-top"><view><text class="unlock-eyebrow">{{accessEyebrow}}</text><text class="unlock-title">{{accessTitle}}</text></view><text class="unlock-mark">PRO</text></view>
-        <view class="unlock-list"><text>PC端账号与员工权限</text><text>小程序校区负责人端与教练端</text><text>云端数据、AI报告与持续升级</text></view>
-        <view class="unlock-note">{{accessNote}}</view>
+      <view class="section-head"><view><text class="section-kicker">增长链路</text><text class="section-title">训赛数据不会停在报表里</text></view><text class="section-no">01</text></view>
+      <view class="growth-chain">
+        <view class="growth-card" wx:for="{{growthChain}}" wx:key="order">
+          <view class="growth-card-head"><text class="growth-order">{{item.order}}</text><text class="growth-title">{{item.title}}</text></view>
+          <text class="growth-desc">{{item.desc}}</text>
+          <text class="growth-result">{{item.result}}</text>
+        </view>
+      </view>
+
+      <view class="role-panel">
+        <view class="section-head"><view><text class="section-kicker">角色与权限</text><text class="section-title">同一套产品语言，每个人只看自己的工作</text></view><text class="section-no">02</text></view>
+        <view class="role-row" wx:for="{{roles}}" wx:key="label">
+          <view class="role-label">{{item.label}}</view>
+          <view class="role-copy"><text class="role-title">{{item.title}}</text><text class="role-desc">{{item.desc}}</text></view>
+        </view>
+      </view>
+
+      <view class="task-panel">
+        <view class="section-head"><view><text class="section-kicker">增长任务</text><text class="section-title">不只给一张报表，更给一份可执行清单</text></view><text class="section-no">03</text></view>
+        <text class="task-intro">异常数据转成带负责人、时限、处理过程和结果的任务。</text>
+        <view class="task-steps">
+          <view class="task-step" wx:for="{{taskSteps}}" wx:key="order"><text class="task-order">{{item.order}}</text><text class="task-title">{{item.title}}</text><text class="task-desc">{{item.desc}}</text></view>
+        </view>
+      </view>
+
+      <view class="section-head"><view><text class="section-kicker">训赛壁垒</text><text class="section-title">比赛不是附加功能，而是独有的增长场景</text></view><text class="section-no">04</text></view>
+      <text class="proof-lead">训练创造能力，比赛证明能力，内容放大价值。</text>
+      <view class="proof-list"><view class="proof-card" wx:for="{{proofPoints}}" wx:key="title"><view class="proof-dot"></view><view><text class="proof-title">{{item.title}}</text><text class="proof-desc">{{item.desc}}</text></view></view></view>
+
+      <view class="pilot-card">
+        <view class="pilot-top"><view><text class="pilot-eyebrow">{{accessEyebrow}}</text><text class="pilot-title">{{accessTitle}}</text></view><text class="pilot-mark">PILOT</text></view>
+        <view class="pilot-path"><text>01 选定指标</text><text>02 跑通闭环</text><text>03 验证结果</text></view>
+        <view class="pilot-note">{{accessNote}}</view>
       </view>
       <view class="safe-space"></view>
     </view>
   </scroll-view>
-  <view class="footer"><view><text>教务系统专业版</text><text>PC 端下发账户并完成开户</text></view><button class="unlock-button" open-type="contact" show-message-card="{{true}}" send-message-title="咨询赛小蜂教务系统专业版" send-message-path="/pages/education-product/index" bindtap="recordUnlockLead">{{accessButtonLabel}}</button></view>
+  <view class="footer"><view><text>机构训赛经营增长平台</text><text>一个校区 · 一个指标 · 一个闭环</text></view><button class="pilot-button" open-type="contact" show-message-card="{{true}}" send-message-title="咨询赛小蜂机构训赛经营增长平台" send-message-path="/pages/education-product/index" bindtap="recordPilotLead">{{accessButtonLabel}}</button></view>
 </view>

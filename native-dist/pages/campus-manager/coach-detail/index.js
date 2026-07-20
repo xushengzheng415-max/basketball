@@ -1,11 +1,25 @@
 const CLOUD_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
 const COMMON_ROOT = CLOUD_ROOT + 'common/campus-manager/';
 
+const COACHES = {
+  'coach-chen': { id: 'coach-chen', name: '陈教练', employment: '全职教练', meta: '浦东校区 · 主教练', status: '当前在岗', avatar: CLOUD_ROOT + 'pages/team/avatar-zhaozimo.png', metrics: [{ label: '执行评分', value: '92', suffix: '分', tone: 'green' }, { label: '本周完成', value: '18', suffix: '节', tone: 'orange' }, { label: '待评价', value: '2', suffix: '节', tone: 'orange' }, { label: '退回修改', value: '1', suffix: '条', tone: 'red' }], courses: [{ time: '18:30–20:00', name: 'U10提高班', place: '1号场', status: '待上课' }, { time: '16:30–18:00', name: 'U8启蒙班', place: '2号场', status: '已完成' }] },
+  'coach-wang': { id: 'coach-wang', name: '王教练', employment: '兼职教练', meta: '浦东校区 · 助理教练', status: '当前在岗', avatar: CLOUD_ROOT + 'pages/team/avatar-linhao.png', metrics: [{ label: '执行评分', value: '88', suffix: '分', tone: 'green' }, { label: '本周完成', value: '9', suffix: '节', tone: 'orange' }, { label: '待评价', value: '1', suffix: '节', tone: 'orange' }, { label: '退回修改', value: '0', suffix: '条', tone: 'green' }], courses: [{ time: '17:00–18:00', name: 'U8启蒙班', place: '1号场', status: '待上课' }] }
+};
+
+function buildActions(id) {
+  return [
+    { label: '分配班级', caption: '调整负责班级与角色', icon: COMMON_ROOT + 'icon-user-orange-256.png', route: '/pages/campus-manager/coach-classes/index?id=' + id },
+    { label: '查看操作记录', caption: '查看教练近期操作', icon: COMMON_ROOT + 'icon-clock-orange-256.png', route: '/pages/campus-manager/coach-logs/index?id=' + id },
+    { label: '权限配置', caption: '查看基础移动端权限', icon: COMMON_ROOT + 'icon-warning-orange-256.png', route: '/pages/campus-manager/permissions/index?id=' + id }
+  ];
+}
+
 Page({
   data: {
     navTop: 20,
     navHeight: 44,
     navSpacer: 76,
+    coach: COACHES['coach-chen'],
     avatar: CLOUD_ROOT + 'pages/team/avatar-zhaozimo.png',
     icons: {
       back: COMMON_ROOT + 'icon-back-orange-256.png',
@@ -32,13 +46,9 @@ Page({
       { label: '课后评价', value: '89%', ringClass: 'ring-orange' },
       { label: '家长反馈', value: '4.8', ringClass: 'ring-yellow' }
     ],
-    actions: [
-      { label: '分配班级', caption: '调整负责班级与角色', icon: COMMON_ROOT + 'icon-user-orange-256.png', route: '/pages/campus-manager/coach-classes/index' },
-      { label: '查看操作记录', caption: '查看教练近期操作', icon: COMMON_ROOT + 'icon-clock-orange-256.png', route: '/pages/campus-manager/coach-logs/index' },
-      { label: '发起沟通', caption: '提醒待办与改进事项', icon: COMMON_ROOT + 'icon-warning-orange-256.png', route: '/pages/campus-manager/permissions/index' }
-    ]
+    actions: buildActions('coach-chen')
   },
-  onLoad() {
+  onLoad(options) {
     let navTop = 20;
     let navHeight = 44;
     try {
@@ -52,7 +62,9 @@ Page({
     } catch (error) {
       console.warn('[campus-manager-coach-detail] nav metrics unavailable', error);
     }
-    this.setData({ navTop, navHeight, navSpacer: navTop + navHeight + 16 });
+    const id = options && COACHES[options.id] ? options.id : 'coach-chen';
+    const coach = COACHES[id];
+    this.setData({ navTop, navHeight, navSpacer: navTop + navHeight + 16, coach, avatar: coach.avatar, metrics: coach.metrics, courses: coach.courses, actions: buildActions(id) });
   },
   goBack() {
     if (getCurrentPages().length > 1) {

@@ -1,1 +1,39 @@
-<view class="page-shell"><view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;"><view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>返回工作台</text></view><text>教务报表</text></view><scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}"><view style="height: {{navSpacer}}px;"></view><view class="content"><view class="selector-grid"><view>⌖ 浦东校区　⌄</view><view>▣ 本月　⌄</view></view><view class="report-grid"><view class="report-card" wx:for="{{reports}}" wx:key="title"><view class="report-icon">{{item.symbol}}</view><text>{{item.title}}</text><text>{{item.metric}}</text><view><text>{{item.value}}</text><text>%</text></view><text>较上月　<text class="{{item.tone}}">{{item.trend}}</text></text><button bindtap="openReport">查看　›</button></view></view><button class="export-button" bindtap="openReport">⇩ 导出报表</button><button class="analysis-button" bindtap="openAnalysis">↗ 查看经营分析</button><view class="safe-space"></view></view></scroll-view></view>
+<view class="page-shell">
+  <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>返回负责人首页</text></view>
+    <text>{{pageTitle}}</text>
+  </view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view style="height: {{navSpacer}}px;"></view>
+    <view class="content">
+      <view class="report-heading"><text>{{pageTitle}}</text><text>{{description}}</text></view>
+      <view class="selector-grid">
+        <picker mode="selector" range="{{campusOptions}}" value="{{campusIndex}}" bindchange="onCampusChange"><view><text>{{campusText}}</text><text>⌄</text></view></picker>
+        <picker mode="selector" range="{{periodOptions}}" value="{{periodIndex}}" bindchange="onPeriodChange"><view><text>{{periodText}}</text><text>⌄</text></view></picker>
+      </view>
+
+      <view class="report-grid" wx:if="{{showReports}}">
+        <view class="report-card" wx:for="{{reports}}" wx:key="key">
+          <view class="report-icon">{{item.symbol}}</view>
+          <text>{{item.title}}</text>
+          <text>{{item.metric}}</text>
+          <view><text wx:if="{{item.prefix}}" style="font-size:23rpx;font-weight:800;">{{item.prefix}}</text><text style="font-size:45rpx;font-weight:800;">{{item.value}}</text><text style="font-size:23rpx;font-weight:800;">{{item.suffix}}</text></view>
+          <text>当前结果　<text class="{{item.tone}}">{{item.trend}}</text></text>
+          <button data-type="{{item.key}}" bindtap="openReport">查看明细　›</button>
+        </view>
+      </view>
+
+      <view class="finance-anomaly-list" wx:if="{{showAnomalies}}">
+        <view class="finance-anomaly-card" wx:for="{{anomalies}}" wx:key="id" data-id="{{item.id}}" bindtap="openFinanceAnomaly">
+          <view><text>{{item.title}}</text><text>{{item.status}}</text></view>
+          <text>{{item.detail}}</text>
+          <view><text>{{item.time}}</text><text>{{item.amount}}　去核对 ›</text></view>
+        </view>
+      </view>
+
+      <button class="export-button" wx:if="{{showReports}}" data-type="summary" bindtap="openReport">导出当前报表</button>
+      <button class="analysis-button" wx:if="{{showReports}}" bindtap="openAnalysis">查看经营分析</button>
+      <view class="safe-space"></view>
+    </view>
+  </scroll-view>
+</view>

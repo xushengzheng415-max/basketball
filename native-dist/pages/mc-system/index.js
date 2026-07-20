@@ -1,5 +1,3 @@
-const { checkEntitlement } = require('../../utils/entitlement');
-
 const categories = [
   {
     name: '比赛音效',
@@ -24,25 +22,14 @@ const categories = [
 
 Page({
   audio: null,
-  data: { categories, mcUnlocked: false },
+  data: { categories },
   onLoad() {
     this.audio = wx.createInnerAudioContext();
-  },
-  async onShow() {
-    const entitlement = await checkEntitlement('mc_system');
-    this.setData({ mcUnlocked: !!entitlement.active });
   },
   onUnload() {
     if (this.audio) this.audio.destroy();
   },
-  goBuy() {
-    wx.navigateTo({ url: '/pages/products/index' });
-  },
   playTrack(event) {
-    if (!this.data.mcUnlocked) {
-      wx.showToast({ title: '分享或付费后解锁播放', icon: 'none' });
-      return;
-    }
     const src = event.currentTarget.dataset.src;
     if (!src || !this.audio) return;
     this.audio.stop();

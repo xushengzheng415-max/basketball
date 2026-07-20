@@ -1,6 +1,6 @@
 <view class="page-shell">
   <view class="custom-nav" style="padding-top: {{navTop}}px; height: {{navHeight}}px;">
-    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>教练详情</text></view>
+    <view class="back-button" bindtap="goBack"><image src="{{icons.back}}" mode="aspectFit" /><text>返回教练详情</text></view>
     <text class="nav-title">权限与数据范围</text>
   </view>
   <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
@@ -9,13 +9,13 @@
       <view class="page-heading"><text>权限配置</text><text>设置教练可查看的数据和可执行的操作</text></view>
       <view class="profile-card">
         <image class="avatar" src="{{avatar}}" mode="aspectFill" />
-        <view class="profile-copy"><view><text>陈教练</text><text>全职教练</text></view><text>账号：chenjiaolian</text><text>手机：138****5628</text></view>
+        <view class="profile-copy"><view><text>{{coach.name}}</text><text>{{coach.role}}</text></view><text>账号：{{coach.account}}</text><text>手机：{{coach.phone}}</text></view>
       </view>
 
       <view class="section-card identity-card">
         <view class="section-title">岗位与归属</view>
         <view class="field-row"><text>所属校区</text><text>浦东校区</text></view>
-        <view class="field-row class-field"><text>负责班级</text><view><text>U10-1班</text><text>U12-2班</text><text>U14精英班</text></view></view>
+        <view class="field-row class-field"><text>负责班级</text><view><text wx:for="{{coach.classes}}" wx:for-item="className" wx:key="*this">{{className}}</text></view></view>
       </view>
 
       <view class="section-card">

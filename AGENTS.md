@@ -79,6 +79,29 @@ Public announcement copy must be written for customers and partners. Internal en
 - Large images/icons should use cloud storage under `ui-assets/assets/`; local `native-dist/assets` is only source/backup to avoid the 2MB preview limit.
 - If a module worktree conflicts with this file, the canonical-path `AGENTS.md` wins.
 
+### Mini Program Common Icon Library Rules
+
+- Design/source icon library: `E:\OneDrive\Desktop\赛小蜂篮球\赛小蜂篮球UI\2.0版本\图标通用库`.
+- Before creating, downloading, tracing, or cropping any icon, search `semantic-icon-map.json` and the official project's existing cloud/local icon mappings first.
+- Icon reuse priority is fixed: existing verified project/cloud icon -> licensed iconfont.cn SVG/PNG -> consistent local fallback. Do not redraw an icon when a suitable verified icon already exists.
+- A repeated semantic icon must have one canonical source. Do not copy the same icon into multiple page-level `assets` folders, and do not create duplicate files only because color or disabled state differs.
+- Keep SVG as the editable source when available. Produce transparent PNG variants from the same source for orange active, white/high-contrast, gray disabled, and red danger states; record variants under the same semantic key.
+- Feature/form/page icons used in production must be uploaded to cloud storage. Page code references a stable cloud fileID/HTTPS URL through a semantic mapping; it must not reference the OneDrive design-library path.
+- Local `native-dist/assets` is source/backup only unless an existing shared component already depends on it. Do not add page-specific production icon copies there as a shortcut.
+- Every newly accepted icon must record: semantic key, source URL or original local source, author/license when external, SVG source, PNG variants and sizes, intended pages, cloud fileID/URL, and replacement relationship.
+- iconfont.cn search URLs alone are candidates, not approved production sources. A downloaded icon becomes production-ready only after its detail URL, author/project, and usage license are recorded.
+- User-created EPS/AI/SVG files under `1.0版本/图标/` are immutable source masters. Preserve them and derive new versions non-destructively in the common library.
+- Do not treat logos, avatars, photos, card skins, backgrounds, status bars, or WeChat capsule artwork as ordinary icons. They follow their own asset rules.
+- Page-level `04-icons/` or `09-common-icons/` may remain empty when all icons are resolved through the common library; this is expected deduplication, not a missing asset.
+- Before handoff, run a duplicate check by file hash and semantic key, validate transparent edges and target resolution, and update the icon manifest plus development log.
+
+#### Bottom Tab Bar Exception
+
+- Bottom navigation remains an existing shared component and is not handled as ordinary page icons.
+- Reuse `native-dist/components/sxf-tabbar` and the canonical selected/unselected pairs from `图标通用库/01-bottom-tabbar/`.
+- Never crop tab icons from a prototype, download replacement tab icons per page, or store another tabbar set inside page asset folders.
+- The fixed order is: workbench, tournament, player, education, data, mine.
+
 ### WeChat Capsule Safe Area
 
 - Every custom-navigation page must reserve the top-right WeChat capsule safe area; page titles, dates, counts, labels, edit actions, and floating buttons must never sit behind or touch the capsule.

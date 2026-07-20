@@ -2,24 +2,33 @@ const CLOUD_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re
 
 Page({
   data: {
-    accessEyebrow: '\u6559\u52a1\u8d26\u6237\u7531 PC \u7aef\u7edf\u4e00\u4e0b\u53d1',
-    accessTitle: '\u5b8c\u6210\u5f00\u6237\u540e\u8fdb\u5165\u771f\u5b9e\u6559\u52a1\u5de5\u4f5c\u6d41',
-    accessNote: '\u5c0f\u7a0b\u5e8f\u5185\u4e0d\u76f4\u63a5\u8d2d\u4e70\uff1b\u8bf7\u8054\u7cfb\u5e73\u53f0\u5b8c\u6210\u673a\u6784\u5f00\u6237\u3001\u8d26\u6237\u4e0b\u53d1\u548c\u6743\u9650\u914d\u7f6e',
-    accessButtonLabel: '\u54a8\u8be2\u5f00\u6237',
+    accessEyebrow: '建议从一个校区、一个指标开始',
+    accessTitle: '把训赛数据跑进经营任务闭环',
+    accessNote: '平台负责发现机会、组织任务、沉淀数据和形成复盘；机构负责目标、人员、服务质量与持续执行。',
+    accessButtonLabel: '咨询试点',
     logo: CLOUD_ROOT + 'home/brand-horizontal-logo.png',
-    heroBackground: CLOUD_ROOT + 'pages/education/education-top-bg-clean.png',
-    capabilities: [
-      { order: '01', title: '智能排课', desc: '跨校区、场馆、班级和教练统一排课，冲突自动提示。' },
-      { order: '02', title: '课堂执行', desc: '课前搭建训练模块，点名后按教学流程完成课堂记录。' },
-      { order: '03', title: '课消管理', desc: '到课、补课、请假和赠课规则统一留痕，数据可追溯。' },
-      { order: '04', title: 'AI教学评价', desc: '六维星级评价、标签初稿和训练日报，教练确认后发布。' },
-      { order: '05', title: '成长报告', desc: '自动扫描日报，客观生成球员周报与月报草稿。' },
-      { order: '06', title: '权限与财务', desc: 'PC端管理员工身份、产品、薪酬、课销和经营数据。' }
+    heroBackground: CLOUD_ROOT + 'home/quick-match/home-hero-bg.png',
+    growthChain: [
+      { order: '01', title: '训练', desc: '计划、出勤、评价', result: '让教学过程持续可见' },
+      { order: '02', title: '比赛', desc: '计分、统计、高光', result: '让训练成果真实可证' },
+      { order: '03', title: '家长价值', desc: '成长报告、班级周报', result: '让成长变化被持续感知' },
+      { order: '04', title: '经营动作', desc: '续费、召回、转介绍', result: '让机会进入执行闭环' }
     ],
     roles: [
-      { label: '校区负责人', desc: '看经营、课程、课消与团队执行' },
-      { label: '教练', desc: '备课、点名、上课、评价一条链路' },
-      { label: '财务与教务', desc: '权限隔离，负责数据各自清晰' }
+      { label: 'PC 主控台', title: '统一角色、能力与数据范围', desc: '账户绑定角色，功能按需开关，数据按岗位与校区隔离。' },
+      { label: '校区负责人端', title: '打开首页先看结果与风险', desc: '经营目标、增长任务、家长风险和教练执行进入同一视野。' },
+      { label: '教练端', title: '只保留把课上好所需的操作', desc: '下一节课、今日待办、班级状态和周期报告集中呈现。' }
+    ],
+    taskSteps: [
+      { order: '01', title: '发现', desc: '识别风险与机会' },
+      { order: '02', title: '分配', desc: '明确负责人和时限' },
+      { order: '03', title: '执行', desc: '记录沟通与处理动作' },
+      { order: '04', title: '复盘', desc: '确认结果与贡献' }
+    ],
+    proofPoints: [
+      { title: '现场体验', desc: '横屏计分、MC 音效、赛果与现场控制，让机构活动更专业。' },
+      { title: '数据沉淀', desc: '球队、球员、技术统计与训练数据逐步连接。' },
+      { title: '内容传播', desc: '比赛高光、成长报告和球员表现成为家长沟通素材。' }
     ]
   },
 
@@ -29,7 +38,7 @@ Page({
     wx.reLaunch({ url: '/pages/home/index' });
   },
 
-  recordUnlockLead() {
-    wx.setStorageSync('sxf_education_unlock_lead', { createdAt: Date.now(), source: 'education-product-contact' });
+  recordPilotLead() {
+    wx.setStorageSync('sxf_growth_platform_lead', { createdAt: Date.now(), source: 'growth-platform-contact' });
   }
 });

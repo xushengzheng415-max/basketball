@@ -47,12 +47,14 @@ page { min-height: 100%; background: #05080b; color: #f5f7f8; font-family: "Ping
 .step-complete .step-index { border-color: #67c23a; color: #67c23a; }
 .step-complete .step-label, .step-complete .step-status { color: #6e8f60; }
 .task-actions { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 12rpx; margin-top: 18rpx; }
+.task-actions.business-managed { grid-template-columns: minmax(0,1fr); }
 .business-button, .step-button { display: flex; align-items: center; justify-content: center; min-height: 76rpx; margin: 0; padding: 0 16rpx; border-radius: 15rpx; font-size: 22rpx; font-weight: 650; box-sizing: border-box; }
 .business-button { border: 1rpx solid #ff7600; color: #ff8a1f; background: rgba(255,118,0,.05); }
 .step-button { color: #fff; background: linear-gradient(100deg, #ff5c00, #ff921d); }
 .step-button::after { border: 0; }
 .step-button.disabled { color: #84907f; background: rgba(103,194,58,.1); }
 .task-state { display: block; margin-top: 10rpx; color: #747d84; font-size: 17rpx; text-align: right; }
+.business-state { color: #90989e; }
 .danger { color: #ff514a; }
 .bottom-space { height: calc(env(safe-area-inset-bottom) + 48rpx); }
 @media (max-width: 360px) { .content { padding-left: 22rpx; padding-right: 22rpx; } .title { font-size: 39rpx; } .task-card { padding: 18rpx; } }

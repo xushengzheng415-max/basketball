@@ -10,6 +10,7 @@ const TASK_GROUPS = [
     unit: '节',
     priority: '高优先',
     priorityClass: 'urgent',
+    completionMode: 'business',
     route: '/pages/campus-manager/attendance-overview/index',
     steps: ['查看超时课程与负责教练', '发送点名提醒并确认接收', '复核点名结果与异常学员']
   },
@@ -89,13 +90,23 @@ function decorateTask(task, progressMap) {
     }
     return { label, order: index + 1, statusClass, statusText };
   });
+  const remainingSteps = steps.filter((step) => step.statusClass !== 'complete');
+  const businessManaged = task.completionMode === 'business';
   return Object.assign({}, task, {
     progress,
     completed,
+    businessManaged,
+    businessManagedClass: businessManaged ? 'business-managed' : '',
+    remainingCount: remainingSteps.length,
+    remainingSteps,
+    displaySteps: businessManaged ? remainingSteps : steps,
+    showSteps: businessManaged ? remainingSteps.length > 0 : true,
     completedClass: completed ? 'completed' : '',
     buttonClass: completed ? 'disabled' : '',
     stateText: completed ? '已完成' : '第 ' + (progress + 1) + '/' + task.steps.length + ' 步',
     actionText: completed ? '该项已完成' : '完成当前步骤',
+    businessActionText: businessManaged ? (completed ? '查看处理结果' : (progress ? '继续处理' : '开始处理')) : '进入业务页面',
+    businessStateText: completed ? '业务动作已全部完成' : '剩余 ' + remainingSteps.length + ' 个业务动作，完成后自动核销',
     steps
   });
 }
@@ -134,10 +145,30 @@ function advanceTask(taskId) {
   return decorateTask(task, progressMap);
 }
 
+function completeTaskStep(taskId, stepOrder) {
+  const task = TASK_GROUPS.find((item) => item.id === taskId);
+  if (!task) return null;
+  const progressMap = getProgressMap();
+  const current = normalizeProgress(task, progressMap[taskId]);
+  const target = Math.max(1, Math.min(task.steps.length, Number(stepOrder) || 1));
+  if (target === current + 1) {
+    progressMap[taskId] = target;
+    saveProgressMap(progressMap);
+  }
+  return decorateTask(task, progressMap);
+}
+
+function getTask(taskId) {
+  const task = TASK_GROUPS.find((item) => item.id === taskId);
+  return task ? decorateTask(task, getProgressMap()) : null;
+}
+
 module.exports = {
   STORAGE_KEY,
   TASK_GROUPS,
   advanceTask,
+  completeTaskStep,
+  getTask,
   getTasks,
   getTaskSummary
 };

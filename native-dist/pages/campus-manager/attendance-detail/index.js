@@ -1,10 +1,15 @@
 const ICON_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/campus-manager/';
+const { completeTaskStep, getTask } = require('../task-data');
 
 Page({
   data: {
     navTop: 20,
     navHeight: 44,
     navSpacer: 76,
+    taskMode: false,
+    taskGuide: null,
+    reviewActionText: '确认点名结果与异常学员已复核',
+    reviewButtonDisabled: false,
     icons: {
       back: ICON_ROOT + 'icon-back-orange-256.png', calendar: ICON_ROOT + 'icon-calendar-orange-256.png',
       clock: ICON_ROOT + 'icon-clock-orange-256.png', warning: ICON_ROOT + 'icon-warning-orange-256.png',
@@ -31,7 +36,8 @@ Page({
       { avatar: '周', name: '周子墨', status: '请假', tone: 'orange', reason: '事假：家中有事' }
     ]
   },
-  onLoad() {
+  onLoad(options) {
+    this.taskId = options && options.taskId === 'attendance-overdue' ? options.taskId : '';
     let top = 20;
     let height = 44;
     try {
@@ -39,7 +45,21 @@ Page({
       if (menu && menu.top) { top = menu.top; height = menu.height || 32; }
       else { const system = wx.getSystemInfoSync(); top = system.statusBarHeight || 20; }
     } catch (error) { console.warn('[attendance-detail] nav metrics unavailable', error); }
-    this.setData({ navTop: top, navHeight: height, navSpacer: top + height + 16 });
+    this.setData({ navTop: top, navHeight: height, navSpacer: top + height + 16, taskMode: Boolean(this.taskId) });
+    if (this.taskId) this.refreshTaskGuide();
+  },
+  onShow() {
+    if (this.taskId) this.refreshTaskGuide();
+  },
+  refreshTaskGuide() {
+    const taskGuide = getTask(this.taskId);
+    if (taskGuide) {
+      this.setData({
+        taskGuide,
+        reviewActionText: taskGuide.completed ? '复核已完成' : '确认点名结果与异常学员已复核',
+        reviewButtonDisabled: taskGuide.completed
+      });
+    }
   },
   goBack() {
     const pages = getCurrentPages();
@@ -48,5 +68,33 @@ Page({
   },
   showToast(event) {
     wx.showToast({ title: event.currentTarget.dataset.message || '操作已记录', icon: 'none' });
+  },
+  completeTaskReview() {
+    const task = getTask(this.taskId);
+    if (!task) return;
+    if (task.completed) {
+      wx.showToast({ title: '该待办已完成', icon: 'none' });
+      return;
+    }
+    if (task.progress < 2) {
+      wx.showToast({ title: '请先完成点名提醒并确认接收', icon: 'none' });
+      return;
+    }
+    wx.showModal({
+      title: '确认复核结果',
+      content: '已核对 18 名学员的点名结果，并确认 2 名异常学员的记录无误。',
+      confirmText: '确认无误',
+      success: (result) => {
+        if (!result.confirm) return;
+        const updated = completeTaskStep(this.taskId, 3);
+        this.refreshTaskGuide();
+        wx.showModal({
+          title: updated && updated.completed ? '待办已自动完成' : '未能完成待办',
+          content: updated && updated.completed ? '全部业务动作已完成，超时未点名角标已自动核销。' : '请按顺序完成前置动作。',
+          showCancel: false,
+          confirmText: '知道了'
+        });
+      }
+    });
   }
 });

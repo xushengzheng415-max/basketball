@@ -2,20 +2,15 @@ const ASSET_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re
 const { refreshEducationAccess, openEducationAccountPage } = require('../../utils/education-access');
 
 function isRolePreviewEnabled() {
-  try {
-    const system = wx.getSystemInfoSync();
-    const account = wx.getAccountInfoSync && wx.getAccountInfoSync();
-    const envVersion = account && account.miniProgram && account.miniProgram.envVersion;
-    return system.platform === 'devtools' && (!envVersion || envVersion === 'develop');
-  } catch (error) {
-    console.warn('[education] role preview unavailable', error);
-    return false;
-  }
+  return true;
 }
 
 Page({
   data: {
     showRoleTester: false,
+    rolePickerDisabled: true,
+    roleOptions: ['校长端', '教练端'],
+    roleIndex: 1,
     educationAccessActive: false,
     educationModeClass: '',
     educationModeTitle: '\u6f14\u793a\u6a21\u5f0f',
@@ -69,8 +64,14 @@ Page({
       { id: 'student-3', name: '张子轩', tag: '评价待写', message: '上一节课评价尚未完成', avatar: ASSET_ROOT + 'pages/team/avatar-zhangzixuan.png' }
     ]
   },
-  onLoad() {
-    this.setData({ showRoleTester: isRolePreviewEnabled() });
+  onLoad(options) {
+    const isCoachPreview = options && options.rolePreview === '1';
+    if (!isCoachPreview) {
+      wx.redirectTo({ url: '/pages/campus-manager/home/index' });
+      return;
+    }
+    const showRoleTester = isRolePreviewEnabled();
+    this.setData({ showRoleTester, rolePickerDisabled: !showRoleTester });
     refreshEducationAccess().then((access) => {
       const active = !!(access && access.active);
       this.setData({
@@ -90,15 +91,11 @@ Page({
     }
     openEducationAccountPage();
   },
-  openRoleTester() {
+  onRoleChange(event) {
     if (!this.data.showRoleTester) return;
-    wx.showActionSheet({
-      itemList: ['校区端', '教练端（当前）'],
-      success: (result) => {
-        if (result.tapIndex !== 0) return;
-        wx.redirectTo({ url: '/pages/campus-manager/home/index?rolePreview=1' });
-      }
-    });
+    const roleIndex = Number(event.detail.value);
+    this.setData({ roleIndex });
+    if (roleIndex === 0) wx.redirectTo({ url: '/pages/campus-manager/home/index?rolePreview=1' });
   },
   openClasses() { wx.navigateTo({ url: '/pages/coach-classes/index' }); },
   openCourses() { wx.navigateTo({ url: '/pages/coach-courses/index' }); },

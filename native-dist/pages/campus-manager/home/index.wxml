@@ -1,103 +1,96 @@
 <view class="page-shell">
   <view class="ambient ambient-top"></view>
-  <view class="ambient-dots"></view>
+  <view class="ambient ambient-side"></view>
 
   <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}" scroll-into-view="{{guideScrollTarget}}" scroll-with-animation>
     <view class="content">
       <view class="role-row" style="height: {{navSpacer}}px; padding-top: {{navTop}}px;">
-        <view id="guide-role" class="role-pill" bindtap="openRoleTester" aria-role="button" aria-label="预览身份切换">
-          <text>校区端</text>
-          <text class="role-switch-mark" wx:if="{{showRoleTester}}">⌄</text>
-        </view>
-      </view>
-
-      <view class="education-mode {{educationModeClass}}" bindtap="openEducationAccount">
-        <view class="education-mode-dot"></view>
-        <view class="education-mode-copy"><text>{{educationModeTitle}}</text><text>{{educationModeCopy}}</text></view>
-        <text class="education-mode-arrow" wx:if="{{!educationAccessActive}}">›</text>
+        <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange" disabled="{{rolePickerDisabled}}">
+          <view id="guide-role" class="role-pill" aria-role="button" aria-label="预览身份切换">
+            <text>校长端</text>
+            <text class="role-switch-mark" wx:if="{{showRoleTester}}">⌄</text>
+          </view>
+        </picker>
       </view>
 
       <view class="hero">
-        <text class="greeting">{{screen.greeting}}</text>
         <text class="page-title">{{screen.title}}</text>
         <text class="subtitle">{{screen.subtitle}}</text>
       </view>
 
-      <view class="metrics-panel">
-        <view class="metric" wx:for="{{screen.metrics}}" wx:key="label">
-          <text class="metric-label">{{item.label}}</text>
-          <view class="metric-number tone-{{item.tone}}">
-            <text class="metric-value">{{item.value}}</text><text class="metric-suffix">{{item.suffix}}</text>
+      <view id="guide-business" class="business-section">
+        <view class="business-grid">
+          <view class="business-card {{item.toneClass}}" wx:for="{{screen.businessCards}}" wx:key="key" data-route="{{item.route}}" bindtap="openRoute">
+            <view class="business-card-glow"></view>
+            <view class="business-card-head">
+              <text class="business-eyebrow">{{item.eyebrow}}</text>
+              <text class="business-trend {{item.trendClass}}">{{item.trend}}</text>
+            </view>
+            <view class="business-main-value">
+              <text class="business-prefix" wx:if="{{item.prefix}}">{{item.prefix}}</text>
+              <text class="business-value">{{item.value}}</text>
+              <text class="business-unit">{{item.unit}}</text>
+            </view>
+            <view class="business-amount-row">
+              <text>{{item.amountLabel}}</text>
+              <text>{{item.amount}}</text>
+            </view>
+            <view class="business-detail">
+              <text>{{item.detail}}</text>
+              <text>查看明细 ›</text>
+            </view>
           </view>
         </view>
+
       </view>
 
-      <view id="guide-pending" class="task-notice" data-route="{{screen.notice.route}}" bindtap="openRoute">
-        <view class="task-notice-icon">待</view>
-        <view class="task-notice-copy">
-          <text class="task-notice-title">{{screen.notice.title}}</text>
-          <text class="task-notice-caption">{{screen.notice.caption}}</text>
+      <view id="guide-tasks" class="panel task-panel">
+        <view class="section-head task-head">
+          <view>
+            <view class="task-title-row">
+              <text class="section-title">今日待办</text>
+              <text class="task-total">{{screen.pendingCount}}</text>
+            </view>
+            <text class="section-description">4 类任务，处理后自动关闭</text>
+          </view>
+          <view class="task-legend"><text></text><text>按优先级排序</text></view>
         </view>
-        <text class="task-notice-count" wx:if="{{screen.notice.count}}">{{screen.notice.count}}</text>
-        <text class="task-notice-arrow">›</text>
-      </view>
 
-      <view id="guide-focus" class="focus-card" data-route="{{screen.focus.route}}" bindtap="openRoute">
-        <view class="focus-accent"></view>
-        <view class="focus-watermark">!</view>
-        <view class="focus-copy">
-          <text class="focus-eyebrow">{{screen.focus.eyebrow}}</text>
-          <text class="focus-title">{{screen.focus.title}}</text>
-          <view class="focus-caption"><text>{{screen.focus.caption}} </text><text class="focus-amount">{{screen.focus.amount}}</text><text>元</text></view>
-        </view>
-        <view class="focus-side">
-          <view class="focus-count"><text class="focus-count-value">{{screen.focus.value}}</text><text class="focus-count-unit">{{screen.focus.unit}}</text></view>
-          <view class="focus-action"><text>{{screen.focus.action}}</text><text class="focus-action-arrow">›</text></view>
-        </view>
-      </view>
-
-      <view class="panel pending-panel">
-        <view class="section-head"><text class="section-title">今日待处理</text></view>
-        <view class="pending-list">
-          <view class="pending-row" wx:for="{{screen.pending}}" wx:key="key" data-route="{{item.route}}" bindtap="openRoute">
-            <view class="pending-icon-wrap icon-{{item.iconKind}} tone-surface-{{item.iconTone}}"><text class="pending-symbol">{{item.symbol}}</text></view>
-            <text class="pending-label">{{item.label}}</text>
-            <text class="pending-value tone-{{item.tone}}">{{item.value}}</text>
+        <view class="task-list">
+          <view class="task-row" wx:for="{{screen.tasks}}" wx:key="code" data-route="{{item.route}}" bindtap="openRoute">
+            <view class="task-symbol tone-{{item.toneClass}}"><image src="{{item.icon}}" mode="aspectFit" /></view>
+            <view class="task-copy">
+              <view class="task-name-row">
+                <text class="task-name">{{item.title}}</text>
+                <text class="task-code">{{item.code}}</text>
+              </view>
+              <text class="task-description">{{item.description}}</text>
+            </view>
+            <view class="task-count tone-text-{{item.toneClass}}">
+              <text>{{item.count}}</text><text>{{item.unit}}</text>
+            </view>
             <text class="row-chevron">›</text>
           </view>
         </view>
       </view>
 
-      <view id="guide-quick" class="panel quick-panel">
-        <view class="section-head"><text class="section-title">常用操作</text></view>
-        <view class="quick-grid">
-          <view class="quick-item" wx:for="{{screen.quick}}" wx:key="key" data-route="{{item.route}}" bindtap="openRoute">
-            <text class="quick-badge" wx:if="{{item.badge}}">{{item.badge}}</text>
-            <view class="quick-symbol quick-icon-{{item.iconKind}}"><view class="quick-icon-core"></view></view>
-            <text class="quick-label">{{item.label}}</text>
+      <view id="guide-management" class="panel management-panel">
+        <view class="section-head management-head">
+          <text class="section-title">管理中心</text>
+          <view class="management-more" bindtap="openMoreManagement">
+            <text>更多管理</text>
+            <text>查看更多 ›</text>
           </view>
         </view>
-      </view>
-
-      <view class="panel opportunity-panel">
-        <view class="section-head"><text class="section-title">增长机会</text><text class="section-caption">今日经营线索</text></view>
-        <view class="opportunity-grid">
-          <view class="opportunity-item" wx:for="{{screen.opportunities}}" wx:key="key" data-route="{{item.route}}" bindtap="openRoute">
-            <view><text class="opportunity-label">{{item.label}}</text><text class="opportunity-value tone-{{item.tone}}">{{item.value}}</text></view>
-            <text class="opportunity-arrow">›</text>
-          </view>
-        </view>
-      </view>
-
-      <view id="guide-summary" class="summary-grid">
-        <view class="summary-card" wx:for="{{screen.summaries}}" wx:key="key" wx:for-item="summary" data-route="{{summary.route}}" bindtap="openRoute">
-          <view class="summary-head"><view class="summary-symbol">{{summary.symbol}}</view><text>{{summary.title}}</text></view>
-          <view class="summary-stats">
-            <view class="summary-stat" wx:for="{{summary.items}}" wx:key="label" wx:for-item="stat">
-              <text class="summary-label">{{stat.label}}</text>
-              <text class="summary-value tone-{{stat.tone}}">{{stat.value}}</text>
-              <view class="summary-track"><view class="summary-progress tone-bg-{{stat.tone}}" style="width: {{stat.progress}};"></view></view>
+        <view class="management-grid">
+          <view class="management-item" wx:for="{{screen.management}}" wx:key="key" data-key="{{item.key}}" bindtap="openManagement">
+            <text class="management-badge" wx:if="{{item.badge}}">{{item.badge}}</text>
+            <view class="management-symbol tone-bg-{{item.toneClass}}"><image src="{{item.icon}}" mode="aspectFit" /></view>
+            <view class="management-copy">
+              <text class="management-label">{{item.label}}</text>
+              <text class="management-description">{{item.caption}}</text>
             </view>
+            <text class="management-chevron">›</text>
           </view>
         </view>
       </view>
@@ -105,7 +98,49 @@
       <view class="tabbar-space"></view>
     </view>
   </scroll-view>
+
   <sxf-tabbar active="education" />
+
+  <view class="more-management-layer" wx:if="{{moreManagementVisible}}" catchtouchmove="blockGuideTouch">
+    <view class="more-management-mask" bindtap="closeMoreManagement"></view>
+    <view class="more-management-sheet" catchtap="blockGuideTouch">
+      <view class="more-sheet-handle"></view>
+      <view class="more-sheet-head">
+        <view><text>更多管理</text><text>低频功能集中放在二级入口</text></view>
+        <view class="more-sheet-close" bindtap="closeMoreManagement">×</view>
+      </view>
+      <view class="more-sheet-toolbar">
+        <view class="more-column-switch" aria-label="切换管理入口排列列数">
+          <view class="more-column-option {{moreColumnTwoClass}}" data-columns="2" bindtap="changeMoreColumns">2列</view>
+          <view class="more-column-option {{moreColumnThreeClass}}" data-columns="3" bindtap="changeMoreColumns">3列</view>
+        </view>
+        <view class="more-edit-button" bindtap="toggleMoreEdit">{{moreEditLabel}}</view>
+      </view>
+      <text class="more-sort-hint">{{moreSortHint}}</text>
+      <view class="more-management-grid {{moreColumnClass}}">
+        <view
+          class="more-management-item {{moreItem.dragClass}}"
+          wx:for="{{moreManagement}}"
+          wx:for-item="moreItem"
+          wx:for-index="moreIndex"
+          wx:key="key"
+          data-index="{{moreIndex}}"
+          data-route="{{moreItem.route}}"
+          bindtap="openMoreRoute"
+          bindlongpress="startMoreDrag"
+          catchtouchmove="moveMoreDrag"
+          bindtouchend="finishMoreDrag"
+          bindtouchcancel="finishMoreDrag"
+        >
+          <view class="more-management-icon"><image src="{{moreItem.icon}}" mode="aspectFit" /></view>
+          <view class="more-management-copy"><text class="more-management-label">{{moreItem.label}}</text><text class="more-management-caption">{{moreItem.caption}}</text></view>
+          <view class="more-drag-handle" wx:if="{{moreEditMode}}"><text></text><text></text><text></text></view>
+          <text class="more-management-arrow" wx:else>›</text>
+        </view>
+      </view>
+      <view class="more-sheet-safe"></view>
+    </view>
+  </view>
 
   <view class="guide-layer" wx:if="{{guideVisible}}" catchtouchmove="blockGuideTouch">
     <view class="guide-spotlight" style="{{guideSpotlightStyle}}"></view>

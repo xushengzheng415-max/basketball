@@ -1,11 +1,17 @@
 const CLOUD_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
 const COMMON_ROOT = CLOUD_ROOT + 'common/campus-manager/';
 
+const COACH_PROFILES = {
+  'coach-chen': { id: 'coach-chen', name: '陈教练', role: '全职教练', account: 'chenjiaolian', phone: '138****5628', classes: ['U10-1班', 'U12-2班', 'U14精英班'], avatar: CLOUD_ROOT + 'pages/team/avatar-zhaozimo.png' },
+  'coach-wang': { id: 'coach-wang', name: '王教练', role: '兼职教练', account: 'wangjiaolian', phone: '139****2468', classes: ['U8-3班'], avatar: CLOUD_ROOT + 'pages/team/avatar-linhao.png' }
+};
+
 Page({
   data: {
     navTop: 20,
     navHeight: 44,
     navSpacer: 76,
+    coach: COACH_PROFILES['coach-chen'],
     avatar: CLOUD_ROOT + 'pages/team/avatar-zhaozimo.png',
     icons: {
       back: COMMON_ROOT + 'icon-back-orange-256.png',
@@ -46,7 +52,7 @@ Page({
       ]}
     ]
   },
-  onLoad() {
+  onLoad(options) {
     let navTop = 20;
     let navHeight = 44;
     try {
@@ -60,7 +66,9 @@ Page({
     } catch (error) {
       console.warn('[campus-manager-permissions] nav metrics unavailable', error);
     }
-    this.setData({ navTop, navHeight, navSpacer: navTop + navHeight + 16 });
+    const id = options && COACH_PROFILES[options.id] ? options.id : 'coach-chen';
+    const coach = COACH_PROFILES[id];
+    this.setData({ navTop, navHeight, navSpacer: navTop + navHeight + 16, coach, avatar: coach.avatar });
   },
   goBack() {
     if (getCurrentPages().length > 1) {
@@ -68,7 +76,7 @@ Page({
       return;
     }
     wx.redirectTo({
-      url: '/pages/campus-manager/coach-detail/index',
+      url: '/pages/campus-manager/coach-detail/index?id=' + this.data.coach.id,
       fail: () => wx.reLaunch({ url: '/pages/campus-manager/home/index' })
     });
   },

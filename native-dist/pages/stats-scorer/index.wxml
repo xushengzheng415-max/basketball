@@ -1,6 +1,6 @@
 <view class="page-wrap">
   <view class="hero">
-    <text class="kicker">Pro 功能</text>
+    <text class="kicker">免费功能预览</text>
     <text class="title">计分板 2.0</text>
     <text class="desc">在当前横屏计分基础上，增加球员级数据记录，让每一场比赛都有可复盘的数据。</text>
   </view>
@@ -12,6 +12,5 @@
     </view>
   </view>
 
-  <view class="notice">当前为功能预览，购买后会进入计分板 2.0 操作台。</view>
-  <view class="primary" bindtap="goBuy">查看购买套餐</view>
+  <view class="notice">当前为计分板 2.0 功能预览，正式开放后仍按免费赛事与计分流程使用。</view>
 </view>

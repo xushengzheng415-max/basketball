@@ -12,8 +12,8 @@
       <view class="profile-section">
         <image class="profile-avatar" src="{{avatar}}" mode="aspectFill" />
         <view class="profile-copy">
-          <text class="student-name">刘承宇</text>
-          <view class="identity-line"><text>♂</text><text>10岁</text><view></view><text>U10 提高班</text></view>
+          <text class="student-name">{{student.name}}</text>
+          <view class="identity-line"><text>{{student.gender}}</text><text>{{student.age}}</text><view></view><text>{{student.className}}</text></view>
           <view class="reading-state"><view></view><text>在读</text></view>
         </view>
       </view>
@@ -21,13 +21,13 @@
       <view class="course-summary">
         <view class="lesson-summary">
           <view class="summary-heading"><image src="{{icons.clock}}" mode="aspectFit" /><text>剩余课时</text></view>
-          <view class="lesson-value"><text>6</text><text>课时</text></view>
+          <view class="lesson-value"><text>{{student.lessons}}</text><text>课时</text></view>
         </view>
         <view class="summary-divider"></view>
         <view class="next-course">
           <view class="summary-heading"><image src="{{icons.calendar}}" mode="aspectFit" /><text>下一次课程</text></view>
-          <view class="date-line"><text>07-30</text><text>周二</text><text>18:30-20:00</text></view>
-          <view class="location-line"><image src="{{icons.location}}" mode="aspectFit" /><text>1号馆 · 1号场</text></view>
+          <view class="date-line"><text>{{student.nextDate}}</text><text>{{student.nextDay}}</text><text>{{student.nextTime}}</text></view>
+          <view class="location-line"><image src="{{icons.location}}" mode="aspectFit" /><text>{{student.location}}</text></view>
         </view>
         <view class="basketball-mark"></view>
       </view>
@@ -35,18 +35,18 @@
       <view class="status-grid">
         <view class="status-card">
           <view class="card-heading"><image src="{{icons.check}}" mode="aspectFit" /><text>近期出勤</text></view>
-          <view class="attendance-value"><text>3</text><text>/ 4</text><text>次</text></view>
+          <view class="attendance-value"><text>{{student.attendance}}</text><text>/ {{student.attendanceTotal}}</text><text>次</text></view>
           <text class="card-caption">最近4次课程</text>
         </view>
         <view class="status-card">
           <view class="card-heading"><image src="{{icons.download}}" mode="aspectFit" /><text>成长报告</text></view>
-          <text class="report-value">未查看</text>
+          <text class="report-value">{{student.reportStatus}}</text>
           <text class="card-caption">最新报告状态</text>
         </view>
         <view class="status-card">
           <view class="card-heading"><image src="{{icons.warning}}" mode="aspectFit" /><text>风险状态</text></view>
-          <text class="risk-value">高风险</text>
-          <text class="card-caption">需要重点关注</text>
+          <text class="risk-value">{{student.risk}}</text>
+          <text class="card-caption">{{student.riskCaption}}</text>
         </view>
       </view>
 

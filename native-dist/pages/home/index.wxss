@@ -387,13 +387,13 @@ page {
   min-height: 0;
   flex: 1;
   flex-direction: column;
-  padding: 30rpx 30rpx 24rpx;
+  padding: 28rpx 24rpx 22rpx;
   overflow: hidden;
-  border: 1rpx solid rgba(255, 107, 22, 0.78);
+  border: 1rpx solid rgba(255, 123, 26, 0.86);
   border-radius: 24rpx;
   color: #ffffff;
-  background: radial-gradient(circle at 86% 22%, rgba(255, 94, 0, 0.38), transparent 30%), linear-gradient(135deg, #090d12 0%, #111922 58%, #251109 100%);
-  box-shadow: 0 18rpx 42rpx rgba(0, 0, 0, 0.34);
+  background: radial-gradient(circle at 88% 12%, rgba(255, 94, 0, 0.34), transparent 28%), linear-gradient(145deg, #071018 0%, #0c151c 54%, #261108 100%);
+  box-shadow: 0 18rpx 42rpx rgba(0, 0, 0, 0.36);
   box-sizing: border-box;
 }
 
@@ -401,44 +401,47 @@ page {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.22;
-  background-image: linear-gradient(120deg, transparent 0%, transparent 46%, rgba(255, 105, 24, 0.22) 46.5%, transparent 47%), linear-gradient(30deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%);
-  background-size: 190rpx 190rpx, 72rpx 124rpx;
+  opacity: 0.2;
+  background-image: linear-gradient(118deg, transparent 0%, transparent 48%, rgba(255, 105, 24, 0.2) 48.5%, transparent 49%), linear-gradient(30deg, rgba(255, 255, 255, 0.05) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.05) 87.5%);
+  background-size: 210rpx 210rpx, 72rpx 124rpx;
 }
 
 .version-ad-head,
 .version-kicker,
 .version-title,
 .version-desc,
-.version-features,
-.version-footer {
+.version-chain,
+.version-benefits,
+.version-conversion {
   position: relative;
   z-index: 2;
 }
 
-.version-ad-head,
-.version-footer {
+.version-ad-head {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12rpx;
 }
 
 .version-badge {
-  padding: 8rpx 16rpx;
+  padding: 8rpx 14rpx;
   border: 1rpx solid rgba(255, 126, 42, 0.72);
   border-radius: 999rpx;
   color: #ff8a2a;
   background: rgba(255, 92, 0, 0.1);
-  font-size: 23rpx;
+  font-size: 20rpx;
   font-weight: 900;
+  white-space: nowrap;
 }
 
 .version-status {
   color: rgba(255, 255, 255, 0.58);
   font-family: Arial, sans-serif;
-  font-size: 20rpx;
+  font-size: 15rpx;
   font-weight: 700;
-  letter-spacing: 3rpx;
+  letter-spacing: 1.5rpx;
+  text-align: right;
 }
 
 .version-kicker,
@@ -448,18 +451,18 @@ page {
 }
 
 .version-kicker {
-  margin-top: 26rpx;
+  margin-top: 22rpx;
   color: #ff7a20;
-  font-size: 27rpx;
+  font-size: 23rpx;
   font-weight: 900;
-  letter-spacing: 4rpx;
+  letter-spacing: 2rpx;
 }
 
 .version-title {
-  margin-top: 4rpx;
-  font-size: 52rpx;
+  margin-top: 6rpx;
+  font-size: 48rpx;
   font-weight: 900;
-  line-height: 1.08;
+  line-height: 1.1;
   letter-spacing: 2rpx;
 }
 
@@ -474,35 +477,71 @@ page {
 }
 
 .version-desc {
-  max-width: 510rpx;
-  margin-top: 12rpx;
+  max-width: 570rpx;
+  margin-top: 14rpx;
   color: rgba(255, 255, 255, 0.7);
-  font-size: 24rpx;
+  font-size: 21rpx;
   line-height: 1.55;
 }
 
-.version-features {
-  display: flex;
-  align-items: center;
-  margin-top: 22rpx;
+.version-chain {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8rpx;
+  margin-top: 20rpx;
+}
+
+.version-chain-item {
+  min-width: 0;
+  padding: 13rpx 7rpx 12rpx;
+  border: 1rpx solid rgba(255, 126, 32, 0.24);
+  border-radius: 13rpx;
+  background: rgba(4, 9, 13, 0.64);
+  box-sizing: border-box;
+}
+
+.version-chain-no,
+.version-chain-title,
+.version-chain-note {
+  display: block;
+}
+
+.version-chain-no {
+  color: #ff7518;
+  font-family: Arial, sans-serif;
+  font-size: 14rpx;
+  font-weight: 900;
+}
+
+.version-chain-title {
+  margin-top: 7rpx;
+  color: #f7f8f8;
+  font-size: 20rpx;
+  font-weight: 900;
+  white-space: nowrap;
+}
+
+.version-chain-note {
+  margin-top: 5rpx;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 14rpx;
+  line-height: 1.35;
 }
 
 .version-benefits {
-  position: relative;
-  z-index: 2;
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 10rpx;
-  margin-top: 24rpx;
-  margin-bottom: 18rpx;
+  margin-top: 14rpx;
+  margin-bottom: 14rpx;
 }
 
 .version-benefit {
   min-width: 0;
-  padding: 16rpx 10rpx;
-  border: 1rpx solid rgba(255, 126, 32, 0.24);
+  padding: 14rpx 8rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
   border-radius: 13rpx;
-  background: rgba(5, 10, 14, 0.56);
+  background: rgba(10, 16, 21, 0.7);
   text-align: center;
 }
 
@@ -512,71 +551,29 @@ page {
 
 .version-benefit text:first-child {
   color: #f4f6f7;
-  font-size: 23rpx;
+  font-size: 20rpx;
   font-weight: 900;
   white-space: nowrap;
 }
 
 .version-benefit text:last-child {
-  margin-top: 6rpx;
+  margin-top: 5rpx;
   color: rgba(255, 255, 255, 0.48);
-  font-size: 18rpx;
+  font-size: 15rpx;
   line-height: 1.35;
 }
 
-.version-feature {
-  display: flex;
-  align-items: center;
-  margin-right: 24rpx;
-  color: rgba(255, 255, 255, 0.9);
-  font-size: 23rpx;
-  font-weight: 700;
-}
-
-.version-feature:last-child {
-  margin-right: 0;
-}
-
-.feature-dot {
-  width: 8rpx;
-  height: 8rpx;
-  margin-right: 9rpx;
-  border-radius: 50%;
-  background: #ff6a16;
-  box-shadow: 0 0 14rpx rgba(255, 106, 22, 0.9);
-}
-
-.version-footer {
-  margin-top: auto;
-  padding-top: 18rpx;
-  border-top: 1rpx solid rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.36);
-  font-family: Arial, sans-serif;
-  font-size: 17rpx;
-  letter-spacing: 2rpx;
-}
-
-.version-expect {
-  color: #ff8a2a;
-  font-family: sans-serif;
-  font-size: 24rpx;
-  font-weight: 900;
-  letter-spacing: 0;
-}
-
-.paid-entry {
+.growth-entry {
   border-color: rgba(255, 132, 35, 0.92);
   box-shadow: 0 18rpx 42rpx rgba(255, 91, 0, 0.16);
 }
 
 .version-conversion {
-  position: relative;
-  z-index: 2;
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-top: auto;
-  padding: 20rpx 20rpx 20rpx 22rpx;
+  padding: 17rpx 15rpx 17rpx 18rpx;
   border: 1rpx solid rgba(255, 125, 28, 0.52);
   border-radius: 14rpx;
   background: linear-gradient(100deg, rgba(255, 91, 0, 0.17), rgba(255, 137, 30, 0.05));
@@ -589,7 +586,7 @@ page {
 
 .version-conversion-label {
   color: #f5f6f7;
-  font-size: 23rpx;
+  font-size: 21rpx;
   font-weight: 900;
 }
 
@@ -600,13 +597,13 @@ page {
 }
 
 .version-conversion-action {
-  min-width: 192rpx;
-  padding: 15rpx 18rpx;
+  min-width: 164rpx;
+  padding: 14rpx 12rpx;
   border-radius: 12rpx;
   color: #fff;
   background: linear-gradient(90deg, #ff5700, #ff951d);
   box-shadow: 0 10rpx 24rpx rgba(255, 83, 0, 0.3);
-  font-size: 28rpx;
+  font-size: 24rpx;
   font-weight: 900;
   text-align: center;
 }
@@ -614,12 +611,13 @@ page {
 .version-watermark {
   position: absolute;
   z-index: 1;
-  right: 12rpx;
-  top: 44rpx;
+  right: 2rpx;
+  top: 48rpx;
   color: rgba(255, 255, 255, 0.055);
   font-family: "Arial Black", Arial, sans-serif;
-  font-size: 190rpx;
+  font-size: 84rpx;
   font-weight: 900;
+  letter-spacing: 4rpx;
   line-height: 1;
 }
 
@@ -631,17 +629,17 @@ page {
 }
 
 .orbit-one {
-  right: -78rpx;
-  top: -90rpx;
-  width: 310rpx;
-  height: 310rpx;
+  right: -88rpx;
+  top: -104rpx;
+  width: 330rpx;
+  height: 330rpx;
 }
 
 .orbit-two {
-  right: 18rpx;
-  top: 14rpx;
-  width: 180rpx;
-  height: 180rpx;
+  right: 8rpx;
+  top: -6rpx;
+  width: 190rpx;
+  height: 190rpx;
 }
 
 @media (max-height: 740px) {
@@ -675,14 +673,28 @@ page {
     margin-top: 16rpx;
   }
 
-  .version-features,
+  .version-chain,
   .version-benefits,
   .version-conversion {
-    margin-top: 14rpx;
+    margin-top: 12rpx;
   }
 
   .version-title {
-    font-size: 46rpx;
+    font-size: 43rpx;
+  }
+
+  .version-desc {
+    font-size: 19rpx;
+  }
+
+  .version-chain-item {
+    padding-top: 10rpx;
+    padding-bottom: 9rpx;
+  }
+
+  .version-benefit {
+    padding-top: 10rpx;
+    padding-bottom: 10rpx;
   }
 
   .version-conversion {
