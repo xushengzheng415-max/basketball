@@ -868,6 +868,6 @@ MC 控制台需要先聚焦基础功能：取消主界面三个小快捷按钮�
   6、保持篮球与足球项目的数据、文件和业务服务相互独立。
   7、完成官网自定义域名与小程序预览验证，当前主要访问链路正常。
 - 验证：云端数据、存储文件和正式函数已核对；相关 JavaScript、JSON、WXML、资源链接检查通过；`npm run build:weapp` 及微信开发者工具预览构建通过。
-- 仓库同步：待提交后同步 GitHub `origin` 与 Gitee `gitee` 的 `codex/education-2.0` 分支。
+- 仓库同步：发布提交 `3e134c9` 已同步至 GitHub `origin` 与 Gitee `gitee` 的 `codex/education-2.0` 分支，两个远端分支均已回读核对一致。
 - 飞书登记：版本 Base 已创建并回读验证 `2.0.2` 记录 `recvqnFNBFfZKD`；知识库入口 `Cy2ew2TDWidvIpkG4MEc8R0znZc` 与该 Base 为同一份版本表。
 - 飞书公告：已在用户持有的页面 `SqSBwzTxpiv66pkGyfycnLk8nqc` 写入并回读验证 `赛小蜂篮球 2.0.2 版本更新公告`；标题、版本、日期、阶段、七项更新、发布说明和反馈指引完整。
