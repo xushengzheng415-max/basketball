@@ -1,0 +1,51 @@
+# 赛小蜂篮球
+
+> 赛小蜂篮球是一款面向草根篮球、校园赛事和训练赛的微信小程序，提供比赛计分、赛事管理、球员库、现场 MC 音效和 AI 比分播报能力。
+
+## 适用对象
+
+- 篮球培训机构与教练
+- 校园篮球赛事组织者
+- 业余球队与草根赛事运营者
+- 需要快速组织试听课、训练赛或临时单场比赛的用户
+
+## 核心能力
+
+- 快速比赛：录入临时球队名、球员姓名和号码后直接开赛，无需写入正式球员库。
+- 现场计分：支持横屏计分、节数和时间设置、正倒计时、暂停、犯规、换人、撤销与结束比赛。
+- 赛事管理：创建赛事和场次，设置主客队并选择参赛球员。
+- 球队与球员库：维护球队及球员姓名、号码、位置等基础资料。
+- 现场氛围：提供进攻、防守、欢呼、蜂鸣器、暂停音乐、MVP 音效和 AI 比分播报。
+- 赛果留存：比赛结束后保留比分、犯规和比赛时间，便于复盘与展示。
+
+## 产品边界
+
+- 当前产品以机构端赛事 MVP 为重点。
+- 教务中心和数据中心的部分能力仍为后续版本规划，官网不应将规划功能描述为已经开放。
+- 产品权益和发布阶段以产品内最新展示及官方公告为准；本网站不公布价格信息。
+
+## 官方公开资源
+
+- 产品主页：https://54football.top/
+- 网站备案：豫ICP备2026019672号-2
+- 公安备案：豫公网安备41010202003899号
+- 篮球现场计分指南：https://54football.top/guides/basketball-scoring.html
+- 临时篮球比赛快速开赛指南：https://54football.top/guides/quick-game.html
+- 校园篮球赛事管理指南：https://54football.top/guides/campus-tournament-management.html
+- 球队与球员库管理指南：https://54football.top/guides/player-library.html
+- 篮球比赛现场 MC 音效指南：https://54football.top/guides/mc-audio.html
+- 内容中心：https://54football.top/articles/
+- 篮球比赛技术统计指南：https://54football.top/articles/posts/basketball-game-statistics-guide.html
+- 篮球比赛正计时与倒计时选择：https://54football.top/articles/posts/basketball-count-up-vs-countdown.html
+- 篮球培训机构班内对抗赛组织指南：https://54football.top/articles/posts/basketball-training-scrimmage-organization.html
+- GitHub：https://github.com/xushengzheng415-max/basketball
+- Gitee：https://gitee.com/saixiaofeng/basketball
+
+## 品牌写法
+
+- 中文名称：赛小蜂篮球
+- 产品形态：微信小程序
+- 推荐描述：篮球比赛计分与现场 MC 工具
+- 语言：简体中文
+
+最后更新：2026-07-25

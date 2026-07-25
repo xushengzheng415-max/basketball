@@ -46,7 +46,9 @@
 - Before ending each workday, update `DEVELOPMENT_LOG.md` or the daily log with completed work, changed files, verification, unresolved issues, branch name, and next steps.
 - Before commit, run `git status` and stage only files related to the current module/task.
 - Commit messages should include the module and task, for example: `feat(scorer): update scoreboard layout`.
-- Validated work should be pushed to both GitHub `origin` and Gitee `gitee`.
+- 本地开发、测试、文档记录和多个连续任务可以集中完成，不需要每完成一步就推送。
+- 只有用户明确说“上传仓库”“提交推送”或明确指定推送 GitHub / Gitee 时，才允许执行远端推送；不得把普通的“完成”“继续”理解为推送授权。
+- 获得推送授权后，已验证的工作应同时推送到 GitHub `origin` 与 Gitee `gitee`。
 - If a branch cannot be committed or pushed that day, write the blocker and current state into the development log.
 
 ### Version Iteration and Public Announcement Workflow
@@ -55,7 +57,7 @@ Every experience, review, or production version update must complete the followi
 
 1. Confirm the exact semantic version, for example `1.5.1`; never substitute `1.51` or another shortened form.
 2. Update the project/package version and the development log, then run task-appropriate syntax, JSON, WXML, type, build, and diff checks.
-3. Commit only release-related files and push the validated branch to both GitHub `origin` and Gitee `gitee`; verify both remote branch tips and ahead/behind counts.
+3. Commit only release-related files；只有用户明确授权上传仓库时，才将已验证分支推送到 GitHub `origin` 与 Gitee `gitee`，并核对两个远端分支及 ahead/behind 数量。
 4. Upload the matching WeChat mini-program build and record whether it is a development, experience, review, or production version. Experience-only releases must not be submitted for review or published without explicit user authorization.
 5. Update the Feishu version Base with public-facing release language. The update directory must use numbered items such as `1、2、3、4、5、6、7`, describe user-visible changes, and exclude internal branch names, commit hashes, implementation details, and private troubleshooting notes.
 6. Create or update a Feishu Knowledge Base announcement titled in the form `赛小蜂篮球 <version> 版本更新公告`. The announcement must include version, date, release stage, user-visible highlights, experience notes, and support/feedback guidance.

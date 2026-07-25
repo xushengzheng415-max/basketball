@@ -10,7 +10,9 @@
         "build:h5": "taro build --type h5",
         "typecheck": "tsc --noEmit",
         "admin:serve": "python -m http.server 5174 -d admin",
-        "site:serve": "python -m http.server 5175"
+        "site:serve": "python -m http.server 5175",
+        "site:validate": "node tools/validate-seo-site.js",
+        "site:deploy": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tools/deploy-seo-site.ps1"
     },
     "dependencies": {
         "@babel/runtime": "^7.24.0",
