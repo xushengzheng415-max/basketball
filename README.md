@@ -2,6 +2,10 @@
 
 赛小蜂篮球小程序前端项目，当前阶段聚焦快速比赛、横屏计分、赛事创建、球员库、登录授权和个人中心。
 
+- 官方网站：https://54football.top/
+- 篮球机构经营与赛事管理内容中心：https://54football.top/articles/
+- 篮球比赛现场计分指南：https://54football.top/guides/basketball-scoring.html
+
 ## 当前形态
 
 微信开发者工具当前读取 `native-dist/` 原生小程序目录。
