@@ -1,8 +1,8 @@
 {
     "name": "saixiaofeng-basketball",
-    "version": "2.0.1",
+    "version": "2.0.2",
     "private": true,
-    "description": "璧涘皬铚傜鐞冨皬绋嬪簭鍓嶇",
+    "description": "赛小蜂篮球微信小程序：篮球比赛计分、赛事管理、球员库、MC 音效与 AI 比分播报工具",
     "scripts": {
         "dev:weapp": "taro build --type weapp --watch",
         "build:weapp": "taro build --type weapp",
@@ -44,7 +44,12 @@
         "type": "git",
         "url": "git+https://github.com/xushengzheng415-max/basketball.git"
     },
-    "keywords": [],
+    "keywords": [
+        "篮球计分",
+        "篮球赛事管理",
+        "篮球小程序",
+        "赛小蜂篮球"
+    ],
     "author": "",
     "license": "ISC",
     "type": "commonjs",

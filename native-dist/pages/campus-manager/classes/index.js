@@ -1,4 +1,4 @@
-const ROOT='cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';const C=ROOT+'common/campus-manager/',T=ROOT+'pages/team/';
+const ROOT='cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';const C=ROOT+'common/campus-manager/',T=ROOT+'pages/team/';
 const ALL=[
 {id:'u8',stage:'启蒙',badge:'U8',title:'U8篮球启蒙班',coach:'王教练',avatar:T+'avatar-linhao.png',schedule:'周二 17:00-18:00　周四 17:00-18:00',venue:'1号馆 · 启蒙区',capacity:'16 / 16 人',fill:100,attendance:'100%'},
 {id:'u10',stage:'进阶',badge:'U10',title:'U10基础训练班',coach:'陈教练',avatar:T+'avatar-zhaozimo.png',schedule:'周三 18:30-20:00　周六 09:00-10:30',venue:'2号馆 · 基础区',capacity:'18 / 18 人',fill:100,attendance:'94%'},

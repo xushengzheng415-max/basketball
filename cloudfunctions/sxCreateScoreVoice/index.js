@@ -133,7 +133,7 @@ async function saveVoiceLog(data) {
 
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext();
-  const openid = wxContext.OPENID;
+  const openid = wxContext.FROM_OPENID || wxContext.OPENID;
   const text = String(event.text || '').trim();
   const style = event.style || 'standard';
 
@@ -169,7 +169,7 @@ exports.main = async (event) => {
 
     await saveVoiceLog({
       openid,
-      unionid: wxContext.UNIONID || '',
+    unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
       text,
       style,
       voiceType: voice.voiceType,

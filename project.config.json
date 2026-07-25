@@ -34,12 +34,60 @@
   "packOptions": {
     "ignore": [
       {
-        "type": "folder",
-        "value": "assets"
+        "value": "assets",
+        "type": "folder"
       },
       {
-        "type": "folder",
-        "value": "native-dist/assets"
+        "value": "native-dist/assets",
+        "type": "folder"
+      },
+      {
+        "value": ".github",
+        "type": "folder"
+      },
+      {
+        "value": ".swc",
+        "type": "folder"
+      },
+      {
+        "value": "admin",
+        "type": "folder"
+      },
+      {
+        "value": "articles",
+        "type": "folder"
+      },
+      {
+        "value": "dist",
+        "type": "folder"
+      },
+      {
+        "value": "docs",
+        "type": "folder"
+      },
+      {
+        "value": "guides",
+        "type": "folder"
+      },
+      {
+        "value": "src",
+        "type": "folder"
+      },
+      {
+        "value": "tmp",
+        "type": "folder"
+      },
+      {
+        "value": "tools",
+        "type": "folder"
+      },
+      {
+        "value": "website-assets",
+        "type": "folder"
+      },
+      {
+        "value": "软著材料",
+        "type": "folder"
       }
     ],
     "include": []

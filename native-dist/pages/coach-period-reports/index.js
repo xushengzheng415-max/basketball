@@ -1,5 +1,6 @@
-const ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
+const ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/team/';
 const { requireEducationAccess } = require('../../utils/education-access');
+const { cloud } = require('../../utils/cloud');
 
 const REPORTS = {
   weekly: {
@@ -144,9 +145,9 @@ Page({
 
   refreshStatuses(forcedType) {
     const type = forcedType || this.data.activeType;
-    if (!wx.cloud || !wx.cloud.callFunction) return;
+    if (!cloud || !cloud.callFunction) return;
     const report = REPORTS[type];
-    wx.cloud.callFunction({
+    cloud.callFunction({
       name: 'sxGeneratePeriodReport',
       data: { action: 'list', reportType: type, periodKey: report.periodKey }
     }).then((response) => {
@@ -173,13 +174,13 @@ Page({
 
   async generateReport(student) {
     if (!(await requireEducationAccess())) return;
-    if (!wx.cloud || !wx.cloud.callFunction) {
+    if (!cloud || !cloud.callFunction) {
       wx.showToast({ title: '当前环境未启用云开发', icon: 'none' });
       return;
     }
     this.setData({ generatingId: student.id });
     wx.showLoading({ title: '扫描日报并生成' });
-    wx.cloud.callFunction({
+    cloud.callFunction({
       name: 'sxGeneratePeriodReport',
       data: {
         action: 'generate',
@@ -230,7 +231,7 @@ Page({
     if (!(await requireEducationAccess())) return;
     this.setData({ submitLabel: '云端发布中…' });
     wx.showLoading({ title: '正在发布报告' });
-    wx.cloud.callFunction({
+    cloud.callFunction({
       name: 'sxGeneratePeriodReport',
       data: { action: 'publish', reportId: this.data.currentStudent.reportId, content: this.data.reportText }
     }).then((response) => {

@@ -1,4 +1,4 @@
-const CLOUD_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const CLOUD_ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
 const COMMON_ROOT = CLOUD_ROOT + 'common/campus-manager/';
 const PERIOD_OPTIONS = ['1周', '1月', '1季度', '1年'];
 const CAMPUS_OPTIONS = ['全部校区', '浦东校区', '徐汇校区', '静安校区'];

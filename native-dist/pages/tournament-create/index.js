@@ -1,3 +1,5 @@
+const { cloud, normalizeCloudFileID } = require('../../utils/cloud');
+
 const typeOptions = ['联赛', '杯赛', '训练营赛', '友谊赛'];
 const ageOptions = ['不限年龄', 'U8（6-8岁）', 'U10（8-10岁）', 'U12（10-12岁）', 'U15（13-15岁）', '成人组'];
 const systemOptions = ['积分循环赛', '小组赛 + 淘汰赛', '单败淘汰赛', '双败淘汰赛', '单循环赛'];
@@ -36,13 +38,13 @@ function getImageExtension(filePath) {
 
 function uploadTournamentLogo(filePath) {
   return new Promise((resolve, reject) => {
-    if (!wx.cloud || !wx.cloud.uploadFile) {
+    if (!cloud || !cloud.uploadFile) {
       reject(new Error('云存储未初始化'));
       return;
     }
     const extension = getImageExtension(filePath);
     const random = Math.random().toString(36).slice(2, 8);
-    wx.cloud.uploadFile({
+    cloud.uploadFile({
       cloudPath: `tournament-logos/${Date.now()}-${random}.${extension}`,
       filePath,
       success: (result) => {
@@ -58,6 +60,7 @@ function uploadTournamentLogo(filePath) {
 function createDefaultForm() {
   return {
     logoUrl: '',
+    logoFileID: '',
     name: '',
     type: typeOptions[0],
     startDate: todayText(),
@@ -110,7 +113,8 @@ Page({
     const startDate = item.startDate || String(item.date || '').split(' ~ ')[0] || defaults.startDate;
     const endDate = item.endDate || String(item.date || '').split(' ~ ')[1] || defaults.endDate;
     const form = Object.assign({}, defaults, {
-      logoUrl: item.logoUrl || item.logoFileID || item.logo || '',
+      logoUrl: normalizeCloudFileID(item.logoFileID || item.logoUrl || item.logo || ''),
+      logoFileID: normalizeCloudFileID(item.logoFileID || item.logoUrl || item.logo || ''),
       name: item.name || '',
       type: item.type || defaults.type,
       startDate,
@@ -182,8 +186,12 @@ Page({
         this.setData({ uploadingLogo: true });
         wx.showLoading({ title: '上传赛事 Logo' });
         uploadTournamentLogo(file.tempFilePath)
-          .then((logoUrl) => {
-            this.updateForm('logoUrl', logoUrl);
+          .then((logoFileID) => {
+            const form = Object.assign({}, this.data.form, {
+              logoUrl: logoFileID,
+              logoFileID
+            });
+            this.setData({ form });
             wx.showToast({ title: 'Logo 已上传', icon: 'success' });
           })
           .catch((error) => {
@@ -199,7 +207,8 @@ Page({
   },
 
   removeLogo() {
-    this.updateForm('logoUrl', '');
+    const form = Object.assign({}, this.data.form, { logoUrl: '', logoFileID: '' });
+    this.setData({ form });
   },
 
   onVenueInput(event) {
@@ -286,13 +295,14 @@ Page({
   },
   buildTournament(status) {
     const form = this.data.form;
+    const logoFileID = normalizeCloudFileID(form.logoFileID || form.logoUrl || '');
     const existing = this.data.originalTournament || {};
     const editingId = this.data.editingTournamentId;
     const games = editingId ? Number(existing.games || 0) : this.estimateGameCount(form);
     return Object.assign({}, existing, {
       id: editingId || `tournament-${Date.now()}`,
-      logoUrl: form.logoUrl || '',
-      logoFileID: form.logoUrl || '',
+      logoUrl: logoFileID,
+      logoFileID,
       name: form.name.trim(),
       type: form.type,
       ageGroup: form.ageGroup,

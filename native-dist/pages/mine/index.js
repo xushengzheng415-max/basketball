@@ -1,6 +1,6 @@
-const { callCloud } = require('../../utils/cloud');
+const { callCloud, cloud } = require('../../utils/cloud');
 
-const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/';
+const ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/mine-profile/';
 const PROFILE_SYNCED_AT_KEY = 'mineProfileCloudSyncedAt';
 const PROFILE_SYNC_CACHE_MS = 60 * 1000;
 let profileSyncing = null;
@@ -39,9 +39,9 @@ function isCloudFile(filePath) {
 
 function uploadProfileAvatar(filePath) {
   if (!filePath || isCloudFile(filePath)) return Promise.resolve(filePath || '');
-  if (!wx.cloud || !wx.cloud.uploadFile) return Promise.reject(new Error('\u4e91\u5b58\u50a8\u672a\u521d\u59cb\u5316'));
+  if (!cloud || !cloud.uploadFile) return Promise.reject(new Error('\u4e91\u5b58\u50a8\u672a\u521d\u59cb\u5316'));
   const random = Math.random().toString(36).slice(2, 8);
-  return wx.cloud.uploadFile({
+  return cloud.uploadFile({
     cloudPath: `user-avatars/${Date.now()}-${random}.jpg`,
     filePath
   }).then((result) => {
@@ -51,8 +51,8 @@ function uploadProfileAvatar(filePath) {
 }
 
 function getAvatarDisplayUrl(fileID) {
-  if (!isCloudFile(fileID) || !wx.cloud || !wx.cloud.getTempFileURL) return Promise.resolve(fileID || '');
-  return wx.cloud.getTempFileURL({ fileList: [fileID] }).then((result) => {
+  if (!isCloudFile(fileID) || !cloud || !cloud.getTempFileURL) return Promise.resolve(fileID || '');
+  return cloud.getTempFileURL({ fileList: [fileID] }).then((result) => {
     const item = result && result.fileList && result.fileList[0];
     return (item && item.tempFileURL) || fileID;
   }).catch(() => fileID);
@@ -102,6 +102,13 @@ function buildSupportRows() {
 
 Page({
   data: {
+    staticAssets: {
+      background: ASSET_BASE + 'profile-bg.png',
+      back: ASSET_BASE + 'button-back.png',
+      defaultAvatar: ASSET_BASE + 'profile-avatar.png',
+      chevron: ASSET_BASE + 'icon-chevron.png',
+      save: ASSET_BASE + 'icon-save-check.png'
+    },
     profile: DEFAULT_PROFILE,
     draft: DEFAULT_PROFILE,
     preferences: DEFAULT_PREFERENCES,

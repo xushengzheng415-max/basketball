@@ -131,7 +131,7 @@ exports.main = async (event) => {
     out_trade_no: orderNo,
     notify_url: config.notifyUrl,
     amount: { total, currency: 'CNY' },
-    payer: { openid: wxContext.OPENID },
+      payer: { openid: wxContext.FROM_OPENID || wxContext.OPENID },
     attach: JSON.stringify({ productId: product.id || '', feature: product.featureSummary || '' })
   });
 
@@ -139,8 +139,8 @@ exports.main = async (event) => {
   await db.collection('sx_orders').add({
     data: {
       orderNo,
-      openid: wxContext.OPENID,
-      unionid: wxContext.UNIONID || '',
+    openid: wxContext.FROM_OPENID || wxContext.OPENID,
+    unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
       product,
       amount: total / 100,
       amountCents: total,

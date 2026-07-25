@@ -55,8 +55,8 @@ async function getPhoneNumber(phoneCode) {
 exports.main = async (event = {}) => {
   const wxContext = cloud.getWXContext();
   const now = db.serverDate();
-  const openid = wxContext.OPENID;
-  const unionid = wxContext.UNIONID || '';
+  const openid = wxContext.FROM_OPENID || wxContext.OPENID;
+  const unionid = wxContext.FROM_UNIONID || wxContext.UNIONID || '';
   const profile = event.profile || {};
   const mode = profile.mode || 'wechat';
 

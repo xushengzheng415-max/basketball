@@ -33,7 +33,7 @@ exports.main = async (event) => {
 
   const result = await db.collection('sx_entitlements')
     .where({
-      openid: wxContext.OPENID,
+    openid: wxContext.FROM_OPENID || wxContext.OPENID,
       status: 'active'
     })
     .orderBy('createdAt', 'desc')

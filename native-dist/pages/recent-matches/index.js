@@ -1,6 +1,6 @@
 const RECENT_MATCHES_KEY = 'sx_recent_matches';
 const TEAM_LOGO_BASE = '/assets/pages/scorer-v2/teams/';
-const STATUS_ICON_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/recent-matches/';
+const STATUS_ICON_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/recent-matches/';
 const { pullRoster, resolveImageUrl } = require('../../utils/roster-sync');
 
 function normalizeText(value) {
@@ -93,6 +93,9 @@ function getFilterView(filter) {
 
 Page({
   data: {
+    staticAssets: {
+      background: STATUS_ICON_BASE + 'recent-score-bg.png'
+    },
     matches: [],
     hasMatches: false,
     totalCount: 0,

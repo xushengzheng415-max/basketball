@@ -20,8 +20,8 @@ function createOrderNo() {
 function buildEntitlement(product, orderNo, wxContext, now) {
   const productId = product.id || '';
   const data = {
-    openid: wxContext.OPENID,
-    unionid: wxContext.UNIONID || '',
+      openid: wxContext.FROM_OPENID || wxContext.OPENID,
+      unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
     orderNo,
     productId,
     productName: product.name || '',
@@ -76,8 +76,8 @@ exports.main = async (event) => {
 
   const order = {
     orderNo,
-    openid: wxContext.OPENID,
-    unionid: wxContext.UNIONID || '',
+    openid: wxContext.FROM_OPENID || wxContext.OPENID,
+    unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
     product,
     amount: Number(product.price || 0),
     originalAmount: Number(product.originalPrice || product.price || 0),

@@ -1,3 +1,5 @@
+const { normalizeCloudFileID } = require('../../utils/cloud');
+
 const mainRoutes = {
   home: '/pages/home/index',
   tournament: '/pages/tournament/index',
@@ -12,6 +14,7 @@ const DEMO_TOURNAMENT_IDS = [
   'seed-u12-weekend',
   'seed-training-internal'
 ];
+const TOURNAMENT_ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tournament/';
 
 function hasPhoneLogin() {
   const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
@@ -25,6 +28,10 @@ function getLoginUrl(redirectPath) {
 
 Page({
   data: {
+    staticAssets: {
+      create: TOURNAMENT_ASSET_BASE + 'button-create-tournament.png',
+      footer: TOURNAMENT_ASSET_BASE + 'list-footer-no-more.png'
+    },
     name: '',
     location: '',
     date: '',
@@ -36,12 +43,12 @@ Page({
     visibleTournaments: [],
     hasVisibleTournaments: false,
     tabItems: [
-      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home.png', activeClass: '' },
-      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament-selected.png', activeClass: 'active' },
-      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
-      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-education.png', activeClass: '' },
-      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
-      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
+      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-home.png', activeClass: '' },
+      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-tournament-selected.png', activeClass: 'active' },
+      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
+      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-education.png', activeClass: '' },
+      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
+      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
     ]
   },
 
@@ -90,16 +97,25 @@ Page({
       dateText: tournament.date || '未选择日期',
       teamText: `${teamCount} 支球队`,
       gameText: `${gameCount} 场比赛`,
-      logoUrl: tournament.logoUrl || tournament.logoFileID || tournament.logo || '',
+      logoUrl: tournament.logoFileID || tournament.logoUrl || tournament.logo || '',
       logoText: name.slice(0, 1)
     });
   },
 
   loadTournaments() {
     const stored = wx.getStorageSync('tournaments') || [];
-    const tournaments = stored.filter((item) => DEMO_TOURNAMENT_IDS.indexOf(String(item.id)) === -1);
+    let resourcesRepaired = false;
+    const tournaments = stored
+      .filter((item) => DEMO_TOURNAMENT_IDS.indexOf(String(item.id)) === -1)
+      .map((item) => {
+        const source = item.logoFileID || item.logoUrl || item.logo || '';
+        const logoFileID = normalizeCloudFileID(source);
+        if (!logoFileID || logoFileID === item.logoFileID && logoFileID === item.logoUrl) return item;
+        resourcesRepaired = true;
+        return Object.assign({}, item, { logoFileID, logoUrl: logoFileID });
+      });
 
-    if (tournaments.length !== stored.length) {
+    if (tournaments.length !== stored.length || resourcesRepaired) {
       wx.setStorageSync('tournaments', tournaments);
       DEMO_TOURNAMENT_IDS.forEach((id) => wx.removeStorageSync(`games:${id}`));
     }

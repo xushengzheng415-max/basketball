@@ -1,5 +1,5 @@
 const GUIDE_STORAGE_KEY = 'campusManagerHomeGuideV4';
-const ASSET_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const ASSET_ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
 const MORE_MANAGEMENT_ORDER_KEY = 'campusManagerMoreManagementOrderV1';
 const MORE_MANAGEMENT_COLUMNS_KEY = 'campusManagerMoreManagementColumnsV1';
 

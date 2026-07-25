@@ -18,8 +18,8 @@ function toTime(value) {
 function buildEntitlement(code, wxContext, now) {
   const durationDays = Math.max(0, Number(code.durationDays || 31));
   const entitlement = {
-    openid: wxContext.OPENID,
-    unionid: wxContext.UNIONID || '',
+      openid: wxContext.FROM_OPENID || wxContext.OPENID,
+      unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
     redeemCode: code.code,
     redeemCodeId: code._id,
     batchId: code.batchId || '',
@@ -47,7 +47,7 @@ function buildEntitlement(code, wxContext, now) {
 
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext();
-  const openid = wxContext.OPENID;
+  const openid = wxContext.FROM_OPENID || wxContext.OPENID;
   if (!openid) return { ok: false, message: '请先登录后再兑换' };
 
   const codeText = normalizeCode(event && event.code);
@@ -72,7 +72,7 @@ exports.main = async (event) => {
     data: {
       status: 'used',
       usedByOpenid: openid,
-      usedByUnionid: wxContext.UNIONID || '',
+      usedByUnionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
       usedAt: now,
       updatedAt: now
     }

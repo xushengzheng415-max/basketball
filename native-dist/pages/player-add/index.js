@@ -1,7 +1,8 @@
 const ASSET_BASE = '/assets/pages/player-add/';
 const { pullRoster, pushRoster, resolveImageUrl } = require('../../utils/roster-sync');
+const { cloud } = require('../../utils/cloud');
 const DATA_RESET_VERSION = 'player-real-data-20260708';
-const TEAM_ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
+const TEAM_ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/team/';
 
 const DEFAULT_CATEGORIES = [
   { key: 'unassigned', label: '未分队', system: true }
@@ -624,12 +625,12 @@ Page({
         resolve(tempFilePath || '');
         return;
       }
-      if (!wx.cloud || !wx.cloud.uploadFile) {
+    if (!cloud || !cloud.uploadFile) {
         reject(new Error('云存储未初始化'));
         return;
       }
       const random = Math.random().toString(36).slice(2, 8);
-      wx.cloud.uploadFile({
+    cloud.uploadFile({
         cloudPath: `player-avatars/${Date.now()}-${random}.jpg`,
         filePath: tempFilePath,
         success: (res) => {

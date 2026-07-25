@@ -2,7 +2,7 @@
 
 > 用途：为 Codex / Claude Code / Cursor 等 AI 编程助手提供赛小蜂篮球项目上下文。
 > AI 在开始任何代码修改前，必须先阅读本文档。
-> 最后更新：2026-07-16
+> 最后更新：2026-07-24
 
 ---
 
@@ -63,6 +63,14 @@ Every experience, review, or production version update must complete the followi
 
 Public announcement copy must be written for customers and partners. Internal engineering evidence belongs only in `DEVELOPMENT_LOG.md` or the dated development log.
 
+Fixed Feishu release targets:
+
+- Version Base direct URL: `https://lxcmobp6gun.feishu.cn/base/X90rb0D18a9J8isi5OfcykK5nZe`.
+- Version Base knowledge-base entry: `https://lxcmobp6gun.feishu.cn/wiki/Cy2ew2TDWidvIpkG4MEc8R0znZc`.
+- Version table: `版本更新记录` (`tblvciPEwoSstRny`).
+- Each release must update and read back the version-table record, and create/read back a separate knowledge-base announcement named `赛小蜂篮球 <version> 版本更新公告`.
+- Repeated URLs with the same wiki token identify the same target and must not create duplicate records or announcements.
+
 ### Chinese Encoding Rules
 
 - All Chinese-facing files should be UTF-8 without BOM.
@@ -78,6 +86,25 @@ Public announcement copy must be written for customers and partners. Internal en
 - Reuse `native-dist/components/sxf-tabbar` for the bottom menu instead of page-specific duplicate tab bars.
 - Large images/icons should use cloud storage under `ui-assets/assets/`; local `native-dist/assets` is only source/backup to avoid the 2MB preview limit.
 - If a module worktree conflicts with this file, the canonical-path `AGENTS.md` wins.
+
+### Basketball / Football CloudBase Multi-Account CLI
+
+- Basketball and football belong to different Tencent Cloud accounts. Do not rely on the machine-wide `tcb login` state and do not manually switch global CLI accounts.
+- Use the unified launcher `E:\Documents\sxf-basketball\tools\sxf-cloud.ps1` for all CloudBase CLI operations:
+  - Basketball alias: `basketball` -> `E:\Documents\sxf-basketball` -> `sxf-basketball-d9gp6yt0rd1f7be4d`.
+  - Compatibility alias: `basketball-target` points to the same migrated basketball environment.
+  - Football alias: `football` -> `E:\Documents\sxf-football` -> `cloud1-7g8ckb3c7815a011`.
+- The short command `sxf-cloud` is registered in the current Windows user's PATH. If a Codex/Desktop process has not refreshed PATH, invoke the PowerShell script by its absolute path.
+- Read-only verification examples:
+  - `sxf-cloud basketball test`
+  - `sxf-cloud football test`
+- General command examples:
+  - `sxf-cloud basketball run fn list`
+  - `sxf-cloud football run fn list`
+- API Keys are stored outside Git under `%LOCALAPPDATA%\SxfCloud\credentials\` and encrypted with Windows DPAPI for the current Windows user. Never read, print, copy, log, commit, or move the credential files.
+- On the same machine and under the same Windows user, new Codex sessions reuse the encrypted API Keys automatically and must not ask the user to authorize or paste them again unless a Key is missing, revoked, expired, or fails validation.
+- Each invocation performs an isolated temporary API Key login and removes the temporary CLI credential directory afterward. The launcher fixes the target `envId` and rejects manual environment overrides.
+- Listing and status checks are read-only. Deployments, configuration updates, database writes, storage changes, function deletion, or other cloud mutations still require clear task authorization and task-appropriate verification.
 
 ### Mini Program Common Icon Library Rules
 

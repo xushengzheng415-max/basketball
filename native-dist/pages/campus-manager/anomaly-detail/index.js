@@ -1,4 +1,4 @@
-const COMMON_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/campus-manager/';
+const COMMON_ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/common/campus-manager/';
 
 const ANOMALY_DETAILS = {
   'duplicate-consume': { id: 'duplicate-consume', title: '重复课消扣减', classInfo: 'U8启蒙班', owner: '李老师 · 1号场', time: '7月18日 17:00', summary: '同一名学员在同一节课程被重复扣减1课时', impactValue: '1', impactUnit: '人', checkValue: '2', checkUnit: '笔记录' },

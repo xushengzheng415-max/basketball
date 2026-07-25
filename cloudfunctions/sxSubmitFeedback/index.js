@@ -9,8 +9,8 @@ exports.main = async (event) => {
   if (!content) return { ok: false, message: '反馈内容不能为空' };
 
   const item = {
-    openid: wxContext.OPENID,
-    unionid: wxContext.UNIONID || '',
+    openid: wxContext.FROM_OPENID || wxContext.OPENID,
+    unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
     type: event.type || '功能建议',
     content,
     contact: String(event.contact || '').trim(),

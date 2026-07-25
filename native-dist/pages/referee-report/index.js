@@ -1,6 +1,7 @@
 const RECENT_MATCHES_KEY = 'sx_recent_matches';
-const HERO_TEXTURE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/referee-report/background-report-hero-texture.png';
-const U10_BADGE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/referee-report/badge-u10-elite.png';
+const { cloud: sharedCloud } = require('../../utils/cloud');
+const HERO_TEXTURE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/referee-report/background-report-hero-texture.png';
+const U10_BADGE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/referee-report/badge-u10-elite.png';
 
 function pad(value) { return String(value).padStart(2, '0'); }
 function formatDateTime(value) {
@@ -14,13 +15,13 @@ function makeReportNo(record) {
 }
 function callCloud(name, data) {
   return new Promise((resolve, reject) => {
-    if (!wx.cloud || !wx.cloud.callFunction) return reject(new Error('当前环境未启用云开发'));
-    wx.cloud.callFunction({ name, data, success: (res) => resolve(res.result || {}), fail: reject });
+    if (!sharedCloud || !sharedCloud.callFunction) return reject(new Error('当前环境未启用云开发'));
+    sharedCloud.callFunction({ name, data, success: (res) => resolve(res.result || {}), fail: reject });
   });
 }
 function uploadCloudFile(cloudPath, filePath) {
   return new Promise((resolve, reject) => {
-    wx.cloud.uploadFile({ cloudPath, filePath, success: (res) => resolve(res.fileID), fail: reject });
+    sharedCloud.uploadFile({ cloudPath, filePath, success: (res) => resolve(res.fileID), fail: reject });
   });
 }
 
@@ -294,14 +295,14 @@ Page({
   downloadCloudFile(fileID) {
     return new Promise((resolve) => {
       if (!fileID || fileID.indexOf('cloud://') !== 0) return resolve(fileID || '');
-      wx.cloud.downloadFile({ fileID, success: (res) => resolve(res.tempFilePath || ''), fail: () => resolve('') });
+      sharedCloud.downloadFile({ fileID, success: (res) => resolve(res.tempFilePath || ''), fail: () => resolve('') });
     });
   },
 
   openPdf() {
     if (!this.data.pdfFileID) return;
     wx.showLoading({ title: '正在打开' });
-    wx.cloud.downloadFile({ fileID: this.data.pdfFileID, success: (res) => wx.openDocument({ filePath: res.tempFilePath, fileType: 'pdf', showMenu: true, complete: () => wx.hideLoading() }), fail: () => { wx.hideLoading(); wx.showToast({ title: 'PDF 下载失败', icon: 'none' }); } });
+    sharedCloud.downloadFile({ fileID: this.data.pdfFileID, success: (res) => wx.openDocument({ filePath: res.tempFilePath, fileType: 'pdf', showMenu: true, complete: () => wx.hideLoading() }), fail: () => { wx.hideLoading(); wx.showToast({ title: 'PDF 下载失败', icon: 'none' }); } });
   },
   goBack() {
     const pages = getCurrentPages(); if (pages.length > 1) wx.navigateBack(); else wx.reLaunch({ url: '/pages/home/index' });

@@ -28,7 +28,7 @@ exports.main = async (event) => {
   pdf.setTitle('赛后裁判报告 ' + reportNo);
   pdf.setProducer('赛小蜂篮球');
   const bytes = await pdf.save();
-  const openid = safeSegment(wxContext.OPENID, 'unknown');
+  const openid = safeSegment(wxContext.FROM_OPENID || wxContext.OPENID, 'unknown');
   const cloudPath = 'match-reports/' + openid + '/' + reportNo + '.pdf';
   const uploaded = await cloud.uploadFile({ cloudPath, fileContent: Buffer.from(bytes) });
   return { ok: true, fileID: uploaded.fileID, reportNo };

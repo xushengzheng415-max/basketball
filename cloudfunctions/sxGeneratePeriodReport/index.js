@@ -409,7 +409,7 @@ exports.main = async (event = {}) => {
     return await processNextJob();
   }
   const wxContext = cloud.getWXContext();
-  const openid = wxContext.OPENID || text(event.validationOwner || '', 80);
+  const openid = wxContext.FROM_OPENID || wxContext.OPENID || text(event.validationOwner || '', 80);
   if (!openid) return { ok: false, code: 'UNAUTHENTICATED', message: '无法识别当前微信用户' };
   try {
     if (!(await hasEducationAccess(openid))) {

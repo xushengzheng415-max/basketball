@@ -1,4 +1,4 @@
-const COMMON_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/campus-manager/';
+const COMMON_ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/common/campus-manager/';
 
 const ALL_ANOMALIES = [
   { id: 'cross-campus', category: 'other', level: '严重', tone: 'red', title: '跨校区授课', classInfo: 'U10提高班', person: '陈教练', impact: '-2课时 / -¥240', rule: '跨校区归属校验', owner: '张老师', evidence: '2', action: '去复核' },

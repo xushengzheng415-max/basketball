@@ -1,3 +1,5 @@
+const { cloud } = require('./cloud');
+
 const STORAGE_KEYS = ['teams', 'teamDrafts', 'teamCategories', 'players'];
 const IMAGE_URLS_KEY = 'rosterImageUrls';
 const ROSTER_SYNCED_AT_KEY = 'rosterCloudSyncedAt';
@@ -97,8 +99,7 @@ function saveLocalRoster(roster, imageUrls) {
 }
 
 function callSync(action, roster) {
-  if (!wx.cloud) return Promise.reject(new Error('云开发尚未初始化'));
-  return wx.cloud.callFunction({
+  return cloud.callFunction({
     name: 'sxSyncRoster',
     data: action === 'push' ? { action, roster } : { action }
   }).then((response) => {

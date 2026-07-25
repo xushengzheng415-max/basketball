@@ -1,17 +1,20 @@
-const cloudEnv = 'cloudbase-d4g93f0re5f3274c1';
+const {
+  RESOURCE_APPID,
+  RESOURCE_ENV,
+  initCloud,
+  installSharedResourcePageAdapter
+} = require('./utils/cloud');
+
+installSharedResourcePageAdapter();
 
 App({
   onLaunch() {
-    if (wx.cloud) {
-      wx.cloud.init({
-        env: cloudEnv,
-        traceUser: true
-      });
-    }
+    initCloud().catch((error) => console.warn('[cloud] shared environment init failed', error));
   },
   globalData: {
-    cloudEnv,
+    cloudEnv: RESOURCE_ENV,
     cloudEnvName: 'cloudbase',
+    cloudResourceAppid: RESOURCE_APPID,
     rosterReady: null
   }
 });

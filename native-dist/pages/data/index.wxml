@@ -1,5 +1,5 @@
 <view class="data-center">
-  <image class="page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/education/education-top-bg-clean.png" mode="aspectFill" />
+  <image class="page-bg" src="{{staticAssets.background}}" mode="aspectFill" />
 
   <view class="hero">
     <view class="status-bar"></view>
@@ -51,7 +51,7 @@
             <text class="range-title">{{item.title}}</text>
             <text class="range-desc">{{item.desc}}</text>
           </view>
-          <image class="range-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/icon-chevron.png" mode="aspectFit" />
+            <image class="range-chevron" src="{{staticAssets.chevron}}" mode="aspectFit" />
         </view>
       </view>
 

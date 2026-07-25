@@ -1,5 +1,6 @@
 const { cloudAsset } = require('../../utils/assets');
 const { pullRoster, pushRoster, resolveImageUrl, scheduleRosterPush } = require('../../utils/roster-sync');
+const { cloud } = require('../../utils/cloud');
 
 const ASSET_BASE = 'pages/team-create/';
 const STORAGE_KEYS = { teams: 'teams', drafts: 'teamDrafts', categories: 'teamCategories', players: 'players' };
@@ -97,13 +98,13 @@ function uploadTeamLogo(filePath) {
       resolve(filePath || '');
       return;
     }
-    if (!wx.cloud || !wx.cloud.uploadFile) {
+    if (!cloud || !cloud.uploadFile) {
       reject(new Error('云存储未初始化'));
       return;
     }
     const extension = getImageExtension(filePath);
     const random = Math.random().toString(36).slice(2, 8);
-    wx.cloud.uploadFile({
+    cloud.uploadFile({
       cloudPath: `team-logos/${Date.now()}-${random}.${extension}`,
       filePath,
       success: (uploadResult) => {

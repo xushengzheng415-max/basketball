@@ -1,7 +1,7 @@
 # 赛小蜂篮球云开发说明
 
 环境名称：`cloudbase`  
-环境 ID：`cloudbase-d4g93f0re5f3274c1`
+环境 ID：`sxf-basketball-d9gp6yt0rd1f7be4d`
 
 ## 云函数
 

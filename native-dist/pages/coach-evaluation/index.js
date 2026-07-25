@@ -1,5 +1,6 @@
-const ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
 const { requireEducationAccess } = require('../../utils/education-access');
+const { cloud } = require('../../utils/cloud');
 
 const STUDENT_PROFILES = {
   s1: { id: 's1', name: '林浩', number: '23', age: '9岁', avatar: ROOT + 'pages/team/avatar-linhao.png' },
@@ -260,13 +261,13 @@ Page({
       content: '将同步保存六维评分、综合分、教练评价与当日训练日报。',
       success: (result) => {
         if (!result.confirm) return;
-        if (!wx.cloud || !wx.cloud.callFunction) {
+    if (!cloud || !cloud.callFunction) {
           wx.showToast({ title: '当前环境未启用云开发', icon: 'none' });
           return;
         }
         this.setData({ publishing: true, publishLabel: '云端保存中…' });
         wx.showLoading({ title: '正在保存日报' });
-        wx.cloud.callFunction({ name: 'sxGeneratePeriodReport', data: dailyReportPayload(this.data) })
+    cloud.callFunction({ name: 'sxGeneratePeriodReport', data: dailyReportPayload(this.data) })
           .then((response) => {
             const cloudResult = response.result || {};
             if (!cloudResult.ok) throw new Error(cloudResult.message || '日报保存失败');

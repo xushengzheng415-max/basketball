@@ -6,12 +6,12 @@ const db = cloud.database();
 exports.main = async (event) => {
   const wxContext = cloud.getWXContext();
   const now = db.serverDate();
-  const openid = wxContext.OPENID;
+  const openid = wxContext.FROM_OPENID || wxContext.OPENID;
   const profile = event.profile || {};
 
   const data = {
     openid,
-    unionid: wxContext.UNIONID || profile.wxUnionId || '',
+    unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || profile.wxUnionId || '',
     nickName: profile.nickName || '赛小蜂用户',
     avatarUrl: profile.avatarUrl || '',
     phoneNumber: profile.phoneNumber || '',

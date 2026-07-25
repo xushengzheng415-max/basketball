@@ -1,4 +1,4 @@
-const { callCloud } = require('../../utils/cloud');
+const { callCloud, cloud } = require('../../utils/cloud');
 const { buildScoreVoice } = require('../../utils/scoreVoice');
 const { pullRoster, resolveImageUrl } = require('../../utils/roster-sync');
 
@@ -37,31 +37,31 @@ const DEFAULT_AUDIO_SETTINGS = {
 };
 const AUDIO_FILE_IDS = {
   attack: [
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/进攻音效1.mp3',
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/进攻音效2.mp3',
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/进攻音效3.mp3'
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/进攻音效1.mp3',
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/进攻音效2.mp3',
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/进攻音效3.mp3'
   ],
   defense: [
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/防守音效1.mp3',
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/防守音效2.mp3',
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/进攻防守音乐/防守音效3.mp3'
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/防守音效1.mp3',
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/防守音效2.mp3',
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/防守音效3.mp3'
   ],
-  miss: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/投篮未进音效.mp3'],
-  cheer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/欢呼声(1).mp3'],
-  horn: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/冲锋号.mp3'],
-  entry: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/出场音乐.mp3'],
-  anthem: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3'],
-  other: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/国歌.mp3'],
-  freeThrowMade: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/罚进音效.mp3'],
-  freeThrowMiss: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/自定义音效/罚球失误.mp3'],
+  miss: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/投篮未进音效.mp3'],
+  cheer: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/欢呼声(1).mp3'],
+  horn: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/冲锋号.mp3'],
+  entry: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/出场音乐.mp3'],
+  anthem: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/国歌.mp3'],
+  other: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/国歌.mp3'],
+  freeThrowMade: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/罚进音效.mp3'],
+  freeThrowMiss: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/自定义音效/罚球失误.mp3'],
   rest: [
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/暂停休息音乐/暂停音乐1.mp3',
-    'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/暂停休息音乐/暂停音乐2.mp3'
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/暂停休息音乐/暂停音乐1.mp3',
+    'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/暂停休息音乐/暂停音乐2.mp3'
   ],
-  buzzer: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/蜂鸣器.mp3'],
-  countdown: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/倒计时5秒.mp3'],
-  two: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/2分进球音效.mp3'],
-  three: ['cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3/比赛音效/三分球.mp3']
+  buzzer: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/比赛音效/蜂鸣器.mp3'],
+  countdown: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/比赛音效/倒计时5秒.mp3'],
+  two: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/比赛音效/2分进球音效.mp3'],
+  three: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/比赛音效/三分球.mp3']
 };
 const AUDIO_SOURCE_KEYS = {
   attack: ['attack'],
@@ -2021,11 +2021,11 @@ Page({
       });
     };
     const downloadCloudFile = () => {
-      if (!wx.cloud || !wx.cloud.downloadFile) {
+    if (!cloud || !cloud.downloadFile) {
         resolveWithCloudFunction();
         return;
       }
-      wx.cloud.downloadFile({
+    cloud.downloadFile({
         fileID: fileId,
         success: (result) => {
           const tempFilePath = result && result.tempFilePath;
@@ -2046,8 +2046,8 @@ Page({
       playSrc(this.audioUrlCache[fileId]);
       return;
     }
-    if (wx.cloud && wx.cloud.getTempFileURL && fileId.indexOf('cloud://') === 0) {
-      wx.cloud.getTempFileURL({
+    if (cloud && cloud.getTempFileURL && fileId.indexOf('cloud://') === 0) {
+      cloud.getTempFileURL({
         fileList: [fileId],
         success: (res) => {
           const item = res.fileList && res.fileList[0];

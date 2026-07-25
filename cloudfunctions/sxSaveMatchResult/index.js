@@ -26,8 +26,8 @@ exports.main = async (event) => {
   const recordId = text(result.id || result.recordId, '', 100);
   const now = db.serverDate();
   const data = {
-    openid: wxContext.OPENID,
-    unionid: wxContext.UNIONID || '',
+    openid: wxContext.FROM_OPENID || wxContext.OPENID,
+    unionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
     recordId,
     tournamentId: text(result.tournamentId, '', 100),
     gameId: text(result.gameId, '', 100),
@@ -65,7 +65,7 @@ exports.main = async (event) => {
   };
 
   if (recordId) {
-    const existing = await db.collection('sx_match_results').where({ openid: wxContext.OPENID, recordId }).limit(1).get();
+  const existing = await db.collection('sx_match_results').where({ openid: wxContext.FROM_OPENID || wxContext.OPENID, recordId }).limit(1).get();
     if (existing.data && existing.data.length) {
       await db.collection('sx_match_results').doc(existing.data[0]._id).update({ data });
       return { ok: true, id: existing.data[0]._id, updated: true };

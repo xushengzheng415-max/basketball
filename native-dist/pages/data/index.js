@@ -1,5 +1,5 @@
-const featureBase = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/data/';
-const tabBase = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/tabbar/';
+const featureBase = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/data/';
+const tabBase = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/common/tabbar/';
 
 const features = [
   { title: '赛事数据', icon: `${featureBase}icon-event-data.png`, status: '规划中', statusClass: '', cardClass: 'feature-card' },
@@ -52,6 +52,10 @@ function openUrl(url) {
 
 Page({
   data: {
+    staticAssets: {
+      background: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/education/education-top-bg-clean.png',
+      chevron: `${featureBase}icon-chevron.png`
+    },
     features,
     rangeItems,
     tabItems

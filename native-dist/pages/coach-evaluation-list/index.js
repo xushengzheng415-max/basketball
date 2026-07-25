@@ -1,5 +1,6 @@
-const ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
+const ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/team/';
 const { requireEducationAccess } = require('../../utils/education-access');
+const { cloud } = require('../../utils/cloud');
 const FALLBACK = [
   { id: 's1', name: '林浩', number: '23', avatar: ROOT + 'avatar-linhao.png', attendanceStatus: 'present' },
   { id: 's2', name: '刘宇辰', number: '8', avatar: ROOT + 'avatar-liuyuchen.png', attendanceStatus: 'present' },
@@ -66,13 +67,13 @@ Page({
       return;
     }
     if (!(await requireEducationAccess())) return;
-    if (!wx.cloud || !wx.cloud.callFunction) {
+    if (!cloud || !cloud.callFunction) {
       this.finishWithoutQueue();
       return;
     }
     this.setData({ submitting: true, finishLabel: '正在创建周报任务…' });
     wx.showLoading({ title: '正在汇总日报' });
-    wx.cloud.callFunction({
+    cloud.callFunction({
       name: 'sxGeneratePeriodReport',
       data: {
         action: 'queue',

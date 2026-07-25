@@ -1,5 +1,5 @@
 const { pullRosterIfStale, resolveImageUrl, scheduleRosterPush } = require('../../utils/roster-sync');
-const ASSET_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/team/';
+const ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/team/';
 const DEFAULT_TEAM_LOGO = `${ASSET_BASE}mini-logo-unassigned.png`;
 const DATA_RESET_VERSION = 'player-real-data-20260708';
 

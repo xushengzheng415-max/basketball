@@ -10,7 +10,7 @@
 
     <view class="create-row">
       <view class="create-entry" bindtap="goCreateTournament">
-        <image class="create-img" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/button-create-tournament.png" mode="aspectFit" />
+      <image class="create-img" src="{{staticAssets.create}}" mode="aspectFit" />
       </view>
     </view>
   </view>
@@ -43,7 +43,7 @@
         </view>
         <view class="detail-hit" data-id="{{item.id}}" catchtap="openTournament">进入详情</view>
       </view>
-      <image class="list-footer" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/list-footer-no-more.png" mode="aspectFit" />
+      <image class="list-footer" src="{{staticAssets.footer}}" mode="aspectFit" />
     </view>
 
     <view class="empty-card" wx:else>

@@ -1,4 +1,4 @@
-const ROOT='cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const ROOT='cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
 const COMMON=ROOT+'common/campus-manager/';
 Page({data:{navTop:20,navHeight:44,navSpacer:76,avatar:ROOT+'pages/team/avatar-linhao.png',icons:{back:COMMON+'icon-back-orange-256.png',calendar:COMMON+'icon-calendar-orange-256.png',clock:COMMON+'icon-clock-orange-256.png',warning:COMMON+'icon-warning-orange-256.png',check:COMMON+'icon-check-orange-256.png'},records:[
 {id:'r1',date:'2025-05-20（周二）',time:'17:00-18:30',className:'启航班',lesson:'-1课时',type:'正常消课'},

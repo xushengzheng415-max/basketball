@@ -80,9 +80,9 @@ async function getOrCreateUser(openid, unionid) {
 
 exports.main = async (event = {}) => {
   const wxContext = cloud.getWXContext();
-  const openid = wxContext.OPENID;
+  const openid = wxContext.FROM_OPENID || wxContext.OPENID;
   if (!openid) return { ok: false, code: 'NO_OPENID', message: '\u672a\u83b7\u53d6\u5230\u5fae\u4fe1\u8eab\u4efd\uff0c\u8bf7\u91cd\u65b0\u767b\u5f55' };
-  const user = await getOrCreateUser(openid, wxContext.UNIONID || '');
+  const user = await getOrCreateUser(openid, wxContext.FROM_UNIONID || wxContext.UNIONID || '');
 
   if (event.action === 'profile') {
     const avatarFileID = String(user.avatarUrl || '');

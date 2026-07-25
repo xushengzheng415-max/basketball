@@ -16,7 +16,7 @@ Page({data:{tournamentId:'',tournament:null,teamOptions:[],allTeamOptions:[],ava
   const games=decorateGames(storedGames,allTeamOptions),regular=!!(item&&item.scheduleMode==='regular');
   const name=String(item&&item.name||'未命名赛事');
   this.setData({
-    tournament:item?Object.assign({},item,{metaText:(item.location||'未填写地点')+' · '+(item.date||'未选择日期'),logoUrl:item.logoUrl||item.logoFileID||item.logo||'',logoText:name.slice(0,1)}):null,
+    tournament:item?Object.assign({},item,{metaText:(item.location||'未填写地点')+' · '+(item.date||'未选择日期'),logoUrl:item.logoFileID||item.logoUrl||item.logo||'',logoText:name.slice(0,1)}):null,
     allTeamOptions,
     availableTeamOptions,
     tournamentTeams:teamOptions,

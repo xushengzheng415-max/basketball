@@ -1,11 +1,11 @@
 <view class="mine-profile-page">
-  <image class="page-bg" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/profile-bg.png" mode="aspectFill" />
+  <image class="page-bg" src="{{staticAssets.background}}" mode="aspectFill" />
 
   <view class="top-area">
     <view class="status-bar"></view>
     <view class="nav-row">
       <view class="back-hit" bindtap="goBack">
-        <image class="back-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/button-back.png" mode="aspectFit" />
+        <image class="back-icon" src="{{staticAssets.back}}" mode="aspectFit" />
       </view>
       <text class="nav-title">个人资料修改</text>
     </view>
@@ -15,7 +15,7 @@
     <view class="profile-card">
       <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
         <image wx:if="{{draft.avatarUrl}}" class="avatar-img" src="{{draft.avatarUrl}}" mode="aspectFill" />
-        <image wx:else class="avatar-img" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/profile-avatar.png" mode="aspectFit" />
+        <image wx:else class="avatar-img" src="{{staticAssets.defaultAvatar}}" mode="aspectFit" />
       </button>
       <view class="profile-copy">
         <input class="profile-name-input" type="nickname" value="{{draft.nickName}}" placeholder="校区管理员" bindinput="onDraftInput" data-field="nickName" />
@@ -29,7 +29,7 @@
         <text class="row-label">{{item.label}}</text>
         <input wx:if="{{item.editable}}" class="row-input" value="{{item.value}}" placeholder="{{item.placeholder}}" data-field="{{item.field}}" bindinput="onDraftInput" />
         <text wx:else class="row-value {{item.valueClass}}">{{item.value}}</text>
-        <image wx:if="{{item.showChevron}}" class="row-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-chevron.png" mode="aspectFit" />
+          <image wx:if="{{item.showChevron}}" class="row-chevron" src="{{staticAssets.chevron}}" mode="aspectFit" />
       </view>
     </view>
 
@@ -42,7 +42,7 @@
         <view wx:for="{{commonSettingRows}}" wx:key="key" class="settings-row" data-url="{{item.url}}" data-label="{{item.label}}" bindtap="onSettingTap">
           <image class="settings-icon settings-icon-accent" src="{{item.icon}}" mode="aspectFit" />
           <text class="settings-label">{{item.label}}</text>
-          <image class="settings-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-chevron.png" mode="aspectFit" />
+        <image class="settings-chevron" src="{{staticAssets.chevron}}" mode="aspectFit" />
         </view>
       </view>
     </view>
@@ -56,14 +56,14 @@
         <view wx:for="{{supportRows}}" wx:key="key" class="settings-row" data-url="{{item.url}}" data-label="{{item.label}}" bindtap="onSettingTap">
           <image class="settings-icon" src="{{item.icon}}" mode="aspectFit" />
           <text class="settings-label">{{item.label}}</text>
-          <image class="settings-chevron" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-chevron.png" mode="aspectFit" />
+        <image class="settings-chevron" src="{{staticAssets.chevron}}" mode="aspectFit" />
         </view>
       </view>
     </view>
 
     <view class="page-actions">
       <view class="save-button" bindtap="saveProfile">
-        <image class="save-icon" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/mine-profile/icon-save-check.png" mode="aspectFit" />
+      <image class="save-icon" src="{{staticAssets.save}}" mode="aspectFit" />
         <text>保存资料</text>
       </view>
       <view class="logout-button" bindtap="logout">

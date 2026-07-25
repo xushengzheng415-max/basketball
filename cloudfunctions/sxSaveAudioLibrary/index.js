@@ -5,7 +5,7 @@ const db = cloud.database();
 const _ = db.command;
 
 const CHANNELS = ['buzzer', 'three', 'two', 'miss', 'cheer', 'applause', 'attack', 'defense', 'rest', 'start', 'voice', 'ambience'];
-const DEFAULT_BUCKET_PREFIX = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/mc-mp3';
+const DEFAULT_BUCKET_PREFIX = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3';
 const DEFAULT_AUDIO_ITEMS = [
   { channel: 'buzzer', name: '\u8702\u9e23\u5668', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/\u8702\u9e23\u5668.mp3`, sort: 10 },
   { channel: 'three', name: '\u4e09\u5206\u7403', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/\u4e09\u5206\u7403.mp3`, sort: 20 },
@@ -101,14 +101,14 @@ exports.main = async (event) => {
 
   for (let i = 0; i < items.length; i += 1) {
     const item = Object.assign({}, items[i], {
-      createdByOpenid: wxContext.OPENID || '',
-      createdByUnionid: wxContext.UNIONID || '',
+      createdByOpenid: wxContext.FROM_OPENID || wxContext.OPENID || '',
+      createdByUnionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
       createdAt: now,
       updatedAt: now
     });
     saved.push(await upsertAudioItem(item, {
-      createdByOpenid: wxContext.OPENID || '',
-      createdByUnionid: wxContext.UNIONID || '',
+    createdByOpenid: wxContext.FROM_OPENID || wxContext.OPENID || '',
+    createdByUnionid: wxContext.FROM_UNIONID || wxContext.UNIONID || '',
       createdAt: now,
       updatedAt: now
     }));

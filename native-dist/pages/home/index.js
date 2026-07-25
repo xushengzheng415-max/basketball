@@ -9,8 +9,8 @@ const mainRoutes = {
 
 const RECENT_MATCHES_KEY = 'sx_recent_matches';
 const TEAM_LOGO_BASE = '/assets/pages/scorer-v2/teams/';
-const STATUS_ICON_BASE = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/pages/recent-matches/';
-const CLOUD_ASSET_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const STATUS_ICON_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/recent-matches/';
+const CLOUD_ASSET_ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
 const TAB_PREFETCH_ASSETS = [
   CLOUD_ASSET_ROOT + 'pages/team/player-library-bg.png',
   CLOUD_ASSET_ROOT + 'pages/team/logo-and-title.png',
@@ -120,6 +120,13 @@ function decorateRecentMatch(item, teamLogoMap) {
 
 Page({
   data: {
+    staticAssets: {
+      brandLogo: CLOUD_ASSET_ROOT + 'home/brand-horizontal-logo.png',
+      quickBackground: CLOUD_ASSET_ROOT + 'home/quick-match/home-hero-bg.png',
+      statToday: CLOUD_ASSET_ROOT + 'home/quick-match/stat-today.png',
+      statPending: CLOUD_ASSET_ROOT + 'home/quick-match/stat-pending.png',
+      statFinished: CLOUD_ASSET_ROOT + 'home/quick-match/stat-finished.png'
+    },
     showLoginGuide: true,
     currentRole: '校区管理员',
     todayStats: {
@@ -130,12 +137,12 @@ Page({
     hasRecentMatches: false,
     recentMatches: [],
     tabItems: [
-      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-home-selected.png', activeClass: 'active' },
-      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-tournament.png', activeClass: '' },
-      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
-      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-education.png', activeClass: '' },
-      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
-      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
+      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-home-selected.png', activeClass: 'active' },
+      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-tournament.png', activeClass: '' },
+      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
+      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-education.png', activeClass: '' },
+      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
+      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
     ]
   },
 
@@ -143,14 +150,14 @@ Page({
     return {
       title: '赛小蜂篮球｜赛事、计分、教务一体化管理',
       path: '/pages/home/index',
-      imageUrl: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/share-card-5x4-v2.png'
+      imageUrl: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/home/share-card-5x4-v2.png'
     };
   },
 
   onShareTimeline() {
     return {
       title: '赛小蜂篮球｜赛事、计分、教务一体化管理',
-      imageUrl: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/home/share-logo-20260715.png'
+      imageUrl: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/home/share-logo-20260715.png'
     };
   },
 

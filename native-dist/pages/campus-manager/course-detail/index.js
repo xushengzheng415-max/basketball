@@ -1,4 +1,4 @@
-const CLOUD_ROOT='cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/';
+const CLOUD_ROOT='cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
 const COMMON_ROOT=CLOUD_ROOT+'common/campus-manager/';
 const COURSE_DETAILS={
   'course-0900':{id:'course-0900',badge:'U8启蒙班',title:'U8篮球启蒙班',date:'2026.07.19 周日',time:'09:00–10:30',campus:'浦东校区',venue:'1号馆',coach:'王教练',planned:'16',actual:'15',attendance:'94',type:'启蒙训练',age:'7–8岁',level:'U8'},

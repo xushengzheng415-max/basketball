@@ -1,4 +1,4 @@
-const ICON_ROOT = 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/common/campus-manager/';
+const ICON_ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/common/campus-manager/';
 
 const CONTENT_SOURCE = [
   { id: '1', symbol: '报', title: '家长成长报告 · 小明', meta: '关联班级：U10进阶班 · 2025-05-20 10:30', state: '待审核', tone: 'orange', coach: '张教练', key: 'pending' },
