@@ -71,6 +71,7 @@ Fixed Feishu release targets:
 - Version table: `版本更新记录` (`tblvciPEwoSstRny`).
 - Each release must update and read back the version-table record, and create/read back a separate knowledge-base announcement named `赛小蜂篮球 <version> 版本更新公告`.
 - Repeated URLs with the same wiki token identify the same target and must not create duplicate records or announcements.
+- 飞书凭据仅保存在当前 Windows 用户的本地文件 `C:\Users\15043\AppData\Roaming\Codex\feishu-knowledge-base\feishu.env`；该文件不入仓库、不读取或输出密钥。文件存在时，后续同步必须通过 `--env-file` 复用，不得重复向用户索取 App ID 或 App Secret。
 
 ### Chinese Encoding Rules
 

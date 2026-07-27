@@ -123,7 +123,9 @@
 
 - 微信小程序：用户确认 `2.0.3` 已发布正式版。
 - 仓库：已提交 `39472d6`（`chore(project): sync 2.0.3 release and Chinese docs`），并已同步至 GitHub `origin/codex/education-2.0` 与 Gitee `gitee/codex/education-2.0`。
-- 飞书版本 Base 与知识库公告：本机飞书写入凭据未配置，`credential-status` 显示 `ready: false`；因此未写入、不虚报已同步。待配置凭据后，需要补写版本表记录并创建、回读 `赛小蜂篮球 2.0.3 版本更新公告`。
+- 飞书版本 Base：已创建并回读 `2.0.3` 记录 `recvqzzb1Mhe5m`，发布状态为“已发布”，验证结果为“验证通过”。
+- 飞书知识库公告：已创建并回读 [赛小蜂篮球 2.0.3 版本更新公告](https://lxcmobp6gun.feishu.cn/wiki/EQcMwAcxzi7VxikqknBc1P1mnUe)，文档类型为 `docx`，标题正确，写入并回读 18 个内容块。
+- 授权与边界：本机本地授权文件已可复用；本次只同步 `2.0.3` 正式版的用户可见更新内容，不包含内部提交信息、密钥或私有排障记录。
 
 ## 六、下一步
 
