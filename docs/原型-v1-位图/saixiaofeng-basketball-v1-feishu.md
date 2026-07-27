@@ -52,14 +52,14 @@
 
 ### 4. 竖屏裁判比分板最终版（1.0必做）
 
-![竖屏裁判比分板最终版](../prototype-assets/screens/33-scorer-mobile-final-drawers-small-mc.png)
+![竖屏裁判比分板最终版](../原型素材/页面/33-scorer-mobile-final-drawers-small-mc.png)
 
 - 核心计分、计时、犯规、暂停、换人、技术统计、MC小按钮、左右球员抽屉、交换场地。
 - 规则：加分按钮最大；MC按钮不能大于加分按钮；裁判签到不放本页。
 
 ### 5. PAD横屏比分板最终版（1.0建议做）
 
-![PAD横屏比分板最终版](../prototype-assets/screens/32-scorer-pad-final-no-referee-checkin.png)
+![PAD横屏比分板最终版](../原型素材/页面/32-scorer-pad-final-no-referee-checkin.png)
 
 - 记录台/PAD横屏使用，三栏布局，左右首发/替补抽屉，中间交换场地，底部MC面板。
 - 如果工期紧，可作为1.0增强项，但设计上应提前确认。

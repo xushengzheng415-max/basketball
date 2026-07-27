@@ -11,9 +11,8 @@
 | 字段 | 值 |
 |------|-----|
 | 项目名称 | 赛小蜂篮球 |
-| 产品形态 | 微信小程序 + PC 管理后台原型 + 云函数 |
-| 本地路径 | `C:\Users\Frank\Documents\sxf-basketball` |
-| 兼容路径 | `C:\Users\Frank\Documents\赛小蜂篮球` 是指向最终路径的 Junction 桥接路径 |
+| 产品形态 | 微信小程序 + PC 赛训经营增长平台原型 + 云函数 |
+| 本地路径 | `E:\Documents\sxf-basketball` |
 | GitHub | `https://github.com/xushengzheng415-max/basketball.git` |
 | Gitee | `https://gitee.com/saixiaofeng/basketball.git` |
 | 当前主分支 | `main` |
@@ -27,9 +26,9 @@
 
 ### Source Path
 
-- Canonical project path: `C:\Users\Frank\Documents\sxf-basketball`.
-- The legacy Chinese project path is only a Junction bridge to the canonical path.
-- WeChat DevTools, cloud functions, admin deployment, local builds, and repo sync should use the canonical path.
+- 唯一项目路径：`E:\Documents\sxf-basketball`。
+- 所有本地工作均使用该唯一路径。
+- 微信开发者工具、云函数、后台部署、本地构建和仓库同步均使用该唯一路径。
 
 ### Main Project Scope
 
@@ -76,6 +75,7 @@ Fixed Feishu release targets:
 ### Chinese Encoding Rules
 
 - All Chinese-facing files should be UTF-8 without BOM.
+- 新增以中文为主要内容的文档、需求记录、开发记录、方案和说明文件时，文件名必须使用中文；仅行业固定品牌名、协议名、代码文件名或技术标识可保留原文。
 - Prefer Node.js `fs.readFileSync/writeFileSync(..., "utf8")` for reading/writing Chinese text.
 - If PowerShell or terminal output shows mojibake, verify the real file bytes/content with Node before changing the file.
 - User-facing UI and admin pages must display Chinese. Internal variable names, enums, API fields, and data keys can stay in English.
@@ -213,7 +213,17 @@ Fixed Feishu release targets:
 
 ## 四、当前功能
 
-根据 README、开发记录与 1.0 原型规划，当前阶段按“机构端赛事 MVP”聚焦：
+根据 README、开发记录与最新产品决策：小程序现有能力仍以赛事 MVP 为主；PC 端的主产品定位是“赛训经营增长平台”，赛事中心为可按需启用的附加模块。
+
+### 4.0 产品层级
+
+| 层级 | 模块 | 职责 |
+|---|---|---|
+| PC 核心平台 | 赛训经营增长平台 | 机构身份、校区、学员、教练、课程、课消、经营数据与增长管理 |
+| PC 附加模块 | 赛事中心 | 赛事、赛制、赛程、场次、现场人员安排、赛果和赛事数据 |
+| 小程序现场工具 | 横屏计分台、球员数据统计台、MC 控制台 | 比赛现场执行与协同控制 |
+
+未启用赛事中心的机构，仍可完整使用赛训经营增长平台的核心能力。
 
 ### 4.1 小程序 1.0 底部菜单规划
 
@@ -236,11 +246,11 @@ Fixed Feishu release targets:
 - 工作台：顶部品牌为“赛小蜂篮球”；“快速比赛”模块展示快捷创建比赛/进入计分入口；快捷功能开放“创建赛事、快捷比赛、创建球队、创建球员”，其中快捷比赛用于试听课/临时单场比赛，只录入临时球队名、球员姓名和号码，不写入正式球员库。
 - 赛事管理：创建赛事、赛事列表、赛事状态筛选、赛事详情、主客队设置、球员选择。
 - 球队与球员库：支持创建球队、添加球员姓名、号码、所属球队、身高、年龄、位置等基础信息；支持球员列表展示、搜索与筛选。
-- 比赛计分：竖屏与 PAD 横屏计分板、主客队比分、节数、比赛时间、正/倒计时、暂停、犯规、换人、技术统计、结束比赛与生成赛果。
+- 比赛计分：手机与 PAD 统一使用横屏计分台；支持主客队比分、节数、比赛时间、正/倒计时、暂停、犯规、换人、技术统计、结束比赛与生成赛果。
 - 现场控制：暂停次数、交换场地、重开确认、撤销记录、最近操作记录。
 - MC 音效：计分板内提供进攻/防守/得分播报/暂停音乐/MVP 音效等播放控制；“我的”中提供 MC 音效设置入口。
 - 我的：个人资料修改、头像昵称、基础账号信息、退出登录、意见反馈。
-- PC 后台：会员码、MC 音乐库、权益管理相关能力。
+- PC 后台现状：现有原型包含会员码、MC 音乐库、权益管理等演示能力；后续优先建设赛训经营增长平台中的赛事中心模块，不将赛事中心误作 PC 核心平台的全部内容。
 - 云端音乐：后台维护 MC 音频，小程序计分盘拉取云端音乐库。
 
 ### 4.3 1.0 灰度展示 / 后续版本功能
@@ -248,9 +258,19 @@ Fixed Feishu release targets:
 - 工作台快捷功能：创建赛事、快捷比赛、创建球队、创建球员在 1.0 中为启用状态；销课统计、课后评价、生成报表等在 1.0 中展示为灰度待开发。
 - 教务中心：多校区管理、课程排课、学员签到、课消统计、课后评价、教练工资在 1.0 中仅作为介绍页展示。
 - 数据中心：赛事数据、球员技术统计、球队对比、成长趋势、家长端同步、数据海报在 1.0 中仅作为介绍页展示。
-- 报表能力：首发阵容名单报告、赛后裁判报告、正式赛事 PDF 报表、现场打印可作为 2.0 迭代能力规划。
+- 报表能力：首发阵容名单报告、赛后赛事报告、正式赛事 PDF 报表、现场打印可作为 2.0 迭代能力规划。
 - 家长端传播：球员数据海报、球员卡、徽章成长体系、赛照自动抠图与多皮肤底板属于后续版本规划。
 - 教务 + 赛事联动：学员库导入参赛名单、课堂积分联动、课后对抗赛表现回传等能力后置到 2.0。
+
+### 4.4 已确认的后续赛事现场协作决策
+
+- 计分板无论手机或 PAD，统一只提供横屏控制台；不再设计、开发或验收竖屏计分界面。
+- 一人模式保留原版完整控制；二人模式新增独立球员数据统计台，主控只保留队伍级比赛控制；三人模式再新增独立 MC 控制台。
+- 球员数据统计台负责阵容、换人、球员得分归属和个人技术统计，只读同步主控的比分、时间、节次和 24/14 秒，不能修改球队总比分或比赛时间。
+- 三人模式中 MC 被第三台设备接管后，主控底部 MC 区域必须锁定置灰并提示“MC 已由其他设备接管”；主控只保留二次确认的紧急停止全部音频与接管能力。
+- 不建立独立主裁判身份、通用裁判库或裁判登录入口。机构赛事管理员在 PC 后台可直接指派内部教练，或通过服务号邀请外请人员。
+- 外请人员不录入机构教练库，不进入课程、课消、薪酬或经营数据；其服务号绑定身份和权限仅限被分配的赛事场次。
+- 三席协同功能已记录在 `docs/三席协同现场控制台功能记录.md`；当前优先级是 PC 端赛事中心模块。
 ---
 
 ## 五、开发命令
@@ -341,7 +361,7 @@ Issue -> Spec -> Plan -> Branch -> Code -> Test -> Review -> Docs -> PR -> Sync
 git switch -c codex/fix-scorer-timeout
 ```
 
-完成后同步：
+仅在用户明确授权“上传仓库”“提交推送”或指定推送目标后同步：
 
 ```bash
 git push origin <branch>

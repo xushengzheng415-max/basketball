@@ -1,6 +1,6 @@
 {
     "name": "saixiaofeng-basketball",
-    "version": "2.0.2",
+    "version": "2.0.3",
     "private": true,
     "description": "赛小蜂篮球微信小程序：篮球比赛计分、赛事管理、球员库、MC 音效与 AI 比分播报工具",
     "scripts": {

@@ -760,9 +760,9 @@
 
 复杂图标、复杂按钮、背景光效、报表徽章、MC 音效图标等，不建议前端硬画，统一按切图资产处理。
 
-资产目录：`docs/prototype-assets/`
+资产目录：`docs/原型素材/`
 
-详细清单见：`docs/prototype-assets/README.md`
+详细清单见：`docs/原型素材/README.md`
 
 开发原则：
 
@@ -774,8 +774,8 @@
 ## 12. 比分板最终修订规则
 
 > 本节为比分板页面的最新实现准则，优先级高于前文旧版描述。  
-> 最新竖屏原型以 `docs/prototype-assets/screens/33-scorer-mobile-final-drawers-small-mc.png` 为准。  
-> 最新横屏 PAD 原型以 `docs/prototype-assets/screens/32-scorer-pad-final-no-referee-checkin.png` 为准。
+> 最新竖屏原型以 `docs/原型素材/页面/33-scorer-mobile-final-drawers-small-mc.png` 为准。
+> 最新横屏 PAD 原型以 `docs/原型素材/页面/32-scorer-pad-final-no-referee-checkin.png` 为准。
 
 ### 12.1 裁判签到位置调整
 
@@ -904,15 +904,15 @@ MC 按钮包含：
 
 ### 12.6 最新图片索引
 
-- 竖屏最终版：`docs/prototype-assets/screens/33-scorer-mobile-final-drawers-small-mc.png`
-- 横屏最终版：`docs/prototype-assets/screens/32-scorer-pad-final-no-referee-checkin.png`
-- 首发阵容报告：`docs/prototype-assets/screens/25-starting-lineup-report.png`
-- 赛后裁判报告：`docs/prototype-assets/screens/26-referee-postgame-report.png`
+- 竖屏最终版：`docs/原型素材/页面/33-scorer-mobile-final-drawers-small-mc.png`
+- 横屏最终版：`docs/原型素材/页面/32-scorer-pad-final-no-referee-checkin.png`
+- 首发阵容报告：`docs/原型素材/页面/25-starting-lineup-report.png`
+- 赛后裁判报告：`docs/原型素材/页面/26-referee-postgame-report.png`
 
 ## 13. 页面原型图总索引
 
 > 开发阅读方式：每个页面先看对应图片，再看前文页面结构和组件拆解。  
-> 图片目录：`docs/prototype-assets/screens/`
+> 图片目录：`docs/原型素材/页面/`
 
 | 编号 | 页面 | 原型图 |
 |---|---|---|
@@ -954,24 +954,24 @@ MC 按钮包含：
 
 开发实现比分板时，只以以下两张为准：
 
-![手机竖屏最终版](prototype-assets/screens/33-scorer-mobile-final-drawers-small-mc.png)
+![手机竖屏最终版](原型素材/页面/33-scorer-mobile-final-drawers-small-mc.png)
 
-![PAD 横屏最终版](prototype-assets/screens/32-scorer-pad-final-no-referee-checkin.png)
+![PAD 横屏最终版](原型素材/页面/32-scorer-pad-final-no-referee-checkin.png)
 
 ### 13.2 关键报表页面
 
-![首发阵容名单报告](prototype-assets/screens/25-starting-lineup-report.png)
+![首发阵容名单报告](原型素材/页面/25-starting-lineup-report.png)
 
-![赛后裁判报告](prototype-assets/screens/26-referee-postgame-report.png)
+![赛后裁判报告](原型素材/页面/26-referee-postgame-report.png)
 
-![赛事报表](prototype-assets/screens/19-match-report.png)
+![赛事报表](原型素材/页面/19-match-report.png)
 
 ### 13.3 教务与数据页面
 
-![机构工作台](prototype-assets/screens/06-org-workbench.png)
+![机构工作台](原型素材/页面/06-org-workbench.png)
 
-![教务管理](prototype-assets/screens/09-edu-admin.png)
+![教务管理](原型素材/页面/09-edu-admin.png)
 
-![赛事教务数据中心](prototype-assets/screens/10-data-center.png)
+![赛事教务数据中心](原型素材/页面/10-data-center.png)
 
-![学员详情数据中台](prototype-assets/screens/21-student-detail-data-center.png)
+![学员详情数据中台](原型素材/页面/21-student-detail-data-center.png)

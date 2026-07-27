@@ -4,13 +4,13 @@ from zipfile import ZipFile, ZIP_DEFLATED
 import html, struct, os
 
 root = Path.cwd()
-out_dir = root / 'docs' / 'prototype-v1-raster'
+out_dir = root / 'docs' / '原型-v1-位图'
 out_dir.mkdir(parents=True, exist_ok=True)
 md_path = out_dir / 'saixiaofeng-basketball-v1-feishu.md'
 docx_path = out_dir / 'saixiaofeng-basketball-v1-feishu.docx'
 
-v1 = Path('docs/prototype-v1-raster')
-screens = Path('docs/prototype-assets/screens')
+v1 = Path('docs/原型-v1-位图')
+screens = Path('docs/原型素材/页面')
 
 sections = [
     ('登录页', v1/'01-登录页.png', '1.0必做', ['微信登录、游客体验、协议勾选、品牌露出。', '实现重点：登录状态、游客态、协议勾选校验。']),

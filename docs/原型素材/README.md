@@ -6,7 +6,7 @@
 ## 1. 目录规则
 
 ```text
-docs/prototype-assets/
+docs/原型素材/
 ├── brand/             # Logo、品牌图形
 ├── backgrounds/       # 背景、蜂窝纹理、球馆光效
 ├── icons/             # 功能图标、状态图标
