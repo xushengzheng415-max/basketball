@@ -116,7 +116,7 @@ npm run admin:serve
 2. 上传 `admin/` 目录里的文件。
 3. 在“自定义域名”里绑定 `sxfbasketball.cn` 或 `admin.sxfbasketball.cn`。
 4. 按控制台提示到域名 DNS 添加 CNAME 解析。
-5. 等 HTTPS 证书签发完成后，用 `https://sxfbasketball.cn` 访问后台。
+5. 等 HTTPS 证书签发完成后，用 `https://www.sxfbasketball.cn` 访问后台。
 
 更推荐使用 `admin.sxfbasketball.cn` 做后台域名，主域名 `sxfbasketball.cn` 后面还能留给官网或下载介绍页。
 

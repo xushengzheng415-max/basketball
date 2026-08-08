@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sxfbasketball.cn/sitemap.xml
+Sitemap: https://www.sxfbasketball.cn/sitemap.xml

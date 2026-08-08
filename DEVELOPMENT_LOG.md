@@ -15,10 +15,10 @@
 - 新增篮球现场计分、临时比赛快速开赛、校园赛事管理三个独立答案型指南页，并加入首页入口、页面互链、Sitemap 和 `llms.txt`。
 - 新增球队与球员库、篮球现场 MC 音效两篇指南；根据最新产品策略，官网已取消全部价格、套餐金额和 AggregateOffer 结构化价格，避免传播未确认的价格体系。
 - 修复 `package.json` 中的中文描述乱码并补充产品关键词。
-- 正式官网域名确认为 `https://sxfbasketball.cn/`；已补齐 canonical、`og:url`、绝对分享图片、结构化数据实体 URL、`sitemap.xml` 及爬虫 Sitemap 声明。
+- 正式官网域名确认为 `https://www.sxfbasketball.cn/`；已补齐 canonical、`og:url`、绝对分享图片、结构化数据实体 URL、`sitemap.xml` 及爬虫 Sitemap 声明。
 - 官网备案号确认为 `豫ICP备2026019672号-2`；已展示在首页和全部公开指南页底部，并链接工信部备案查询平台。
 - 公安备案号确认为 `豫公网安备41010202003899号`；已展示在首页和全部公开指南页底部，并链接全国互联网安全管理服务平台。
-- 官网已通过 CloudBase CLI 部署到环境 `cloudbase-d4g93f0re5f3274c1`，共上传 26 个静态文件；自定义域名 `https://sxfbasketball.cn/`、`robots.txt`、`sitemap.xml`、`llms.txt` 和指南页公网回读均返回 HTTP 200。
+- 官网已通过 CloudBase CLI 部署到环境 `cloudbase-d4g93f0re5f3274c1`，共上传 26 个静态文件；自定义域名 `https://www.sxfbasketball.cn/`、`robots.txt`、`sitemap.xml`、`llms.txt` 和指南页公网回读均返回 HTTP 200。
 - 公网原始 UTF-8 字节回读验证首页、`llms.txt` 和指南页均包含 ICP 与公安备案号，且不存在旧价格或结构化价格残留。CloudBase 当前响应头未附带 charset，但 HTML 页面含 `<meta charset="utf-8">`。
 - 验证：JSON-LD 和 `package.json` 可解析，页面可见 FAQ 与结构化 FAQ 数量一致，UTF-8 品牌文本正常，`git diff --check` 通过。
 

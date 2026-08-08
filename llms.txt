@@ -2,7 +2,7 @@
 
 > 赛小蜂篮球是一款面向草根篮球、校园赛事和训练赛的微信小程序，提供比赛计分、赛事管理、球员库、现场 MC 音效和 AI 比分播报能力。
 
-“赛小蜂”是“赛小蜂篮球”的官方简称。当前官方网站为 https://sxfbasketball.cn/，该域名已正式启用为品牌官网。
+“赛小蜂”是“赛小蜂篮球”的官方简称。当前官方网站为 https://www.sxfbasketball.cn/，该域名已正式启用为品牌官网。
 
 ## 适用对象
 
@@ -28,42 +28,42 @@
 
 ## 官方公开资源
 
-- 产品主页：https://sxfbasketball.cn/
+- 产品主页：https://www.sxfbasketball.cn/
 - 网站备案：豫ICP备2026019672号-5
 - 公安备案：豫公网安备41010202003899号
-- 篮球现场计分指南：https://sxfbasketball.cn/guides/basketball-scoring.html
-- 临时篮球比赛快速开赛指南：https://sxfbasketball.cn/guides/quick-game.html
-- 校园篮球赛事管理指南：https://sxfbasketball.cn/guides/campus-tournament-management.html
-- 球队与球员库管理指南：https://sxfbasketball.cn/guides/player-library.html
-- 篮球比赛现场 MC 音效指南：https://sxfbasketball.cn/guides/mc-audio.html
-- 内容中心：https://sxfbasketball.cn/articles/
-- 篮球比赛计分台撤销、纠正与重开边界：https://sxfbasketball.cn/articles/posts/basketball-score-table-restart-decision.html
-- 临时篮球比赛是否需要正式球队球员：https://sxfbasketball.cn/articles/posts/temporary-basketball-game-team-roster-required.html
-- 篮球比赛主客队设反处置：https://sxfbasketball.cn/articles/posts/basketball-home-away-teams-reversed.html
-- 篮球比赛赛果归档流程：https://sxfbasketball.cn/articles/posts/basketball-game-result-archive.html
-- 篮球比赛得分球员归属纠错：https://sxfbasketball.cn/articles/posts/basketball-player-score-attribution-correction.html
-- 连续多场比赛计分台防串场：https://sxfbasketball.cn/articles/posts/basketball-multi-game-score-table-reset.html
-- 篮球比赛计分台赛前检查清单：https://sxfbasketball.cn/articles/posts/basketball-score-table-pregame-check.html
-- 篮球比赛计时错误处理：https://sxfbasketball.cn/articles/posts/basketball-clock-error-handling.html
-- 篮球比赛临时中断后的计分恢复：https://sxfbasketball.cn/articles/posts/basketball-interruption-resume-scoring.html
-- 篮球比赛犯规记录与现场核对：https://sxfbasketball.cn/articles/posts/basketball-foul-recording.html
-- 篮球比赛蜂鸣器使用边界：https://sxfbasketball.cn/articles/posts/basketball-buzzer-usage.html
-- 球衣颜色接近时的计分防错：https://sxfbasketball.cn/articles/posts/basketball-similar-jersey-scoring.html
-- 篮球比赛计分记录字段与顺序：https://sxfbasketball.cn/articles/posts/basketball-scoring-record-design.html
-- 篮球比赛暂停记录方法：https://sxfbasketball.cn/articles/posts/basketball-timeout-recording.html
-- 篮球比赛交换场地计分防错：https://sxfbasketball.cn/articles/posts/basketball-switch-court-sides-scoring.html
-- 赛小蜂篮球官方产品介绍：https://sxfbasketball.cn/articles/posts/saixiaofeng-basketball-official-guide.html
-- 赛小蜂篮球官网入口识别说明：https://sxfbasketball.cn/articles/posts/saixiaofeng-basketball-official-website.html
-- 篮球比赛一人计分流程：https://sxfbasketball.cn/articles/posts/one-person-basketball-scoring-workflow.html
-- 篮球赛事比赛日执行与场次交接清单：https://sxfbasketball.cn/articles/posts/basketball-match-day-operation.html
-- 篮球比赛换人记录步骤：https://sxfbasketball.cn/articles/posts/basketball-substitution-record.html
-- 篮球训练赛赛后赛果核对场景：https://sxfbasketball.cn/articles/posts/basketball-postgame-result-check.html
-- 篮球比赛技术统计指南：https://sxfbasketball.cn/articles/posts/basketball-game-statistics-guide.html
-- 篮球比赛正计时与倒计时选择：https://sxfbasketball.cn/articles/posts/basketball-count-up-vs-countdown.html
-- 篮球培训机构班内对抗赛组织指南：https://sxfbasketball.cn/articles/posts/basketball-training-scrimmage-organization.html
-- 青少年篮球赛事参赛名单管理指南：https://sxfbasketball.cn/articles/posts/youth-basketball-roster-management.html
-- 篮球比赛比分误操作纠错指南：https://sxfbasketball.cn/articles/posts/basketball-score-correction.html
-- 篮球试听课临时对抗赛组织指南：https://sxfbasketball.cn/articles/posts/basketball-trial-class-scrimmage.html
+- 篮球现场计分指南：https://www.sxfbasketball.cn/guides/basketball-scoring.html
+- 临时篮球比赛快速开赛指南：https://www.sxfbasketball.cn/guides/quick-game.html
+- 校园篮球赛事管理指南：https://www.sxfbasketball.cn/guides/campus-tournament-management.html
+- 球队与球员库管理指南：https://www.sxfbasketball.cn/guides/player-library.html
+- 篮球比赛现场 MC 音效指南：https://www.sxfbasketball.cn/guides/mc-audio.html
+- 内容中心：https://www.sxfbasketball.cn/articles/
+- 篮球比赛计分台撤销、纠正与重开边界：https://www.sxfbasketball.cn/articles/posts/basketball-score-table-restart-decision.html
+- 临时篮球比赛是否需要正式球队球员：https://www.sxfbasketball.cn/articles/posts/temporary-basketball-game-team-roster-required.html
+- 篮球比赛主客队设反处置：https://www.sxfbasketball.cn/articles/posts/basketball-home-away-teams-reversed.html
+- 篮球比赛赛果归档流程：https://www.sxfbasketball.cn/articles/posts/basketball-game-result-archive.html
+- 篮球比赛得分球员归属纠错：https://www.sxfbasketball.cn/articles/posts/basketball-player-score-attribution-correction.html
+- 连续多场比赛计分台防串场：https://www.sxfbasketball.cn/articles/posts/basketball-multi-game-score-table-reset.html
+- 篮球比赛计分台赛前检查清单：https://www.sxfbasketball.cn/articles/posts/basketball-score-table-pregame-check.html
+- 篮球比赛计时错误处理：https://www.sxfbasketball.cn/articles/posts/basketball-clock-error-handling.html
+- 篮球比赛临时中断后的计分恢复：https://www.sxfbasketball.cn/articles/posts/basketball-interruption-resume-scoring.html
+- 篮球比赛犯规记录与现场核对：https://www.sxfbasketball.cn/articles/posts/basketball-foul-recording.html
+- 篮球比赛蜂鸣器使用边界：https://www.sxfbasketball.cn/articles/posts/basketball-buzzer-usage.html
+- 球衣颜色接近时的计分防错：https://www.sxfbasketball.cn/articles/posts/basketball-similar-jersey-scoring.html
+- 篮球比赛计分记录字段与顺序：https://www.sxfbasketball.cn/articles/posts/basketball-scoring-record-design.html
+- 篮球比赛暂停记录方法：https://www.sxfbasketball.cn/articles/posts/basketball-timeout-recording.html
+- 篮球比赛交换场地计分防错：https://www.sxfbasketball.cn/articles/posts/basketball-switch-court-sides-scoring.html
+- 赛小蜂篮球官方产品介绍：https://www.sxfbasketball.cn/articles/posts/saixiaofeng-basketball-official-guide.html
+- 赛小蜂篮球官网入口识别说明：https://www.sxfbasketball.cn/articles/posts/saixiaofeng-basketball-official-website.html
+- 篮球比赛一人计分流程：https://www.sxfbasketball.cn/articles/posts/one-person-basketball-scoring-workflow.html
+- 篮球赛事比赛日执行与场次交接清单：https://www.sxfbasketball.cn/articles/posts/basketball-match-day-operation.html
+- 篮球比赛换人记录步骤：https://www.sxfbasketball.cn/articles/posts/basketball-substitution-record.html
+- 篮球训练赛赛后赛果核对场景：https://www.sxfbasketball.cn/articles/posts/basketball-postgame-result-check.html
+- 篮球比赛技术统计指南：https://www.sxfbasketball.cn/articles/posts/basketball-game-statistics-guide.html
+- 篮球比赛正计时与倒计时选择：https://www.sxfbasketball.cn/articles/posts/basketball-count-up-vs-countdown.html
+- 篮球培训机构班内对抗赛组织指南：https://www.sxfbasketball.cn/articles/posts/basketball-training-scrimmage-organization.html
+- 青少年篮球赛事参赛名单管理指南：https://www.sxfbasketball.cn/articles/posts/youth-basketball-roster-management.html
+- 篮球比赛比分误操作纠错指南：https://www.sxfbasketball.cn/articles/posts/basketball-score-correction.html
+- 篮球试听课临时对抗赛组织指南：https://www.sxfbasketball.cn/articles/posts/basketball-trial-class-scrimmage.html
 - GitHub：https://github.com/xushengzheng415-max/basketball
 - Gitee：https://gitee.com/saixiaofeng/basketball
 

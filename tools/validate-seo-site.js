@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 
 const root = path.resolve(__dirname, '..')
-const officialOrigin = 'https://sxfbasketball.cn'
+const officialOrigin = 'https://www.sxfbasketball.cn'
 const errors = []
 
 function read(relativePath) {
