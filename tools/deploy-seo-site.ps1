@@ -8,7 +8,7 @@ $ErrorActionPreference = 'Stop'
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $launcher = Join-Path $PSScriptRoot 'sxf-cloud.ps1'
 $validator = Join-Path $PSScriptRoot 'validate-seo-site.js'
-$officialOrigin = 'https://54football.top'
+$officialOrigin = 'https://sxfbasketball.cn'
 $cloudOrigin = 'https://sxf-basketball-d9gp6yt0rd1f7be4d-1419431905.tcloudbaseapp.com'
 
 if (-not (Test-Path -LiteralPath $launcher)) {

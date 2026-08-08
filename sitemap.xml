@@ -1,79 +1,223 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://54football.top/</loc>
-    <lastmod>2026-07-25</lastmod>
+    <loc>https://sxfbasketball.cn/</loc>
+    <lastmod>2026-07-28</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://54football.top/articles/</loc>
-    <lastmod>2026-07-25</lastmod>
+    <loc>https://sxfbasketball.cn/articles/</loc>
+    <lastmod>2026-08-02</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://54football.top/articles/posts/basketball-scoring-software-guide.html</loc>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-score-table-restart-decision.html</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/temporary-basketball-game-team-roster-required.html</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-home-away-teams-reversed.html</loc>
+    <lastmod>2026-08-02</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-game-result-archive.html</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-player-score-attribution-correction.html</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-multi-game-score-table-reset.html</loc>
+    <lastmod>2026-08-01</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-score-table-pregame-check.html</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-clock-error-handling.html</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-interruption-resume-scoring.html</loc>
+    <lastmod>2026-07-31</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-foul-recording.html</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-buzzer-usage.html</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-similar-jersey-scoring.html</loc>
+    <lastmod>2026-07-30</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-scoring-record-design.html</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-timeout-recording.html</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-switch-court-sides-scoring.html</loc>
+    <lastmod>2026-07-29</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/saixiaofeng-basketball-official-guide.html</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/saixiaofeng-basketball-official-website.html</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.9</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/one-person-basketball-scoring-workflow.html</loc>
+    <lastmod>2026-07-28</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-match-day-operation.html</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-substitution-record.html</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-postgame-result-check.html</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-scoring-software-guide.html</loc>
     <lastmod>2026-07-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/articles/posts/basketball-training-management-software-guide.html</loc>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-training-management-software-guide.html</loc>
     <lastmod>2026-07-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/articles/posts/youth-basketball-tournament-management-guide.html</loc>
+    <loc>https://sxfbasketball.cn/articles/posts/youth-basketball-tournament-management-guide.html</loc>
     <lastmod>2026-07-22</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/articles/posts/basketball-game-statistics-guide.html</loc>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-game-statistics-guide.html</loc>
     <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/articles/posts/basketball-count-up-vs-countdown.html</loc>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-count-up-vs-countdown.html</loc>
     <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/articles/posts/basketball-training-scrimmage-organization.html</loc>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-training-scrimmage-organization.html</loc>
     <lastmod>2026-07-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/guides/basketball-scoring.html</loc>
+    <loc>https://sxfbasketball.cn/articles/posts/youth-basketball-roster-management.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-score-correction.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/articles/posts/basketball-trial-class-scrimmage.html</loc>
+    <lastmod>2026-07-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://sxfbasketball.cn/guides/basketball-scoring.html</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/guides/quick-game.html</loc>
+    <loc>https://sxfbasketball.cn/guides/quick-game.html</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/guides/campus-tournament-management.html</loc>
+    <loc>https://sxfbasketball.cn/guides/campus-tournament-management.html</loc>
     <lastmod>2026-07-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/guides/player-library.html</loc>
+    <loc>https://sxfbasketball.cn/guides/player-library.html</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://54football.top/guides/mc-audio.html</loc>
+    <loc>https://sxfbasketball.cn/guides/mc-audio.html</loc>
     <lastmod>2026-07-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

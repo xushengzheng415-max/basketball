@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://54football.top/sitemap.xml
+Sitemap: https://sxfbasketball.cn/sitemap.xml

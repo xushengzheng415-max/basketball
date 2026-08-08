@@ -4,7 +4,7 @@ const fs = require('fs')
 const path = require('path')
 
 const root = path.resolve(__dirname, '..')
-const officialOrigin = 'https://54football.top'
+const officialOrigin = 'https://sxfbasketball.cn'
 const errors = []
 
 function read(relativePath) {
@@ -19,6 +19,53 @@ const articleDirectory = path.join(root, 'articles', 'posts')
 const articleFiles = fs.readdirSync(articleDirectory)
   .filter((name) => name.endsWith('.html'))
   .sort()
+
+const homepage = read('index.html')
+const homepageTitle = homepage.match(/<title>([\s\S]*?)<\/title>/i)
+const homepageCanonical = homepage.match(
+  /<link\s+rel="canonical"\s+href="([^"]+)"/i
+)
+const homepageH1 = homepage.match(/<h1>([\s\S]*?)<\/h1>/i)
+const homepageJsonLd = [...homepage.matchAll(
+  /<script\s+type="application\/ld\+json">([\s\S]*?)<\/script>/gi
+)]
+
+if (!homepageTitle || !homepageTitle[1].includes('赛小蜂篮球官网')) {
+  fail('index.html: title must identify the official 赛小蜂篮球 website')
+}
+if (!homepageCanonical || homepageCanonical[1] !== `${officialOrigin}/`) {
+  fail('index.html: canonical must match the official homepage')
+}
+if (!homepageH1 || !homepageH1[1].replace(/<[^>]+>/g, '').includes('赛小蜂篮球')) {
+  fail('index.html: visible H1 must include the full brand name')
+}
+if (homepageJsonLd.length === 0) {
+  fail('index.html: missing JSON-LD')
+} else {
+  let hasWebsiteBrand = false
+  for (const block of homepageJsonLd) {
+    try {
+      const data = JSON.parse(block[1])
+      const nodes = Array.isArray(data['@graph']) ? data['@graph'] : [data]
+      if (nodes.some((node) => (
+        node['@type'] === 'WebSite' &&
+        node.name === '赛小蜂篮球' &&
+        node.url === `${officialOrigin}/` &&
+        (
+          node.alternateName === '赛小蜂' ||
+          (Array.isArray(node.alternateName) && node.alternateName.includes('赛小蜂'))
+        )
+      ))) {
+        hasWebsiteBrand = true
+      }
+    } catch (error) {
+      fail(`index.html: invalid JSON-LD: ${error.message}`)
+    }
+  }
+  if (!hasWebsiteBrand) {
+    fail('index.html: missing WebSite brand data for 赛小蜂篮球 / 赛小蜂')
+  }
+}
 
 for (const fileName of articleFiles) {
   const relativePath = path.join('articles', 'posts', fileName)
