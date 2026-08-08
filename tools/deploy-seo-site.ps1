@@ -27,6 +27,7 @@ try {
         @{ Local = 'robots.txt'; Cloud = 'robots.txt' },
         @{ Local = 'sitemap.xml'; Cloud = 'sitemap.xml' },
         @{ Local = 'llms.txt'; Cloud = 'llms.txt' },
+        @{ Local = 'baidu_verify_codeva-kUSgCMgBRs.html'; Cloud = 'baidu_verify_codeva-kUSgCMgBRs.html' },
         @{ Local = 'articles'; Cloud = 'articles' },
         @{ Local = 'guides'; Cloud = 'guides' },
         @{ Local = 'website-assets'; Cloud = 'website-assets' },
@@ -51,7 +52,7 @@ try {
     }
 
     if (-not $SkipPublicReadback) {
-        $paths = @('/', '/articles/', '/sitemap.xml', '/robots.txt', '/llms.txt')
+        $paths = @('/', '/articles/', '/sitemap.xml', '/robots.txt', '/llms.txt', '/baidu_verify_codeva-kUSgCMgBRs.html')
         $articleExpectations = Get-ChildItem -LiteralPath (Join-Path $projectRoot 'articles\posts') `
             -Filter '*.html' -File | ForEach-Object {
                 $html = [System.IO.File]::ReadAllText($_.FullName, [System.Text.Encoding]::UTF8)
