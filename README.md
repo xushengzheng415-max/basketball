@@ -3,9 +3,10 @@
 赛小蜂篮球小程序前端项目，当前阶段聚焦快速比赛、横屏计分、赛事创建、球员库、登录授权和个人中心。
 
 - 官方品牌：赛小蜂篮球（简称“赛小蜂”）
-- 当前官网：https://54football.top/
+- 当前官网：https://www.sxfbasketball.cn/
+- 内容中心：https://www.sxfbasketball.cn/articles/
 
-> 新品牌域名正在备案，正式启用前以当前官网和官方公告为准。
+> `https://www.sxfbasketball.cn/` 是赛小蜂篮球唯一正式官网；旧域名已永久停用。
 
 ## 当前形态
 
