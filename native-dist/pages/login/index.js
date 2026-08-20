@@ -3,41 +3,81 @@ const { callCloud } = require('../../utils/cloud');
 Page({
   data: {
     agreed: true,
-    loggingIn: false
+    loggingIn: false,
+    hasSavedWechat: false
   },
+
+  onShow() {
+    this.refreshSavedWechat();
+    const savedProfile = this.getSavedWechatProfile();
+    if (savedProfile) {
+      setTimeout(() => this.loginWithSavedWechat(), 120);
+    }
+  },
+
+  getSavedWechatProfile() {
+    const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
+    if (!profile || !profile.loggedIn || profile.mode !== 'wechat') return null;
+    if (!profile.userId && !profile.wxOpenId && !profile.phoneNumber) return null;
+    return profile;
+  },
+
+  refreshSavedWechat() {
+    this.setData({ hasSavedWechat: !!this.getSavedWechatProfile() });
+  },
+
   toggleAgreement() {
     this.setData({ agreed: !this.data.agreed });
   },
+
   ensureAgreed() {
     if (this.data.agreed) return true;
     wx.showToast({ title: '请先勾选用户协议', icon: 'none' });
     return false;
   },
+
   loginByWechat(event) {
     if (!this.ensureAgreed() || this.data.loggingIn) return;
 
     const detail = event.detail || {};
-    if (detail.errMsg && detail.errMsg.indexOf('ok') < 0) {
+    const errMsg = detail.errMsg || '';
+    if (errMsg && errMsg.indexOf('ok') < 0) {
       wx.showToast({ title: '需要授权手机号后登录', icon: 'none' });
       return;
     }
 
+    const phoneCode = detail.code || '';
     wx.getUserProfile({
       desc: '用于完善赛小蜂篮球个人资料',
       success: (res) => {
-        this.finishWechatLogin({
-          phoneCode: detail.code || '',
-          userInfo: res.userInfo || {}
-        });
+        this.finishWechatLogin({ phoneCode, userInfo: res.userInfo || {} });
       },
       fail: () => {
-        this.finishWechatLogin({
-          phoneCode: detail.code || '',
-          userInfo: {}
-        });
+        this.finishWechatLogin({ phoneCode, userInfo: {} });
       }
     });
   },
+
+  loginWithSavedWechat() {
+    if (!this.ensureAgreed() || this.data.loggingIn) return;
+
+    const savedProfile = this.getSavedWechatProfile();
+    if (!savedProfile) {
+      this.refreshSavedWechat();
+      wx.showToast({ title: '请重新授权登录', icon: 'none' });
+      return;
+    }
+
+    const profile = Object.assign({}, savedProfile, {
+      loggedIn: true,
+      mode: 'wechat',
+      loggedAt: Date.now()
+    });
+    wx.setStorageSync('loginProfile', profile);
+    wx.setStorageSync('userProfile', profile);
+    wx.reLaunch({ url: '/pages/home/index' });
+  },
+
   async finishWechatLogin(options) {
     const userInfo = options.userInfo || {};
     const profile = {
@@ -50,15 +90,18 @@ Page({
 
     this.setData({ loggingIn: true });
     wx.showLoading({ title: '登录中' });
+
     const result = await callCloud('sxLogin', {
       profile,
       phoneCode: options.phoneCode || ''
     });
+
     wx.hideLoading();
     this.setData({ loggingIn: false });
 
     if (!result || !result.ok) {
-      wx.showToast({ title: result && result.message ? result.message : '登录失败', icon: 'none' });
+      const message = result && result.message ? result.message : '登录失败，请稍后重试';
+      wx.showToast({ title: message, icon: 'none' });
       return;
     }
 
@@ -66,13 +109,22 @@ Page({
       userId: result.userId || '',
       wxOpenId: result.openid || '',
       wxUnionId: result.unionid || '',
-      phoneNumber: result.phoneNumber || ''
+      phoneNumber: result.phoneNumber || '',
+      phoneAuthFailed: !!result.phoneAuthFailed
     });
 
     wx.setStorageSync('loginProfile', savedProfile);
     wx.setStorageSync('userProfile', savedProfile);
-    wx.switchTab({ url: '/pages/home/index' });
+
+    if (result.phoneAuthFailed) {
+      wx.showToast({ title: '已登录，手机号稍后可补授权', icon: 'none' });
+      setTimeout(() => wx.reLaunch({ url: '/pages/home/index' }), 600);
+      return;
+    }
+
+    wx.reLaunch({ url: '/pages/home/index' });
   },
+
   enterAsGuest() {
     if (!this.ensureAgreed()) return;
     const profile = {

@@ -1,0 +1,44 @@
+<view class="event-page">
+  <image class="page-background" src="{{assets.background}}" mode="aspectFill" />
+  <view class="nav-bar"><view class="back-button" bindtap="goBack"><image src="{{assets.back}}" mode="aspectFit" /></view><text class="nav-title">赛事球队数据</text><view class="nav-placeholder"></view></view>
+
+  <view class="event-hero">
+    <view class="hero-row"><image class="event-logo" src="{{tournament.logo}}" mode="aspectFit" /><text class="event-name">{{tournament.name}}</text></view>
+    <view class="hero-row team-row"><image class="mini-team-logo" src="{{team.logo}}" mode="aspectFit" /><text class="team-name">{{team.name}}</text><text class="hero-dot">•</text><text class="hero-note">本赛事数据</text></view>
+  </view>
+
+  <view class="tabs"><view class="{{overviewTabClass}}" data-tab="overview" bindtap="changeTab">赛事概览</view><view class="{{recordTabClass}}" data-tab="records" bindtap="changeTab">比赛记录</view></view>
+  <view class="empty-panel" wx:if="{{empty}}">赛事或球队不存在，暂时无法生成统计</view>
+
+  <block wx:if="{{!empty}}">
+    <block wx:if="{{overviewVisible}}">
+      <view class="stats-card">
+        <view class="stat-cell"><image src="{{assets.match}}" /><text class="stat-label">比赛</text><text class="stat-value">{{stats.matches}}</text></view>
+        <view class="stat-cell"><image src="{{assets.trophy}}" /><text class="stat-label">胜</text><text class="stat-value green">{{stats.wins}}</text></view>
+        <view class="stat-cell"><image src="{{assets.shield}}" /><text class="stat-label">负</text><text class="stat-value red">{{stats.losses}}</text></view>
+        <view class="stat-cell"><image src="{{assets.rate}}" /><text class="stat-label">胜率</text><text class="stat-value orange">{{stats.winRate}}</text></view>
+        <view class="stat-cell"><image src="{{assets.ranking}}" /><text class="stat-label">排名</text><text class="stat-value orange">{{stats.rank}}</text></view>
+        <view class="stats-separator"></view>
+        <view class="stat-cell wide"><image src="{{assets.hoop}}" /><text class="stat-label">总得分</text><text class="stat-value small">{{stats.points}}</text></view>
+        <view class="stat-cell wide"><image src="{{assets.trend}}" /><text class="stat-label">场均得分</text><text class="stat-value small">{{stats.averageFor}}</text></view>
+        <view class="stat-cell wide"><image src="{{assets.shield}}" /><text class="stat-label">场均失分</text><text class="stat-value small">{{stats.averageAgainst}}</text></view>
+        <view class="stat-cell wide"><image src="{{assets.ranking}}" /><text class="stat-label">净胜分</text><text class="stat-value small blue">{{stats.differenceText}}</text></view>
+      </view>
+
+      <view class="section-card trend-card"><text class="section-title">赛事走势</text><view class="chart-wrap"><canvas class="event-trend-canvas" canvas-id="eventTrend"></canvas><view class="trend-labels"><view wx:for="{{trend}}" wx:key="key" class="trend-label"><text class="trend-result {{item.resultClass}}">{{item.result}}</text><text>{{item.sequence}}</text><text>{{item.score}}</text></view></view><view class="chart-empty" wx:if="{{recordsEmpty}}">暂无已结束比赛</view></view></view>
+
+      <view class="section-heading">本赛事表现</view>
+      <view class="performance-row">
+        <view class="attack-card"><text class="performance-title">进攻表现</text><view><text class="performance-number orange">{{performance.averageFor}}</text><text class="performance-unit">场均得分</text></view><view class="progress"><view class="progress-fill attack" style="{{performance.attackStyle}}"></view></view></view>
+        <view class="attack-card"><text class="performance-title">防守表现</text><view><text class="performance-number blue">{{performance.averageAgainst}}</text><text class="performance-unit">场均失分</text></view><view class="progress"><view class="progress-fill defense" style="{{performance.defenseStyle}}"></view></view></view>
+        <view class="highlight-card"><view class="highlight"><image src="{{assets.star}}" /><text>最高得分</text><text class="highlight-value">{{performance.highest}}</text></view><view class="highlight"><image src="{{assets.shield}}" /><text>最低失分</text><text class="highlight-value blue">{{performance.lowestAgainst}}</text></view><view class="highlight"><image src="{{assets.trend}}" /><text>最长连胜</text><text class="highlight-value orange">{{performance.streakText}}</text></view></view>
+      </view>
+    </block>
+
+    <view class="section-heading">逐场比分</view>
+    <view class="section-card match-list">
+      <view wx:for="{{records}}" wx:key="key" class="game-row"><text class="game-sequence">{{item.sequence}}</text><text class="game-date">{{item.date}}</text><view class="game-team left"><image src="{{item.homeLogo}}" mode="aspectFit" /><text>{{item.homeName}}</text></view><text class="{{item.scoreClass}}">{{item.score}}</text><view class="game-team"><image src="{{item.awayLogo}}" mode="aspectFit" /><text>{{item.awayName}}</text></view><text class="{{item.resultClass}}">{{item.result}}</text></view>
+      <view class="list-empty" wx:if="{{recordsEmpty}}">本赛事暂无已结束比赛</view>
+    </view>
+  </block>
+</view>

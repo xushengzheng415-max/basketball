@@ -1,0 +1,78 @@
+<view class="detail-page">
+  <image class="page-background" src="{{assets.background}}" mode="aspectFill" />
+  <view class="nav-bar">
+    <view class="back-button" bindtap="goBack"><image src="{{assets.back}}" mode="aspectFit" /></view>
+    <text class="nav-title">球队详情</text>
+    <view class="nav-placeholder"></view>
+  </view>
+
+  <view class="team-hero">
+    <image class="hero-logo" src="{{team.logo}}" mode="aspectFit" />
+    <view class="hero-copy">
+      <text class="hero-name">{{team.name}}</text>
+      <text class="hero-meta">{{team.meta}}</text>
+    </view>
+  </view>
+
+  <view class="tabs">
+    <view class="{{overviewTabClass}}" data-tab="overview" bindtap="changeTab">总览</view>
+    <view class="{{tournamentTabClass}}" data-tab="tournament" bindtap="changeTab">赛事数据</view>
+  </view>
+
+  <view class="empty-panel" wx:if="{{empty}}">当前球队不存在或已被移除</view>
+
+  <block wx:if="{{!empty}}">
+    <block wx:if="{{overviewVisible}}">
+      <view class="stats-card">
+        <view class="stat-cell"><image src="{{assets.match}}" /><text class="stat-label">累计比赛</text><text class="stat-value">{{stats.matches}}</text></view>
+        <view class="stat-cell"><image src="{{assets.trophy}}" /><text class="stat-label">参赛赛事</text><text class="stat-value">{{stats.tournaments}}</text></view>
+        <view class="stat-cell"><image src="{{assets.ranking}}" /><text class="stat-label">胜</text><text class="stat-value green">{{stats.wins}}</text></view>
+        <view class="stat-cell"><image src="{{assets.shield}}" /><text class="stat-label">负</text><text class="stat-value red">{{stats.losses}}</text></view>
+        <view class="stat-cell"><image src="{{assets.rate}}" /><text class="stat-label">胜率</text><text class="stat-value orange">{{stats.winRate}}</text></view>
+        <view class="stats-separator"></view>
+        <view class="stat-cell wide"><image src="{{assets.hoop}}" /><text class="stat-label">总得分</text><text class="stat-value small">{{stats.points}}</text></view>
+        <view class="stat-cell wide"><image src="{{assets.trend}}" /><text class="stat-label">场均得分</text><text class="stat-value small">{{stats.averageFor}}</text></view>
+        <view class="stat-cell wide"><image src="{{assets.shield}}" /><text class="stat-label">场均失分</text><text class="stat-value small">{{stats.averageAgainst}}</text></view>
+        <view class="stat-cell wide"><image src="{{assets.ranking}}" /><text class="stat-label">净胜分</text><text class="stat-value small blue">{{stats.differenceText}}</text></view>
+      </view>
+
+      <view class="section-card trend-card">
+        <text class="section-card-title">近期表现</text>
+        <view class="chart-area">
+          <canvas class="trend-canvas" canvas-id="teamTrend"></canvas>
+          <view class="trend-labels">
+            <view wx:for="{{recentTrend}}" wx:key="key" class="trend-label"><text class="trend-result {{item.resultClass}}">{{item.result}}</text><text>{{item.date}}</text><text>{{item.score}}</text></view>
+          </view>
+          <view class="chart-empty" wx:if="{{trendEmpty}}">暂无已结束比赛</view>
+        </view>
+      </view>
+    </block>
+
+    <view class="section-heading">最近参加的赛事</view>
+    <view class="tournament-list section-card">
+      <view wx:for="{{tournaments}}" wx:key="id" class="tournament-row" data-id="{{item.id}}" bindtap="openTournament">
+        <image class="tournament-logo" src="{{item.logo}}" mode="aspectFit" />
+        <view class="tournament-copy">
+          <text class="tournament-name">{{item.name}}</text>
+          <text class="tournament-record">{{item.recordText}}</text>
+          <view class="score-tags"><text wx:for="{{item.scoreTags}}" wx:key="key" class="score-tag">{{item.score}}</text></view>
+        </view>
+        <text class="tournament-link">查看赛事数据</text>
+        <image class="row-chevron" src="{{assets.chevron}}" mode="aspectFit" />
+      </view>
+      <view class="list-empty" wx:if="{{tournamentsEmpty}}">暂无已完成的赛事数据</view>
+    </view>
+
+    <view class="section-heading">近期比分</view>
+    <view class="match-list section-card">
+      <view wx:for="{{recentMatches}}" wx:key="key" class="match-row">
+        <text class="match-date">{{item.date}}</text>
+        <view class="match-team left"><image src="{{item.homeLogo}}" mode="aspectFit" /><text>{{item.homeName}}</text></view>
+        <text class="{{item.scoreClass}}">{{item.displayScore}}</text>
+        <view class="match-team"><image src="{{item.awayLogo}}" mode="aspectFit" /><text>{{item.awayName}}</text></view>
+        <text class="{{item.resultClass}}">{{item.result}}</text>
+      </view>
+      <view class="list-empty" wx:if="{{matchesEmpty}}">暂无已结束比赛</view>
+    </view>
+  </block>
+</view>

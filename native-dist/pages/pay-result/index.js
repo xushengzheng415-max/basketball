@@ -11,6 +11,6 @@ Page({
     if (order) this.setData({ order });
   },
   backHome() {
-    wx.switchTab({ url: '/pages/home/index' });
+    wx.reLaunch({ url: '/pages/home/index' });
   }
 });

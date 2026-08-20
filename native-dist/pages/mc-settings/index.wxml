@@ -1,0 +1,167 @@
+<view class="page">
+  <image class="page-bg" src="{{assetBase}}background-mc-settings-clean.png" mode="aspectFill" />
+
+  <view class="nav">
+    <view class="back-button" bindtap="goBack">
+      <image src="{{assetBase}}icon-back-common.png" mode="aspectFit" />
+    </view>
+    <text class="nav-title">MC音效设置</text>
+    <view class="nav-space"></view>
+  </view>
+
+  <scroll-view class="content" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="master-panel">
+      <view class="master-row">
+        <text class="master-title">播放总开关</text>
+        <switch class="orange-switch" color="#ff4b0b" checked="{{settings.masterEnabled}}" data-key="masterEnabled" bindchange="updateSetting" />
+      </view>
+
+      <view class="master-row volume-row">
+        <image class="master-icon" src="{{assetBase}}icon-volume-common.png" mode="aspectFit" />
+        <text class="master-label">全局音量</text>
+        <slider class="volume-slider" min="0" max="100" value="{{settings.volume}}" activeColor="#ff4b0b" backgroundColor="#e6e6e6" block-color="#ffffff" block-size="22" bindchange="updateVolume" />
+        <text class="volume-value">{{settings.volume}}%</text>
+      </view>
+
+      <view class="master-row package-row" bindtap="openPackageModal">
+        <image class="master-icon" src="{{assetBase}}icon-package-common.png" mode="aspectFit" />
+        <text class="master-label">当前音效包</text>
+        <text class="package-value">{{packageName}}</text>
+        <image class="chevron" src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+      </view>
+    </view>
+
+    <view class="dark-panel voice-panel">
+      <view class="section-title"><view class="title-mark"></view><text>播报设置</text></view>
+      <view class="sound-row">
+        <view class="icon-tile"><image src="{{assetBase}}icon-music-common.png" mode="aspectFit" /></view>
+        <view class="sound-copy">
+          <text class="sound-name">得分播报</text>
+          <view class="select-trigger" bindtap="openVoiceModal">
+            <text>{{voiceName}}</text>
+            <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+          </view>
+        </view>
+        <view class="play-button" bindtap="playVoicePreview">
+          <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+        </view>
+      </view>
+      <view class="voice-mode-row">
+        <view wx:for="{{voiceModeOptions}}" wx:key="id" class="voice-mode-option {{item.activeClass}}" data-id="{{item.id}}" bindtap="selectVoiceMode">
+          <text class="voice-mode-name">{{item.name}}</text>
+          <text class="voice-mode-note">{{item.note}}</text>
+        </view>
+      </view>
+      <text class="voice-copy">试听：{{voicePreviewText}}</text>
+    </view>
+
+    <view class="dark-panel category-panel">
+      <view class="section-title"><view class="title-mark"></view><text>常用音效</text></view>
+      <view wx:for="{{categories}}" wx:key="key" class="sound-row category-row">
+        <view class="icon-tile"><image src="{{item.iconUrl}}" mode="aspectFit" /></view>
+        <view class="sound-copy">
+          <text class="sound-name">{{item.name}}</text>
+          <view class="select-trigger" data-key="{{item.key}}" bindtap="openAudioModal">
+            <text>{{item.selectedName}}</text>
+            <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+          </view>
+        </view>
+        <view class="play-button" data-key="{{item.key}}" bindtap="playCategory">
+          <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+        </view>
+        <view class="mode-button" data-key="{{item.key}}" bindtap="changeMode">
+          <image src="{{assetBase}}icon-replace-common.png" mode="aspectFit" />
+          <text>{{item.modeText}}</text>
+        </view>
+        <switch class="row-switch" color="#ff4b0b" checked="{{item.enabled}}" data-key="{{item.key}}" bindchange="toggleCategory" />
+      </view>
+    </view>
+
+    <view class="dark-panel rules-panel">
+      <view class="section-title"><view class="title-mark"></view><text>播放规则</text></view>
+      <view class="rule-row">
+        <view class="icon-tile small"><text>2</text></view>
+        <text class="rule-name">2分音效播放</text>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.twoEnabled}}" data-key="twoEnabled" bindchange="updateSetting" />
+      </view>
+      <view class="rule-row">
+        <view class="icon-tile small"><text>3</text></view>
+        <text class="rule-name">3分音效播放</text>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.threeEnabled}}" data-key="threeEnabled" bindchange="updateSetting" />
+      </view>
+      <view class="rule-row">
+        <view class="icon-tile small"><image src="{{assetBase}}icon-whistle-common.png" mode="aspectFit" /></view>
+        <text class="rule-name">蜂鸣器开关</text>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.buzzerEnabled}}" data-key="buzzerEnabled" bindchange="updateSetting" />
+      </view>
+      <view class="rule-row">
+        <view class="icon-tile small"><image src="{{assetBase}}icon-pause-common.png" mode="aspectFit" /></view>
+        <view class="rule-copy">
+          <text class="rule-name">暂停音乐自动播放</text>
+          <text class="rule-hint">关闭后，节间不提示也不播放暂停音乐</text>
+        </view>
+        <switch class="row-switch" color="#ff4b0b" checked="{{settings.pauseAutoEnabled}}" data-key="pauseAutoEnabled" bindchange="updateSetting" />
+      </view>
+    </view>
+
+    <view class="dark-panel custom-panel">
+      <view class="section-title">
+        <view class="title-mark"></view>
+        <text>自定义音效设置</text>
+        <text class="section-badge">7选6</text>
+      </view>
+      <view class="custom-grid">
+        <view wx:for="{{customSlots}}" wx:key="position" class="custom-slot">
+          <view class="slot-topline">
+            <text class="slot-number">{{item.position}}</text>
+            <view class="slot-play" data-index="{{index}}" bindtap="playCustomSlot">
+              <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+            </view>
+          </view>
+          <text class="custom-name">{{item.name}}</text>
+          <view class="slot-actions">
+            <view class="move-button" data-index="{{index}}" data-direction="-1" bindtap="moveCustomSlot">←</view>
+            <view class="replace-button" data-index="{{index}}" bindtap="replaceCustomSlot">替换</view>
+            <view class="move-button" data-index="{{index}}" data-direction="1" bindtap="moveCustomSlot">→</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <view class="dark-panel shortcut-panel">
+      <view class="section-title">
+        <view class="title-mark"></view>
+        <text>外设快捷键设置</text>
+        <text class="section-badge pending">待联动</text>
+      </view>
+      <view class="shortcut-grid">
+        <view wx:for="{{quickSlots}}" wx:key="id" class="shortcut-slot" data-id="{{item.id}}" data-key="{{item.key}}" bindtap="editShortcut">
+          <text class="shortcut-key">{{item.key}}</text>
+          <text class="shortcut-name">{{item.name}}</text>
+          <text class="shortcut-edit">映射</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="save-button" bindtap="saveSettings">保存设置</view>
+    <view class="bottom-safe"></view>
+  </scroll-view>
+
+  <view wx:if="{{modalVisible}}" class="modal-mask" bindtap="closeModal">
+    <view class="modal-sheet" catchtap="stopPropagation">
+      <view class="modal-head">
+        <text>{{modalTitle}}</text>
+        <view class="modal-close" bindtap="closeModal">×</view>
+      </view>
+      <scroll-view class="modal-list" scroll-y>
+        <view wx:for="{{modalOptions}}" wx:key="id" class="modal-option" data-id="{{item.id}}" bindtap="chooseModalOption">
+          <view>
+            <text class="modal-option-name">{{item.name}}</text>
+            <text wx:if="{{item.note}}" class="modal-option-note">{{item.note}}</text>
+          </view>
+          <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+        </view>
+      </scroll-view>
+    </view>
+  </view>
+</view>

@@ -278,3 +278,5 @@
   font-size: 30rpx;
   font-weight: 900;
 }
+
+.voice-count { display: inline-flex; width: fit-content; margin-top: 10rpx; border-radius: 999rpx; color: #101820; background: #f8d568; padding: 6rpx 14rpx; font-size: 22rpx; font-weight: 900; }

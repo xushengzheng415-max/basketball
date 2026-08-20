@@ -1,23 +1,42 @@
-<view class="page-wrap">
-  <text class="title">创建赛事</text>
-  <text class="desc">先建立赛事档案，进入赛事后再创建场次。</text>
+<view class="tournament-page">
+  <view class="page-bg"></view>
 
-  <view class="form-card">
-    <input value="{{name}}" placeholder="赛事名称，例如：暑期篮球联赛" bindinput="onNameInput" />
-    <input value="{{location}}" placeholder="赛事地点，例如：蜂巢 1 号场" bindinput="onLocationInput" />
-    <picker mode="date" value="{{date}}" bindchange="onDateChange">
-      <view class="date-picker {{date ? 'has-value' : ''}}">{{date || '选择赛事日期'}}</view>
-    </picker>
-    <view class="primary" bindtap="saveTournament">保存赛事</view>
-  </view>
-
-  <text class="section">已创建赛事</text>
-  <view wx:if="{{tournaments.length === 0}}" class="empty">暂无赛事</view>
-  <view wx:for="{{tournaments}}" wx:key="id" class="item" data-id="{{item.id}}" bindtap="openTournament">
-    <view>
-      <text class="item-title">{{item.name}}</text>
-      <text class="item-desc">{{item.location || '未填写地点'}} · {{item.date || '未选择日期'}}</text>
+  <view class="fixed-header">
+    <view class="topbar">
+      <view class="nav-spacer"></view>
+      <text class="page-title">赛事</text>
+      <view class="nav-spacer"></view>
     </view>
-    <text class="item-action">进入</text>
+
+    <view class="create-row">
+      <view class="create-entry" bindtap="goCreateTournament">
+        <image class="create-img" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/button-create-tournament.png" mode="aspectFit" />
+      </view>
+    </view>
   </view>
+
+  <view class="page-content">
+
+    <view class="tabs-panel">
+      <view class="tabs-row">
+        <view wx:for="{{tabs}}" wx:key="key" class="{{item.className}}" data-status="{{item.key}}" bindtap="changeStatus">
+          <text>{{item.label}}</text>
+        </view>
+      </view>
+    </view>
+
+    <view class="event-list" wx:if="{{hasVisibleTournaments}}">
+      <view wx:for="{{visibleTournaments}}" wx:key="id" class="event-card" data-id="{{item.id}}" bindtap="openTournament">
+        <image class="event-card-img" src="{{item.cardImage}}" mode="widthFix" data-id="{{item.id}}" />
+        <view class="detail-hit" data-id="{{item.id}}" catchtap="openTournament">杩涘叆璇︽儏</view>
+      </view>
+      <image class="list-footer" src="cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/tournament/list-footer-no-more.png" mode="aspectFit" />
+    </view>
+
+    <view class="empty-card" wx:else>
+      <text>当前筛选暂无赛事</text>
+    </view>
+  </view>
+  <sxf-tabbar active="tournament" />
 </view>
+

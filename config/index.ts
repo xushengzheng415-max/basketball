@@ -1,5 +1,9 @@
 import path from 'path';
+import { fileURLToPath } from 'url';
 import type { UserConfigExport } from '@tarojs/cli';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const config: UserConfigExport = {
   projectName: 'saixiaofeng-basketball',

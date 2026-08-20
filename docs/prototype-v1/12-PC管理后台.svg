@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="900" viewBox="0 0 1440 900">
+  <defs>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="10" flood-color="#07131d" flood-opacity=".14"/>
+    </filter>
+    <linearGradient id="orangeGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#ff6a20"/>
+      <stop offset="100%" stop-color="#e93708"/>
+    </linearGradient>
+    <linearGradient id="darkGrad" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#0e1f2b"/>
+      <stop offset="100%" stop-color="#07131d"/>
+    </linearGradient>
+  </defs>
+  <style>
+    text{font-family:"Microsoft YaHei","PingFang SC",Arial,sans-serif;dominant-baseline:hanging}
+    .title{font-weight:800;fill:#07131d}
+    .sub{fill:#647184}
+    .white{fill:#fff}
+    .muted{fill:#647184}
+    .small{font-size:14px}
+    .label{font-size:18px;font-weight:700;fill:#07131d}
+    .btnText{font-size:18px;font-weight:800}
+    .score{font-size:92px;font-weight:900;fill:#ff4d18}
+  </style>
+  
+  <rect width="1440" height="900" fill="#f3f6fa"/>
+  <rect width="220" height="900" fill="#07131d"/>
+  <text x="32" y="40" font-size="18" font-weight="900" fill="#ffd956">赛小蜂篮球</text>
+  <text x="32" y="72" font-size="32" font-weight="900" fill="#fff">运营后台</text>
+  <rect x="24" y="156" width="172" height="42" rx="8" fill="#203244"/><text x="42" y="168" font-size="16" font-weight="800" fill="#fff">数据概览</text>
+  <text x="42" y="238" font-size="16" font-weight="800" fill="#cbd5e1">用户资料</text>
+  <text x="42" y="298" font-size="16" font-weight="800" fill="#cbd5e1">会员码</text>
+  <text x="42" y="358" font-size="16" font-weight="800" fill="#cbd5e1">MC 音乐库</text>
+  <text x="260" y="52" font-size="34" font-weight="900" fill="#07131d">小程序数据看板</text>
+  <text x="260" y="94" font-size="18" fill="#647184">查看用户、反馈、权益、会员码，并维护 MC 音乐库。</text>
+  <rect x="1240" y="42" width="86" height="38" rx="8" fill="#ff4d18"/>
+  <text x="1283" y="51" text-anchor="middle" class="btnText" fill="#fff">读取云端</text>
+  <rect x="260" y="136" width="170" height="92" rx="8" fill="#fff" filter="url(#shadow)"/><text x="284" y="158" font-size="16" font-weight="800" fill="#647184">用户数</text><text x="284" y="188" font-size="34" font-weight="900" fill="#07131d">128</text>
+  <rect x="452" y="136" width="170" height="92" rx="8" fill="#fff" filter="url(#shadow)"/><text x="476" y="158" font-size="16" font-weight="800" fill="#647184">反馈数</text><text x="476" y="188" font-size="34" font-weight="900" fill="#07131d">12</text>
+  <rect x="644" y="136" width="170" height="92" rx="8" fill="#fff" filter="url(#shadow)"/><text x="668" y="158" font-size="16" font-weight="800" fill="#647184">会员数</text><text x="668" y="188" font-size="34" font-weight="900" fill="#07131d">36</text>
+  <rect x="836" y="136" width="170" height="92" rx="8" fill="#fff" filter="url(#shadow)"/><text x="860" y="158" font-size="16" font-weight="800" fill="#647184">赛果数</text><text x="860" y="188" font-size="34" font-weight="900" fill="#07131d">420</text>
+  <rect x="260" y="268" width="1040" height="250" rx="8" fill="#fff" filter="url(#shadow)"/>
+  <text x="284" y="294" font-size="22" font-weight="900" fill="#07131d">用户资料</text>
+  <line x1="284" y1="342" x2="1260" y2="342" stroke="#dbe3ee"/>
+  <text x="284" y="362" font-size="15" font-weight="800" fill="#647184">昵称</text><text x="480" y="362" font-size="15" font-weight="800" fill="#647184">手机号</text><text x="700" y="362" font-size="15" font-weight="800" fill="#647184">会员状态</text><text x="930" y="362" font-size="15" font-weight="800" fill="#647184">活动</text><text x="1130" y="362" font-size="15" font-weight="800" fill="#647184">操作</text>
+  <text x="284" y="410" font-size="17" font-weight="900" fill="#07131d">微信用户</text><text x="480" y="410" font-size="17" fill="#07131d">173****6663</text><text x="700" y="410" font-size="17" fill="#00c68a">分享会员 · 1天</text><text x="930" y="410" font-size="17" fill="#07131d">使用 2.4 小时</text><text x="1130" y="410" font-size="15" font-weight="900" fill="#ff4d18">调整时间</text>
+  <rect x="260" y="550" width="1040" height="220" rx="8" fill="#fff" filter="url(#shadow)"/>
+  <text x="284" y="576" font-size="22" font-weight="900" fill="#07131d">MC 音乐库</text>
+  <rect x="284" y="626" width="220" height="40" rx="6" fill="#fff" stroke="#dbe3ee"/><text x="304" y="638" font-size="16" fill="#07131d">进攻音乐</text>
+  <rect x="526" y="626" width="320" height="40" rx="6" fill="#fff" stroke="#dbe3ee"/><text x="546" y="638" font-size="16" fill="#647184">音效名称，例如：Remember the Name</text>
+  <rect x="868" y="626" width="360" height="40" rx="6" fill="#fff" stroke="#dbe3ee"/><text x="888" y="638" font-size="16" fill="#647184">cloud://.../mc-mp3/...</text>
+  <rect x="284" y="690" width="126" height="42" rx="8" fill="#00c68a"/>
+  <text x="347" y="701" text-anchor="middle" class="btnText" fill="#fff">保存到音乐库</text>
+
+</svg>

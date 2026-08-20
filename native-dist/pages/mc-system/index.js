@@ -5,19 +5,19 @@ const categories = [
     name: '比赛音效',
     desc: '用于关键回合、进球和现场提示。',
     tracks: [
-      { name: '蜂鸣器', src: '/assets/audio/buzzer.mp3' },
-      { name: '2分进球有效', src: '/assets/audio/two-pointer.mp3' },
-      { name: '三分球', src: '/assets/audio/three-pointer.mp3' },
-      { name: '投篮未进', src: '/assets/audio/miss.mp3' },
-      { name: '欢呼声', src: '/assets/audio/cheer.mp3' }
+      { name: '蜂鸣器', src: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/audio/buzzer.mp3' },
+      { name: '2分进球有效', src: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/audio/two-pointer.mp3' },
+      { name: '三分球', src: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/audio/three-pointer.mp3' },
+      { name: '投篮未进', src: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/audio/miss.mp3' },
+      { name: '欢呼声', src: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/audio/cheer.mp3' }
     ]
   },
   {
     name: '进攻防守音乐',
     desc: '比赛中点按随机播放，一路音频不叠加。',
     tracks: [
-      { name: '进攻音乐', src: '/assets/audio/attack-1.mp3' },
-      { name: '防守音乐', src: '/assets/audio/defense-1.mp3' }
+      { name: '进攻音乐', src: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/audio/attack-1.mp3' },
+      { name: '防守音乐', src: 'cloud://cloudbase-d4g93f0re5f3274c1.636c-cloudbase-d4g93f0re5f3274c1-1446269281/ui-assets/assets/audio/defense-1.mp3' }
     ]
   }
 ];

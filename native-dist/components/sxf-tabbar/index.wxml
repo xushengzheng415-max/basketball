@@ -1,0 +1,6 @@
+<view class="sxf-tabbar">
+  <view wx:for="{{items}}" wx:key="key" class="tab-item {{item.activeClass}}" hover-class="tab-item-press" hover-stay-time="80" data-key="{{item.key}}" bindtap="onTabTap">
+    <image class="tab-icon" src="{{item.iconSrc}}" mode="aspectFit" />
+    <text>{{item.label}}</text>
+  </view>
+</view>

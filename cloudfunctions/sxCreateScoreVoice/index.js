@@ -4,79 +4,12 @@ const https = require('https');
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
-const _ = db.command;
 
 const TTS_HOST = 'tts.tencentcloudapi.com';
 const TTS_SERVICE = 'tts';
 const TTS_VERSION = '2019-08-23';
 const TTS_ACTION = 'TextToVoice';
 const TTS_ALGORITHM = 'TC3-HMAC-SHA256';
-
-function toTime(value) {
-  if (!value) return 0;
-  if (value instanceof Date) return value.getTime();
-  if (typeof value === 'string' || typeof value === 'number') return new Date(value).getTime();
-  if (value.$date) return new Date(value.$date).getTime();
-  return 0;
-}
-
-function isFeatureEnabled(entitlement, feature) {
-  const features = entitlement.features || [];
-  return features.indexOf(feature) >= 0;
-}
-
-function isNotExpired(entitlement) {
-  const expiresAt = toTime(entitlement.expiresAt);
-  return !expiresAt || expiresAt > Date.now();
-}
-
-function isQuotaAvailable(entitlement) {
-  if (typeof entitlement.remainingUses !== 'number') return true;
-  return entitlement.remainingUses > 0;
-}
-
-async function hasEntitlement(openid, feature) {
-  const result = await db.collection('sx_entitlements')
-    .where({ openid, status: 'active' })
-    .orderBy('createdAt', 'desc')
-    .limit(20)
-    .get();
-
-  return (result.data || []).some((item) => (
-    isFeatureEnabled(item, feature) && isNotExpired(item) && isQuotaAvailable(item)
-  ));
-}
-
-async function findVoiceCredit(openid) {
-  const result = await db.collection('sx_entitlements')
-    .where({ openid, status: 'active' })
-    .orderBy('createdAt', 'desc')
-    .limit(20)
-    .get();
-
-  return (result.data || []).find((item) => (
-    isFeatureEnabled(item, 'score_voice')
-    && isNotExpired(item)
-    && Number(item.voiceCredits || 0) > 0
-  ));
-}
-
-async function consumeVoiceCredit(entitlement) {
-  if (!entitlement || !entitlement._id) return null;
-  const field = 'voiceCredits';
-  const current = Number(entitlement[field] || 0);
-  if (current <= 0) return null;
-  await db.collection('sx_entitlements').doc(entitlement._id).update({
-    data: {
-      [field]: _.inc(-1),
-      updatedAt: db.serverDate()
-    }
-  });
-  return {
-    creditField: field,
-    remaining: Math.max(0, current - 1)
-  };
-}
 
 function buildVoiceConfig(style) {
   const styleMap = {
@@ -204,13 +137,8 @@ exports.main = async (event) => {
   const text = String(event.text || '').trim();
   const style = event.style || 'standard';
 
-  if (!text) return { ok: false, code: 'empty_text', message: '鎾姤鏂囨涓嶈兘涓虹┖' };
-  if (text.length > 500) return { ok: false, code: 'text_too_long', message: '鎾姤鏂囨杩囬暱' };
-
-  const voiceEntitlement = await findVoiceCredit(openid);
-  if (!voiceEntitlement) {
-    return { ok: false, code: 'no_voice_credit', message: 'AI 鎾姤棰濆害涓嶈冻锛岃閫氳繃鍒嗕韩鎴栬喘涔拌闊虫挱鎶ュ寘鑾峰彇棰濆害' };
-  }
+  if (!text) return { ok: false, code: 'empty_text', message: '\u8bf7\u5148\u751f\u6210\u9700\u8981\u64ad\u62a5\u7684\u6587\u6848' };
+  if (text.length > 500) return { ok: false, code: 'text_too_long', message: '\u64ad\u62a5\u6587\u6848\u8fc7\u957f\uff0c\u8bf7\u7f29\u77ed\u540e\u518d\u8bd5' };
 
   const voice = buildVoiceConfig(style);
   const sessionId = `sxf-${Date.now()}-${Math.floor(Math.random() * 100000)}`;
@@ -228,7 +156,7 @@ exports.main = async (event) => {
   try {
     const response = await postTencentTts(params);
     const audioBase64 = response.Audio;
-    if (!audioBase64) return { ok: false, code: 'empty_audio', message: '鑵捐浜戞湭杩斿洖闊抽' };
+    if (!audioBase64) return { ok: false, code: 'empty_audio', message: '\u8bed\u97f3\u751f\u6210\u6210\u529f\u4f46\u672a\u8fd4\u56de\u97f3\u9891' };
 
     const cloudPath = `score-voice/${openid}/${sessionId}.mp3`;
     const upload = await cloud.uploadFile({
@@ -252,7 +180,7 @@ exports.main = async (event) => {
       requestId: response.RequestId || '',
       createdAt: db.serverDate()
     });
-    const credit = await consumeVoiceCredit(voiceEntitlement);
+    const credit = { unlimited: true, remaining: null };
 
     return {
       ok: true,
@@ -268,6 +196,6 @@ exports.main = async (event) => {
     };
   } catch (error) {
     console.error('[sxCreateScoreVoice] tts failed', error);
-    return { ok: false, code: error.code || 'tts_failed', message: error.message || '璇煶鍚堟垚澶辫触' };
+    return { ok: false, code: error.code || 'tts_failed', message: error.message || '\u817e\u8baf\u4e91 TTS \u751f\u6210\u5931\u8d25' };
   }
 };
