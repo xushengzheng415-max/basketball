@@ -44,14 +44,20 @@ function hmacSha256(key, message, encoding) {
 }
 
 function getCredential() {
-  const secretId = process.env.SXF_TTS_SECRET_ID;
-  const secretKey = process.env.SXF_TTS_SECRET_KEY;
+  // 云函数运行角色提供短期凭据时优先使用，避免长期密钥失效后整条播报链路中断。
+  const runtimeSecretId = process.env.TENCENTCLOUD_SECRETID || '';
+  const runtimeSecretKey = process.env.TENCENTCLOUD_SECRETKEY || '';
+  const secretId = runtimeSecretId || process.env.SXF_TTS_SECRET_ID;
+  const secretKey = runtimeSecretKey || process.env.SXF_TTS_SECRET_KEY;
+  const token = runtimeSecretId && runtimeSecretKey
+    ? (process.env.TENCENTCLOUD_SESSIONTOKEN || '')
+    : '';
   if (!secretId || !secretKey) {
     const error = new Error('missing_tts_secret');
     error.code = 'missing_tts_secret';
     throw error;
   }
-  return { secretId, secretKey };
+  return { secretId, secretKey, token };
 }
 
 function buildAuthorization({ secretId, secretKey, timestamp, payload }) {
@@ -72,7 +78,7 @@ function buildAuthorization({ secretId, secretKey, timestamp, payload }) {
 }
 
 function postTencentTts(params) {
-  const { secretId, secretKey } = getCredential();
+  const { secretId, secretKey, token } = getCredential();
   const region = process.env.TTS_REGION || 'ap-guangzhou';
   const timestamp = Math.floor(Date.now() / 1000);
   const payload = JSON.stringify(params);
@@ -92,6 +98,7 @@ function postTencentTts(params) {
       'X-TC-Region': region
     }
   };
+  if (token) options.headers['X-TC-Token'] = token;
 
   return new Promise((resolve, reject) => {
     const req = https.request(options, (res) => {
@@ -196,6 +203,13 @@ exports.main = async (event) => {
     };
   } catch (error) {
     console.error('[sxCreateScoreVoice] tts failed', error);
-    return { ok: false, code: error.code || 'tts_failed', message: error.message || '\u817e\u8baf\u4e91 TTS \u751f\u6210\u5931\u8d25' };
+    const errorCode = String(error.code || '');
+    if (errorCode === 'AuthFailure.UnauthorizedOperation') {
+      return { ok: false, code: 'tts_permission_missing', message: '语音服务权限未开通' };
+    }
+    if (errorCode === 'AuthFailure.SecretIdNotFound') {
+      return { ok: false, code: 'tts_credential_invalid', message: '语音服务凭据已失效' };
+    }
+    return { ok: false, code: errorCode || 'tts_failed', message: error.message || '\u817e\u8baf\u4e91 TTS \u751f\u6210\u5931\u8d25' };
   }
 };

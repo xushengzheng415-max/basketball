@@ -3,6 +3,81 @@ const { callCloud, cloud } = require('../../utils/cloud');
 const ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/mine-profile/';
 const PROFILE_SYNCED_AT_KEY = 'mineProfileCloudSyncedAt';
 const PROFILE_SYNC_CACHE_MS = 60 * 1000;
+const CURRENT_VERSION = '2.1.4';
+const VERSION_HISTORY = [
+  {
+    version: '2.1.4',
+    date: '2026-09-01',
+    current: true,
+    highlights: [
+      '修复部分微信账号无法播放进攻、防守音乐的问题',
+      '修复部分比赛音效和比分播报播放失败的问题',
+      '提升计分板首次加载音频时的稳定性'
+    ]
+  },
+  {
+    version: '2.1.3',
+    date: '2026-08-23',
+    current: false,
+    highlights: [
+      '主教练赛前分工调整为选择方式、添加助教、绑定任务三步',
+      '区分主教练与助教工作页面和任务权限',
+      '优化手机横屏与 PAD 横屏的页面布局'
+    ]
+  },
+  {
+    version: '2.1.2',
+    date: '2026-08-23',
+    current: false,
+    highlights: [
+      '主教练赛前分工完成新版横屏适配',
+      '支持按数据项目或按球员分配记录任务',
+      '助教接受邀请后自动生成工作台待办'
+    ]
+  },
+  {
+    version: '2.1.1',
+    date: '2026-08-22',
+    current: false,
+    highlights: [
+      '优化 PC 微信扫码登录与机构开户流程',
+      '赛事中心支持生成球队报名二维码',
+      '领队可选择已有球队确认参赛并接收通知'
+    ]
+  },
+  {
+    version: '2.1.0',
+    date: '2026-08-21',
+    current: false,
+    highlights: [
+      '新增小程序扫码确认 PC 后台登录',
+      '机构、学校和赛事主办方可按身份完成开户',
+      '赛事中心与教务中心统一纳入组织工作台',
+      '新机构可领取 365 天全功能体验期'
+    ]
+  },
+  {
+    version: '2.0.3',
+    date: '2026-07-27',
+    current: false,
+    highlights: [
+      '新增小程序版本更新提示',
+      '支持立即更新或稍后更新，不中断现场操作',
+      '优化正式版发布后仍停留在旧版本的问题'
+    ]
+  },
+  {
+    version: '2.0.1',
+    date: '2026-07-20',
+    current: false,
+    highlights: [
+      '完善赛事创建、球队与赛程管理',
+      '升级手机与平板横屏计分板',
+      '新增暂停、节间倒计时和 MC 自定义音效',
+      '优化计分操作与比赛现场稳定性'
+    ]
+  }
+];
 let profileSyncing = null;
 const DEFAULT_PROFILE = {
   loggedIn: false,
@@ -114,7 +189,10 @@ Page({
     preferences: DEFAULT_PREFERENCES,
     formRows: [],
     commonSettingRows: buildCommonSettingRows(),
-    supportRows: buildSupportRows()
+    supportRows: buildSupportRows(),
+    currentVersion: CURRENT_VERSION,
+    versionHistory: VERSION_HISTORY,
+    showVersionLog: false
   },
 
   onShow() {
@@ -207,6 +285,16 @@ Page({
     }
     wx.showToast({ title: label || '敬请期待', icon: 'none' });
   },
+
+  openVersionLog() {
+    this.setData({ showVersionLog: true });
+  },
+
+  closeVersionLog() {
+    this.setData({ showVersionLog: false });
+  },
+
+  noop() {},
 
   saveProfile() {
     const draft = this.data.draft;

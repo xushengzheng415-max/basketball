@@ -61,9 +61,9 @@ const defaultAudioItems = [
 ];
 
 const voiceOptions = [
-  { id: 'standard', name: '赛小智' },
-  { id: 'live', name: '赛小锦' },
-  { id: 'kids', name: '赛小萌' }
+  { id: 'live', name: '男声', note: '现场有力' },
+  { id: 'standard', name: '女声', note: '清晰自然' },
+  { id: 'kids', name: '童声', note: '活力童声' }
 ];
 
 const voiceModeOptions = [
@@ -73,6 +73,12 @@ const voiceModeOptions = [
 
 function buildVoiceModeOptions(activeId) {
   return voiceModeOptions.map((item) => Object.assign({}, item, {
+    activeClass: item.id === activeId ? 'active' : ''
+  }));
+}
+
+function buildVoiceOptions(activeId) {
+  return voiceOptions.map((item) => Object.assign({}, item, {
     activeClass: item.id === activeId ? 'active' : ''
   }));
 }
@@ -248,6 +254,8 @@ function voiceToastText(result) {
     no_voice_credit: 'AI 播报暂不可用，请稍后重试',
     empty_audio: '语音生成成功但未返回音频',
     missing_tts_secret: '语音服务密钥未配置',
+    tts_credential_invalid: '语音服务凭据已失效，请联系管理员',
+    tts_permission_missing: '语音播报权限未开通，请联系管理员',
     tts_failed: '播报试听生成失败'
   };
   return messageMap[code] || '播报试听生成失败';
@@ -256,15 +264,15 @@ function voiceToastText(result) {
 Page({
   audioUrlCache: null,
   audioRequestId: 0,
+  voicePreviewRequestId: 0,
   currentAudioSource: '',
 
   data: {
     assetBase: ASSET_BASE,
     settings: normalizeSettings(),
     categories: [],
-    voiceOptions,
+    voiceOptions: buildVoiceOptions('standard'),
     voiceStyle: 'standard',
-    voiceName: '赛小智',
     voiceMode: 'simple',
     voiceModeOptions: buildVoiceModeOptions('simple'),
     voicePreviewText: VOICE_PREVIEW_TEXT.simple,
@@ -306,6 +314,7 @@ Page({
 
   onUnload() {
     this.audioRequestId += 1;
+    this.voicePreviewRequestId += 1;
     this.currentAudioSource = '';
     if (this.audio) this.audio.destroy();
   },
@@ -326,7 +335,7 @@ Page({
       settings,
       categories: buildCategories(settings, audioMap, audioItems),
       voiceStyle,
-      voiceName: voice.name,
+      voiceOptions: buildVoiceOptions(voiceStyle),
       voiceMode,
       voiceModeOptions: buildVoiceModeOptions(voiceMode),
       voicePreviewText: VOICE_PREVIEW_TEXT[voiceMode],
@@ -400,14 +409,14 @@ Page({
     });
   },
 
-  openVoiceModal() {
+  selectVoice(event) {
+    const id = event.currentTarget.dataset.id;
+    const voice = voiceOptions.find((item) => item.id === id) || voiceOptions[0];
+    wx.setStorageSync(VOICE_STYLE_KEY, voice.id);
     this.setData({
-      modalVisible: true,
-      modalTitle: '选择得分播报员',
-      modalType: 'voice',
-      modalCategoryKey: '',
-      modalOptions: voiceOptions
-    });
+      voiceStyle: voice.id,
+      voiceOptions: buildVoiceOptions(voice.id)
+    }, () => this.generateVoicePreview(false));
   },
 
   selectVoiceMode(event) {
@@ -476,10 +485,6 @@ Page({
     const type = this.data.modalType;
     if (type === 'package') {
       this.applySettings(Object.assign({}, this.data.settings, { soundPackage: id }));
-    } else if (type === 'voice') {
-      const voice = voiceOptions.find((item) => item.id === id) || voiceOptions[0];
-      wx.setStorageSync(VOICE_STYLE_KEY, voice.id);
-      this.setData({ voiceStyle: voice.id, voiceName: voice.name });
     } else if (type === 'audio') {
       const key = this.data.modalCategoryKey;
       const selectedAudio = Object.assign({}, this.data.settings.selectedAudio, { [key]: id });
@@ -538,13 +543,21 @@ Page({
   },
 
   async playVoicePreview() {
-    wx.showLoading({ title: '生成试听中' });
+    return this.generateVoicePreview(true);
+  },
+
+  async generateVoicePreview(showLoading) {
+    const requestId = this.voicePreviewRequestId + 1;
+    this.voicePreviewRequestId = requestId;
+    const voiceStyle = this.data.voiceStyle;
+    if (showLoading) wx.showLoading({ title: '生成试听中' });
     const result = await callCloud('sxCreateScoreVoice', {
       text: VOICE_PREVIEW_TEXT[this.data.voiceMode] || VOICE_PREVIEW_TEXT.simple,
-      style: this.data.voiceStyle,
+      style: voiceStyle,
       skipCredit: true
     });
-    wx.hideLoading();
+    if (showLoading) wx.hideLoading();
+    if (requestId !== this.voicePreviewRequestId || voiceStyle !== this.data.voiceStyle) return;
     const source = result && (result.tempFileURL || result.fileID);
     if (!result || !result.ok || !source) {
       wx.showToast({ title: voiceToastText(result), icon: 'none' });

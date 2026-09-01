@@ -33,17 +33,18 @@
 
     <view class="dark-panel voice-panel">
       <view class="section-title"><view class="title-mark"></view><text>播报设置</text></view>
-      <view class="sound-row">
+      <view class="voice-setting-head">
         <view class="icon-tile"><image src="{{assetBase}}icon-music-common.png" mode="aspectFit" /></view>
-        <view class="sound-copy">
-          <text class="sound-name">得分播报</text>
-          <view class="select-trigger" bindtap="openVoiceModal">
-            <text>{{voiceName}}</text>
-            <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
-          </view>
+        <view class="voice-setting-copy">
+          <text class="sound-name">得分播报音色</text>
+          <text class="voice-setting-hint">点击音色即可选中并试听</text>
         </view>
-        <view class="play-button" bindtap="playVoicePreview">
-          <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+      </view>
+      <view class="voice-choice-row">
+        <view wx:for="{{voiceOptions}}" wx:key="id" class="voice-choice {{item.activeClass}}" data-id="{{item.id}}" bindtap="selectVoice">
+          <view class="voice-radio"><view class="voice-radio-dot"></view></view>
+          <text class="voice-choice-name">{{item.name}}</text>
+          <text class="voice-choice-note">{{item.note}}</text>
         </view>
       </view>
       <view class="voice-mode-row">

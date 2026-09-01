@@ -11,6 +11,13 @@
       "memorySize": 256
     },
     {
+      "name": "sxCreateScoreVoice",
+      "runtime": "Nodejs18.15",
+      "handler": "index.main",
+      "timeout": 15,
+      "memorySize": 256
+    },
+    {
       "name": "sxGeneratePeriodReport",
       "runtime": "Nodejs18.15",
       "handler": "index.main",

@@ -310,6 +310,8 @@ function voiceToastText(result) {
     no_voice_credit: 'AI 播报暂不可用，请稍后重试',
     empty_audio: '语音生成成功但未返回音频',
     missing_tts_secret: '语音服务密钥未配置',
+    tts_credential_invalid: '语音服务凭据已失效，请联系管理员',
+    tts_permission_missing: '语音播报权限未开通，请联系管理员',
     tts_failed: '语音播报生成失败'
   };
   return messageMap[code] || '语音播报生成失败';

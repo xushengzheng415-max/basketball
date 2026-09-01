@@ -70,6 +70,42 @@
         <text>退出登录</text>
       </view>
     </view>
+
+    <view class="version-footer">
+      <view class="version-link" bindtap="openVersionLog">
+        <text>版本 {{currentVersion}}</text>
+        <text class="version-divider">·</text>
+        <text class="version-action">查看更新日志</text>
+      </view>
+      <text class="technology-support">由赛小蜂篮球提供技术支持</text>
+    </view>
+  </view>
+
+  <view wx:if="{{showVersionLog}}" class="version-modal-mask" catchtap="closeVersionLog">
+    <view class="version-modal" catchtap="noop">
+      <view class="version-modal-header">
+        <view>
+          <text class="version-modal-title">版本更新日志</text>
+          <text class="version-modal-subtitle">当前版本 {{currentVersion}}</text>
+        </view>
+        <view class="version-modal-close" bindtap="closeVersionLog">×</view>
+      </view>
+      <scroll-view class="version-history" scroll-y="true">
+        <view wx:for="{{versionHistory}}" wx:key="version" class="version-history-item">
+          <view class="version-history-heading">
+            <text class="version-history-number">v{{item.version}}</text>
+            <text wx:if="{{item.current}}" class="version-current-badge">当前版本</text>
+            <text class="version-history-date">{{item.date}}</text>
+          </view>
+          <view class="version-highlights">
+            <view wx:for="{{item.highlights}}" wx:for-item="highlight" wx:key="*this" class="version-highlight-row">
+              <view class="version-highlight-dot"></view>
+              <text class="version-highlight-text">{{highlight}}</text>
+            </view>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
   </view>
 
   <sxf-tabbar active="mine" />
