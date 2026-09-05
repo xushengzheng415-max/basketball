@@ -1,19 +1,67 @@
+# Dependencies and build caches
 node_modules/
 dist/
+**/dist-*/
 .temp/
 .rn_temp/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
+.swc/
+.codex-skill-build/
+.npm-cache-lark/
+
+# Local work, generated outputs and browser profiles
+tmp/
+work/
+output/
+outputs/
+.tmp-*/
+*.log
+dev-weapp*.log
+test-venues-*.txt
+tmp-*.js
+tmp-*.py
+
+# Local credentials and machine-only configuration
+.env
+.env.*
+!.env.example
+project.private.config.json
+cloudbaserc.local.json
+local-assets/
+*.pem
+*.key
+*.p12
+*.pfx
+id_rsa
+id_rsa.*
+credentials/
+secrets/
+.idea/
+.vscode/
+*.code-workspace
+
+# Local Feishu and publishing state
+.lark-upload/
+feishu-upload/
+*.cache.json
+tools/wechat-official/images/
+tools/wechat-official/output/
+tools/wechat-official/preview/
+tools/wechat-official/draft-*.json
+tools/wechat-official/_*.html
+tools/wechat-official/_*.js
+
+# Publishing console build/runtime packages
+tools/publishing-console/node_modules/
+tools/publishing-console/dist*/
+tools/publishing-console/webview2-host/
+
+# Private, duplicated or non-code local archives
+01_Raw/
+演示数据/
+运营资料/
+麦步公众号文章/
+软著材料/
+
+# OS files
 .DS_Store
 Thumbs.db
-.env.local
-.env.*.local
-dev-weapp*.log
-.swc/
-project.private.config.json
-local-assets/
-.lark-upload/
-.npm-cache-lark/
-feishu-upload/
