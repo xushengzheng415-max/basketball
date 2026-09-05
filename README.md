@@ -7,7 +7,7 @@
 - Gitee：`https://gitee.com/saixiaofeng/basketball.git`
 - 正式本地仓库：`E:\Documents\sxf-basketball`
 - `main`：稳定、可部署基线
-- `develop`：日常开发与 Bug 修复集成分支
+- `development`：日常开发与 Bug 修复集成分支
 - GitHub：保留为现有辅助远程，Gitee 是正式协作入口
 
 正式入口：
@@ -46,7 +46,7 @@
 ```powershell
 git clone https://gitee.com/saixiaofeng/basketball.git
 cd basketball
-git switch develop
+git switch development
 npm ci
 npm run typecheck
 ```
