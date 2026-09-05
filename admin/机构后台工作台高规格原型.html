@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>赛小蜂篮球丨机构后台工作台高规格原型</title>
+  <style>
+    :root {
+      --bg: #070b0e;
+      --shell: #0b1014;
+      --panel: #11181d;
+      --panel-2: #151d22;
+      --line: #263139;
+      --line-soft: rgba(255,255,255,.055);
+      --text: #f5f7f8;
+      --text-2: #c0c8cd;
+      --muted: #7e8b93;
+      --orange: #ff7300;
+      --orange-2: #ff9b21;
+      --green: #66d154;
+      --yellow: #f4bd3b;
+      --red: #ff6259;
+      --sidebar: 248px;
+      --radius: 16px;
+    }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; min-width: 1280px; min-height: 100%; }
+    body {
+      color: var(--text);
+      background:
+        radial-gradient(circle at 74% -20%, rgba(255,115,0,.08), transparent 32%),
+        var(--bg);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+    button { font: inherit; cursor: default; }
+    .app { display: grid; grid-template-columns: var(--sidebar) minmax(0, 1fr); min-height: 100vh; }
+
+    /* 左侧导航壳：与右侧工作区物理分离，本轮不冻结最终菜单。 */
+    .sidebar {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      padding: 24px 16px;
+      border-right: 1px solid #202930;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.014), transparent 34%),
+        #080d10;
+    }
+    .brand { display: flex; align-items: center; gap: 11px; padding: 0 8px 24px; }
+    .brand img { width: 44px; height: 44px; object-fit: contain; }
+    .brand strong { display: block; color: var(--orange-2); font-size: 17px; letter-spacing: .3px; }
+    .brand small { display: block; margin-top: 3px; color: #65727a; font-size: 11px; }
+    .nav-caption { margin: 16px 12px 10px; color: #56626a; font-size: 11px; letter-spacing: 1px; }
+    .nav-placeholder {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      height: 46px;
+      margin-bottom: 6px;
+      padding: 0 14px;
+      color: #758189;
+      border-radius: 10px;
+    }
+    .nav-placeholder.active {
+      color: #fff;
+      background: linear-gradient(90deg, #ff7200, #8b3b00);
+      box-shadow: 0 10px 28px rgba(255,115,0,.17);
+    }
+    .nav-icon {
+      display: grid;
+      width: 22px;
+      height: 22px;
+      place-items: center;
+      color: currentColor;
+      font-size: 14px;
+    }
+    .nav-line { width: 106px; height: 7px; border-radius: 5px; background: currentColor; opacity: .56; }
+    .sidebar-note {
+      margin-top: 18px;
+      padding: 13px;
+      color: #7c878e;
+      border: 1px dashed #334049;
+      border-radius: 11px;
+      font-size: 11px;
+      line-height: 1.65;
+    }
+    .sidebar-foot {
+      margin-top: auto;
+      padding: 18px 12px 0;
+      color: #69757d;
+      border-top: 1px solid #202930;
+      font-size: 12px;
+    }
+
+    /* 右侧页面模板：后续所有业务页复用同一标题、操作、栅格和卡片规范。 */
+    .workspace { min-width: 0; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 76px;
+      padding: 0 26px;
+      border-bottom: 1px solid #202a31;
+      background: rgba(9,14,17,.88);
+      backdrop-filter: blur(18px);
+    }
+    .page-title { display: flex; align-items: center; gap: 18px; }
+    .page-title h1 { margin: 0; font-size: 21px; letter-spacing: .4px; }
+    .context-pill, .outline-button, .primary-button, .user-card {
+      height: 40px;
+      border: 1px solid #303b43;
+      border-radius: 10px;
+      background: #10161a;
+    }
+    .context-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 13px;
+      color: var(--text-2);
+      font-size: 13px;
+    }
+    .top-actions { display: flex; align-items: center; gap: 10px; }
+    .outline-button { padding: 0 15px; color: #d6dcdf; }
+    .primary-button {
+      padding: 0 18px;
+      color: #fff;
+      border-color: #ff7b10;
+      background: linear-gradient(90deg, #ff6700, #ff9418);
+      box-shadow: 0 9px 24px rgba(255,105,0,.2);
+      font-weight: 700;
+    }
+    .notice {
+      position: relative;
+      display: grid;
+      width: 40px;
+      height: 40px;
+      place-items: center;
+      color: #c8d0d4;
+      font-size: 18px;
+    }
+    .notice::after {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+      width: 7px;
+      height: 7px;
+      content: "";
+      border-radius: 50%;
+      background: var(--orange);
+    }
+    .user-card { display: flex; align-items: center; gap: 10px; height: 46px; padding: 0 12px 0 7px; }
+    .avatar { display: grid; width: 32px; height: 32px; place-items: center; border-radius: 9px; color: #1a1108; background: linear-gradient(145deg, #ffc264, #ff7b00); font-weight: 800; }
+    .user-card strong { display: block; font-size: 13px; }
+    .user-card small { color: #737f87; font-size: 10px; }
+
+    .content { padding: 20px 24px 28px; }
+    .guide-strip {
+      display: grid;
+      grid-template-columns: 230px repeat(4, minmax(150px, 1fr)) auto;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding: 14px 16px;
+      border: 1px solid rgba(255,115,0,.34);
+      border-radius: 14px;
+      background:
+        linear-gradient(90deg, rgba(255,115,0,.1), transparent 48%),
+        #11181d;
+    }
+    .guide-copy strong { display: block; font-size: 14px; }
+    .guide-copy span { display: block; margin-top: 4px; color: var(--muted); font-size: 11px; }
+    .guide-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 38px;
+      padding: 0 10px;
+      color: #89959d;
+      border: 1px solid #2e3941;
+      border-radius: 9px;
+      background: #0c1216;
+      font-size: 12px;
+    }
+    .guide-step b { display: grid; width: 22px; height: 22px; place-items: center; color: #1a1006; border-radius: 50%; background: var(--orange); font-size: 11px; }
+    .guide-step.current { color: #fff; border-color: rgba(255,115,0,.65); }
+    .guide-close { color: #7e8990; border: 0; background: transparent; }
+
+    .metrics { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+    .metric, .card {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background:
+        linear-gradient(145deg, rgba(255,255,255,.018), transparent 44%),
+        var(--panel);
+      box-shadow: inset 0 1px rgba(255,255,255,.018);
+    }
+    .metric {
+      display: grid;
+      grid-template-columns: 52px 1fr;
+      align-items: center;
+      min-height: 108px;
+      padding: 17px;
+    }
+    .metric-icon {
+      display: grid;
+      width: 46px;
+      height: 46px;
+      place-items: center;
+      color: var(--orange-2);
+      border: 1px solid rgba(255,115,0,.5);
+      border-radius: 14px;
+      background: rgba(255,115,0,.08);
+      font-size: 20px;
+    }
+    .metric label { color: #8e9aa2; font-size: 12px; }
+    .metric strong { display: block; margin-top: 5px; font-size: 27px; letter-spacing: .5px; }
+    .metric small { display: block; margin-top: 4px; color: #6f7b83; font-size: 10px; }
+    .metric small em { color: var(--orange-2); font-style: normal; }
+    .metric small .good { color: var(--green); }
+
+    .main-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.62fr) minmax(320px, .78fr);
+      gap: 14px;
+      margin-top: 14px;
+    }
+    .left-stack, .right-stack { display: grid; gap: 14px; }
+    .card { padding: 18px; }
+    .card-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+    .card-title { display: flex; align-items: center; gap: 9px; }
+    .title-mark { width: 4px; height: 17px; border-radius: 3px; background: var(--orange); box-shadow: 0 0 11px rgba(255,115,0,.42); }
+    .card-head h2 { margin: 0; font-size: 15px; }
+    .card-head p { margin: 4px 0 0; color: #6f7b82; font-size: 10px; }
+    .select { padding: 7px 10px; color: #9ba5ab; border: 1px solid #2d3940; border-radius: 8px; background: #0d1317; font-size: 11px; }
+
+    .chart-wrap { height: 238px; }
+    .legend { display: flex; justify-content: center; gap: 22px; color: #88949b; font-size: 10px; }
+    .legend i { display: inline-block; width: 15px; height: 3px; margin-right: 5px; vertical-align: middle; border-radius: 3px; }
+    .chart {
+      position: relative;
+      height: 194px;
+      margin-top: 14px;
+      border-left: 1px solid #2b353c;
+      border-bottom: 1px solid #2b353c;
+      background: repeating-linear-gradient(to bottom, transparent 0, transparent 47px, var(--line-soft) 48px);
+    }
+    .chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+    .chart-labels { display: flex; justify-content: space-between; padding: 7px 3px 0 9px; color: #657179; font-size: 9px; }
+
+    .bottom-grid { display: grid; grid-template-columns: 1.35fr .65fr; gap: 14px; }
+    .schedule-list { display: grid; }
+    .schedule-row {
+      display: grid;
+      grid-template-columns: 62px 1.1fr 1fr 82px 74px;
+      align-items: center;
+      min-height: 46px;
+      border-top: 1px solid #273139;
+      color: #aeb7bc;
+      font-size: 11px;
+    }
+    .schedule-row:first-child { border-top: 0; color: #6f7a82; }
+    .state { width: max-content; padding: 4px 7px; border-radius: 6px; font-size: 9px; }
+    .state.orange { color: var(--orange-2); background: rgba(255,115,0,.1); }
+    .state.green { color: var(--green); background: rgba(102,209,84,.09); }
+    .state.gray { color: #8e999f; background: #242d32; }
+    .module-state { display: grid; gap: 10px; }
+    .module-row { display: flex; align-items: center; justify-content: space-between; min-height: 50px; padding: 0 12px; border: 1px solid #2b353c; border-radius: 10px; background: #0e1418; }
+    .module-row strong { display: block; font-size: 12px; }
+    .module-row small { color: #737f86; font-size: 9px; }
+
+    .task-card { min-height: 184px; }
+    .task-row { display: grid; grid-template-columns: 28px 1fr 42px; align-items: center; min-height: 48px; border-top: 1px solid #283239; font-size: 11px; }
+    .task-row:first-of-type { border-top: 0; }
+    .task-dot { display: grid; width: 20px; height: 20px; place-items: center; color: var(--orange-2); border-radius: 6px; background: rgba(255,115,0,.09); font-size: 9px; }
+    .task-row span:nth-child(2) { color: #b5bdc2; }
+    .task-row time { color: #6f7a82; text-align: right; }
+    .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    .quick-item { min-height: 68px; padding: 12px; border: 1px solid #2c363d; border-radius: 10px; background: #0e1418; }
+    .quick-item b { display: block; color: var(--orange-2); font-size: 18px; }
+    .quick-item span { display: block; margin-top: 7px; color: #98a3a9; font-size: 10px; }
+    .template-note { margin-top: 12px; color: #56636b; text-align: right; font-size: 9px; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <img src="assets/institution/brand-logo.png" alt="赛小蜂篮球">
+        <div><strong>赛小蜂篮球</strong><small>赛训经营增长平台</small></div>
+      </div>
+      <div class="nav-caption">工作区域</div>
+      <div class="nav-placeholder active"><span class="nav-icon">⌂</span><span>工作台</span></div>
+      <div class="nav-placeholder"><span class="nav-icon">◇</span><span class="nav-line"></span></div>
+      <div class="nav-placeholder"><span class="nav-icon">◇</span><span class="nav-line" style="width:88px"></span></div>
+      <div class="nav-placeholder"><span class="nav-icon">◇</span><span class="nav-line" style="width:118px"></span></div>
+      <div class="nav-caption">管理区域</div>
+      <div class="nav-placeholder"><span class="nav-icon">◇</span><span class="nav-line" style="width:96px"></span></div>
+      <div class="nav-placeholder"><span class="nav-icon">◇</span><span class="nav-line" style="width:110px"></span></div>
+      <div class="sidebar-note">侧边栏当前仅展示独立骨架。下一阶段单独确认菜单分组、名称、顺序和权限状态。</div>
+      <div class="sidebar-foot">单校区模式 · 浦东校区</div>
+    </aside>
+
+    <main class="workspace">
+      <header class="topbar">
+        <div class="page-title">
+          <h1>机构经营工作台</h1>
+          <div class="context-pill">⌖ 浦东校区　⌄</div>
+          <div class="context-pill">▣ 2026-07-01 — 2026-07-28　⌄</div>
+        </div>
+        <div class="top-actions">
+          <button class="outline-button">生成报表</button>
+          <button class="primary-button">查看经营详情</button>
+          <div class="notice">♢</div>
+          <div class="user-card"><span class="avatar">赵</span><div><strong>赵负责人</strong><small>机构超级管理员</small></div></div>
+        </div>
+      </header>
+
+      <div class="content">
+        <section class="guide-strip">
+          <div class="guide-copy"><strong>首次使用引导</strong><span>系统逐项高亮入口，点击后继续</span></div>
+          <div class="guide-step current"><b>1</b>员工与赛事权限</div>
+          <div class="guide-step"><b>2</b>课包与收款</div>
+          <div class="guide-step"><b>3</b>排课管理</div>
+          <div class="guide-step"><b>4</b>经营管理</div>
+          <button class="guide-close">稍后引导</button>
+        </section>
+
+        <section class="metrics">
+          <article class="metric"><div class="metric-icon">¥</div><div><label>本月实收</label><strong>¥ 128,600</strong><small>较上月 <em>↑ 12.6%</em></small></div></article>
+          <article class="metric"><div class="metric-icon">▤</div><div><label>本月课消</label><strong>286<small style="display:inline;color:#aeb7bc"> 节</small></strong><small>较上月 <em>↑ 8.4%</em></small></div></article>
+          <article class="metric"><div class="metric-icon">◔</div><div><label>学员到课率</label><strong>94%</strong><small>较上月 <em>↑ 3.2%</em></small></div></article>
+          <article class="metric"><div class="metric-icon">✓</div><div><label>今日待处理</label><strong>12<small style="display:inline;color:#aeb7bc"> 项</small></strong><small>昨日结转 <span class="good">↓ 1 项</span></small></div></article>
+        </section>
+
+        <section class="main-grid">
+          <div class="left-stack">
+            <article class="card">
+              <div class="card-head">
+                <div class="card-title"><span class="title-mark"></span><div><h2>经营趋势</h2><p>收入、课消与新增学员变化</p></div></div>
+                <div class="select">近 28 天　⌄</div>
+              </div>
+              <div class="chart-wrap">
+                <div class="legend"><span><i style="background:#ff7300"></i>实收金额</span><span><i style="background:#f4bd3b"></i>课消课时</span><span><i style="background:#8f9a9f"></i>新增学员</span></div>
+                <div class="chart">
+                  <svg viewBox="0 0 800 194" preserveAspectRatio="none" aria-hidden="true">
+                    <path d="M0 145 C75 142 96 118 160 124 S255 62 320 82 S412 134 478 104 S575 82 640 92 S735 38 800 52" fill="none" stroke="#ff7300" stroke-width="3"/>
+                    <path d="M0 164 C72 156 105 142 160 150 S250 170 320 151 S400 131 478 143 S568 116 640 121 S735 94 800 105" fill="none" stroke="#f4bd3b" stroke-width="2.5"/>
+                    <path d="M0 178 C82 172 100 159 160 167 S250 179 320 173 S405 154 478 163 S570 176 640 159 S736 165 800 145" fill="none" stroke="#8f9a9f" stroke-width="2.2"/>
+                    <g fill="#ff7300"><circle cx="0" cy="145" r="4"/><circle cx="160" cy="124" r="4"/><circle cx="320" cy="82" r="4"/><circle cx="478" cy="104" r="4"/><circle cx="640" cy="92" r="4"/><circle cx="800" cy="52" r="4"/></g>
+                  </svg>
+                </div>
+                <div class="chart-labels"><span>07-01</span><span>07-05</span><span>07-09</span><span>07-13</span><span>07-17</span><span>07-21</span><span>07-28</span></div>
+              </div>
+            </article>
+
+            <div class="bottom-grid">
+              <article class="card">
+                <div class="card-head"><div class="card-title"><span class="title-mark"></span><div><h2>今日安排</h2><p>课程与赛事统一时间轴</p></div></div><div class="select">查看全部</div></div>
+                <div class="schedule-list">
+                  <div class="schedule-row"><span>时间</span><span>事项</span><span>负责人</span><span>场地</span><span>状态</span></div>
+                  <div class="schedule-row"><span>09:30</span><strong>U8 启蒙班</strong><span>王教练</span><span>1号半场</span><span class="state green">进行中</span></div>
+                  <div class="schedule-row"><span>14:00</span><strong>暑期联赛第 6 轮</strong><span>陈教练</span><span>主馆</span><span class="state orange">待安排</span></div>
+                  <div class="schedule-row"><span>18:30</span><strong>U10 提高班</strong><span>李教练</span><span>2号全场</span><span class="state gray">待开始</span></div>
+                </div>
+              </article>
+              <article class="card">
+                <div class="card-head"><div class="card-title"><span class="title-mark"></span><div><h2>模块状态</h2><p>权益与服务状态</p></div></div></div>
+                <div class="module-state">
+                  <div class="module-row"><div><strong>赛事中心</strong><small>开户默认开启</small></div><span class="state green">免费可用</span></div>
+                  <div class="module-row"><div><strong>教务经营</strong><small>含交易与财务</small></div><span class="state orange">已授权</span></div>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div class="right-stack">
+            <article class="card task-card">
+              <div class="card-head"><div class="card-title"><span class="title-mark"></span><div><h2>今日待办</h2><p>按紧急程度排序</p></div></div><div class="select">12 项</div></div>
+              <div class="task-row"><span class="task-dot">1</span><span>处理 3 条学员续费预警</span><time>09:30</time></div>
+              <div class="task-row"><span class="task-dot">2</span><span>安排暑期联赛现场人员</span><time>10:30</time></div>
+              <div class="task-row"><span class="task-dot">3</span><span>确认昨日课程课消结果</span><time>14:00</time></div>
+              <div class="task-row"><span class="task-dot">4</span><span>审核 1 笔退款申请</span><time>16:00</time></div>
+            </article>
+
+            <article class="card">
+              <div class="card-head"><div class="card-title"><span class="title-mark"></span><div><h2>快速开始</h2><p>高频业务入口</p></div></div></div>
+              <div class="quick-grid">
+                <div class="quick-item"><b>＋</b><span>添加教练</span></div>
+                <div class="quick-item"><b>＋</b><span>创建赛事</span></div>
+                <div class="quick-item"><b>＋</b><span>新建课包</span></div>
+                <div class="quick-item"><b>＋</b><span>新建排课</span></div>
+              </div>
+            </article>
+
+            <article class="card">
+              <div class="card-head"><div class="card-title"><span class="title-mark"></span><div><h2>经营提醒</h2><p>需要负责人关注</p></div></div></div>
+              <div class="module-state">
+                <div class="module-row"><div><strong>12 名学员课时不足</strong><small>建议本周安排续费跟进</small></div><span class="state orange">去处理</span></div>
+                <div class="module-row"><div><strong>2 个班级到课率下降</strong><small>较近四周均值下降 8%</small></div><span class="state gray">查看</span></div>
+              </div>
+            </article>
+          </div>
+        </section>
+        <div class="template-note">高规格静态原型 · 工作台模板 v1 · 侧边栏菜单待下一阶段确认</div>
+      </div>
+    </main>
+  </div>
+</body>
+</html>

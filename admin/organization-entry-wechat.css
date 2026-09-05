@@ -1,0 +1,37 @@
+.wechat-login-qr {
+  width: 300px;
+  height: 400px;
+  min-height: 400px;
+  margin: 0 auto;
+  overflow: visible;
+  border-radius: 8px;
+  background: #fff;
+}
+
+.wechat-login-qr iframe {
+  display: block;
+  width: 300px;
+  height: 400px;
+  margin: 0;
+  border: 0;
+}
+
+.qr-layout {
+  grid-template-columns: 336px 1fr;
+  align-items: start;
+}
+
+.qr-card {
+  padding: 10px 10px 16px;
+}
+
+.qr-card img[hidden],
+.wechat-login-qr[hidden] {
+  display: none;
+}
+
+@media (max-width: 680px) {
+  .qr-layout {
+    grid-template-columns: 1fr;
+  }
+}

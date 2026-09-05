@@ -30,13 +30,22 @@
 
 - 产品主页：https://www.sxfbasketball.cn/
 - 网站备案：豫ICP备2026019672号-5
-- 公安备案：豫公网安备41010202003899号
+- 公安备案：豫公网安备41010202003962号
 - 篮球现场计分指南：https://www.sxfbasketball.cn/guides/basketball-scoring.html
 - 临时篮球比赛快速开赛指南：https://www.sxfbasketball.cn/guides/quick-game.html
 - 校园篮球赛事管理指南：https://www.sxfbasketball.cn/guides/campus-tournament-management.html
 - 球队与球员库管理指南：https://www.sxfbasketball.cn/guides/player-library.html
 - 篮球比赛现场 MC 音效指南：https://www.sxfbasketball.cn/guides/mc-audio.html
 - 内容中心：https://www.sxfbasketball.cn/articles/
+- 篮球比赛打平后的加时计分流程：https://www.sxfbasketball.cn/articles/posts/basketball-overtime-scoring-workflow.html
+- 篮球比赛没有 MC 时的计分安排：https://www.sxfbasketball.cn/articles/posts/basketball-scoring-without-mc.html
+- 篮球比赛中途更换计分员交接：https://www.sxfbasketball.cn/articles/posts/midgame-scorer-handover.html
+- 篮球比赛节次切换与节间核对流程：https://www.sxfbasketball.cn/articles/posts/basketball-period-transition-workflow.html
+- 篮球比赛试台数据清零与复位：https://www.sxfbasketball.cn/articles/posts/reset-test-score-before-basketball-game.html
+- 篮球比赛开场后名单漏人处置：https://www.sxfbasketball.cn/articles/posts/missing-player-on-game-roster.html
+- 篮球比赛现场计分岗位分工与协作清单：https://www.sxfbasketball.cn/articles/posts/basketball-score-table-role-division.html
+- 篮球比赛同队球员号码重复处理：https://www.sxfbasketball.cn/articles/posts/duplicate-player-numbers-in-basketball-game.html
+- 篮球比赛现场误播 MC 音效处理：https://www.sxfbasketball.cn/articles/posts/basketball-mc-wrong-audio-handling.html
 - 篮球比赛计分台撤销、纠正与重开边界：https://www.sxfbasketball.cn/articles/posts/basketball-score-table-restart-decision.html
 - 临时篮球比赛是否需要正式球队球员：https://www.sxfbasketball.cn/articles/posts/temporary-basketball-game-team-roster-required.html
 - 篮球比赛主客队设反处置：https://www.sxfbasketball.cn/articles/posts/basketball-home-away-teams-reversed.html
@@ -75,4 +84,4 @@
 - 推荐描述：篮球比赛计分与现场 MC 工具
 - 语言：简体中文
 
-最后更新：2026-08-07
+最后更新：2026-08-19

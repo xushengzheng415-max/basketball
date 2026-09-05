@@ -63,7 +63,8 @@ Page({
     statusText: '待裁判确认', statusClass: '', refereeName: '', confirmed: false, confirmedClass: '',
     reportLocked: false, lockedClass: '', signatureFileID: '', pdfFileID: '', reportNo: '', signedAtText: '', submitting: false,
     viewOnly: false, showConfirmationSection: true, showSignatureCanvas: true, showLockedSignature: false,
-    showUnsignedControls: true, showPdfButton: false, showRetryButton: false
+    showUnsignedControls: true, showPdfButton: false, showRetryButton: false, showShareButton: false,
+    backButtonText: '返回比赛'
   },
 
   onLoad(options) {
@@ -128,7 +129,9 @@ Page({
       showSignatureCanvas: !viewOnly && !locked, showLockedSignature: !viewOnly && locked,
       showUnsignedControls: !viewOnly && !locked,
       showPdfButton: !viewOnly && locked && !!record.pdfFileID,
-      showRetryButton: !viewOnly && locked && !record.pdfFileID
+      showRetryButton: !viewOnly && locked && !record.pdfFileID,
+      showShareButton: !!record.pdfFileID,
+      backButtonText: record.tournamentId ? '返回赛事' : '返回首页'
     });
   },
 
@@ -304,7 +307,30 @@ Page({
     wx.showLoading({ title: '正在打开' });
     sharedCloud.downloadFile({ fileID: this.data.pdfFileID, success: (res) => wx.openDocument({ filePath: res.tempFilePath, fileType: 'pdf', showMenu: true, complete: () => wx.hideLoading() }), fail: () => { wx.hideLoading(); wx.showToast({ title: 'PDF 下载失败', icon: 'none' }); } });
   },
+  shareReport() {
+    if (!this.data.pdfFileID) { wx.showToast({ title: '请先生成正式报告', icon: 'none' }); return; }
+    wx.showLoading({ title: '准备分享' });
+    sharedCloud.downloadFile({
+      fileID: this.data.pdfFileID,
+      success: (result) => {
+        wx.hideLoading();
+        if (!wx.shareFileMessage) {
+          wx.openDocument({ filePath: result.tempFilePath, fileType: 'pdf', showMenu: true });
+          return;
+        }
+        const fileName = `${this.data.homeName}-${this.data.awayName}-比赛报告.pdf`.replace(/[\\/:*?"<>|]/g, '-');
+        wx.shareFileMessage({ filePath: result.tempFilePath, fileName, fail: () => wx.showToast({ title: '分享已取消', icon: 'none' }) });
+      },
+      fail: () => { wx.hideLoading(); wx.showToast({ title: '报告下载失败', icon: 'none' }); }
+    });
+  },
   goBack() {
-    const pages = getCurrentPages(); if (pages.length > 1) wx.navigateBack(); else wx.reLaunch({ url: '/pages/home/index' });
+    const pages = getCurrentPages();
+    if (pages.length > 1) { wx.navigateBack(); return; }
+    if (this.record && this.record.tournamentId) {
+      wx.reLaunch({ url: `/pages/tournament-detail/index?id=${encodeURIComponent(this.record.tournamentId)}&tab=matches` });
+      return;
+    }
+    wx.reLaunch({ url: '/pages/home/index' });
   }
 });

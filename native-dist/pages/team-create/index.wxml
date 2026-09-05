@@ -6,11 +6,6 @@
       <image class="back-icon" src="{{assets.back}}" mode="aspectFit" />
     </view>
     <text class="nav-title">{{navTitle}}</text>
-    <view class="wechat-capsule">
-      <text class="dot-text">•••</text>
-      <view class="capsule-divider"></view>
-      <view class="capsule-circle"></view>
-    </view>
   </view>
 
   <scroll-view wx:if="{{!showForm}}" class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
@@ -191,11 +186,32 @@
 
     <view class="footer-actions">
       <view class="draft-button" bindtap="saveDraft">保存草稿</view>
-      <view class="save-button" bindtap="saveTeam">保存球队</view>
+      <view class="save-button" bindtap="saveTeam">{{saveButtonText}}</view>
     </view>
 
     <view class="scroll-safe"></view>
   </scroll-view>
+
+  <view wx:if="{{logoEditorVisible}}" class="logo-editor-mask">
+    <view class="logo-editor-panel">
+      <view class="logo-editor-head"><view><text class="logo-editor-title">处理球队队徽</text><text class="logo-editor-subtitle">压缩原图 → 调整构图 → 裁剪 → 抠图 → 确认</text></view><text class="logo-editor-close" bindtap="closeLogoEditor">×</text></view>
+      <text class="logo-step-title">{{logoEditorStepText}}</text>
+      <view class="logo-preview-stage"><canvas id="teamLogoEditorCanvas" type="2d" canvas-id="teamLogoEditorCanvas" class="logo-preview-canvas" width="{{logoCanvasSize}}" height="{{logoCanvasSize}}" catchtouchstart="onLogoEditorTouchStart" catchtouchmove="onLogoEditorTouchMove" catchtouchend="onLogoEditorTouchEnd" catchtouchcancel="onLogoEditorTouchEnd"></canvas><text class="crop-frame-label">{{logoStageLabel}}</text></view>
+      <text class="logo-source-meta">{{logoEditorMeta}} · 输出透明 PNG</text>
+      <block wx:if="{{showLogoCropStep}}">
+        <view class="gesture-help"><view><text class="gesture-title">{{logoEditorCropTip}}</text><text class="gesture-note">完整原图已压缩载入；单指拖动，双指缩放，方框内即最终裁剪内容</text></view><button bindtap="resetLogoEditorGesture">恢复居中</button></view>
+        <view class="logo-editor-actions"><button class="logo-cancel" bindtap="chooseLogo">重新选图</button><button class="logo-confirm" bindtap="finishLogoCrop">完成裁剪，开始抠图</button></view>
+      </block>
+      <block wx:else>
+        <view class="remove-bg-row"><view><text class="remove-bg-title">仅抠除外围连通背景</text><text class="remove-bg-note">保留队徽内部相同颜色和白色细节</text></view><switch checked="{{logoEditorRemoveBackground}}" color="#ff6500" bindchange="onLogoBackgroundChange" /></view>
+        <view wx:if="{{logoEditorRemoveBackground}}" class="logo-control"><view class="logo-control-line"><text>去底容差</text><text>{{logoEditorToleranceText}}</text></view><slider min="12" max="90" value="{{logoEditorTolerance}}" data-key="logoEditorTolerance" activeColor="#ff6500" bindchange="onLogoEditorSlider" bindchanging="onLogoEditorSlider" /></view>
+        <view class="transparent-note"><text>裁剪构图已冻结；请检查主体边缘，必要时返回上一步调整。</text></view>
+        <view class="logo-editor-actions"><button class="logo-cancel" bindtap="returnToLogoCrop">返回裁剪</button><button class="logo-confirm" loading="{{logoEditorConfirming}}" bindtap="confirmLogoEditor">确认透明队徽</button></view>
+      </block>
+    </view>
+  </view>
+
+  <canvas canvas-id="teamLogoPreprocessCanvas" class="logo-preprocess-canvas" width="1200" height="1200"></canvas>
 
   <sxf-tabbar active="player" />
 </view>

@@ -1,365 +1,308 @@
-const { cloud, normalizeCloudFileID } = require('../../utils/cloud');
+const {
+  CLASS_OPTIONS,
+  FORMAT_META,
+  GRADE_OPTIONS,
+  SCENARIO_META,
+  SCHOOL_STAGES,
+  buildClassIdentity,
+  classIdentityError,
+  callTournament,
+  ensureClassTeamBinding,
+  findClassTeam,
+  isCloudUnavailable,
+  getLocalTournamentResult,
+  readTeams,
+  requirePhoneLogin,
+  saveLocalTournament,
+  updateLocalTournament,
+  withTeamPlayers
+} = require('../../utils/tournament-league');
 
-const typeOptions = ['联赛', '杯赛', '训练营赛', '友谊赛'];
-const ageOptions = ['不限年龄', 'U8（6-8岁）', 'U10（8-10岁）', 'U12（10-12岁）', 'U15（13-15岁）', '成人组'];
-const systemOptions = ['积分循环赛', '小组赛 + 淘汰赛', '单败淘汰赛', '双败淘汰赛', '单循环赛'];
-
-const numberLimits = {
-  teamCount: { min: 2, max: 64 },
-  playerLimit: { min: 5, max: 30 },
-  periodMinutes: { min: 1, max: 15 },
-  periodCount: { min: 1, max: 8 },
-  overtimeMinutes: { min: 0, max: 10 },
-  timeoutCount: { min: 0, max: 10 }
+const FORMATS = ['single_round_robin', 'double_round_robin', 'group_knockout'];
+const SCENARIO_COPY = {
+  class_league: {
+    namePlaceholder: '例如：三年级班班赛',
+    organizationLabel: '学校',
+    organizationPlaceholder: '请输入学校名称',
+    descriptionPlaceholder: '填写班级参赛说明或赛事约定'
+  },
+  institution_weekly: {
+    namePlaceholder: '例如：蜂动篮球秋季周赛',
+    organizationLabel: '主办机构',
+    organizationPlaceholder: '请输入机构名称',
+    descriptionPlaceholder: '填写参赛球队说明或周赛约定'
+  },
+  other: {
+    namePlaceholder: '例如：城市青少年篮球杯赛',
+    organizationLabel: '主办方',
+    organizationPlaceholder: '请输入主办方名称',
+    descriptionPlaceholder: '填写参赛说明或赛事约定'
+  }
 };
-
-function todayText() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, '0');
-  const day = String(now.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function addDaysText(days) {
-  const target = new Date();
-  target.setDate(target.getDate() + days);
-  const year = target.getFullYear();
-  const month = String(target.getMonth() + 1).padStart(2, '0');
-  const day = String(target.getDate()).padStart(2, '0');
-  return `${year}-${month}-${day}`;
-}
-
-function getImageExtension(filePath) {
-  const match = String(filePath || '').match(/\.([a-zA-Z0-9]+)(?:\?|$)/);
-  const extension = match ? match[1].toLowerCase() : 'jpg';
-  return ['jpg', 'jpeg', 'png', 'webp'].includes(extension) ? extension : 'jpg';
-}
-
-function uploadTournamentLogo(filePath) {
-  return new Promise((resolve, reject) => {
-    if (!cloud || !cloud.uploadFile) {
-      reject(new Error('云存储未初始化'));
-      return;
-    }
-    const extension = getImageExtension(filePath);
-    const random = Math.random().toString(36).slice(2, 8);
-    cloud.uploadFile({
-      cloudPath: `tournament-logos/${Date.now()}-${random}.${extension}`,
-      filePath,
-      success: (result) => {
-        const fileID = result && result.fileID;
-        if (fileID) resolve(fileID);
-        else reject(new Error('赛事 Logo 上传未返回云文件 ID'));
-      },
-      fail: reject
-    });
-  });
-}
-
-function createDefaultForm() {
-  return {
-    logoUrl: '',
-    logoFileID: '',
-    name: '',
-    type: typeOptions[0],
-    startDate: todayText(),
-    endDate: addDaysText(14),
-    registrationDeadline: addDaysText(7),
-    venue: '',
-    ageGroup: ageOptions[2],
-    teamCount: 12,
-    system: systemOptions[0],
-    playerLimit: 15,
-    openRegistration: true,
-    requireApproval: true,
-    periodMinutes: 10,
-    periodCount: 4,
-    overtimeMinutes: 3,
-    timeoutCount: 2,
-    enableStats: true,
-    showLiveScore: true
-  };
-}
 
 Page({
   data: {
-    form: createDefaultForm(),
-    hasName: false,
-    typeOptions,
-    ageOptions,
-    systemOptions,
-    uploadingLogo: false,
-    editingTournamentId: '',
-    originalTournament: null,
-    pageTitle: '创建赛事',
-    primaryActionText: '保存并创建',
-    typeIndex: 0,
-    ageIndex: 2,
-    systemIndex: 0
+    capsuleRight: 210,
+    scenarioType: 'other', scenarioLabel: '其他赛事', pageTitle: '创建赛事', scenarioHint: '',
+    namePlaceholder: SCENARIO_COPY.other.namePlaceholder,
+    organizationLabel: SCENARIO_COPY.other.organizationLabel,
+    organizationPlaceholder: SCENARIO_COPY.other.organizationPlaceholder,
+    descriptionPlaceholder: SCENARIO_COPY.other.descriptionPlaceholder,
+    form: {
+      name: '', organizationName: '', schoolName: '', schoolStage: '', gradeCode: '', gradeName: '',
+      classCode: '', className: '', description: '', competitionFormat: 'single_round_robin',
+      winPoints: 2, lossPoints: 1, forfeitPoints: 0, groupCount: 2, advanceCount: 2
+    },
+    stageOptions: SCHOOL_STAGES.map((item) => item.label), stageIndex: 0, stageText: '请选择学段',
+    gradeOptions: [], gradeLabels: [], gradeIndex: 0, gradeText: '请先选择学段',
+    classOptions: CLASS_OPTIONS.map((item) => item.label), classIndex: 0, classText: '请选择班级', showCustomClassInput: false,
+    formats: FORMATS.map((key) => FORMAT_META[key].label), formatIndex: 0, selectedFormatText: FORMAT_META.single_round_robin.label,
+    teams: [], teamIndex: -1, selectedTeamText: '选择本队', selectedPlayerCount: 0, hasSelectedTeam: false,
+    teamPickerLabel: '选择本队', showTeamEmpty: false, teamSelectionManual: false,
+    classBindingHint: '选择学段、年级和班级后，系统将匹配或创建班级队。',
+    showClassFields: false, showOrganizationField: true, showGroupFields: false, requireTeam: false, saving: false,
+    isEditing: false, editingEventId: '', originalTournament: null, originalCreatorTeam: null,
+    submitPrimaryText: '创建并开始招募', primaryActionClass: 'primary', showDraftAction: true, editingLocked: false, showEditLockedNote: false
   },
-
-  onLoad(options) {
-    const id = decodeURIComponent(String(options && options.id || ''));
-    if (!id) return;
-    const stored = wx.getStorageSync('tournaments') || [];
-    const item = (Array.isArray(stored) ? stored : []).find((entry) => String(entry.id) === id);
-    if (!item) {
-      wx.showToast({ title: '未找到该赛事', icon: 'none' });
-      return;
-    }
-
-    const defaults = createDefaultForm();
-    const startDate = item.startDate || String(item.date || '').split(' ~ ')[0] || defaults.startDate;
-    const endDate = item.endDate || String(item.date || '').split(' ~ ')[1] || defaults.endDate;
-    const form = Object.assign({}, defaults, {
-      logoUrl: normalizeCloudFileID(item.logoFileID || item.logoUrl || item.logo || ''),
-      logoFileID: normalizeCloudFileID(item.logoFileID || item.logoUrl || item.logo || ''),
-      name: item.name || '',
-      type: item.type || defaults.type,
-      startDate,
-      endDate,
-      registrationDeadline: item.registrationDeadline || startDate,
-      venue: item.venue || item.location || '',
-      ageGroup: item.ageGroup || defaults.ageGroup,
-      teamCount: Number(item.teams || defaults.teamCount),
-      system: item.system || defaults.system,
-      playerLimit: Number(item.playerLimit || defaults.playerLimit),
-      openRegistration: item.openRegistration !== false,
-      requireApproval: item.requireApproval !== false,
-      periodMinutes: Number(item.periodMinutes || defaults.periodMinutes),
-      periodCount: Number(item.periodCount || item.periods || defaults.periodCount),
-      overtimeMinutes: Number(item.overtimeMinutes || defaults.overtimeMinutes),
-      timeoutCount: Number(item.timeoutCount || defaults.timeoutCount),
-      enableStats: item.enableStats !== false,
-      showLiveScore: item.showLiveScore !== false
-    });
-    const typeIndex = Math.max(0, typeOptions.indexOf(form.type));
-    const ageIndex = Math.max(0, ageOptions.indexOf(form.ageGroup));
-    const systemIndex = Math.max(0, systemOptions.indexOf(form.system));
+  onLoad(options = {}) {
+    const scenarioType = SCENARIO_META[options.scenarioType] ? options.scenarioType : 'other';
+    this.configureScenario(scenarioType);
+    const eventId = decodeURIComponent(String(options.id || options.eventId || ''));
+    if (eventId) this.loadExisting(eventId);
+    this.setCapsuleSafeArea();
+  },
+  configureScenario(scenarioType) {
+    const meta = SCENARIO_META[scenarioType];
+    const scenarioCopy = SCENARIO_COPY[scenarioType] || SCENARIO_COPY.other;
+    const hints = {
+      class_league: '面向学校班级，以班级为参赛队，通过二维码邀请其他班级报名。',
+      institution_weekly: '面向篮球机构，不绑定自然周，只按轮次生成球队对阵。',
+      other: '用于杯赛、友谊赛等通用赛事，保留原有赛事场景。'
+    };
     this.setData({
-      editingTournamentId: id,
-      originalTournament: item,
-      pageTitle: '编辑赛事',
-      primaryActionText: '保存修改',
-      form,
-      hasName: Boolean(form.name.trim()),
-      typeIndex,
-      ageIndex,
-      systemIndex
+      scenarioType, scenarioLabel: meta.label, pageTitle: `创建${meta.label}`, scenarioHint: hints[scenarioType],
+      namePlaceholder: scenarioCopy.namePlaceholder, organizationLabel: scenarioCopy.organizationLabel,
+      organizationPlaceholder: scenarioCopy.organizationPlaceholder, descriptionPlaceholder: scenarioCopy.descriptionPlaceholder,
+      showClassFields: scenarioType === 'class_league', showOrganizationField: scenarioType !== 'class_league',
+      requireTeam: scenarioType === 'institution_weekly', teams: readTeams(),
+      teamPickerLabel: scenarioType === 'class_league' ? '绑定已有球队（可选）' : '选择本队',
+      showTeamEmpty: scenarioType !== 'class_league' && readTeams().length === 0
     });
   },
-
-  goBack() {
-    const pages = getCurrentPages();
-    if (pages.length > 1) {
-      wx.navigateBack();
+  loadExisting(eventId) {
+    const localResult = getLocalTournamentResult(eventId);
+    const request = localResult ? Promise.resolve(localResult) : callTournament('get', { eventId });
+    request.then((result) => {
+      if (result.role !== 'creator') throw new Error('只有赛事创建者可以编辑赛事');
+      const tournament = result.tournament || {};
+      const creatorTeam = (result.teams || []).find((team) => team.source === 'creator') || null;
+      const scenarioType = SCENARIO_META[tournament.scenarioType] ? tournament.scenarioType : 'other';
+      this.configureScenario(scenarioType);
+      const teams = readTeams();
+      const form = {
+        name: tournament.name || '',
+        organizationName: scenarioType === 'class_league' ? '' : (tournament.organizationName || ''),
+        schoolName: scenarioType === 'class_league' ? (creatorTeam && creatorTeam.schoolName || tournament.organizationName || '') : '',
+        schoolStage: tournament.schoolStage || creatorTeam && creatorTeam.schoolStage || '',
+        gradeCode: tournament.gradeCode || creatorTeam && creatorTeam.gradeCode || '',
+        gradeName: tournament.gradeName || creatorTeam && creatorTeam.gradeName || '',
+        classCode: creatorTeam && creatorTeam.classCode || '',
+        className: creatorTeam && creatorTeam.className || '',
+        description: tournament.description || '',
+        competitionFormat: tournament.competitionFormat || 'single_round_robin',
+        winPoints: Number(tournament.pointsRule && tournament.pointsRule.win || 2),
+        lossPoints: Number(tournament.pointsRule && tournament.pointsRule.loss || 1),
+        forfeitPoints: Number(tournament.pointsRule && tournament.pointsRule.forfeit || 0),
+        groupCount: Number(tournament.groupCount || 2), advanceCount: Number(tournament.advanceCount || 2)
+      };
+      const stageIndex = Math.max(0, SCHOOL_STAGES.findIndex((item) => item.key === form.schoolStage));
+      const stage = SCHOOL_STAGES[stageIndex];
+      const gradeOptions = stage ? (GRADE_OPTIONS[stage.key] || []) : [];
+      const gradeIndex = Math.max(0, gradeOptions.findIndex((item) => item.key === form.gradeCode));
+      const classIndex = Math.max(0, CLASS_OPTIONS.findIndex((item) => item.key === form.classCode));
+      const selected = creatorTeam && teams.find((team) => String(team.sourceTeamId) === String(creatorTeam.sourceTeamId));
+      const teamIndex = selected ? teams.findIndex((team) => team.sourceTeamId === selected.sourceTeamId) : -1;
+      const formatIndex = Math.max(0, FORMATS.indexOf(form.competitionFormat));
+      const editingLocked = (result.matches || []).length > 0;
+      this.setData({
+        teams, form, isEditing: true, editingEventId: eventId, originalTournament: tournament, originalCreatorTeam: creatorTeam,
+        pageTitle: `编辑${SCENARIO_META[scenarioType].label}`, submitPrimaryText: '保存修改', primaryActionClass: 'primary full', showDraftAction: false,
+        stageIndex, stageText: form.schoolStage ? (stage && stage.label || '请选择学段') : '请选择学段',
+        gradeOptions, gradeLabels: gradeOptions.map((item) => item.label), gradeIndex,
+        gradeText: form.gradeName || '请选择年级', classIndex, classText: form.className || '请选择班级',
+        showCustomClassInput: form.classCode === 'custom', formatIndex, selectedFormatText: this.data.formats[formatIndex],
+        showGroupFields: form.competitionFormat === 'group_knockout', teamIndex,
+        selectedTeamText: selected ? selected.name : (creatorTeam && creatorTeam.name || '选择本队'),
+        selectedPlayerCount: selected ? withTeamPlayers(selected).players.length : (creatorTeam && creatorTeam.players || []).length,
+        hasSelectedTeam: !!(selected || creatorTeam), teamSelectionManual: !!selected,
+        editingLocked, showEditLockedNote: editingLocked
+      }, () => this.refreshClassBinding());
+    }).catch((error) => {
+      wx.showToast({ title: error.message || '赛事信息加载失败', icon: 'none' });
+      setTimeout(() => wx.navigateBack(), 500);
+    });
+  },
+  onShow() {
+    const teams = readTeams();
+    this.setData({ teams, showTeamEmpty: !this.data.showClassFields && teams.length === 0 }, () => this.refreshClassBinding());
+    if (this.data.teamIndex >= teams.length) this.setData({ teamIndex: -1, selectedTeamText: '选择本队', selectedPlayerCount: 0, hasSelectedTeam: false });
+  },
+  setCapsuleSafeArea() {
+    try {
+      const capsule = wx.getMenuButtonBoundingClientRect();
+      const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      this.setData({ capsuleRight: Math.max(210, (info.windowWidth - capsule.left + 12) * 2) });
+    } catch (error) {}
+  },
+  goBack() { wx.navigateBack({ fail: () => wx.redirectTo({ url: '/pages/tournament/index' }) }); },
+  onInput(event) {
+    const field = event.currentTarget.dataset.field;
+    if (!field) return;
+    if (this.data.editingLocked && ['schoolName', 'className'].includes(field)) return;
+    this.setData({ [`form.${field}`]: event.detail.value }, () => {
+      if (field === 'schoolName' || field === 'className') this.refreshClassBinding();
+    });
+  },
+  onStageChange(event) {
+    if (this.data.editingLocked) return;
+    const stageIndex = Number(event.detail.value);
+    const stage = SCHOOL_STAGES[stageIndex];
+    if (!stage) return;
+    const grades = GRADE_OPTIONS[stage.key] || [];
+    this.setData({
+      stageIndex, stageText: stage.label, 'form.schoolStage': stage.key,
+      'form.gradeCode': '', 'form.gradeName': '', gradeOptions: grades, gradeLabels: grades.map((item) => item.label),
+      gradeIndex: 0, gradeText: '请选择年级'
+    }, () => this.refreshClassBinding());
+  },
+  onGradeChange(event) {
+    if (this.data.editingLocked) return;
+    const gradeIndex = Number(event.detail.value);
+    const grade = this.data.gradeOptions[gradeIndex];
+    if (!grade) return;
+    this.setData({ gradeIndex, gradeText: grade.label, 'form.gradeCode': grade.key, 'form.gradeName': grade.label }, () => this.refreshClassBinding());
+  },
+  onClassChange(event) {
+    if (this.data.editingLocked) return;
+    const classIndex = Number(event.detail.value);
+    const selected = CLASS_OPTIONS[classIndex];
+    if (!selected) return;
+    const custom = selected.key === 'custom';
+    this.setData({
+      classIndex, classText: selected.label, showCustomClassInput: custom,
+      'form.classCode': selected.key, 'form.className': custom ? '' : selected.label
+    }, () => this.refreshClassBinding());
+  },
+  getClassIdentity() { return buildClassIdentity(this.data.form); },
+  refreshClassBinding() {
+    if (!this.data.showClassFields) return;
+    const identity = this.getClassIdentity();
+    if (!identity.schoolName || !identity.schoolStage || !identity.gradeCode || !identity.className) {
+      const reset = this.data.teamSelectionManual ? {} : { teamIndex: -1, selectedTeamText: '选择本队', selectedPlayerCount: 0, hasSelectedTeam: false };
+      this.setData(Object.assign({ classBindingHint: '选择学段、年级和班级后，系统将匹配或创建班级队。' }, reset));
       return;
     }
-    wx.redirectTo({ url: '/pages/tournament/index' });
-  },
-
-  updateForm(field, value) {
-    const form = Object.assign({}, this.data.form, { [field]: value });
-    const nextData = { form };
-    if (field === 'name') nextData.hasName = Boolean(value.trim());
-    this.setData(nextData);
-  },
-
-  onNameInput(event) {
-    this.updateForm('name', event.detail.value);
-  },
-
-  clearName() {
-    this.updateForm('name', '');
-  },
-
-  chooseLogo() {
-    if (this.data.uploadingLogo) return;
-    wx.chooseMedia({
-      count: 1,
-      mediaType: ['image'],
-      sizeType: ['compressed'],
-      success: (result) => {
-        const file = result.tempFiles && result.tempFiles[0];
-        if (!file || !file.tempFilePath) return;
-        this.setData({ uploadingLogo: true });
-        wx.showLoading({ title: '上传赛事 Logo' });
-        uploadTournamentLogo(file.tempFilePath)
-          .then((logoFileID) => {
-            const form = Object.assign({}, this.data.form, {
-              logoUrl: logoFileID,
-              logoFileID
-            });
-            this.setData({ form });
-            wx.showToast({ title: 'Logo 已上传', icon: 'success' });
-          })
-          .catch((error) => {
-            console.warn('[tournament-create] upload logo failed', error);
-            wx.showToast({ title: 'Logo 上传失败，请检查网络', icon: 'none' });
-          })
-          .finally(() => {
-            wx.hideLoading();
-            this.setData({ uploadingLogo: false });
-          });
-      }
+    const teams = this.data.teams.length ? this.data.teams : readTeams();
+    const matched = findClassTeam(teams, identity);
+    if (matched) {
+      const teamIndex = teams.findIndex((team) => team.sourceTeamId === matched.sourceTeamId);
+      const snapshot = withTeamPlayers(matched);
+      this.setData({
+        teamIndex, selectedTeamText: matched.name, selectedPlayerCount: snapshot.players.length, hasSelectedTeam: true, teamSelectionManual: false,
+        classBindingHint: `已匹配“${matched.name}”，将复用该球队及 ${snapshot.players.length} 名球员。`
+      });
+      return;
+    }
+    const selected = this.data.teamSelectionManual ? teams[this.data.teamIndex] : null;
+    this.setData({
+      teamIndex: selected ? this.data.teamIndex : -1,
+      selectedTeamText: selected ? selected.name : '选择本队',
+      selectedPlayerCount: selected ? withTeamPlayers(selected).players.length : 0,
+      hasSelectedTeam: !!selected,
+      classBindingHint: selected
+        ? `将把“${selected.name}”绑定为${identity.classDisplayName}。`
+        : `将自动创建“${identity.classDisplayName}”班级队。`
     });
   },
-
-  removeLogo() {
-    const form = Object.assign({}, this.data.form, { logoUrl: '', logoFileID: '' });
-    this.setData({ form });
+  onTeamChange(event) {
+    if (this.data.editingLocked) return;
+    const teamIndex = Number(event.detail.value);
+    const team = this.data.teams[teamIndex];
+    if (!team) return;
+    const snapshot = withTeamPlayers(team);
+    this.setData({ teamIndex, selectedTeamText: team.name, selectedPlayerCount: snapshot.players.length, hasSelectedTeam: true, teamSelectionManual: true }, () => this.refreshClassBinding());
   },
-
-  onVenueInput(event) {
-    this.updateForm('venue', event.detail.value);
+  onFormatChange(event) {
+    if (this.data.editingLocked) return;
+    const formatIndex = Number(event.detail.value);
+    const competitionFormat = FORMATS[formatIndex] || FORMATS[0];
+    this.setData({ formatIndex, selectedFormatText: this.data.formats[formatIndex], 'form.competitionFormat': competitionFormat, showGroupFields: competitionFormat === 'group_knockout' });
   },
-
-  onTypeChange(event) {
-    const typeIndex = Number(event.detail.value);
-    this.setData({ typeIndex });
-    this.updateForm('type', typeOptions[typeIndex]);
-  },
-
-  onAgeChange(event) {
-    const ageIndex = Number(event.detail.value);
-    this.setData({ ageIndex });
-    this.updateForm('ageGroup', ageOptions[ageIndex]);
-  },
-
-  onSystemChange(event) {
-    const systemIndex = Number(event.detail.value);
-    this.setData({ systemIndex });
-    this.updateForm('system', systemOptions[systemIndex]);
-  },
-
-  onStartDateChange(event) {
-    const value = event.detail.value;
-    const form = Object.assign({}, this.data.form, { startDate: value });
-    if (value > form.endDate) form.endDate = value;
-    this.setData({ form });
-  },
-
-  onEndDateChange(event) {
-    const value = event.detail.value;
-    const form = Object.assign({}, this.data.form, { endDate: value });
-    if (value < form.startDate) form.startDate = value;
-    if (form.registrationDeadline > value) form.registrationDeadline = value;
-    this.setData({ form });
-  },
-
-  onRegistrationDeadlineChange(event) {
-    const value = event.detail.value;
-    const form = Object.assign({}, this.data.form, { registrationDeadline: value });
-    if (value > form.endDate) form.endDate = value;
-    this.setData({ form });
-  },
-
   changeNumber(event) {
     const field = event.currentTarget.dataset.field;
     const delta = Number(event.currentTarget.dataset.delta || 0);
-    const limits = numberLimits[field];
-    if (!limits) return;
-
+    const ranges = { winPoints: [0, 20], lossPoints: [0, 20], forfeitPoints: [0, 20], groupCount: [2, 16], advanceCount: [1, 8] };
+    if (!ranges[field] || this.data.editingLocked) return;
     const current = Number(this.data.form[field] || 0);
-    const next = Math.min(limits.max, Math.max(limits.min, current + delta));
-    this.updateForm(field, next);
+    this.setData({ [`form.${field}`]: Math.max(ranges[field][0], Math.min(ranges[field][1], current + delta)) });
   },
-
-  onSwitchChange(event) {
-    const field = event.currentTarget.dataset.field;
-    if (!field) return;
-    this.updateForm(field, event.detail.value);
+  goCreateTeam() { wx.navigateTo({ url: '/pages/team-create/index?from=tournament-create' }); },
+  buildCreatorTeam() {
+    const selected = this.data.teams[this.data.teamIndex];
+    if (this.data.scenarioType === 'class_league') return ensureClassTeamBinding(this.getClassIdentity(), selected || null);
+    return selected ? withTeamPlayers(selected) : this.data.originalCreatorTeam || null;
   },
-
-  validateForm() {
+  validate() {
     const form = this.data.form;
-    if (!form.name.trim()) {
-      wx.showToast({ title: '请填写赛事名称', icon: 'none' });
-      return false;
+    if (!String(form.name || '').trim()) return '请填写赛事名称';
+    if (this.data.scenarioType === 'class_league') {
+      const classError = classIdentityError(form);
+      if (classError) return classError;
     }
-    if (!form.venue.trim()) {
-      wx.showToast({ title: '请填写比赛场馆', icon: 'none' });
-      return false;
+    if (this.data.requireTeam && this.data.teamIndex < 0) return '请选择本机构参赛球队';
+    if (form.competitionFormat === 'group_knockout') {
+      const qualifiers = Number(form.advanceCount) * Number(form.groupCount);
+      if ((qualifiers & (qualifiers - 1)) !== 0) return '晋级球队总数需为 2、4、8 或 16';
     }
-    return true;
+    return '';
   },
-
-  estimateGameCount(form) {
-    const teams = Number(form.teamCount || 0);
-    if (teams < 2) return 0;
-    if (form.system === '单败淘汰赛') return teams - 1;
-    if (form.system === '双败淘汰赛') return Math.max(teams * 2 - 2, teams - 1);
-    if (form.system === '单循环赛' || form.system === '积分循环赛') return Math.round(teams * (teams - 1) / 2);
-    return Math.max(teams + Math.ceil(teams / 2), teams - 1);
-  },
-  buildTournament(status) {
+  submit(event) {
+    const status = this.data.isEditing
+      ? String(this.data.originalTournament && this.data.originalTournament.status || 'recruiting')
+      : (event.currentTarget.dataset.status === 'draft' ? 'draft' : 'recruiting');
+    if (!requirePhoneLogin('/pages/tournament-create/index')) return;
+    const error = this.validate();
+    if (error) { wx.showToast({ title: error, icon: 'none' }); return; }
+    if (this.data.saving) return;
+    let creatorTeam;
+    try { creatorTeam = this.buildCreatorTeam(); } catch (bindingError) { wx.showToast({ title: bindingError.message, icon: 'none' }); return; }
     const form = this.data.form;
-    const logoFileID = normalizeCloudFileID(form.logoFileID || form.logoUrl || '');
-    const existing = this.data.originalTournament || {};
-    const editingId = this.data.editingTournamentId;
-    const games = editingId ? Number(existing.games || 0) : this.estimateGameCount(form);
-    return Object.assign({}, existing, {
-      id: editingId || `tournament-${Date.now()}`,
-      logoUrl: logoFileID,
-      logoFileID,
-      name: form.name.trim(),
-      type: form.type,
-      ageGroup: form.ageGroup,
-      location: form.venue.trim(),
-      venue: form.venue.trim(),
-      date: `${form.startDate} ~ ${form.endDate}`,
-      startDate: form.startDate,
-      endDate: form.endDate,
-      registrationDeadline: form.registrationDeadline,
-      status,
-      teams: form.teamCount,
-      games: Math.round(games),
-      system: form.system,
-      playerLimit: form.playerLimit,
-      openRegistration: form.openRegistration,
-      requireApproval: form.requireApproval,
-      periodMinutes: form.periodMinutes,
-      periodCount: form.periodCount,
-      overtimeMinutes: form.overtimeMinutes,
-      timeoutCount: form.timeoutCount,
-      enableStats: form.enableStats,
-      showLiveScore: form.showLiveScore,
-      createdAt: existing.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
+    this.setData({ saving: true }); wx.showLoading({ title: '正在创建' });
+    const tournamentPayload = {
+      tournament: {
+        name: String(form.name).trim(), scenarioType: this.data.scenarioType,
+        organizationName: this.data.scenarioType === 'class_league' ? String(form.schoolName).trim() : String(form.organizationName).trim(),
+        schoolStage: form.schoolStage, gradeCode: form.gradeCode, gradeName: form.gradeName,
+        description: String(form.description || '').trim(), competitionFormat: form.competitionFormat, status,
+        pointsRule: { win: Number(form.winPoints), loss: Number(form.lossPoints), forfeit: Number(form.forfeitPoints) },
+        groupCount: Number(form.groupCount), advanceCount: Number(form.advanceCount)
+      }, creatorTeam
+    };
+    const request = this.data.isEditing
+      ? (getLocalTournamentResult(this.data.editingEventId)
+        ? Promise.resolve(updateLocalTournament(this.data.editingEventId, tournamentPayload.tournament, creatorTeam))
+        : callTournament('update', { eventId: this.data.editingEventId, patch: tournamentPayload.tournament, creatorTeam }))
+      : callTournament('create', tournamentPayload).catch((requestError) => {
+        if (!isCloudUnavailable(requestError)) throw requestError;
+        return saveLocalTournament(tournamentPayload);
+      });
+    request.then((result) => {
+      const title = this.data.isEditing ? '赛事已更新' : (result.localOnly ? '已保存到赛事' : (status === 'draft' ? '草稿已保存' : '赛事已创建'));
+      wx.showToast({ title, icon: 'success' });
+      const eventId = this.data.isEditing ? this.data.editingEventId : result.tournament.eventId;
+      setTimeout(() => wx.redirectTo({ url: `/pages/tournament-detail/index?id=${encodeURIComponent(eventId)}` }), 350);
+    }).catch((requestError) => wx.showToast({ title: requestError.message || '创建失败', icon: 'none' })).finally(() => {
+      wx.hideLoading(); this.setData({ saving: false });
     });
-  },
-
-  persistTournament(status) {
-    if (!this.validateForm()) return;
-
-    const editingId = this.data.editingTournamentId;
-    const nextStatus = editingId && this.data.originalTournament ? (this.data.originalTournament.status || status) : status;
-    const tournament = this.buildTournament(nextStatus);
-    const stored = wx.getStorageSync('tournaments') || [];
-    const tournaments = editingId
-      ? stored.map((item) => String(item.id) === String(editingId) ? tournament : item)
-      : [tournament].concat(stored);
-    wx.setStorageSync('tournaments', tournaments);
-
-    wx.showToast({ title: editingId ? '赛事已更新' : (status === 'draft' ? '草稿已保存' : '赛事已创建'), icon: 'success' });
-    setTimeout(() => {
-      if (editingId) {
-        const pages = getCurrentPages();
-        if (pages.length > 1) {
-          wx.navigateBack();
-          return;
-        }
-      }
-      wx.redirectTo({ url: status !== 'draft' ? `/pages/tournament-detail/index?id=${tournament.id}` : '/pages/tournament/index' });
-    }, 450);
-  },
-
-  saveAndCreate() {
-    this.persistTournament('running');
-  },
-
-  saveDraft() {
-    this.persistTournament('draft');
   }
 });

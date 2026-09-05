@@ -1,63 +1,136 @@
-const ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/team/';
-const { requireEducationAccess } = require('../../utils/education-access');
-const avatarFiles = ['avatar-linhao.png', 'avatar-liuyuchen.png', 'avatar-zhangzixuan.png', 'avatar-zhaozimo.png', 'avatar-liaoran.png'];
-const names = [
-  ['林浩', '23', 'present'], ['刘宇辰', '8', 'leave'], ['张子轩', '11', 'present'],
-  ['赵子墨', '5', 'present'], ['廖然', '17', 'absent'], ['王昊', '12', 'present'],
-  ['陈奕', '7', 'present'], ['周睿', '19', 'present'], ['吴昊', '2', 'present'],
-  ['徐朗', '21', 'present'], ['孙一航', '16', 'present'], ['孔明', '9', 'present']
-];
-const baseStudents = names.map((item, index) => ({
-  id: 's' + (index + 1), name: item[0], number: item[1], status: item[2],
-  package: '剩余' + (18 - index % 6) + '课时', avatar: ROOT + avatarFiles[index % avatarFiles.length]
-}));
-
-function decorate(students) {
-  return students.map((item) => ({
+const { callCloud } = require("../../utils/cloud");
+const statusName = {
+  present: "出勤",
+  leave: "请假",
+  absent: "缺勤",
+  makeup: "补课",
+  makeup_no_charge: "补课不扣",
+  trial: "试听",
+};
+function decorateStudent(item, status) {
+  return {
     ...item,
-    presentClass: item.status === 'present' ? 'selected' : '',
-    leaveClass: item.status === 'leave' ? 'selected' : '',
-    absentClass: item.status === 'absent' ? 'selected' : '',
-    showRecord: item.status === 'leave' || item.status === 'absent'
-  }));
+    initial: String(item.name || "学").slice(0, 1),
+    status,
+    statusName: statusName[status],
+    presentClass: status === "present" ? "active" : "",
+    leaveClass: status === "leave" ? "active" : "",
+    absentClass: status === "absent" ? "active danger" : "",
+    makeupClass: status === "makeup" ? "active" : "",
+    makeupNoChargeClass: status === "makeup_no_charge" ? "active" : "",
+    trialClass: status === "trial" ? "active" : "",
+  };
 }
-
 Page({
-  data: { students: [], presentCount: 10, leaveCount: 1, absentCount: 1, makeupCount: 0, consumeCount: 10 },
-  onLoad() { this.sync(baseStudents); },
-  onStatus(event) {
-    const id = event.currentTarget.dataset.id;
-    const status = event.currentTarget.dataset.status;
-    this.sync(this.data.students.map((item) => item.id === id ? { ...item, status } : item));
+  data: {
+    navTop: 20,
+    navHeight: 44,
+    navSpacer: 80,
+    loading: true,
+    saving: false,
+    error: "",
+    lessonId: "",
+    lesson: null,
+    students: [],
+    saveDisabled: true,
+    statuses: Object.keys(statusName),
   },
-  markAll() { this.sync(this.data.students.map((item) => ({ ...item, status: 'present' }))); },
-  sync(students) {
-    const decorated = decorate(students);
+  onLoad(options) {
+    let navTop = 20,
+      navHeight = 44;
+    try {
+      const menu =
+        wx.getMenuButtonBoundingClientRect &&
+        wx.getMenuButtonBoundingClientRect();
+      if (menu && menu.top) {
+        navTop = menu.top;
+        navHeight = menu.height || 32;
+      }
+    } catch (_) {}
     this.setData({
-      students: decorated,
-      presentCount: decorated.filter((item) => item.status === 'present').length,
-      leaveCount: decorated.filter((item) => item.status === 'leave').length,
-      absentCount: decorated.filter((item) => item.status === 'absent').length,
-      makeupCount: decorated.filter((item) => item.status === 'makeup').length,
-      consumeCount: decorated.filter((item) => item.status === 'present' || item.status === 'makeup').length
+      navTop,
+      navHeight,
+      navSpacer: navTop + navHeight + 16,
+      lessonId: String((options && options.lessonId) || ""),
     });
+    this.load();
+  },
+  load() {
+    if (!this.data.lessonId) {
+      this.setData({ loading: false, error: "课堂编号缺失" });
+      return;
+    }
+    callCloud("sxEducationCore", {
+      domain: "lesson",
+      action: "detail",
+      lessonId: this.data.lessonId,
+    })
+      .then((result) => {
+        if (!result || !result.ok)
+          throw new Error((result && result.message) || "点名数据读取失败");
+        const saved = Object.fromEntries(
+          (result.attendance || []).map((item) => [item.studentId, item.status])
+        );
+        this.setData({
+          loading: false,
+          lesson: result.lesson,
+          students: (result.students || []).map((item) =>
+            decorateStudent(item, saved[item.studentId] || "present")
+          ),
+          saveDisabled: !(result.students || []).length,
+          submission: result.submission || null,
+        });
+      })
+      .catch((error) =>
+        this.setData({
+          loading: false,
+          error: error.message || "点名数据读取失败",
+        })
+      );
   },
   goBack() {
-    const pages = getCurrentPages();
-    if (pages.length > 1) wx.navigateBack({ delta: 1 });
-    else wx.redirectTo({ url: '/pages/coach-course-detail/index?id=course-2' });
+    wx.navigateBack({ delta: 1 });
   },
-  async confirm() {
-    if (!(await requireEducationAccess())) return;
-    wx.showModal({
-      title: '确认完成点名', content: '缺勤与异常情况将同步校区负责人。',
-      success: (result) => {
-        if (!result.confirm) return;
-        const attendees = this.data.students.filter((item) => item.status === 'present' || item.status === 'makeup').map((item) => ({ id: item.id, name: item.name, number: item.number, avatar: item.avatar, attendanceStatus: item.status }));
-        wx.setStorageSync('sxf_attendance_course-2', attendees);
-        wx.showToast({ title: '点名已完成', icon: 'success' });
-        setTimeout(() => wx.navigateTo({ url: '/pages/coach-classroom/index?id=course-2' }), 500);
-      }
+  setStatus(event) {
+    const id = event.currentTarget.dataset.id,
+      status = event.currentTarget.dataset.status;
+    this.setData({
+      students: this.data.students.map((item) =>
+        item.studentId === id ? decorateStudent(item, status) : item
+      ),
     });
-  }
+  },
+  saveDraft() {
+    if (this.data.saving) return;
+    this.setData({ saving: true, saveDisabled: true });
+    callCloud("sxEducationCore", {
+      domain: "lesson",
+      action: "saveDraft",
+      lessonId: this.data.lessonId,
+      requestId: `attendance_${this.data.lessonId}_${Date.now()}`,
+      expectedVersion: Number(
+        (this.data.submission && this.data.submission.version) || 0
+      ),
+      attendance: this.data.students.map((item) => ({
+        studentId: item.studentId,
+        status: item.status,
+      })),
+      performance: [],
+    })
+      .then((result) => {
+        if (!result || !result.ok)
+          throw new Error((result && result.message) || "点名保存失败");
+        wx.showToast({ title: "点名已保存", icon: "success" });
+        setTimeout(() => wx.navigateBack({ delta: 1 }), 600);
+      })
+      .catch((error) =>
+        wx.showToast({ title: error.message || "点名保存失败", icon: "none" })
+      )
+      .finally(() =>
+        this.setData({
+          saving: false,
+          saveDisabled: !this.data.students.length,
+        })
+      );
+  },
 });

@@ -1,16 +1,22 @@
-<view class="page">
-  <scroll-view wx:if="{{isDashboard}}" class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="brand">🏀 <text>赛小蜂篮球</text></view>
-    <view class="dashboard-title">教练工作台</view><view class="greeting">下午好，<text>陈教练</text></view>
-    <view class="next-card"><text class="orange-label">下一节课</text><text class="next-title">U10提高班　18:30–20:00</text><text class="meta">⌖　1号场　｜　♙　12人</text><view class="primary" bindtap="enterClassroom">进入课堂　›</view></view>
-    <view class="panel"><view class="panel-title">▣　今日待完成</view><view class="task" bindtap="openPending"><text>▣　待完成计划</text><text>1　›</text></view><view class="task" bindtap="openEvaluations"><text>▤　待课后评价</text><text>5　›</text></view><view class="task"><text>↻　退回修改</text><text>1　›</text></view></view>
-    <view class="panel"><view class="panel-head"><text class="panel-title">♟　我的班级</text><text class="link" bindtap="showClasses">查看全部　›</text></view><view class="mini-class" wx:for="{{dashboardClasses}}" wx:key="id"><view class="ball">●</view><view class="grow"><text class="class-name">{{item.title}}</text><text class="meta">◷ {{item.time}}　{{item.venue}}</text><text class="meta">出勤：🟢 {{item.attendance}}　🟠 {{item.leave}}　⚪ {{item.absent}}</text></view><text class="meta">♙ {{item.count}}</text></view></view>
-    <view class="panel"><view class="panel-title">▥　周期报告</view><view class="report-row"><view class="report week" data-type="weekly" bindtap="openReports"><text>▤　周报</text><text>◷ 本周待确认</text></view><view class="report month" data-type="monthly" bindtap="openReports"><text>▣　月报</text><text>◷ 本月生成中</text></view></view></view><view class="safe"></view>
-  </scroll-view>
-  <scroll-view wx:else class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="brand">🏀 <text>赛小蜂篮球</text></view><view class="nav-title"><text bindtap="goBack">‹</text> 我的班级</view>
-    <view class="coach"><view class="coach-avatar">陈</view><view><text class="coach-name">陈教练</text><view class="coach-stats"><text>♙ 共 <text class="strong">4</text> 个班级</text><text>▣ 今日 <text class="strong">2</text> 节</text><text>☵ 待评价 <text class="strong">3</text> 条</text></view></view></view>
-    <view class="class-card" wx:for="{{classes}}" wx:key="id"><view class="class-top"><view class="ball">●</view><view class="grow"><text class="class-name">{{item.title}}</text><text class="class-count">{{item.count}}人</text></view><view class="outline" data-id="{{item.id}}" bindtap="openStudents">查看课程　›</view></view><view class="divider"></view><view class="class-meta"><view><text>◷　{{item.time}}</text><text>⌖　{{item.venue}}</text></view><view><text>♙　点名 {{item.attendance}}</text><text>♙　{{item.leave}}　{{item.absent}}</text></view></view></view>
-    <view class="outline full" bindtap="openCourses">查看全部课程　›</view><view class="safe"></view>
-  </scroll-view>
-</view>
+<view class="page"
+  ><view class="nav" style="padding-top:{{navTop}}px;height:{{navHeight}}px"
+    ><button bindtap="goBack">返回</button><text>我的班级</text></view
+  ><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}"
+    ><view style="height:{{navSpacer}}px"></view
+    ><view class="loading" wx:if="{{loading}}">正在读取本人班级…</view
+    ><view class="error" wx:elif="{{error}}">{{error}}</view
+    ><view class="content" wx:else
+      ><view class="class-card" wx:for="{{classes}}" wx:key="classId"
+        ><text>{{item.name}}</text><text>{{item.courseName}}</text
+        ><view
+          ><text>{{item.studentCount}}名学员</text
+          ><text>{{item.lessons}}节待执行课堂</text
+          ><text>最近 {{item.nextDate}}</text></view
+        ></view
+      ><view class="empty" wx:if="{{!classes.length}}"
+        ><text>尚未分配班级</text
+        ><text>机构完成班级与排课设置后会自动显示</text></view
+      ></view
+    ></scroll-view
+  ></view
+>

@@ -1,0 +1,30 @@
+services:
+  wecom-group-briefing:
+    build:
+      context: ./apps/wecom-group-briefing
+    container_name: sxf-wecom-group-briefing
+    restart: unless-stopped
+    init: true
+    network_mode: host
+    env_file:
+      - ./config/wecom-group-briefing.env
+    environment:
+      TZ: Asia/Shanghai
+      DATA_DIR: /app/data
+    volumes:
+      - ./data/wecom-group-briefing:/app/data
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - "fetch('http://127.0.0.1:3400/health').then((response) => { if (!response.ok) process.exit(1) }).catch(() => process.exit(1))"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 15s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

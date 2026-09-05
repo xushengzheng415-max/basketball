@@ -23,6 +23,43 @@
       "handler": "index.main",
       "timeout": 60,
       "memorySize": 256
-    }
+    },
+    {
+      "name": "sxWecomCustomerRouter",
+      "runtime": "Nodejs20.19",
+      "handler": "index.main",
+      "timeout": 10,
+      "memorySize": 256,
+      "description": "企业微信渠道客户识别、标签与欢迎语回调",
+      "envVariables": {
+        "WECOM_ROUTER_ENABLED": "false"
+      }
+    },
+    { "name": "sxCollaboration", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256, "envVariables": { "SXF_COLLAB_ENABLED": "false", "SXF_COLLAB_ORG_ALLOWLIST": "" } },
+    { "name": "sxIdentityGateway", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxPcAuth", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxOrganizationAccess", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxMatchTask", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxMatchNotification", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxMatchRoster", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxMatchStaff", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxStatAssignment", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxMatchReadiness", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxMatchFlow", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxMatchLive", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxScoreboardDisplay", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxQuickScoreboard", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxMatchTactics", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 20, "memorySize": 256 },
+    { "name": "sxTournamentLeague", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxCreateTournamentQrCode", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxCoachTeamOps", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxEducationCore", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxEducationApi", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxEducationPublic", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxTournamentNotification", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxServiceAccountCallback", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 15, "memorySize": 256 },
+    { "name": "sxUploadAvatar", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxUploadTeamLogo", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 },
+    { "name": "sxSyncRoster", "runtime": "Nodejs18.15", "handler": "index.main", "timeout": 30, "memorySize": 256 }
   ]
 }

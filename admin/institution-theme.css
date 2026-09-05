@@ -22,3 +22,75 @@ body{background:#070c10 url('./assets/institution/growth-platform-background-v2.
 .login-intro p{max-width:760px;font-size:19px;line-height:1.7;letter-spacing:.04em}
 .login-features{margin-top:38px}.login-features span{border-left:2px solid #d26518}
 .login-card{background:linear-gradient(145deg,rgba(24,29,33,.96),rgba(7,11,14,.96))}
+
+/* 机构手机号登录、可信设备和锁屏 */
+.login-eyebrow{margin-bottom:10px;color:#ff8b1c;font-size:12px;font-weight:900;letter-spacing:.18em}
+.login-card{width:min(500px,100%);min-width:0;padding:38px 42px}
+.login-card h2{font-size:29px;line-height:1.25}
+.login-card>p{margin:10px 0 20px;line-height:1.65}
+.login-field{margin-top:12px}
+.login-field>span{min-width:48px;color:#aeb5bc;font-size:12px;font-weight:800}
+.login-field input{min-width:0}
+.login-code-row{display:grid;grid-template-columns:minmax(0,1fr) 128px;gap:10px;align-items:end}
+.send-code{height:58px;border:1px solid #87470f;border-radius:6px;background:#2b1a0e;color:#ff9a36;font-weight:900;cursor:pointer}
+.send-code:hover:not(:disabled){background:#3a210f}
+.send-code:disabled{cursor:not-allowed;opacity:.62}
+.login-agreement{display:flex;align-items:flex-start;gap:8px;margin:18px 0 16px;color:#aeb5bc;font-size:12px;line-height:1.65}
+.login-agreement input{margin-top:3px;accent-color:#ff7200}
+.login-agreement a{color:#ff9228;text-decoration:none}
+.login-status{min-height:22px;margin-top:12px;color:#9ba3ac;font-size:12px;line-height:1.55;text-align:center}
+.login-status.success,.security-message.success{color:#67d45d}
+.login-status.error,.security-message.error{color:#ff7168}
+.login-security{display:flex;align-items:center;justify-content:center;gap:9px;margin-top:10px;color:#8e979f;font-size:11px}
+.login-security i{width:3px;height:3px;border-radius:50%;background:#56606a}
+.login-tip{margin-top:12px}
+.login-tip strong{color:#ff9a36;font-size:14px;letter-spacing:.12em}
+.security-screen{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:24px;background:rgba(3,6,8,.92);backdrop-filter:blur(16px)}
+.security-screen[hidden]{display:none}
+.security-card{width:min(430px,100%);padding:38px 40px;border:1px solid #3b434a;border-radius:14px;background:linear-gradient(145deg,#171e23,#090d10);box-shadow:0 30px 90px #000b;text-align:center}
+.security-mark{margin-bottom:32px;color:#ff8510;font-size:14px;font-weight:900;letter-spacing:.08em}
+.security-kicker{color:#8f98a1;font-size:11px;font-weight:900;letter-spacing:.18em}
+.security-card h2{margin:10px 0 8px;font-size:26px}
+.security-card p{margin:0 0 22px;color:#9099a2;font-size:13px;line-height:1.75}
+.security-card form{display:grid;gap:12px}
+.security-card form label{display:grid;gap:7px;color:#aab2b9;font-size:12px;text-align:left}
+.security-card form label input:not(.pin-input){width:100%;height:46px;border:1px solid #414a52;border-radius:7px;outline:0;background:#20272c;color:#fff;font:inherit;padding:0 12px}
+.security-card form label input:not(.pin-input):focus{border-color:#ff7a08;box-shadow:0 0 0 3px #ff72001f}
+.avatar img{width:100%;height:100%;border-radius:50%;object-fit:cover}
+.pin-input{width:100%;height:58px;border:1px solid #414a52;border-radius:7px;outline:0;background:#20272c;color:#fff;font-size:24px;font-weight:900;letter-spacing:.4em;text-align:center}
+.pin-input:focus{border-color:#ff7a08;box-shadow:0 0 0 3px #ff72001f}
+.security-message{min-height:22px;margin-top:12px;color:#9ba3ac;font-size:12px;line-height:1.55}
+.security-link{margin-top:8px;border:0;background:transparent;color:#ff9228;font-size:12px;cursor:pointer}
+
+/* 机构开户：独立于锁屏弹层的正式资料录入界面 */
+.onboarding-view[hidden],.institution-logo-preview[hidden]{display:none!important}
+.security-card:has(.onboarding-view:not([hidden])){width:min(548px,calc(100vw - 32px));padding:30px 34px 28px;border-color:#3b454c;background:linear-gradient(155deg,#161e24 0%,#0a1014 100%);text-align:left}
+.security-card:has(.onboarding-view:not([hidden])) .security-mark{display:none}.onboarding-view>.security-kicker{display:block;margin-bottom:10px;color:#ff9a36;font-size:12px;letter-spacing:.14em}.onboarding-view h2{margin:0 0 8px;color:#f8fafb;font-size:28px;line-height:1.2;letter-spacing:.01em}.security-card .onboarding-intro{max-width:440px;margin:0 0 23px;color:#9ca6ae;font-size:13px;line-height:1.7}
+.onboarding-form{gap:16px!important}.onboarding-field{gap:8px!important}.onboarding-field-label{color:#d4d9dd;font-size:13px;font-weight:700;line-height:1.4}.onboarding-field-label em{margin-left:5px;color:#ff9a38;font-size:11px;font-style:normal;font-weight:700}.onboarding-field-label em.optional{color:#7f8a93}.onboarding-field input[type="text"]{height:48px!important;border-color:#39434a!important;border-radius:8px!important;background:#10171c!important;color:#f4f7f8!important;font-size:14px!important}.onboarding-field input[type="text"]::placeholder{color:#69747d}
+.institution-logo-input{position:absolute!important;width:1px!important;height:1px!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important}.institution-logo-upload{display:flex!important;align-items:center!important;gap:12px!important;min-height:74px;padding:12px 13px;border:1px dashed #59636b;border-radius:9px;background:#11191e;cursor:pointer;transition:.18s ease}.institution-logo-upload:hover{border-color:#ff9024;background:#1a1c17}.institution-logo-upload:focus-within{border-color:#ff9024;box-shadow:0 0 0 3px #ff72001f}.institution-logo-upload-icon{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border-radius:10px;background:#30200f;color:#ff9a36;font-size:21px;font-weight:800;line-height:1}.institution-logo-upload b{display:block;color:#edf0f2;font-size:13px;line-height:1.45}.institution-logo-upload small{display:block;margin-top:3px;color:#87929b;font-size:11px;line-height:1.45}.institution-logo-upload i{margin-left:auto;padding:6px 8px;border:1px solid #3d474f;border-radius:6px;color:#aeb7be;font-size:11px;font-style:normal;white-space:nowrap}
+.institution-logo-preview{display:flex;align-items:center;gap:11px;padding:10px 12px;border:1px solid #31513b;border-radius:9px;background:#13221a;color:#cbd2d8;text-align:left}.institution-logo-preview img{width:42px;height:42px;border-radius:10px;object-fit:contain;background:#fff}.institution-logo-preview b{display:block;color:#d7ead9;font-size:12px}.institution-logo-preview small{display:block;margin-top:3px;color:#8eb194;font-size:11px}.onboarding-submit{display:flex;align-items:center;justify-content:center;gap:10px;height:52px!important;margin-top:2px;border-radius:8px!important;font-size:16px!important;letter-spacing:.01em}.onboarding-submit span{font-size:20px;line-height:1;font-weight:400}.onboarding-status{min-height:18px!important;margin-top:10px!important;text-align:center}
+@media(max-width:900px){
+  .login-screen{padding:24px}
+  .login-card{padding:32px}
+}
+@media(max-width:520px){
+  .login-screen{align-items:start;overflow:auto;padding:20px 14px}
+  .login-card{width:calc(100vw - 28px);margin:18px 0;padding:26px 20px}
+  .login-card h2{font-size:24px}
+  .login-code-row{grid-template-columns:minmax(0,1fr) 108px}
+  .send-code{font-size:12px}
+  .login-security{align-items:flex-start;flex-direction:column;gap:4px}
+  .login-security i{display:none}
+  .security-card{padding:32px 22px}
+  .security-card:has(.onboarding-view:not([hidden])){padding:24px 20px}
+.onboarding-view h2{font-size:25px}
+}
+
+/* 机构身份选择与校区管理方占位页 */
+.workspace-choice-view[hidden],.campus-management-view[hidden]{display:none!important}
+.security-card:has(.workspace-choice-view:not([hidden])),.security-card:has(.campus-management-view:not([hidden])){width:min(548px,calc(100vw - 32px));padding:32px 34px 30px;border-color:#3b454c;background:linear-gradient(155deg,#161e24 0%,#0a1014 100%);text-align:left}
+.security-card:has(.workspace-choice-view:not([hidden])) .security-mark,.security-card:has(.campus-management-view:not([hidden])) .security-mark{display:none}
+.workspace-choice-view>.security-kicker,.campus-management-view>.security-kicker{display:block;margin-bottom:10px;color:#ff9a36;font-size:12px;letter-spacing:.14em}
+.workspace-choice-view h2,.campus-management-view h2{margin:0 0 8px;color:#f8fafb;font-size:28px;line-height:1.2}.workspace-choice-view>p,.campus-management-view>p{margin:0 0 22px;color:#9ca6ae;font-size:13px;line-height:1.7}
+.workspace-choice-list{display:grid;gap:12px}.workspace-choice-card{display:grid;grid-template-columns:42px minmax(0,1fr) auto;align-items:center;gap:13px;width:100%;padding:15px;border:1px solid #3b464e;border-radius:10px;background:#11191e;color:#edf1f3;text-align:left;cursor:pointer;transition:.18s ease}.workspace-choice-card:hover{transform:translateY(-1px);border-color:#ff8b1f;background:#191d1b}.workspace-choice-card.active{border-color:#a75a17;background:linear-gradient(90deg,#21170e,#151a1d)}.workspace-choice-icon{display:grid;place-items:center;width:42px;height:42px;border-radius:11px;background:#38220e;font-size:20px}.workspace-choice-icon.muted{background:#202a31;color:#a5b1b9}.workspace-choice-card b{display:block;font-size:14px;line-height:1.45}.workspace-choice-card small{display:block;margin-top:4px;color:#909ba4;font-size:11px;line-height:1.5}.workspace-choice-card i{color:#ff9a36;font-size:12px;font-style:normal;white-space:nowrap}.workspace-choice-tip{margin-top:15px;padding:10px 12px;border-left:2px solid #ff7200;border-radius:0 7px 7px 0;background:#1a1712;color:#aab1b6;font-size:11px;line-height:1.6}.campus-management-view .security-link{display:block;margin:14px auto 0}
+@media(max-width:520px){.security-card:has(.workspace-choice-view:not([hidden])),.security-card:has(.campus-management-view:not([hidden])){padding:24px 20px}.workspace-choice-view h2,.campus-management-view h2{font-size:25px}.workspace-choice-card{grid-template-columns:38px minmax(0,1fr)}.workspace-choice-icon{width:38px;height:38px}.workspace-choice-card i{grid-column:2;color:#ff9a36}}

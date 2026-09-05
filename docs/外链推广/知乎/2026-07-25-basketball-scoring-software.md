@@ -66,4 +66,4 @@
 
 如果只需要朋友局加减分，轻量计分器就够了。需要长期管理赛事、球队和球员时，再考虑赛事管理与移动计分结合的方案。需要专业直播时，则应优先核对直播系统接口。
 
-延伸阅读：[篮球比赛计分软件的 7 个选择标准](https://54football.top/articles/posts/basketball-scoring-software-guide.html)
+延伸阅读：[篮球比赛计分软件的 7 个选择标准](https://www.sxfbasketball.cn/articles/posts/basketball-scoring-software-guide.html)

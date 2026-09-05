@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"
+    />
+    <title>赛小蜂篮球｜学员建档</title>
+    <link
+      rel="stylesheet"
+      href="./website-assets/education-student-onboarding.css?v=20260901-7"
+    />
+  </head>
+  <body>
+    <main class="onboarding-shell">
+      <header>
+        <span>赛小蜂篮球家长服务</span>
+        <h1>为孩子建立训练档案</h1>
+        <p id="organizationName">正在读取机构信息…</p>
+      </header>
+      <section class="auth-card" id="authCard" hidden>
+        <div class="shield">家长</div>
+        <h2>微信身份确认</h2>
+        <p>
+          已关注赛小蜂篮球服务号的家长无需重复关注，确认微信身份后即可开始建档。
+        </p>
+        <img id="serviceQr" alt="赛小蜂篮球服务号建档二维码" hidden />
+        <button id="confirmIdentity">微信确认并开始建档</button>
+        <button class="secondary" id="authorize">尚未关注？查看服务号二维码</button>
+      </section>
+      <form id="studentForm" hidden>
+        <div class="steps">
+          <b>1</b><span>基础资料</span><i></i><b>2</b><span>校区确认</span
+          ><i></i><b>3</b><span>正式入班</span>
+        </div>
+        <section class="form-card">
+          <div class="photo-field">
+            <label for="photo" class="photo-selector"
+              ><span class="photo-preview-frame"
+                ><img id="photoPreview" alt="孩子头像" hidden /><em
+                  id="photoPlaceholder"
+                  >孩子头像</em
+                ></span
+              ></label
+            >
+            <div class="photo-copy">
+              <b>上传学员头像</b>
+              <p>
+                建议上传清晰正面照，支持 JPG/PNG/WEBP，选择后可裁剪并智能抠图。
+              </p>
+              <button type="button" id="choosePhoto">上传头像</button>
+            </div>
+            <input
+              id="photo"
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+            />
+            <small id="photoProgress">尚未选择照片</small>
+          </div>
+          <div class="grid">
+            <label
+              ><span>孩子姓名 *</span
+              ><input name="name" maxlength="20" required
+            /></label>
+            <label class="full identity-field"
+              ><span>身份证号（选填）</span
+              ><input
+                name="identityNumber"
+                inputmode="text"
+                maxlength="18"
+                autocomplete="off"
+                autocapitalize="characters"
+                spellcheck="false"
+                placeholder="填写后自动识别出生日期和性别"
+              /><small id="identityHint"
+                >仅用于身份识别与重复档案校验，系统不保存完整号码</small
+              ></label
+            >
+            <label
+              ><span>性别 *</span
+              ><select name="gender" required>
+                <option value="">请选择</option>
+                <option>男</option>
+                <option>女</option>
+              </select></label
+            >
+            <label class="full"
+              ><span>出生日期 *</span
+              ><input name="birthDate" type="date" required
+            /></label>
+            <label
+              ><span>学校</span><input name="school" maxlength="40"
+            /></label>
+            <label
+              ><span>年级</span><input name="grade" maxlength="20"
+            /></label>
+          </div>
+        </section>
+        <section class="form-card">
+          <h2>家长信息</h2>
+          <div class="grid">
+            <label
+              ><span>家长姓名 *</span
+              ><input name="guardianName" maxlength="20" required
+            /></label>
+            <label
+              ><span>与孩子关系 *</span
+              ><select name="guardianRelation" required>
+                <option value="">请选择</option>
+                <option>父亲</option>
+                <option>母亲</option>
+                <option>其他监护人</option>
+              </select></label
+            >
+            <label class="full"
+              ><span>手机号 *</span
+              ><input
+                name="guardianPhone"
+                inputmode="tel"
+                maxlength="20"
+                required
+            /></label>
+            <label class="full"
+              ><span>备注</span
+              ><textarea
+                name="note"
+                maxlength="200"
+                placeholder="可填写过敏史、训练注意事项等"
+              ></textarea>
+            </label>
+          </div>
+          <label class="consent"
+            ><input name="privacyConsent" type="checkbox" required /><span
+              >我确认是孩子的监护人，并同意机构仅将资料用于教务、训练通知和成长记录。</span
+            ></label
+          >
+        </section>
+        <button class="submit" id="submit">提交校区确认</button>
+      </form>
+      <section class="crop-dialog" id="cropDialog" hidden>
+        <div class="crop-panel">
+          <div class="crop-head">
+            <div>
+              <b>裁剪头像</b><span>拖动照片调整位置，双指或按钮缩放</span>
+            </div>
+            <button type="button" id="cancelCrop">×</button>
+          </div>
+          <div class="crop-stage">
+            <canvas id="cropCanvas" width="640" height="640"></canvas>
+            <div class="crop-shade crop-shade-top"></div>
+            <div class="crop-shade crop-shade-bottom"></div>
+            <div class="crop-shade crop-shade-left"></div>
+            <div class="crop-shade crop-shade-right"></div>
+            <div class="crop-frame">
+              <i class="grid-horizontal grid-one"></i
+              ><i class="grid-horizontal grid-two"></i
+              ><i class="grid-vertical grid-one"></i
+              ><i class="grid-vertical grid-two"></i>
+            </div>
+          </div>
+          <div class="zoom-actions">
+            <button type="button" id="zoomOut">缩小</button
+            ><b id="cropZoomText">100%</b
+            ><button type="button" id="zoomIn">放大</button>
+          </div>
+          <p class="crop-tip">
+            拖动照片调整位置；确认后自动进行人像分割并生成透明背景
+          </p>
+          <div class="crop-actions">
+            <button type="button" id="cancelCropAction">取消</button>
+            <button type="button" id="confirmCrop">裁剪并智能抠图</button>
+          </div>
+        </div>
+      </section>
+      <section class="success" id="success" hidden>
+        <div>完成</div>
+        <h2>资料已提交</h2>
+        <p>校区负责人确认课程、课包和班级后，孩子将进入正式学员档案。</p>
+        <button id="addAnother">继续添加另一个孩子</button>
+      </section>
+      <div class="message" id="message" hidden></div>
+    </main>
+    <script src="./website-assets/education-student-onboarding.js?v=20260901-7"></script>
+  </body>
+</html>

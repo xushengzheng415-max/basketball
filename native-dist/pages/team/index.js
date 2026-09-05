@@ -1,4 +1,5 @@
 const { pullRosterIfStale, resolveImageUrl, scheduleRosterPush } = require('../../utils/roster-sync');
+const { belongsToTeam, hasTeams, teamIds, teamNames } = require('../../utils/player-team-membership');
 const ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/team/';
 const DEFAULT_TEAM_LOGO = `${ASSET_BASE}mini-logo-unassigned.png`;
 const DATA_RESET_VERSION = 'player-real-data-20260708';
@@ -39,12 +40,20 @@ function getStoredCategories() {
   const stored = wx.getStorageSync('teamCategories') || [];
   if (!Array.isArray(stored) || !stored.length) return DEFAULT_CATEGORIES;
   const cleanStored = stored.filter((item) => item && !['beehive', 'starfire', 'flyer-u10', 'shanhai-u12', 'blackhorse-u10', 'training-a', 'training-b', 'temp-team'].includes(item.key));
-  return cleanStored.length ? cleanStored : DEFAULT_CATEGORIES;
+  return cleanStored.length ? newestFirst(cleanStored) : DEFAULT_CATEGORIES;
 }
 
 function readStoredList(key) {
   const list = wx.getStorageSync(key) || [];
   return Array.isArray(list) ? list : [];
+}
+
+function newestFirst(list) {
+  return (list || []).slice().sort((left, right) => {
+    const leftTime = Number(left && (left.createdAt || left.updatedAt) || 0);
+    const rightTime = Number(right && (right.createdAt || right.updatedAt) || 0);
+    return rightTime - leftTime;
+  });
 }
 
 function normalizeText(value) {
@@ -89,12 +98,15 @@ function isDemoPlayer(player) {
 }
 
 function buildStoredPlayer(player, index, teamLogoMap) {
+  const names = teamNames(player);
   return {
     id: player.id || `stored-${index}`,
     name: player.name || '未命名',
     number: normalizeNumber(player.number) || '--',
-    team: player.team || '未分队',
+    team: names.length ? names.join('、') : '未分队',
     filter: player.filter || 'unassigned',
+    teamIds: teamIds(player),
+    teamNames: names,
     avatar: resolveImageUrl(player.avatar || `${ASSET_BASE}avatar-liuyuchen.png`),
     teamLogo: getPlayerTeamLogo(player, teamLogoMap),
     tags: player.tags || ['待定', '身高', '年龄']
@@ -103,7 +115,7 @@ function buildStoredPlayer(player, index, teamLogoMap) {
 
 function countByCategory(players, category) {
   if (category.key === 'all') return players.length;
-  return players.filter((player) => player.filter === category.key || player.team === category.label).length;
+  return players.filter((player) => belongsToTeam(player, category)).length;
 }
 
 function getFilterSources() {
@@ -112,11 +124,13 @@ function getFilterSources() {
 
 function matchPlayerCategory(player, category) {
   if (category === 'all') return true;
+  if (category === 'assigned') return hasTeams(player);
+  if (category === 'unassigned') return !hasTeams(player);
   const categories = getFilterSources();
   const activeCategory = categories.find((item) => item.key === category);
-  if (!activeCategory) return player.filter === category;
+  if (!activeCategory) return teamIds(player).includes(String(category));
   const activeLabel = activeCategory.label || activeCategory.name || activeCategory.teamName;
-  return player.filter === activeCategory.key || player.team === activeLabel;
+  return belongsToTeam(player, { key: activeCategory.key, label: activeLabel });
 }
 
 function resolveRequestedFilter(options) {
@@ -219,7 +233,7 @@ Page({
     }
     const categories = getStoredCategories();
     const teamLogoMap = buildTeamLogoMap(categories);
-    const players = cleanStoredPlayers.map((player, index) => buildStoredPlayer(player, index, teamLogoMap));
+    const players = newestFirst(cleanStoredPlayers).map((player, index) => buildStoredPlayer(player, index, teamLogoMap));
     const usedNumbers = sortNumbers(players.map((player) => normalizeNumber(player.number)).filter((number) => number !== '--'));
 
     this.setData({
@@ -228,8 +242,8 @@ Page({
       usedNumbersText: usedNumbers.length ? usedNumbers.map((number) => `#${number}`).join('、') : '暂无',
       stats: {
         total: players.length,
-        assigned: players.filter((player) => player.filter !== 'unassigned' && player.team !== '未分队').length,
-        unassigned: players.filter((player) => player.filter === 'unassigned' || player.team === '未分队').length
+        assigned: players.filter((player) => hasTeams(player)).length,
+        unassigned: players.filter((player) => !hasTeams(player)).length
       }
     });
     this.applyFilters();
@@ -282,9 +296,26 @@ Page({
   },
 
   openAddModal() {
-    const url = '/pages/player-add/index?from=team';
+    const team = this.getActiveTeamContext();
+    let url = '/pages/player-add/index?from=team';
+    if (team) {
+      url += `&teamKey=${encodeURIComponent(team.key || '')}&teamName=${encodeURIComponent(team.label || team.name || '')}`;
+    }
     if (!this.requirePhoneLogin(url, '登录后才能新增球员并保存个人资料。')) return;
     wx.navigateTo({ url });
+  },
+
+  getActiveTeamContext() {
+    const activeFilter = this.data.activeFilter;
+    if (!activeFilter || ['all', 'assigned', 'unassigned'].includes(activeFilter)) return null;
+    const team = getFilterSources().find((item) => item && item.key === activeFilter);
+    return team || null;
+  },
+
+  onSummaryTap(event) {
+    const filter = event.currentTarget.dataset.filter || 'all';
+    this.setData({ activeFilter: filter, keyword: '' });
+    this.applyFilters();
   },
 
   closeAddModal() {
@@ -345,14 +376,15 @@ Page({
       return;
     }
 
-    const players = storedPlayers.concat({
+    const players = [{
       id: Date.now(),
       name,
       number,
       team: '未分队',
       filter: 'unassigned',
-      tags: ['待定', '身高', '年龄']
-    });
+      tags: ['待定', '身高', '年龄'],
+      createdAt: Date.now()
+    }].concat(storedPlayers);
     wx.setStorageSync('players', players);
     scheduleRosterPush();
     this.setData({ name: '', number: '', showAddModal: false, activeFilter: 'all', keyword: '' });

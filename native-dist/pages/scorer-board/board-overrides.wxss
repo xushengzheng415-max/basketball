@@ -1113,3 +1113,73 @@
   transform: scale(.95);
   filter: brightness(1.14);
 }
+
+/* PAD keeps the landscape console but allows vertical panning when the
+   rotated viewport cannot show the board and MC area at the same time. */
+@media (min-height: 700px) {
+  page {
+    height: auto;
+    min-height: 100%;
+    overflow-y: auto;
+  }
+
+  .score-page.landscape-board {
+    height: auto !important;
+    min-height: 100vh;
+    overflow-x: hidden !important;
+    overflow-y: auto !important;
+    touch-action: pan-y;
+  }
+}
+
+.score-page.landscape-board .top-actions .scoreboard-entry {
+  border-color: rgba(255, 112, 24, .9) !important;
+  background: rgba(255, 100, 0, .16) !important;
+  color: #ff9a55 !important;
+}
+
+.scoreboard-panel-mask {
+  position: fixed;
+  z-index: 140;
+  inset: 0;
+  background: rgba(0, 0, 0, .76);
+}
+
+.scoreboard-panel {
+  position: fixed;
+  z-index: 141;
+  top: 50%;
+  left: 50%;
+  display: flex;
+  width: 46vw;
+  min-width: 560px;
+  max-width: 760px;
+  padding: 2.6vh 2.2vw;
+  transform: translate(-50%, -50%);
+  flex-direction: column;
+  box-sizing: border-box;
+  border: .16vh solid rgba(255, 105, 18, .9);
+  border-radius: 1.5vh;
+  background: #0b1118;
+  color: #fff;
+  box-shadow: 0 2.4vh 7vh rgba(0, 0, 0, .62), 0 0 3vh rgba(255, 91, 0, .12);
+}
+
+.scoreboard-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.scoreboard-panel-head view text { display: block; }
+.scoreboard-panel-head view text:first-child { font-size: 3vh; font-weight: 900; }
+.scoreboard-panel-head view text:last-child { margin-top: .6vh; color: #8f9ba8; font-size: 1.55vh; }
+.scoreboard-panel-head > text { padding: 0 .45vw; color: #87929e; font-size: 4vh; line-height: .8; }
+.scoreboard-code-label { margin-top: 2vh; color: #ff9956; font-size: 1.6vh; text-align: center; }
+.scoreboard-code { margin-top: .4vh; color: #ff641f; font-family: Impact, DIN Alternate, Arial Black, sans-serif; font-size: 8.5vh; line-height: 1; letter-spacing: 1.2vw; text-align: center; text-indent: 1.2vw; text-shadow: 0 0 1.8vh rgba(255, 100, 31, .32); }
+.scoreboard-url { margin-top: 1.4vh; padding: 1.2vh 1vw; overflow: hidden; border: .12vh solid rgba(255,255,255,.13); border-radius: .8vh; background: rgba(255,255,255,.045); color: #b8c1cb; font-size: 1.45vh; text-align: center; text-overflow: ellipsis; white-space: nowrap; }
+.scoreboard-steps { display: grid; margin-top: 1.6vh; gap: .65vh; color: #a7b2bd; font-size: 1.5vh; }
+.scoreboard-panel-actions { display: grid; margin-top: 2vh; grid-template-columns: 1fr 1fr; gap: 1vw; }
+.scoreboard-panel-actions view { display: flex; height: 6.2vh; align-items: center; justify-content: center; border: .14vh solid rgba(255,255,255,.2); border-radius: .9vh; background: rgba(255,255,255,.06); font-size: 1.8vh; font-weight: 800; }
+.scoreboard-panel-actions view.primary { border-color: #ff641f; background: linear-gradient(180deg, #ff762b, #e34c0c); }
+.scoreboard-panel-actions view:active { transform: scale(.98); filter: brightness(1.12); }

@@ -1,1 +1,43 @@
-<view class="page"><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}"><view class="brand">🏀　赛小蜂篮球</view><view class="title"><text bindtap="goBack">‹</text> 课程详情</view><view class="hero"><view class="big-ball">●</view><view class="grow"><text class="hero-title">U10提高班</text><text class="time">◷ 今日 18:30–20:00</text><text class="meta">⌖ 浦东校区 · 1号场</text></view><text class="count">12/15人</text></view><view class="panel"><view class="panel-title">▣　课前准备</view><view class="row" bindtap="openPlan"><text>▣　训练计划</text><text class="green">已确认　›</text></view><view class="row"><text>●　器材　<text class="small">篮球 12个</text></text><text>›</text></view><view class="row"><text>◎　重点　<text class="small">运球与投篮稳定性</text></text><text>›</text></view></view><view class="panel"><view class="panel-title">♙　学员状态</view><view class="student-stats"><view><text>✓　已到</text><text class="strong">10人</text></view><view><text>◷　请假</text><text class="strong orange">1人</text></view><view><text>×　未到</text><text class="strong red">1人</text></view></view></view><view class="panel"><view class="panel-title">▣　待完成</view><view class="row" bindtap="openAttendance"><text>♙　课堂点名</text><text>›</text></view><view class="row"><text>☵　课后评价</text><text>›</text></view></view><view class="safe"></view></scroll-view><view class="footer" bindtap="openAttendance">▷　进入课堂</view></view>
+<view class="page"
+  ><view class="nav" style="padding-top:{{navTop}}px;height:{{navHeight}}px"
+    ><button bindtap="goBack">返回</button><text>课堂详情</text></view
+  ><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}"
+    ><view style="height:{{navSpacer}}px"></view
+    ><view class="loading" wx:if="{{loading}}">正在读取课堂…</view
+    ><view class="error" wx:elif="{{error}}"
+      ><text>{{error}}</text><button bindtap="load">重新加载</button></view
+    ><view class="content" wx:else
+      ><view class="hero"
+        ><text>{{lessonTitle}}</text
+        ><text>{{lesson.courseName}}</text
+        ><view
+          ><text>{{lesson.lessonDate}}</text><text>{{lesson.startTime}}</text
+          ><text>{{lesson.plannedMinutes}}分钟</text></view
+        ><text>{{venueText}}</text></view
+      ><view class="card"
+        ><view class="title"
+          ><text>课堂状态</text
+          ><text>{{reviewStatus}}</text></view
+        ><view class="grid"
+          ><view><text>应到学员</text><b>{{students.length}}人</b></view
+          ><view><text>授课场地</text><b>{{venueText}}</b></view
+          ><view><text>课堂版本</text><b>第{{versionNumber}}版</b></view
+          ><view
+            ><text>提交状态</text><b>{{submissionStatus}}</b></view
+          ></view
+        ></view
+      ><view class="card"
+        ><view class="title"
+          ><text>学员名单</text><text>{{students.length}}人</text></view
+        ><view class="student" wx:for="{{students}}" wx:key="studentId"
+          ><view>{{item.initial}}</view><text>{{item.name}}</text
+          ><text>{{item.genderText}}</text></view
+        ><view class="empty" wx:if="{{studentsEmpty}}"
+          >班级暂无学员</view
+        ></view
+      ><view class="actions"
+        ><button bindtap="openAttendance">进入点名</button
+        ><button bindtap="openEvaluation">课后评价</button></view
+      ></view
+    ><view class="safe"></view></scroll-view
+></view>

@@ -1,8 +1,8 @@
 <view class="report-page">
   <view class="custom-nav">
-    <view class="nav-back" bindtap="goBack">‹</view>
+    <view class="nav-back" bindtap="goBack">‹ 返回</view>
     <view class="nav-title">赛后裁判报告</view>
-    <view class="nav-space"></view>
+    <view class="nav-space">报告</view>
   </view>
 
   <view class="hero-card">
@@ -125,5 +125,9 @@
     <text class="submit-title">重新生成 PDF</text>
     <text class="submit-subtitle">签名与比分已锁定，无需重新签字</text>
   </button>
+  <view class="report-footer-actions">
+    <button class="report-back-button" bindtap="goBack">{{backButtonText}}</button>
+    <button wx:if="{{showShareButton}}" class="report-share-button" bindtap="shareReport">分享报告</button>
+  </view>
   <canvas type="2d" id="reportCanvas" class="report-canvas"></canvas>
 </view>

@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#0b0e11">
+  <title>赛小蜂篮球丨赛事中心</title>
+  <link rel="stylesheet" href="./tournament-center.css?v=20260820-14">
+  <link rel="stylesheet" href="./tournament-workspace-large-type.css?v=20260822-2">
+  <link rel="stylesheet" href="./tournament-event-cards.css?v=20260822-1">
+  <link rel="stylesheet" href="./tournament-group-editor.css?v=20260822-1">
+  <link rel="stylesheet" href="./tournament-registration-progress-clean.css?v=20260822-2">
+  <link rel="stylesheet" href="./tournament-registration-review.css?v=20260822-1">
+  <link rel="stylesheet" href="./tournament-registration-qr.css?v=20260822-1">
+  <link rel="stylesheet" href="./tournament-poster-editor.css?v=20260731-1">
+</head>
+<body>
+  <div class="tournament-shell" id="tournamentShell">
+    <aside class="tournament-sidebar">
+      <div class="organization-brand">
+        <span class="organization-logo" aria-label="机构 Logo">
+          <img id="organizationLogo" src="./assets/institution/brand-logo.png" alt="">
+        </span>
+        <div><strong id="organizationName">蜂动体育篮球俱乐部</strong><small>赛事管理系统</small></div>
+      </div>
+      <span class="sidebar-label">赛事运营</span>
+      <nav class="tournament-nav" id="tournamentNav" aria-label="赛事中心导航"></nav>
+      <div class="sidebar-bottom">
+        <button id="collapseSidebar" type="button"><span class="sxf-icon" style="--icon:url('./assets/icons/pc-common/svg/chevron-left.svg')" aria-hidden="true"></span><b>收起菜单</b></button>
+        <p>由赛小蜂篮球提供技术服务</p>
+      </div>
+    </aside>
+
+    <section class="tournament-workspace">
+      <header class="tournament-topbar">
+        <div class="topbar-context">
+          <button class="space-return" id="spaceReturn" type="button" data-action="return-spaces" hidden>
+            <span class="sxf-icon" style="--icon:url('./assets/icons/pc-common/svg/chevron-left.svg')" aria-hidden="true"></span>
+            <span>返回空间列表</span>
+          </button>
+          <h1 id="moduleTitle">赛事工作台</h1>
+          <label class="event-selector event-context-control">
+            <select id="eventSelector" aria-label="选择赛事">
+              <option value="youth-2026">2026 蜂动青少年篮球联赛</option>
+              <option value="summer-3v3">蜂动暑期 3V3 挑战赛</option>
+              <option value="campus-cup">浦东新区校园篮球邀请赛</option>
+            </select>
+          </label>
+          <span class="event-status event-context-control" id="eventStatus">进行中</span>
+          <span class="event-date event-context-control" id="eventDate">2026.07.18—08.26</span>
+        </div>
+        <div class="topbar-actions">
+          <a class="workspace-switch" href="./index.html"><span class="sxf-icon" style="--icon:url('./assets/icons/pc-common/svg/trophy.svg')" aria-hidden="true"></span><b>机构经营<small>返回经营后台</small></b></a>
+          <button class="notification" type="button" data-action="notifications" aria-label="消息通知"><span class="sxf-icon" style="--icon:url('./assets/icons/pc-common/svg/bell.svg')" aria-hidden="true"></span><i></i></button>
+          <div class="operator"><span class="operator-avatar" id="operatorAvatar">管</span><div><b id="operatorName">机构负责人</b><small id="operatorRole">机构管理员</small></div><span class="sxf-icon operator-chevron" style="--icon:url('./assets/icons/pc-common/svg/chevron-down.svg')" aria-hidden="true"></span></div>
+        </div>
+      </header>
+
+      <div class="subnav-bar" id="subnavBar" hidden>
+        <nav id="subnav" aria-label="页面二级导航"></nav>
+        <div id="pageActions"></div>
+      </div>
+
+      <main class="tournament-content" id="tournamentContent"></main>
+    </section>
+  </div>
+
+  <div class="modal-layer" id="modalLayer" hidden>
+    <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <header><div><span class="modal-kicker">赛事中心</span><h2 id="modalTitle">操作</h2></div><button id="closeModal" type="button" aria-label="关闭"><span class="sxf-icon" style="--icon:url('./assets/icons/pc-common/svg/circle-x.svg')" aria-hidden="true"></span></button></header>
+      <div class="modal-body" id="modalBody"></div>
+      <footer id="modalFooter"></footer>
+    </section>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <section class="event-lock" id="eventLock" hidden>
+    <form class="event-lock-card" id="eventUnlockForm">
+      <span class="event-lock-icon"><span class="sxf-icon" style="--icon:url('./assets/icons/pc-common/svg/monitor-cog.svg')" aria-hidden="true"></span></span>
+      <small>赛小蜂篮球丨赛事中心</small>
+      <h2>后台已自动锁定</h2>
+      <p id="eventLockedAccount">当前机构账号</p>
+      <label>输入四位锁屏密码<input id="eventUnlockPin" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="••••"></label>
+      <button class="btn primary" type="submit">解锁并继续</button>
+      <div class="event-lock-message" id="eventLockMessage"></div>
+      <a href="./index.html">使用手机号重新验证</a>
+    </form>
+  </section>
+
+  <script src="./tournament-demo-store.js"></script>
+  <script src="./assets/data/china-regions.js"></script>
+  <script src="./assets/data/youth-demo-teams.js?v=20260815-2"></script>
+  <script src="./assets/vendor/fabric-7.4.0.min.js"></script>
+  <script src="./assets/vendor/qrcode-1.5.4.min.js"></script>
+  <script src="./assets/vendor/exceljs.min.js"></script>
+  <script src="./tournament-poster-editor.js?v=20260801-2"></script>
+  <script src="./tournament-draw-export.js?v=20260802-8"></script>
+  <script>
+    (() => {
+      const script = document.createElement('script');
+      script.async = false;
+      script.src = `./tournament-center.js?v=20260822-20&cache=${Date.now()}`;
+      document.body.appendChild(script);
+    })();
+  </script>
+</body>
+</html>

@@ -1,54 +1,24 @@
-<view class="tournament-page">
-  <view class="page-bg"></view>
-
-  <view class="fixed-header">
-    <view class="topbar">
-      <view class="nav-spacer"></view>
-      <text class="page-title">赛事</text>
-      <view class="nav-spacer"></view>
-    </view>
-
-    <view class="create-row">
-      <view class="create-entry" bindtap="goCreateTournament">
-      <image class="create-img" src="{{staticAssets.create}}" mode="aspectFit" />
+<view class="page">
+  <view class="hero" style="padding-right: {{capsuleRight}}rpx;"><text class="eyebrow">赛小蜂篮球</text><text class="title">赛事</text><text class="subtitle">不排日期，只把球队和对阵安排清楚</text></view>
+  <view class="create-grid">
+    <view class="create-card class-card" data-scenario="class_league" bindtap="createScenario"><view class="create-icon">班</view><view class="create-copy"><text class="create-title">创建班班赛</text><text class="create-desc">学校 · 班级即参赛队</text></view><text class="create-arrow">›</text></view>
+    <view class="create-card weekly-card" data-scenario="institution_weekly" bindtap="createScenario"><view class="create-icon">周</view><view class="create-copy"><text class="create-title">创建机构周赛</text><text class="create-desc">机构 · 球队循环对阵</text></view><text class="create-arrow">›</text></view>
+  </view>
+  <view class="other-entry" bindtap="openOtherMenu"><text>杯赛、友谊赛等其他赛事</text><text>进入创建 ›</text></view>
+  <view class="invite-code-entry" bindtap="openInviteCode"><view><text>已有赛事邀请码</text><text>输入邀请码，加入其他球队发起的赛事</text></view><text>进入报名 ›</text></view>
+  <view class="list-panel">
+    <view class="role-tabs"><view wx:for="{{roleTabs}}" wx:key="key" class="{{item.className}}" data-key="{{item.key}}" bindtap="switchRole">{{item.label}}</view></view>
+    <view wx:if="{{loading}}" class="state-card"><view class="loading-dot"></view><text>正在同步赛事...</text></view>
+    <view wx:elif="{{loadFailed}}" class="state-card error"><text>赛事加载失败，请检查网络后重试</text><button bindtap="retryLoad">重新加载</button></view>
+    <view wx:elif="{{!visibleTournaments.length}}" class="state-card empty"><text class="empty-ball">◉</text><text>{{emptyText}}</text><text class="empty-note">创建者负责审核球队和编排对阵</text></view>
+    <view wx:else class="tournament-list">
+      <view wx:for="{{visibleTournaments}}" wx:key="eventId" class="tournament-card {{item.scenarioClass}}" data-id="{{item.eventId}}" bindtap="openTournament">
+        <view class="card-head"><view class="scenario-badge">{{item.scenarioLabel}}</view><view class="status-badge {{item.statusClass}}">{{item.statusLabel}}</view></view>
+        <text class="event-name">{{item.name}}</text><view class="event-meta"><text>{{item.formatLabel}}</text><text>{{item.roleLabel}}</text><text wx:if="{{item.syncLabel}}" class="sync-label">{{item.syncLabel}}</text></view>
+        <view class="event-progress"><view><text class="metric-value">{{item.teamCount}}</text><text class="metric-label">支球队</text></view><view><text class="metric-value">{{item.progressText}}</text><text class="metric-label">比赛进度</text></view><view><text class="metric-value">{{item.currentRoundText}}</text><text class="metric-label">当前阶段</text></view></view>
+        <view wx:if="{{item.showPendingTip}}" class="pending-tip">{{item.pendingTipText}}</view><view class="card-enter">进入赛事 <text>›</text></view>
       </view>
     </view>
   </view>
-
-  <view class="page-content">
-
-    <view class="tabs-panel">
-      <view class="tabs-row">
-        <view wx:for="{{tabs}}" wx:key="key" class="{{item.className}}" data-status="{{item.key}}" bindtap="changeStatus">
-          <text>{{item.label}}</text>
-        </view>
-      </view>
-    </view>
-
-    <view class="event-list" wx:if="{{hasVisibleTournaments}}">
-      <view wx:for="{{visibleTournaments}}" wx:key="id" class="event-card" data-id="{{item.id}}" bindtap="openTournament" bindlongpress="deleteTournament">
-        <view class="event-status {{item.statusClass}}">{{item.statusLabel}}</view>
-        <view class="event-main">
-          <image wx:if="{{item.logoUrl}}" class="event-logo" src="{{item.logoUrl}}" mode="aspectFill" />
-          <view wx:else class="event-logo event-logo-fallback"><text>{{item.logoText}}</text></view>
-          <view class="event-info">
-            <text class="event-name">{{item.name}}</text>
-            <text class="event-meta">{{item.dateText}}</text>
-            <text class="event-meta">{{item.locationText}}</text>
-            <view class="event-counts">
-              <text>{{item.teamText}}</text>
-              <text>{{item.gameText}}</text>
-            </view>
-          </view>
-        </view>
-        <view class="detail-hit" data-id="{{item.id}}" catchtap="openTournament">进入详情</view>
-      </view>
-      <image class="list-footer" src="{{staticAssets.footer}}" mode="aspectFit" />
-    </view>
-
-    <view class="empty-card" wx:else>
-      <text>当前筛选暂无赛事</text>
-    </view>
-  </view>
-  <sxf-tabbar active="tournament" />
+  <sxf-tabbar active="tournament" tournament-badge-count="{{pendingReviewCount}}" />
 </view>

@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
+  <title>赛小蜂篮球｜机构工作台</title>
+  <link rel="stylesheet" href="./organization-entry.css?v=20260822-1">
+  <link rel="stylesheet" href="./organization-entry-wechat.css?v=20260822-2">
+</head>
+<body>
+  <main class="entry-shell">
+    <section class="brand-panel">
+      <a class="brand" href="../index.html"><img src="./assets/institution/brand-logo.png" alt="赛小蜂篮球"><span>赛小蜂篮球</span></a>
+      <div class="brand-copy">
+        <span>机构工作台</span>
+        <h1>让赛事与教务<br>回到同一个组织。</h1>
+        <p>一个微信身份，完成组织开户、权益领取和工作面板选择。</p>
+      </div>
+      <div class="brand-points"><span>赛事运营</span><span>教务经营</span><span>现场协同</span></div>
+      <small>赛小蜂篮球 · 机构训赛经营增长平台</small>
+    </section>
+
+    <section class="flow-panel" aria-live="polite">
+      <header class="flow-head"><div><span class="eyebrow" id="stepEyebrow">安全登录</span><h2 id="stepTitle">微信扫码登录</h2><p id="stepDescription">请使用微信扫一扫，授权后PC将自动登录。</p></div><div class="step-count" id="stepCount">1 / 4</div></header>
+      <ol class="progress" aria-label="开户进度"><li class="active">扫码确认</li><li>身份与资料</li><li>选择工作面</li><li>领取体验期</li></ol>
+
+      <section class="step-view active" data-step="scan">
+        <div class="qr-layout"><div class="qr-card"><div id="wechatLoginQr" class="wechat-login-qr" aria-label="微信登录二维码"></div><img id="loginQr" hidden alt="赛小蜂篮球微信登录备用码"><div class="qr-state" id="qrState">正在生成微信登录码…</div><button class="text-button" id="refreshQr" type="button">刷新二维码</button></div><div class="scan-guide"><b>使用微信扫一扫</b><p>扫码后在微信中确认授权，PC将自动完成安全登录。</p><div class="guide-row"><i>1</i><span>微信扫描登录二维码</span></div><div class="guide-row"><i>2</i><span>授权确认，PC自动进入</span></div><small>二维码5分钟内有效，仅用于本次登录。</small></div></div>
+      </section>
+
+      <section class="step-view" data-step="profile">
+        <div class="identity-grid" id="identityChoices">
+          <button type="button" class="identity-card active" data-identity="institution"><i>⌂</i><b>我是机构</b><small>篮球俱乐部、培训机构或体育场馆</small></button>
+          <button type="button" class="identity-card" data-identity="school"><i>▣</i><b>我是学校</b><small>学校校队、校内联赛或校园体育部门</small></button>
+          <button type="button" class="identity-card" data-identity="organizer"><i>🏆</i><b>我是赛事主办方</b><small>独立办赛、赛事组委会或赛事服务团队</small></button>
+        </div>
+        <form id="profileForm" class="profile-form">
+          <label><span id="entityNameLabel">机构名称</span><input id="entityName" maxlength="100" placeholder="请输入机构名称" required></label>
+          <label><span id="detailTypeLabel">机构类型</span><select id="detailType"></select></label>
+          <label><span>省份</span><select id="province" required><option value="">请选择省份</option></select></label>
+          <label><span>城市</span><select id="city" required disabled><option value="">请先选择省份</option></select></label>
+          <label><span>联系人</span><input id="contactName" maxlength="60" placeholder="联系人姓名" required></label>
+          <label><span>联系电话</span><input id="contactPhone" inputmode="tel" maxlength="30" placeholder="用于服务联系" required></label>
+          <label class="full"><span>机构 Logo（可选）</span><input id="organizationLogo" type="file" accept="image/png,image/jpeg,image/webp"><small>支持 PNG、JPG、WEBP；将显示在后台品牌区。</small></label>
+          <div class="form-actions full"><button class="primary-button" type="submit">下一步：选择工作面板</button></div>
+        </form>
+      </section>
+
+      <section class="step-view" data-step="workspace">
+        <div class="workspace-choice" id="workspaceChoices">
+          <button type="button" class="workspace-card active" data-workspace="tournament"><span class="workspace-icon">🏆</span><span><b>赛事中心为主</b><small>创建赛事、管理报名、编排赛程、下发现场任务和复核赛果。</small></span><em>默认进入</em></button>
+          <button type="button" class="workspace-card" data-workspace="education"><span class="workspace-icon">▣</span><span><b>教务中心为主</b><small>管理校区、课程、学员、课消、教练和机构经营。</small></span><em>默认进入</em></button>
+        </div>
+        <div class="workspace-note">两个中心在体验期内均可使用，后续可随时切换；此处仅设置首次进入的首页。</div>
+        <div class="form-actions"><button class="secondary-button" type="button" data-back="profile">上一步</button><button class="primary-button" id="claimTrial" type="button">确认并领取365天体验期</button></div>
+      </section>
+
+      <section class="step-view" data-step="claim">
+        <div class="claim-card"><div class="claim-icon">✓</div><span>赛小蜂篮球全功能体验期</span><strong>365 天</strong><p id="claimText">正在为你的组织开通赛事中心与教务中心…</p><button class="primary-button" id="enterWorkspace" type="button" disabled>进入工作台</button></div>
+      </section>
+
+      <section class="step-view" data-step="hub">
+        <div class="hub-card"><div><span class="eyebrow">已完成开户</span><h3 id="hubName">你的组织</h3><p id="hubAccess">赛事中心与教务中心体验期有效。</p></div><div class="hub-actions"><button class="primary-button" data-launch="tournament">进入赛事中心</button><button class="secondary-button" data-launch="education">进入教务中心</button></div></div>
+        <div class="hub-meta"><span id="identitySummary">主身份：—</span><span id="trialSummary">体验期：—</span><button class="text-button" id="editProfile" type="button">调整组织资料</button></div>
+      </section>
+
+      <div class="flow-status" id="flowStatus" role="status"></div>
+    </section>
+  </main>
+  <script src="./assets/vendor/qrcode-1.5.4.min.js"></script>
+  <script src="./assets/data/china-regions.js?v=20260220"></script>
+  <script src="https://res.wx.qq.com/connect/zh_CN/htmledition/js/wxLogin.js"></script>
+  <script src="./organization-entry.js?v=20260822-2"></script>
+</body>
+</html>

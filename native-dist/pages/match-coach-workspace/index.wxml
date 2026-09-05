@@ -1,0 +1,188 @@
+<view class="page">
+  <view wx:if="{{workspace}}" class="topbar">
+    <text class="back" bindtap="goBack">‹ 返回</text>
+    <view class="match-title">
+      <text class="match-name">{{workspace.match.homeTeamName}} VS {{workspace.match.awayTeamName}}</text>
+      <text class="match-role">{{workspace.team.name}} · {{isAssistant ? '助教端' : '主教练端'}}</text>
+    </view>
+    <view class="live-state"><view class="sync-dot"></view><text>{{matchStatusText}}</text></view>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading">正在加载教练协同工作台...</view>
+
+  <view wx:elif="{{inviteInfo}}" class="accept-wrap">
+    <view class="accept-card">
+      <text class="accept-title">加入本场教练团队</text>
+      <text class="accept-note">接受后只能查看和操作分配给你的本队任务。</text>
+      <input placeholder="请输入你的姓名" bindinput="onAssistantName" />
+      <button loading="{{accepting}}" bindtap="acceptInvite">接受助教任务</button>
+    </view>
+  </view>
+
+  <block wx:else>
+    <view wx:if="{{isAssistant}}" class="assistant-role-page">
+      <view wx:if="{{assistantView==='overview'}}" class="assistant-role-content">
+        <view wx:if="{{assistantTaskEmpty}}" class="panel assistant-waiting-card">
+          <view class="assistant-waiting-icon">✓</view>
+          <text class="assistant-role-kicker">已加入</text>
+          <text class="assistant-role-title">等待分配任务</text>
+          <view class="assistant-sync-state"><view class="sync-dot"></view><text>自动刷新</text></view>
+        </view>
+
+        <view wx:else class="assistant-task-layout">
+          <view class="panel assistant-task-main">
+            <text class="assistant-role-kicker">本场任务</text>
+            <text class="assistant-role-title">我的任务</text>
+            <view wx:if="{{myMetricCards.length}}" class="assistant-task-section">
+              <text class="assistant-section-title">数据任务</text>
+              <view class="assistant-task-grid"><view wx:for="{{myMetricCards}}" wx:key="key" class="assistant-task-chip">{{item.label}}</view></view>
+            </view>
+            <view wx:if="{{myPlayerCards.length}}" class="assistant-task-section">
+              <text class="assistant-section-title">球员任务</text>
+              <view class="assistant-task-grid"><view wx:for="{{myPlayerCards}}" wx:key="key" class="assistant-task-chip">{{item.label}}</view></view>
+            </view>
+          </view>
+          <view class="panel assistant-task-side">
+            <text class="stage-side-title">比赛状态</text>
+            <text class="stage-side-value">{{matchStatusText}}</text>
+            <text class="stage-side-note">仅限已分配任务</text>
+            <button class="primary-action" disabled="{{assistantActionDisabled}}" bindtap="openAssistantRecord">{{assistantActionText}}</button>
+            <button class="secondary-action" bindtap="goBack">返回工作台</button>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="assistant-record-page">
+        <view class="assistant-record-head"><button bindtap="backAssistantOverview">‹ 我的任务</button><text>本队比赛记录</text><text>{{matchStatusText}}</text></view>
+        <view class="record-grid">
+          <view class="panel players-panel"><view class="panel-head"><text class="panel-title">选择球员</text><text>{{selectedPlayerName}}</text></view><view class="player-list"><view wx:for="{{playerCards}}" wx:key="key" class="player {{selectedPlayer===item.key?'selected':''}}" data-id="{{item.key}}" bindtap="selectPlayer">{{item.label}}</view></view></view>
+          <view class="panel metrics-panel"><view class="panel-head"><text class="panel-title">我的数据权限</text><text>未分配按钮不可操作</text></view><view class="metric-grid"><button wx:for="{{metricCards}}" wx:key="key" disabled="{{recordDisabled||!item.recordAllowed}}" data-metric="{{item.key}}" bindtap="recordMetric">+ {{item.label}}</button></view><button class="ghost undo" bindtap="undo">撤销本人上一条</button></view>
+          <view class="panel event-panel"><view class="panel-head"><text class="panel-title">本人最近记录</text><text>{{eventRows.length}} 条</text></view><view class="event-list"><view wx:for="{{eventRows}}" wx:key="id">{{item.text}}</view><text wx:if="{{!eventRows.length}}" class="empty">暂无记录</text></view></view>
+        </view>
+      </view>
+    </view>
+
+    <block wx:else>
+    <view class="tabs">
+      <view wx:for="{{tabs}}" wx:key="key" class="tab {{tab===item.key?'active':''}}" data-key="{{item.key}}" bindtap="switchTab">{{item.name}}</view>
+    </view>
+
+    <scroll-view class="workspace-scroll" scroll-y="{{workspaceScrollY}}" scroll-top="{{workspaceScrollTop}}" enhanced show-scrollbar="false">
+      <view wx:if="{{tab==='setup'}}" class="flow-page">
+        <view class="flow-steps">
+          <view wx:for="{{stepCards}}" wx:key="key" class="flow-step {{item.selectedClass}}" data-stage="{{item.key}}" bindtap="goSetupStage">
+            <text class="flow-step-number">{{item.number}}</text>
+            <view><text class="flow-step-name">{{item.name}}</text><text class="flow-step-state">{{item.stateText}}</text></view>
+          </view>
+        </view>
+
+        <view wx:if="{{setupStage==='mode'}}" class="stage-layout mode-stage">
+          <view class="panel mode-stage-main">
+            <text class="stage-kicker">第 1 步</text>
+            <text class="stage-title">谁来记录？</text>
+            <view class="mode-choice-grid">
+              <view wx:for="{{modeCards}}" wx:key="key" class="mode-choice {{item.selectedClass}}" data-key="{{item.key}}" bindtap="chooseMode">
+                <text class="mode-choice-title">{{item.name}}</text>
+                <text class="mode-choice-desc">{{item.desc}}</text>
+              </view>
+            </view>
+          </view>
+          <view class="panel stage-side">
+            <text class="stage-side-title">当前选择</text>
+            <text class="stage-side-value">{{currentMode==='assistants' ? '协作记录' : currentMode==='skipped' ? '不记录' : '我自己记'}}</text>
+            <text class="stage-side-note">{{currentMode==='assistants' ? '下一步添加助教' : '无需后续设置'}}</text>
+            <button wx:if="{{currentMode==='assistants'}}" class="primary-action" data-stage="staff" bindtap="goSetupStage">下一步</button>
+            <button wx:else class="primary-action" bindtap="finishSimpleMode">确认</button>
+            <button class="secondary-action" bindtap="openTactics">战术板</button>
+          </view>
+        </view>
+
+        <view wx:elif="{{setupStage==='staff'}}" class="stage-layout staff-stage">
+          <view class="panel staff-team-panel">
+            <text class="stage-kicker">第 2 步</text>
+            <text class="stage-title">添加助教</text>
+            <view class="staff-summary"><text>本场助教 {{totalAssistantCount}} / 5</text><text>{{joinedAssistantCount}}已加入 · {{pendingAssistantCount}}待接受</text></view>
+            <view class="staff-list">
+              <view wx:for="{{staffCards}}" wx:key="staffId" class="staff-row"><view class="owner-avatar">{{item.shortName}}</view><text class="staff-name">{{item.name}}</text><text class="{{item.statusClass}}">{{item.statusText}}</text></view>
+              <text wx:if="{{!staffCards.length}}" class="empty">暂未添加助教</text>
+            </view>
+            <view wx:if="{{existingCoachCards.length}}" class="existing-coaches">
+              <text class="assistant-column-title">机构已有教练</text>
+              <view wx:for="{{existingCoachCards}}" wx:key="openid" class="coach-candidate"><text>{{item.name}}</text><button data-openid="{{item.openid}}" bindtap="inviteExistingCoach">加入本场</button></view>
+            </view>
+          </view>
+
+          <view class="panel share-stage-panel">
+            <text class="assistant-column-title">微信邀请</text>
+            <button wx:if="{{!invitePath}}" class="share-primary" loading="{{invitePreparing}}" bindtap="prepareAssistantInvite">生成邀请</button>
+            <button wx:else class="share-primary" open-type="share">转发邀请</button>
+            <button wx:if="{{invitePath}}" class="copy-action" bindtap="copyInvite">复制链接</button>
+            <button class="primary-action" bindtap="goAssignmentStep">分配任务</button>
+            <button class="secondary-action" data-stage="mode" bindtap="goSetupStage">上一步</button>
+          </view>
+        </view>
+
+        <view wx:else class="assignment-stage">
+          <view class="panel assignment-owner-panel">
+            <view class="stage-small-head"><text class="stage-kicker">第 3 步</text><text class="stage-title">选择助教</text></view>
+            <view class="owner-list">
+              <view wx:for="{{ownerCards}}" wx:key="openid" class="owner-card {{item.selectedClass}}" data-openid="{{item.openid}}" bindtap="selectOwner">
+                <view class="owner-avatar">{{item.shortName}}</view>
+                <view class="owner-copy"><text>{{item.name}}</text><text>{{item.taskText}}</text></view>
+                <text class="owner-state">{{item.stateText}}</text>
+              </view>
+            </view>
+            <button class="add-assistant" data-stage="staff" bindtap="goSetupStage">＋ 添加助教</button>
+          </view>
+
+          <view class="panel assignment-surface">
+            <view class="assignment-head">
+              <view><text class="assignment-title">{{selectedOwnerName}} · 分配任务</text></view>
+              <view class="assign-switch"><button class="{{assignmentMode==='metric'?'active':''}}" data-mode="metric" bindtap="setAssignMode">按数据</button><button class="{{assignmentMode==='player'?'active':''}}" data-mode="player" bindtap="setAssignMode">按球员</button></view>
+            </view>
+            <view class="metric-sections">
+              <view class="metric-group">
+                <text class="group-title">{{assignmentMode==='metric' ? '得分与技术数据' : '本场球员'}}</text>
+                <view class="task-grid">
+                  <block wx:if="{{assignmentMode==='metric'}}">
+                    <view wx:for="{{metricCards}}" wx:key="key" class="task {{item.stateClass}}" data-mode="{{item.mode}}" data-key="{{item.key}}" data-assignment="{{item.assignmentKey}}" bindtap="toggleAssignment"><text class="task-name">{{item.label}}</text><text class="task-state">{{item.stateText}}</text></view>
+                  </block>
+                  <block wx:else>
+                    <view wx:for="{{playerCards}}" wx:key="key" class="task {{item.stateClass}}" data-mode="{{item.mode}}" data-key="{{item.key}}" data-assignment="{{item.assignmentKey}}" bindtap="toggleAssignment"><text class="task-name">{{item.label}}</text><text class="task-state">{{item.stateText}}</text></view>
+                  </block>
+                </view>
+              </view>
+            </view>
+          </view>
+
+          <view class="panel action-side">
+            <view class="action-summary"><text class="summary-label">本场分工</text><text class="summary-number">{{assignmentCount}}</text><text class="summary-note">{{joinedAssistantCount}}人可分配</text></view>
+            <view class="selected-summary"><text>{{selectedOwnerName}}</text><text>已分配 {{selectedOwnerTaskCount}} 项</text></view>
+            <button class="primary-action" bindtap="finishAssignment">完成</button>
+            <button class="secondary-action" bindtap="viewProgress">查看进度</button>
+          </view>
+        </view>
+      </view>
+
+      <view wx:elif="{{tab==='record'}}" class="record-grid">
+        <view class="panel players-panel"><view class="panel-head"><text class="panel-title">选择球员</text><text>{{selectedPlayerName}}</text></view><view class="player-list"><view wx:for="{{playerCards}}" wx:key="key" class="player {{selectedPlayer===item.key?'selected':''}}" data-id="{{item.key}}" bindtap="selectPlayer">{{item.label}}</view></view><button wx:if="{{isCoach}}" class="tactics" bindtap="openTactics">打开本队战术板</button></view>
+        <view class="panel metrics-panel"><view class="panel-head"><text class="panel-title">记录本队数据</text><text>{{recordDisabled?'比赛开始后开放':'只显示你的权限范围'}}</text></view><view class="metric-grid"><button wx:for="{{metricCards}}" wx:key="key" disabled="{{recordDisabled||!item.recordAllowed}}" data-metric="{{item.key}}" bindtap="recordMetric">+ {{item.label}}</button></view><button class="ghost undo" bindtap="undo">撤销本人上一条</button></view>
+        <view class="panel event-panel"><view class="panel-head"><text class="panel-title">本人最近记录</text><text>{{eventRows.length}} 条</text></view><view class="event-list"><view wx:for="{{eventRows}}" wx:key="id">{{item.text}}</view><text wx:if="{{!eventRows.length}}" class="empty">暂无记录</text></view></view>
+      </view>
+
+      <view wx:elif="{{tab==='monitor'}}" class="panel monitor-panel">
+        <view class="panel-head"><text class="panel-title">教练团队协作进度</text><text>开赛后只读，不允许重新分工</text></view>
+        <view class="progress-grid"><view wx:for="{{progressRows}}" wx:key="openid" class="progress"><text class="progress-name">{{item.name}}</text><text>{{item.taskCount}} 项任务</text><text class="progress-number">{{item.eventCount}}</text><text>已记录事件</text></view></view>
+      </view>
+
+      <view wx:else class="panel summary-panel">
+        <view class="panel-head"><text class="panel-title">本队赛后汇总</text><text>{{summaryTip}}</text></view>
+        <view class="score-check" wx:if="{{workspace.summary}}"><view><text>球员得分归属</text><text class="score-number">{{workspace.summary.playerScore}}</text></view><view><text>官方本队得分</text><text class="score-number">{{workspace.summary.officialScore}}</text></view><text class="check-state {{workspace.summary.scoreConsistent?'ok':'warn'}}">{{workspace.summary.scoreConsistent?'一致':'需核对'}}</text></view>
+        <view class="summary-list"><view wx:for="{{summaryRows}}" wx:key="id"><text class="summary-player">{{item.name}}</text><text class="summary-score">{{item.score}}分</text><text class="summary-metrics">{{item.metrics}}</text></view></view>
+        <button wx:if="{{canSubmitSummary}}" bindtap="submitSummary">核对并提交本队汇总</button>
+      </view>
+      <view class="bottom-space"></view>
+    </scroll-view>
+    </block>
+  </block>
+</view>

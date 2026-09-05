@@ -1,11 +1,14 @@
 const { cloudAsset } = require('../../utils/assets');
 const { pullRoster, pushRoster, resolveImageUrl, scheduleRosterPush } = require('../../utils/roster-sync');
 const { cloud } = require('../../utils/cloud');
+const { getContainDrawRect, removeConnectedBackground } = require('../../utils/team-logo-editor');
+const { requestTournamentSubscription } = require('../../utils/tournament-subscription');
 
 const ASSET_BASE = 'pages/team-create/';
 const STORAGE_KEYS = { teams: 'teams', drafts: 'teamDrafts', categories: 'teamCategories', players: 'players' };
+const REGISTRATION_RETURN_KEY = 'sxfTournamentRegistrationCreatedTeam';
 const TEAM_NAME_MAX_LENGTH = 5;
-const DEFAULT_FORM = { id: '', logoUrl: '', teamName: '', ageGroup: 'U10（8-10岁）', coachName: '', phone: '', intro: '', enabled: true, playerCount: 0 };
+const DEFAULT_FORM = { id: '', logoUrl: '', logoFileID: '', teamName: '', ageGroup: 'U10（8-10岁）', coachName: '', phone: '', intro: '', enabled: true, playerCount: 0 };
 const FIELD_ROWS = [
   { key: 'teamName', label: '球队名称', required: true, type: 'input', placeholder: '请输入球队名称', clearable: true, maxLength: TEAM_NAME_MAX_LENGTH },
   { key: 'ageGroup', label: '年龄组', required: true, type: 'picker', rangeKey: 'ageGroups', placeholder: '请选择年龄组' },
@@ -49,6 +52,30 @@ function getImageExtension(filePath) {
 
 function isCloudImagePath(filePath) {
   return String(filePath || '').startsWith('cloud://');
+}
+
+function buildTeamLogoCloudPath(filePath) {
+  return `team-logos/${Date.now()}-${Math.random().toString(36).slice(2, 10)}.${getImageExtension(filePath || '')}`;
+}
+
+function uploadTeamLogoDirect(filePath) {
+  return new Promise((resolve, reject) => {
+    if (!cloud || !cloud.uploadFile) {
+      reject(new Error('队徽云端服务未初始化'));
+      return;
+    }
+    cloud.uploadFile({
+      cloudPath: buildTeamLogoCloudPath(filePath),
+      filePath
+    }).then((result) => {
+      const fileID = result && (result.fileID || (result.fileList && result.fileList[0] && result.fileList[0].fileID));
+      if (fileID) {
+        resolve(fileID);
+        return;
+      }
+      reject(new Error('队徽直传未返回文件ID'));
+    }).catch((error) => reject(error));
+  });
 }
 
 function repairLegacyTeamLogos() {
@@ -98,23 +125,56 @@ function uploadTeamLogo(filePath) {
       resolve(filePath || '');
       return;
     }
-    if (!cloud || !cloud.uploadFile) {
-      reject(new Error('云存储未初始化'));
+    if (!cloud || (!cloud.callFunction && !cloud.uploadFile)) {
+      reject(new Error('队徽云端服务未初始化'));
       return;
     }
-    const extension = getImageExtension(filePath);
-    const random = Math.random().toString(36).slice(2, 8);
-    cloud.uploadFile({
-      cloudPath: `team-logos/${Date.now()}-${random}.${extension}`,
+    if (!cloud.callFunction && cloud.uploadFile) {
+      uploadTeamLogoDirect(filePath).then(resolve).catch(reject);
+      return;
+    }
+    const fileSystem = wx.getFileSystemManager();
+    fileSystem.readFile({
       filePath,
-      success: (uploadResult) => {
-        const logoUrl = uploadResult && uploadResult.fileID;
-        if (logoUrl) resolve(logoUrl);
-        else reject(new Error('Logo 上传未返回云文件 ID'));
+      encoding: 'base64',
+      success: (file) => {
+        cloud.callFunction({
+          name: 'sxUploadTeamLogo',
+          data: { base64: file.data, ext: getImageExtension(filePath) }
+        }).then((response) => {
+          const result = response && response.result ? response.result : response;
+          if (!result || result.ok !== true || !result.fileID) {
+            throw new Error(result && result.error || '队徽云端保存失败，请重试');
+            return;
+          }
+          resolve(result.fileID);
+        }).catch((error) => {
+          console.warn('[team-create] sxUploadTeamLogo failed, fallback to direct upload', error);
+          uploadTeamLogoDirect(filePath).then(resolve).catch((fallbackError) => {
+            reject(new Error(fallbackError && (fallbackError.message || fallbackError.errMsg) || '队徽同步失败，请重试'));
+          });
+        }).catch(reject);
       },
       fail: reject
     });
   });
+}
+
+function touchCoordinate(touch, axis) {
+  if (!touch) return 0;
+  const clientKey = axis === 'x' ? 'clientX' : 'clientY';
+  const pageKey = axis === 'x' ? 'pageX' : 'pageY';
+  const clientValue = Number(touch[clientKey]);
+  if (Number.isFinite(clientValue)) return clientValue;
+  const pageValue = Number(touch[pageKey]);
+  return Number.isFinite(pageValue) ? pageValue : 0;
+}
+
+function distanceBetweenTouches(touches) {
+  if (!touches || touches.length < 2) return 0;
+  const dx = touchCoordinate(touches[0], 'x') - touchCoordinate(touches[1], 'x');
+  const dy = touchCoordinate(touches[0], 'y') - touchCoordinate(touches[1], 'y');
+  return Math.sqrt(dx * dx + dy * dy);
 }
 
 Page({
@@ -145,12 +205,44 @@ Page({
     introCountText: '0/100',
     ageGroups: ['U8（6-8岁）', 'U10（8-10岁）', 'U12（10-12岁）', 'U14（12-14岁）'],
     playerCountText: '0',
-    statusText: '可参赛'
+    statusText: '可参赛',
+    registrationEventId: '',
+    registrationInviteKey: '',
+    returnToRegistration: false,
+    saveButtonText: '保存球队',
+    logoEditorVisible: false,
+    logoEditorSourcePath: '',
+    logoEditorMeta: '',
+    logoCanvasSize: 256,
+    showLogoCropStep: true,
+    showLogoRemoveStep: false,
+    logoEditorStepText: '第 1 步：调整图片大小和位置',
+    logoStageLabel: '固定 1:1 裁剪框',
+    logoEditorCropTip: '已载入完整压缩图，请先完成1:1构图',
+    logoEditorZoom: 100,
+    logoEditorOffsetX: 0,
+    logoEditorOffsetY: 0,
+    logoEditorTolerance: 38,
+    logoEditorRemoveBackground: true,
+    logoEditorZoomText: '100%',
+    logoEditorOffsetXText: '居中',
+    logoEditorOffsetYText: '居中',
+    logoEditorToleranceText: '38',
+    logoEditorConfirming: false
   },
 
-  onLoad() {
+  onLoad(options = {}) {
     this.syncForm(DEFAULT_FORM);
     this.refreshTeams();
+    if (options.from === 'tournament-register' && options.eventId) {
+      this.setData({
+        registrationEventId: options.eventId,
+        registrationInviteKey: options.inviteKey || '',
+        returnToRegistration: true,
+        saveButtonText: '创建并提交报名'
+      });
+      this.openCreateForm();
+    }
   },
 
   onShow() {
@@ -184,7 +276,7 @@ Page({
     this.setData({
       form: normalized,
       rows: this.buildRows(normalized),
-      logoDisplay: resolveImageUrl(normalized.logoUrl || this.data.assets.logo),
+      logoDisplay: resolveImageUrl(normalized.logoUrl || normalized.logoFileID || this.data.assets.logo),
       introCountText: `${(normalized.intro || '').length}/100`,
       playerCountText: String(normalized.playerCount || 0),
       statusText: normalized.enabled ? '可参赛' : '已停用'
@@ -195,7 +287,11 @@ Page({
     const storedTeams = readList(STORAGE_KEYS.teams);
     const drafts = readList(STORAGE_KEYS.drafts).filter((item) => item && item.status === 'draft');
     const players = readList(STORAGE_KEYS.players);
-    return storedTeams.concat(drafts).map((team, index) => {
+    return storedTeams.concat(drafts).slice().sort((left, right) => {
+      const leftTime = Number(left && (left.createdAt || left.updatedAt) || 0);
+      const rightTime = Number(right && (right.createdAt || right.updatedAt) || 0);
+      return rightTime - leftTime;
+    }).map((team, index) => {
       const name = normalizeText(team.name || team.label || team.teamName, '未命名球队');
       const enabled = team.status === 'draft' ? false : team.enabled !== false;
       const playerCount = Number(team.playerCount || countPlayersByTeam(players, team));
@@ -205,8 +301,8 @@ Page({
         key: team.key || slugify(name),
         name,
         label: name,
-        logoFileID: team.logoUrl || '',
-        logoUrl: resolveImageUrl(team.logoUrl || this.data.assets.logo),
+        logoFileID: team.logoFileID || team.logoUrl || '',
+        logoUrl: resolveImageUrl(team.logoUrl || team.logoFileID || this.data.assets.logo),
         ageGroup: normalizeText(team.ageGroup, '未设置年龄组'),
         coachName: normalizeText(team.coachName, '待补充'),
         playerCount,
@@ -290,7 +386,8 @@ Page({
     if (!team) return;
     this.syncForm({
       id: team.id,
-      logoUrl: team.logoFileID || team.logoUrl,
+      logoUrl: team.logoUrl || '',
+      logoFileID: team.logoFileID || team.logoUrl || '',
       teamName: team.name,
       ageGroup: team.ageGroup,
       coachName: team.coachName === '待补充' ? '' : team.coachName,
@@ -304,26 +401,358 @@ Page({
   },
 
   chooseLogo() {
-    wx.chooseMedia({
+    wx.chooseImage({
       count: 1,
-      mediaType: ['image'],
-      sizeType: ['compressed'],
+      sizeType: ['original'],
+      sourceType: ['album', 'camera'],
       success: (res) => {
-        const file = res.tempFiles && res.tempFiles[0];
-        if (!file || !file.tempFilePath) return;
-        wx.showLoading({ title: '上传 Logo' });
-        uploadTeamLogo(file.tempFilePath)
-          .then((logoUrl) => {
-            this.syncForm(Object.assign({}, this.data.form, { logoUrl }));
-            wx.showToast({ title: 'Logo 已上传', icon: 'success' });
-          })
-          .catch((error) => {
-            console.warn('[team-create] upload logo failed', error);
-            wx.showToast({ title: 'Logo 上传失败，请检查网络', icon: 'none' });
-          })
-          .finally(() => wx.hideLoading());
+        const sourcePath = res.tempFilePaths && res.tempFilePaths[0];
+        if (!sourcePath) return;
+        wx.showLoading({ title: '压缩原图' });
+        wx.getImageInfo({
+          src: sourcePath,
+          success: (info) => {
+            this.compressLogoSource(sourcePath, info)
+              .then((processed) => this.openLogoEditor(processed.path, processed, info))
+              .catch((error) => {
+                console.warn('[team-create] image compression failed', error);
+                wx.showToast({ title: '图片压缩失败，请重试', icon: 'none' });
+              })
+              .finally(() => wx.hideLoading());
+          },
+          fail: () => {
+            wx.hideLoading();
+            wx.showToast({ title: '图片读取失败，请重新选择', icon: 'none' });
+          }
+        });
       }
     });
+  },
+
+  compressLogoSource(sourcePath, info) {
+    const width = Math.max(1, Number(info.width || 1));
+    const height = Math.max(1, Number(info.height || 1));
+    const maxSide = Math.max(width, height);
+    if (maxSide <= 1200) return Promise.resolve({ path: sourcePath, width, height, compressed: false });
+    const scale = 1200 / maxSide;
+    const targetWidth = Math.max(1, Math.round(width * scale));
+    const targetHeight = Math.max(1, Math.round(height * scale));
+    const extension = getImageExtension(sourcePath);
+    const fileType = extension === 'png' ? 'png' : 'jpg';
+    return new Promise((resolve, reject) => {
+      const context = wx.createCanvasContext('teamLogoPreprocessCanvas', this);
+      context.clearRect(0, 0, 1200, 1200);
+      context.drawImage(sourcePath, 0, 0, targetWidth, targetHeight);
+      context.draw(false, () => {
+        wx.canvasToTempFilePath({
+          canvasId: 'teamLogoPreprocessCanvas', x: 0, y: 0, width: targetWidth, height: targetHeight,
+          destWidth: targetWidth, destHeight: targetHeight, fileType, quality: 0.86,
+          success: (result) => resolve({ path: result.tempFilePath, width: targetWidth, height: targetHeight, compressed: true }),
+          fail: reject
+        }, this);
+      });
+    });
+  },
+
+  openLogoEditor(sourcePath, info, originalInfo) {
+    this.logoEditorImageInfo = { width: Number(info.width || 0), height: Number(info.height || 0) };
+    const logoCanvasSize = Math.round(this.getLogoGestureStageSize());
+    this.logoRenderVersion = 0;
+    const originalWidth = Number(originalInfo && originalInfo.width || info.width || 0);
+    const originalHeight = Number(originalInfo && originalInfo.height || info.height || 0);
+    const compressedText = info.compressed
+      ? `${originalWidth} × ${originalHeight} → ${this.logoEditorImageInfo.width} × ${this.logoEditorImageInfo.height} px`
+      : `${this.logoEditorImageInfo.width} × ${this.logoEditorImageInfo.height} px`;
+    this.setData({
+      logoEditorVisible: true,
+      logoEditorSourcePath: sourcePath,
+      logoEditorMeta: compressedText,
+      logoCanvasSize,
+      showLogoCropStep: true,
+      showLogoRemoveStep: false,
+      logoStageLabel: '固定 1:1 裁剪框',
+      logoEditorStepText: '第 1 步：调整图片大小和位置',
+      logoEditorCropTip: '已载入完整压缩图，请先完成1:1构图',
+      logoEditorZoom: 100,
+      logoEditorOffsetX: 0,
+      logoEditorOffsetY: 0,
+      logoEditorTolerance: 38,
+      logoEditorRemoveBackground: true,
+      logoEditorZoomText: '100%',
+      logoEditorOffsetXText: '居中',
+      logoEditorOffsetYText: '居中',
+      logoEditorToleranceText: '38',
+      logoEditorConfirming: false
+    }, () => setTimeout(() => this.renderLogoEditor().catch((error) => console.warn('[team-create] logo preview failed', error)), 30));
+  },
+
+  closeLogoEditor() {
+    this.logoRenderVersion = (this.logoRenderVersion || 0) + 1;
+    if (this.logoPreviewTimer) clearTimeout(this.logoPreviewTimer);
+    this.logoPreviewTimer = null;
+    this.logoGesture = null;
+    this.logoEditorImageInfo = null;
+    this.setData({ logoEditorVisible: false, logoEditorSourcePath: '', logoEditorConfirming: false });
+  },
+
+  formatLogoOffset(value) {
+    const number = Number(value || 0);
+    return number === 0 ? '居中' : `${number > 0 ? '+' : ''}${number}`;
+  },
+
+  onLogoEditorSlider(event) {
+    const key = event.currentTarget.dataset.key;
+    const value = Number(event.detail.value || 0);
+    const patch = { [key]: value };
+    if (key === 'logoEditorZoom') patch.logoEditorZoomText = `${value}%`;
+    if (key === 'logoEditorOffsetX') patch.logoEditorOffsetXText = this.formatLogoOffset(value);
+    if (key === 'logoEditorOffsetY') patch.logoEditorOffsetYText = this.formatLogoOffset(value);
+    if (key === 'logoEditorTolerance') patch.logoEditorToleranceText = String(value);
+    this.setData(patch, () => this.renderLogoEditor().catch((error) => console.warn('[team-create] logo preview update failed', error)));
+  },
+
+  getLogoGestureStageSize() {
+    try {
+      const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      return Math.max(160, Number(info.windowWidth || 375) * 512 / 750);
+    } catch (error) {
+      return 256;
+    }
+  },
+
+  scheduleLogoPreview() {
+    if (this.logoPreviewTimer) return;
+    this.logoPreviewTimer = setTimeout(() => {
+      this.logoPreviewTimer = null;
+      this.renderLogoEditor().catch((error) => console.warn('[team-create] logo gesture preview failed', error));
+    }, 30);
+  },
+
+  onLogoEditorTouchStart(event) {
+    if (!this.data.showLogoCropStep) return;
+    const touches = event.touches || [];
+    if (!touches.length) return;
+    const first = touches[0];
+    this.logoGesture = {
+      stageSize: this.getLogoGestureStageSize(),
+      zoom: Number(this.data.logoEditorZoom || 100),
+      offsetX: Number(this.data.logoEditorOffsetX || 0),
+      offsetY: Number(this.data.logoEditorOffsetY || 0),
+      startX: touchCoordinate(first, 'x'),
+      startY: touchCoordinate(first, 'y'),
+      distance: distanceBetweenTouches(touches),
+      mode: touches.length > 1 ? 'pinch' : 'drag'
+    };
+  },
+
+  onLogoEditorTouchMove(event) {
+    if (!this.data.showLogoCropStep) return;
+    const gesture = this.logoGesture;
+    const touches = event.touches || [];
+    if (!gesture || !touches.length) return;
+    let zoom = gesture.zoom;
+    let offsetX = gesture.offsetX;
+    let offsetY = gesture.offsetY;
+    if (touches.length > 1 && gesture.distance > 0) {
+      zoom = Math.max(30, Math.min(300, Math.round(gesture.zoom * distanceBetweenTouches(touches) / gesture.distance)));
+    } else {
+      const ratio = 200 / gesture.stageSize;
+      offsetX = Math.max(-100, Math.min(100, Math.round(gesture.offsetX + (touchCoordinate(touches[0], 'x') - gesture.startX) * ratio)));
+      offsetY = Math.max(-100, Math.min(100, Math.round(gesture.offsetY + (touchCoordinate(touches[0], 'y') - gesture.startY) * ratio)));
+    }
+    this.setData({
+      logoEditorZoom: zoom,
+      logoEditorOffsetX: offsetX,
+      logoEditorOffsetY: offsetY,
+      logoEditorZoomText: `${zoom}%`,
+      logoEditorOffsetXText: this.formatLogoOffset(offsetX),
+      logoEditorOffsetYText: this.formatLogoOffset(offsetY)
+    });
+    this.scheduleLogoPreview();
+  },
+
+  onLogoEditorTouchEnd() {
+    if (!this.data.showLogoCropStep) return;
+    this.logoGesture = null;
+    if (this.logoPreviewTimer) {
+      clearTimeout(this.logoPreviewTimer);
+      this.logoPreviewTimer = null;
+    }
+    this.renderLogoEditor().catch((error) => console.warn('[team-create] logo gesture finish failed', error));
+  },
+
+  resetLogoEditorGesture() {
+    this.setData({
+      logoEditorZoom: 100,
+      logoEditorOffsetX: 0,
+      logoEditorOffsetY: 0,
+      logoEditorZoomText: '100%',
+      logoEditorOffsetXText: '居中',
+      logoEditorOffsetYText: '居中'
+    }, () => this.renderLogoEditor().catch((error) => console.warn('[team-create] logo reset failed', error)));
+  },
+
+  onLogoBackgroundChange(event) {
+    this.setData({ logoEditorRemoveBackground: !!event.detail.value }, () => this.renderLogoEditor().catch((error) => console.warn('[team-create] logo background preview failed', error)));
+  },
+
+  finishLogoCrop() {
+    this.setData({
+      showLogoCropStep: false,
+      showLogoRemoveStep: true,
+      logoEditorStepText: '第 2 步：抠除外围背景并确认',
+      logoStageLabel: '裁剪结果去底预览'
+    }, () => this.renderLogoEditor().catch((error) => console.warn('[team-create] cutout preview failed', error)));
+  },
+
+  returnToLogoCrop() {
+    this.setData({
+      showLogoCropStep: true,
+      showLogoRemoveStep: false,
+      logoEditorStepText: '第 1 步：调整图片大小和位置',
+      logoStageLabel: '固定 1:1 裁剪框'
+    }, () => this.renderLogoEditor().catch((error) => console.warn('[team-create] return crop preview failed', error)));
+  },
+
+  getLogoCanvasNode() {
+    return new Promise((resolve, reject) => {
+      if (!wx.createSelectorQuery) {
+        const error = new Error('当前基础库不支持 Canvas 2D');
+        error.code = 'SXF_CANVAS_2D_UNAVAILABLE';
+        reject(error);
+        return;
+      }
+      wx.createSelectorQuery().in(this).select('#teamLogoEditorCanvas').fields({ node: true, size: true }).exec((result) => {
+        const canvasInfo = result && result[0];
+        if (!canvasInfo || !canvasInfo.node) {
+          const error = new Error('队徽画布尚未就绪，请稍后重试');
+          error.code = 'SXF_CANVAS_2D_UNAVAILABLE';
+          reject(error);
+          return;
+        }
+        resolve(canvasInfo.node);
+      });
+    });
+  },
+
+  loadLogoCanvasImage(canvas, sourcePath) {
+    return new Promise((resolve, reject) => {
+      if (!canvas || typeof canvas.createImage !== 'function') {
+        reject(new Error('队徽画布不支持图片加载'));
+        return;
+      }
+      const image = canvas.createImage();
+      image.onload = () => resolve(image);
+      image.onerror = () => reject(new Error('队徽图片读取失败，请重新选择'));
+      image.src = sourcePath;
+    });
+  },
+
+  renderLogoEditorCanvas2d() {
+    const sourcePath = this.data.logoEditorSourcePath;
+    const info = this.logoEditorImageInfo;
+    if (!sourcePath || !info || !info.width || !info.height) return Promise.reject(new Error('队徽图片信息缺失'));
+    const version = (this.logoRenderVersion || 0) + 1;
+    this.logoRenderVersion = version;
+    const canvasSize = Math.max(160, Number(this.data.logoCanvasSize || this.getLogoGestureStageSize()));
+    const cropFrame = getContainDrawRect(info.width, info.height, canvasSize, Number(this.data.logoEditorZoom || 100) / 100, this.data.logoEditorOffsetX, this.data.logoEditorOffsetY);
+    return this.getLogoCanvasNode().then((canvas) => {
+      this.logoCanvasNode = canvas;
+      canvas.width = canvasSize;
+      canvas.height = canvasSize;
+      const context = canvas.getContext('2d');
+      if (!context) throw new Error('队徽画布上下文初始化失败');
+      return this.loadLogoCanvasImage(canvas, sourcePath).then((image) => {
+        if (version !== this.logoRenderVersion) return;
+        context.clearRect(0, 0, canvasSize, canvasSize);
+        context.drawImage(image, cropFrame.x, cropFrame.y, cropFrame.width, cropFrame.height);
+        if (!this.data.showLogoRemoveStep || !this.data.logoEditorRemoveBackground) return;
+        const imageData = context.getImageData(0, 0, canvasSize, canvasSize);
+        const pixelData = {
+          width: Number(imageData.width) || canvasSize,
+          height: Number(imageData.height) || canvasSize,
+          data: imageData.data
+        };
+        removeConnectedBackground(pixelData, this.data.logoEditorTolerance);
+        context.putImageData(imageData, 0, 0);
+      });
+    });
+  },
+
+  renderLogoEditor() {
+    return this.renderLogoEditorCanvas2d().catch((error) => {
+      if (!error || error.code !== 'SXF_CANVAS_2D_UNAVAILABLE') throw error;
+      return this.renderLogoEditorLegacy();
+    });
+  },
+
+  renderLogoEditorLegacy() {
+    const sourcePath = this.data.logoEditorSourcePath;
+    const info = this.logoEditorImageInfo;
+    if (!sourcePath || !info || !info.width || !info.height) return Promise.reject(new Error('队徽图片信息缺失'));
+    const version = (this.logoRenderVersion || 0) + 1;
+    this.logoRenderVersion = version;
+    const canvasSize = Math.max(160, Number(this.data.logoCanvasSize || this.getLogoGestureStageSize()));
+    const cropFrame = getContainDrawRect(info.width, info.height, canvasSize, Number(this.data.logoEditorZoom || 100) / 100, this.data.logoEditorOffsetX, this.data.logoEditorOffsetY);
+    return new Promise((resolve, reject) => {
+      const context = wx.createCanvasContext('teamLogoEditorCanvas', this);
+      context.clearRect(0, 0, canvasSize, canvasSize);
+      context.drawImage(sourcePath, cropFrame.x, cropFrame.y, cropFrame.width, cropFrame.height);
+      context.draw(false, () => {
+        if (version !== this.logoRenderVersion || !this.data.showLogoRemoveStep || !this.data.logoEditorRemoveBackground) { resolve(); return; }
+        wx.canvasGetImageData({
+          canvasId: 'teamLogoEditorCanvas', x: 0, y: 0, width: canvasSize, height: canvasSize,
+          success: (imageData) => {
+            if (version !== this.logoRenderVersion) { resolve(); return; }
+            const pixelData = {
+              width: Number(imageData.width) || canvasSize,
+              height: Number(imageData.height) || canvasSize,
+              data: imageData.data
+            };
+            removeConnectedBackground(pixelData, this.data.logoEditorTolerance);
+            wx.canvasPutImageData({
+              canvasId: 'teamLogoEditorCanvas', x: 0, y: 0, width: canvasSize, height: canvasSize, data: imageData.data,
+              success: resolve,
+              fail: reject
+            }, this);
+          },
+          fail: reject
+        }, this);
+      });
+    });
+  },
+
+  confirmLogoEditor() {
+    if (this.data.logoEditorConfirming) return;
+    this.setData({ logoEditorConfirming: true });
+    wx.showLoading({ title: '处理队徽' });
+    this.renderLogoEditor()
+      .then(() => new Promise((resolve, reject) => {
+        const canvasSize = Math.max(160, Number(this.data.logoCanvasSize || this.getLogoGestureStageSize()));
+        const options = {
+          x: 0, y: 0, width: canvasSize, height: canvasSize,
+          destWidth: 512, destHeight: 512, fileType: 'png', quality: 1,
+          success: (result) => resolve(result.tempFilePath),
+          fail: reject
+        };
+        if (this.logoCanvasNode) options.canvas = this.logoCanvasNode;
+        else options.canvasId = 'teamLogoEditorCanvas';
+        wx.canvasToTempFilePath(options, this);
+      }))
+      .then((processedPath) => uploadTeamLogo(processedPath))
+      .then((logoUrl) => {
+        this.syncForm(Object.assign({}, this.data.form, { logoUrl, logoFileID: logoUrl }));
+        this.closeLogoEditor();
+        wx.showToast({ title: '队徽已裁剪并去底', icon: 'success' });
+      })
+      .catch((error) => {
+        console.warn('[team-create] logo process failed', error);
+        wx.showToast({ title: error.message || '队徽处理失败，请重试', icon: 'none' });
+      })
+      .finally(() => {
+        wx.hideLoading();
+        if (this.data.logoEditorVisible) this.setData({ logoEditorConfirming: false });
+      });
   },
 
   onFieldInput(event) {
@@ -368,7 +797,7 @@ Page({
     return true;
   },
 
-  buildTeamPayload(status) {
+  buildTeamPayload(status, logoOverride) {
     const form = this.data.form;
     const name = limitTeamName(form.teamName);
     return {
@@ -380,12 +809,13 @@ Page({
       coachName: form.coachName.trim(),
       phone: form.phone.trim(),
       intro: form.intro.trim(),
-      logoFileID: form.logoUrl || this.data.assets.logo,
-      logoUrl: form.logoUrl || this.data.assets.logo,
+      logoFileID: logoOverride || form.logoFileID || form.logoUrl || this.data.assets.logo,
+      logoUrl: logoOverride || form.logoFileID || form.logoUrl || this.data.assets.logo,
       playerCount: form.playerCount || 0,
       enabled: !!form.enabled,
       status,
       common: true,
+      registrationEventId: this.data.registrationEventId || '',
       createdAt: form.createdAt || Date.now(),
       updatedAt: Date.now()
     };
@@ -415,55 +845,87 @@ Page({
       next[index] = Object.assign({}, next[index], category);
       return next;
     }
-    return list.concat(category);
+    return [category].concat(list);
   },
 
   ensureFormLogoCloud() {
-    const logoUrl = this.data.form.logoUrl || '';
+    const logoUrl = this.data.form.logoFileID || this.data.form.logoUrl || '';
     if (!logoUrl || isCloudImagePath(logoUrl)) return Promise.resolve(logoUrl);
     wx.showLoading({ title: '同步队徽' });
     return uploadTeamLogo(logoUrl)
       .then((cloudLogoUrl) => {
-        this.syncForm(Object.assign({}, this.data.form, { logoUrl: cloudLogoUrl }));
+        this.syncForm(Object.assign({}, this.data.form, { logoUrl: cloudLogoUrl, logoFileID: cloudLogoUrl }));
         return cloudLogoUrl;
       })
       .finally(() => wx.hideLoading());
   },
 
+  syncRosterAfterSave() {
+    return pushRoster()
+      .then(() => true)
+      .catch((error) => {
+        console.warn('[team-create] roster cloud sync failed, scheduled retry', error);
+        scheduleRosterPush(3000);
+        return false;
+      });
+  },
+
   saveDraft() {
     this.ensureFormLogoCloud()
-      .then(async () => {
-        const team = this.buildTeamPayload('draft');
+      .then(async (cloudLogoUrl) => {
+        const team = this.buildTeamPayload('draft', cloudLogoUrl);
         wx.setStorageSync(STORAGE_KEYS.drafts, this.upsertTeam(readList(STORAGE_KEYS.drafts), team));
-        await pushRoster();
-        wx.showToast({ title: '草稿已保存', icon: 'success' });
+        const synced = await this.syncRosterAfterSave();
+        wx.showToast({ title: synced ? '草稿已保存' : '已保存，云端稍后同步', icon: synced ? 'success' : 'none' });
         this.closeForm();
         this.refreshTeams();
       })
       .catch((error) => {
         console.warn('[team-create] save draft logo sync failed', error);
-        wx.showToast({ title: '队徽同步失败，请重试', icon: 'none' });
+        wx.showToast({ title: error.message || '队徽同步失败，请重试', icon: 'none' });
       });
   },
 
   saveTeam() {
     if (!this.validateForm()) return;
+    if (this.data.returnToRegistration) {
+      requestTournamentSubscription('review').then((accepted) => this.persistTeam(accepted === true));
+      return;
+    }
+    this.persistTeam(false);
+  },
+
+  persistTeam(autoSubmitRegistration) {
     this.ensureFormLogoCloud()
-      .then(async () => {
-        const team = this.buildTeamPayload('active');
+      .then(async (cloudLogoUrl) => {
+        const team = this.buildTeamPayload('active', cloudLogoUrl);
         const categories = readList(STORAGE_KEYS.categories);
-        const category = { key: team.key, label: team.label, logoUrl: team.logoUrl, common: true };
+        const category = { key: team.key, label: team.label, logoFileID: team.logoFileID, logoUrl: team.logoUrl, common: true, createdAt: team.createdAt, updatedAt: team.updatedAt };
         wx.setStorageSync(STORAGE_KEYS.teams, this.upsertTeam(readList(STORAGE_KEYS.teams), team));
         wx.setStorageSync(STORAGE_KEYS.drafts, readList(STORAGE_KEYS.drafts).filter((item) => item.id !== team.id));
         wx.setStorageSync(STORAGE_KEYS.categories, this.upsertCategory(categories, category));
-        await pushRoster();
-        wx.showToast({ title: '球队已保存', icon: 'success' });
+        const synced = await this.syncRosterAfterSave();
+        if (this.data.returnToRegistration) {
+          wx.setStorageSync(REGISTRATION_RETURN_KEY, {
+            eventId: this.data.registrationEventId,
+            inviteKey: this.data.registrationInviteKey,
+            teamId: team.id,
+            teamKey: team.key,
+            teamName: team.name,
+            autoSubmit: autoSubmitRegistration === true,
+            createdAt: Date.now()
+          });
+          wx.showToast({ title: autoSubmitRegistration ? '球队已创建，正在报名' : '球队已创建，请确认报名', icon: autoSubmitRegistration ? 'success' : 'none' });
+          setTimeout(() => wx.navigateBack(), 450);
+          return;
+        }
+        wx.showToast({ title: synced ? '球队已保存' : '已保存，云端稍后同步', icon: synced ? 'success' : 'none' });
         this.closeForm();
         this.refreshTeams();
       })
       .catch((error) => {
         console.warn('[team-create] save team logo sync failed', error);
-        wx.showToast({ title: '队徽同步失败，请重试', icon: 'none' });
+        wx.showToast({ title: error.message || '队徽同步失败，请重试', icon: 'none' });
       });
   },
 

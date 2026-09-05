@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>赛小蜂篮球｜裁判与教练团队协同原型评审画板</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="board-header">
+    <div>
+      <span class="eyebrow">PROTOTYPE REVIEW BOARD</span>
+      <h1>裁判—双方教练团队协同原型</h1>
+      <p>逐页检查手机/平板横屏大字布局、助教分工、权限边界和数据衔接。原型确认前不进入正式页面开发。</p>
+    </div>
+    <div class="header-actions">
+      <button id="refresh-board">刷新全部原型</button>
+      <button id="export-notes">导出评审记录</button>
+      <button id="next-note" class="primary">待处理意见 <b id="open-count">0</b></button>
+    </div>
+  </header>
+
+  <section class="board-summary" id="summary"></section>
+  <main id="board"></main>
+
+  <aside class="note-center" id="note-center">
+    <div class="note-head"><strong>备注中心</strong><button id="close-notes">×</button></div>
+    <div class="note-filters"><button data-filter="open" class="active">待处理</button><button data-filter="resolved">已解决</button><button data-filter="all">全部</button></div>
+    <div id="note-list" class="note-list"></div>
+  </aside>
+
+  <div class="viewer" id="viewer" aria-hidden="true">
+    <div class="viewer-bar"><div><strong id="viewer-title"></strong><span id="viewer-logic"></span></div><div class="viewer-actions"><button id="zoom-out">−</button><span id="zoom-label">100%</span><button id="zoom-in">＋</button><button id="open-source">打开交互原型</button><button id="close-viewer">关闭</button></div></div>
+    <div class="viewer-stage" id="viewer-stage"><img id="viewer-image" alt="原型大图" /></div>
+    <div class="viewer-feedback"><textarea id="feedback-text" placeholder="写下这张原型需要调整的布局、交互或页面逻辑……"></textarea><button id="save-feedback" class="primary">保存本页意见</button></div>
+  </div>
+
+  <script src="board-data.js"></script>
+  <script src="review-results.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

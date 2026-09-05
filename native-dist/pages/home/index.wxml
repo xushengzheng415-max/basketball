@@ -58,41 +58,133 @@
   </view>
 
   <view class="content-scroll">
-    <view class="version-panel" bindtap="openEducationProduct">
-      <view class="version-ad growth-entry">
-        <view class="version-orbit orbit-one"></view>
-        <view class="version-orbit orbit-two"></view>
-        <text class="version-watermark">GROW</text>
+    <view wx:if="{{hasTournamentTasks}}" class="tournament-task-panel">
+      <view class="tournament-task-panel-head"><view><text>赛事待办</text><text>{{tournamentTaskCount}} 项待处理</text></view><text wx:if="{{tournamentTaskMoreCount}}">还有 {{tournamentTaskMoreCount}} 项</text></view>
+      <view wx:for="{{tournamentTasks}}" wx:key="taskId" class="tournament-task-row" data-id="{{item.taskId}}" bindtap="openTournamentTask">
+        <view class="tournament-task-row-main"><text class="tournament-task-row-title">{{item.taskTitle}}</text><text class="tournament-task-row-meta">{{item.taskMeta}}</text><text class="tournament-task-row-detail">{{item.taskDetail}}</text></view>
+        <view class="tournament-task-row-action">{{item.taskAction}} <text>›</text></view>
+      </view>
+    </view>
+    <view wx:elif="{{taskLoading}}" class="match-task-card task-loading-card">
+      <view class="task-loading-line wide"></view>
+      <view class="task-loading-line"></view>
+      <view class="task-loading-line short"></view>
+    </view>
 
-        <view class="version-ad-head">
-          <view class="version-badge">机构训赛经营增长平台</view>
-          <text class="version-status">TRAIN · GAME · GROW</text>
-        </view>
+    <view wx:elif="{{taskError}}" class="match-task-card task-error-card" bindtap="retryMatchTasks">
+      <text class="task-role">比赛任务</text>
+      <text class="task-title">任务加载失败</text>
+      <text class="task-note">{{taskError}} · 点击重试</text>
+    </view>
 
-        <text class="version-kicker">不只是记录，更要推动下一步</text>
-        <view class="version-title"><text>让训练与比赛</text><text class="version-title-accent">持续转化为增长</text></view>
-        <text class="version-desc">把每一次训练和比赛，连接到家长认可、续费行动与机构经营。</text>
+    <view wx:elif="{{hasMatchTasks}}" class="match-task-card" bindtap="openHomeTask">
+      <view class="task-card-head">
+        <text class="task-role">{{homeTask.roleText}}</text>
+        <text class="task-status">{{homeTask.statusText}}</text>
+      </view>
+      <text class="task-title">{{homeTask.matchText}}</text>
+      <text class="task-meta">{{homeTask.dateText}} · {{homeTask.venueText}}</text>
+      <view class="task-progress">
+        <view><text>任务状态</text><text>{{homeTask.statusText}}</text></view>
+        <view><text>赛程版本</text><text>V{{homeTask.scheduleVersion}}</text></view>
+        <view><text>待处理</text><text>{{homeTaskCount}}</text></view>
+      </view>
+      <view class="task-card-action">
+        <text>{{homeTask.cardActionText}}</text>
+        <text>›</text>
+      </view>
+    </view>
 
-        <view class="version-chain">
-          <view class="version-chain-item"><text class="version-chain-no">01</text><text class="version-chain-title">训练</text><text class="version-chain-note">计划 · 出勤 · 评价</text></view>
-          <view class="version-chain-item"><text class="version-chain-no">02</text><text class="version-chain-title">比赛</text><text class="version-chain-note">计分 · 统计 · 高光</text></view>
-          <view class="version-chain-item"><text class="version-chain-no">03</text><text class="version-chain-title">家长价值</text><text class="version-chain-note">报告 · 周报</text></view>
-          <view class="version-chain-item"><text class="version-chain-no">04</text><text class="version-chain-title">经营动作</text><text class="version-chain-note">续费 · 召回</text></view>
-        </view>
-
-        <view class="version-benefits">
-          <view class="version-benefit"><text>校区负责人</text><text>先看结果再行动</text></view>
-          <view class="version-benefit"><text>教练工作端</text><text>聚焦把课上好</text></view>
-          <view class="version-benefit"><text>PC主控台</text><text>角色权限与数据</text></view>
-        </view>
-
-        <view class="version-conversion">
-          <view><text class="version-conversion-label">从一个校区开始试点</text><text class="version-conversion-note">识别 · 分配 · 执行 · 复盘</text></view>
-          <text class="version-conversion-action">了解平台 ›</text>
-        </view>
+    <view wx:else class="match-task-card task-empty-card" bindtap="openTaskEntry">
+      <view class="task-card-head">
+        <text class="task-role">比赛任务</text>
+        <text class="task-status">首页处理</text>
+      </view>
+      <view class="task-empty-symbol"><view></view><view></view><view></view></view>
+      <text class="task-title task-empty-title">{{taskEmptyTitle}}</text>
+      <text class="task-note task-empty-note">{{taskEmptyNote}}</text>
+      <view class="task-card-action">
+        <text>{{taskEmptyAction}}</text>
+        <text>›</text>
       </view>
     </view>
   </view>
 
-  <sxf-tabbar active="home" />
+  <view wx:if="{{showTaskCenter}}" class="task-center-mask" catchtap="closeTaskCenter">
+    <view class="task-center-sheet" catchtap="stopTaskBubble">
+      <view class="task-center-handle"></view>
+      <view class="task-center-head">
+        <button wx:if="{{showTaskDetail}}" class="task-center-back" bindtap="showTaskList">‹</button>
+        <view class="task-center-title-wrap">
+          <text wx:if="{{showTaskDetail}}" class="task-center-title">比赛任务</text>
+          <text wx:else class="task-center-title">我的比赛任务</text>
+          <text class="task-center-subtitle">所有操作均在首页完成</text>
+        </view>
+        <button class="task-center-close" bindtap="closeTaskCenter">×</button>
+      </view>
+
+      <scroll-view wx:if="{{!showTaskDetail}}" class="task-center-list" scroll-y="true">
+        <view wx:if="{{taskListEmpty}}" class="task-center-empty">
+          <text>暂无比赛任务</text>
+          <text>新任务会直接出现在首页</text>
+        </view>
+        <view wx:for="{{matchTasks}}" wx:key="cardId" class="task-list-item" data-id="{{item.matchTaskId}}" bindtap="selectMatchTask">
+          <view class="task-list-top">
+            <text class="task-list-role">{{item.roleText}}</text>
+            <text class="task-list-status">{{item.statusText}}</text>
+          </view>
+          <text class="task-list-match">{{item.matchText}}</text>
+          <text class="task-list-meta">{{item.dateText}} · {{item.venueText}}</text>
+          <view class="task-list-action"><text>{{item.actionText}}</text><text>›</text></view>
+        </view>
+      </scroll-view>
+
+      <scroll-view wx:else class="task-detail-scroll" scroll-y="true">
+        <view class="task-detail-card">
+          <view class="task-detail-tags"><text>{{selectedTask.roleText}}</text><text>{{selectedTask.statusText}}</text></view>
+          <text class="task-detail-match">{{selectedTask.matchText}}</text>
+          <view class="task-detail-row"><text>时间</text><text class="task-detail-value">{{selectedTask.dateText}}</text></view>
+          <view class="task-detail-row"><text>场地</text><text class="task-detail-value">{{selectedTask.venueText}}</text></view>
+          <view class="task-detail-row"><text>赛程</text><text class="task-detail-value">V{{selectedTask.scheduleVersion}}</text></view>
+        </view>
+
+        <view wx:if="{{selectedTask.isTeamTask}}" class="task-team-progress">
+          <text class="task-block-title">本队赛前准备</text>
+          <view class="task-team-grid">
+            <view><text>比赛名单</text><text class="task-team-value">{{taskRosterStatus}}</text></view>
+            <view><text>助教加入</text><text class="task-team-value">{{taskAssistantStatus}}</text></view>
+          </view>
+          <text class="task-block-note">名单、首发和助教均从本场任务进入，不跳转赛事或球员页面。</text>
+        </view>
+
+        <view class="task-detail-actions">
+          <button class="task-primary-action" loading="{{taskActionBusy}}" disabled="{{taskActionBusy}}" bindtap="runTaskPrimaryAction">{{selectedTask.actionText}}</button>
+          <button wx:if="{{selectedTask.canReject}}" class="task-reject-action" disabled="{{taskActionBusy}}" bindtap="rejectSelectedTask">拒绝任务</button>
+        </view>
+        <text class="task-wait-note">现场入口由数据管理员开放，开放不会自动开始计时。</text>
+      </scroll-view>
+    </view>
+  </view>
+
+  <view wx:if="{{showRosterEditor}}" class="roster-editor-mask" catchtap="closeRosterEditor">
+    <view class="roster-editor-sheet" catchtap="stopTaskBubble">
+      <view class="roster-editor-head">
+        <view><text class="roster-editor-title">本场名单</text><text class="roster-editor-subtitle">参赛 {{rosterSelectedCount}} 人 · 首发 {{rosterStarterCount}} 人</text></view>
+        <button class="task-center-close" bindtap="closeRosterEditor">×</button>
+      </view>
+      <view wx:if="{{rosterLocked}}" class="roster-locked-tip">比赛已启动，名单不可修改</view>
+      <scroll-view class="roster-player-list" scroll-y="true">
+        <view wx:if="{{rosterPlayersEmpty}}" class="roster-empty">本队球员库暂无数据，请由机构后台补齐后刷新首页。</view>
+        <view wx:for="{{rosterPlayers}}" wx:key="playerId" class="{{item.rowClass}}" data-id="{{item.playerId}}" bindtap="toggleRosterPlayer">
+          <view class="roster-number">{{item.number}}</view>
+          <text class="roster-name">{{item.name}}</text>
+          <button class="{{item.starterClass}}" data-id="{{item.playerId}}" catchtap="toggleRosterStarter">首发</button>
+          <text class="roster-check">✓</text>
+        </view>
+      </scroll-view>
+      <button class="roster-submit" loading="{{taskActionBusy}}" disabled="{{rosterLocked}}" bindtap="submitTaskRoster">提交本场名单</button>
+    </view>
+  </view>
+
+  <sxf-tabbar active="home" tournament-badge-count="{{tournamentTaskCount}}" />
 </view>

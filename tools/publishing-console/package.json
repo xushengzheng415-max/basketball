@@ -1,0 +1,61 @@
+{
+  "name": "publishing-console",
+  "version": "0.5.3",
+  "private": true,
+  "author": "赛小蜂篮球",
+  "description": "Local control center for multi-platform content distribution",
+  "main": "electron/main.js",
+  "bin": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "start:desktop": "electron .",
+    "check": "node --check server.js && node --check public/app.js && node --check electron/main.js && node --check electron/preload.js",
+    "build:exe": "npx --yes @yao-pkg/pkg . --targets node20-win-x64 --output dist/多平台发文控制台.exe && powershell -NoProfile -ExecutionPolicy Bypass -File scripts/patch-gui.ps1 dist/多平台发文控制台.exe",
+    "build:desktop": "electron-builder --win portable --x64"
+  },
+  "pkg": {
+    "assets": [
+      "public/**/*"
+    ],
+    "outputPath": "dist"
+  },
+  "build": {
+    "appId": "com.saixiaofeng.publishingconsole",
+    "productName": "多平台发文控制台",
+    "asar": true,
+    "electronDist": "node_modules/electron/dist",
+    "files": [
+      "server.js",
+      "public/**/*",
+      "electron/**/*",
+      "package.json"
+    ],
+    "extraResources": [
+      {
+        "from": "webview2-host/dist",
+        "to": "webview2-host",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "directories": {
+      "output": "dist-desktop"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "多平台发文控制台.exe"
+    }
+  },
+  "devDependencies": {
+    "electron": "^40.0.0",
+    "electron-builder": "^26.15.3"
+  }
+}

@@ -1,6 +1,7 @@
 const ASSET_BASE = '/assets/pages/player-add/';
-const { pullRoster, pushRoster, resolveImageUrl } = require('../../utils/roster-sync');
+const { pullRoster, pushRoster, scheduleRosterPush, resolveImageUrl } = require('../../utils/roster-sync');
 const { cloud } = require('../../utils/cloud');
+const { belongsToTeam, membershipFields, selectionFromPlayer } = require('../../utils/player-team-membership');
 const DATA_RESET_VERSION = 'player-real-data-20260708';
 const TEAM_ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/team/';
 
@@ -20,8 +21,22 @@ function normalizeText(value) {
   return String(value || '').trim();
 }
 
+function decodeQueryValue(value) {
+  try {
+    return decodeURIComponent(String(value || ''));
+  } catch (error) {
+    return String(value || '');
+  }
+}
+
 function normalizeNumber(value) {
   return String(value || '').replace(/[^0-9]/g, '').slice(0, 2);
+}
+
+function imageExtension(filePath) {
+  const match = String(filePath || '').match(/\.([a-zA-Z0-9]+)(?:\?|$)/);
+  const extension = match ? match[1].toLowerCase() : 'jpg';
+  return ['jpg', 'jpeg', 'png', 'bmp'].includes(extension) ? extension : 'jpg';
 }
 
 function buildNumberOptions(start, end, unit) {
@@ -66,6 +81,13 @@ function getTeams() {
   const source = Object.keys(map).length ? Object.keys(map).map((key) => map[key]) : DEFAULT_CATEGORIES;
   const availableTeams = source.filter((item) => item.key !== 'all' && item.key !== 'unassigned');
   return [NO_TEAM_OPTION].concat(availableTeams);
+}
+
+function decorateTeams(teams, selectedIds) {
+  const selected = new Set((selectedIds || []).map(String));
+  return (teams || []).filter((team) => team && team.key !== 'unassigned').map((team) => Object.assign({}, team, {
+    selectedClass: selected.has(String(team.key)) ? 'active' : ''
+  }));
 }
 
 function makeSimpleTeamKey(label) {
@@ -138,6 +160,11 @@ Page({
     teamText: '无',
     teamPlaceholderClass: '',
     teamIndex: 0,
+    selectedTeamIds: [],
+    selectedTeamNames: [],
+    teamOptions: [],
+    requestedTeamKey: '',
+    requestedTeamName: '',
     teams: [],
     positions: [
       { key: 'PG', activeClass: 'active' },
@@ -158,10 +185,6 @@ Page({
     age: '',
     guardian: '',
     phone: '',
-    identityStatus: '待校验',
-    insuranceStatus: '未上传',
-    remark: '',
-    remarkCountText: '0/200',
     showCropper: false,
     cropSrc: '',
     cropX: 0,
@@ -172,20 +195,50 @@ Page({
     cropImageHeight: 0
   },
 
-  onLoad(options) {
+  onLoad(options = {}) {
     ensureRealDataReset();
     const teams = getTeams();
-    this.setData({ teams });
+    const requestedTeamKey = decodeQueryValue(options.teamKey);
+    const requestedTeamName = decodeQueryValue(options.teamName);
+    this.setData({ teams, teamOptions: decorateTeams(teams, []), requestedTeamKey, requestedTeamName });
     if (options && options.mode === 'edit' && options.id) {
       this.loadPlayerForEdit(options.id, teams);
+    } else {
+      this.applyRequestedTeam(teams, requestedTeamKey, requestedTeamName);
     }
     pullRoster().then(() => {
       const syncedTeams = getTeams();
-      this.setData({ teams: syncedTeams });
+      this.setData({ teams: syncedTeams, teamOptions: decorateTeams(syncedTeams, this.data.selectedTeamIds) });
       if (options && options.mode === 'edit' && options.id && !this.avatarChanged) {
         this.loadPlayerForEdit(options.id, syncedTeams);
+      } else {
+        this.applyRequestedTeam(syncedTeams, this.data.requestedTeamKey, this.data.requestedTeamName);
       }
     }).catch((error) => console.warn('[player-add] pull roster failed', error));
+  },
+
+  applyRequestedTeam(teams, teamKey, teamName) {
+    const requestedKey = normalizeText(teamKey);
+    const requestedName = normalizeText(teamName);
+    if (!requestedKey && !requestedName) return;
+    const index = (teams || []).findIndex((team) => {
+      if (!team || team.key === 'unassigned') return false;
+      return normalizeText(team.key) === requestedKey || normalizeText(team.label) === requestedName;
+    });
+    if (index < 0) return;
+    const team = teams[index];
+    const selectedTeamIds = Array.from(new Set((this.data.selectedTeamIds || []).concat(String(team.key))));
+    const selectedTeams = (teams || []).filter((item) => selectedTeamIds.includes(String(item.key)));
+    const membership = membershipFields(selectedTeams);
+    this.setData({
+      teamIndex: index,
+      team: membership.team,
+      teamText: membership.teamNames.join('、') || '无',
+      teamPlaceholderClass: '',
+      selectedTeamIds: membership.teamIds,
+      selectedTeamNames: membership.teamNames,
+      teamOptions: decorateTeams(teams, membership.teamIds)
+    });
   },
 
   onShow() {
@@ -235,23 +288,22 @@ Page({
     const field = event.currentTarget.dataset.field;
     let value = event.detail.value;
     if (field === 'number') value = normalizeNumber(value);
-    if (field === 'remark') {
-      value = String(value || '').slice(0, 200);
-      this.setData({ remark: value, remarkCountText: `${value.length}/200` });
-      return;
-    }
     this.setData({ [field]: value });
   },
 
-  onTeamChange(event) {
-    const index = Number(event.detail.value);
-    const team = this.data.teams[index];
-    const teamValue = team && team.key !== 'unassigned' ? team.label : '';
+  onTeamToggle(event) {
+    const key = String(event.currentTarget.dataset.key || '');
+    const selected = new Set((this.data.selectedTeamIds || []).map(String));
+    if (selected.has(key)) selected.delete(key); else selected.add(key);
+    const selectedTeams = (this.data.teams || []).filter((team) => selected.has(String(team.key)));
+    const membership = membershipFields(selectedTeams);
     this.setData({
-      teamIndex: index,
-      team: teamValue,
-      teamText: team ? team.label : '无',
-      teamPlaceholderClass: ''
+      team: membership.team,
+      teamText: membership.teamNames.join('、') || '无',
+      selectedTeamIds: membership.teamIds,
+      selectedTeamNames: membership.teamNames,
+      teamOptions: decorateTeams(this.data.teams, membership.teamIds),
+      teamPlaceholderClass: membership.teamIds.length ? '' : 'placeholder'
     });
   },
 
@@ -303,12 +355,13 @@ Page({
     }
     if (teamIndex < 0) teamIndex = 0;
 
+    const selectedTeams = selectionFromPlayer(player, nextTeams);
+    const membership = membershipFields(selectedTeams);
     const position = parsePosition(player);
     const positions = this.data.positions.map((item) => ({
       key: item.key,
       activeClass: item.key === position ? 'active' : ''
     }));
-    const remark = player.remark || '';
     const height = clampNumber(parseHeight(player), 100, 230, 160);
     const weight = clampNumber(parseWeight(player), 20, 120, 35);
     const heightIndex = findOptionIndex(this.data.heightOptions, height, 'cm');
@@ -326,9 +379,12 @@ Page({
       name: player.name || '',
       number: normalizeNumber(player.number),
       team: teamLabel,
-      teamText: teamLabel || '无',
+      teamText: membership.teamNames.join('、') || teamLabel || '无',
       teamPlaceholderClass: '',
       teamIndex,
+      selectedTeamIds: membership.teamIds,
+      selectedTeamNames: membership.teamNames,
+      teamOptions: decorateTeams(nextTeams, membership.teamIds),
       position,
       positions,
       height,
@@ -340,10 +396,6 @@ Page({
       age: parseAge(player),
       guardian: player.guardian || '',
       phone: player.phone || '',
-      identityStatus: player.identityStatus || '待校验',
-      insuranceStatus: player.insuranceStatus || '未上传',
-      remark,
-      remarkCountText: `${remark.length}/200`
     });
   },
 
@@ -625,20 +677,26 @@ Page({
         resolve(tempFilePath || '');
         return;
       }
-    if (!cloud || !cloud.uploadFile) {
-        reject(new Error('云存储未初始化'));
+      if (!cloud || !cloud.callFunction) {
+        reject(new Error('云端人像抠图服务未初始化'));
         return;
       }
-      const random = Math.random().toString(36).slice(2, 8);
-    cloud.uploadFile({
-        cloudPath: `player-avatars/${Date.now()}-${random}.jpg`,
+      const fileSystem = wx.getFileSystemManager();
+      fileSystem.readFile({
         filePath: tempFilePath,
-        success: (res) => {
-          if (res && res.fileID) {
-            resolve(res.fileID);
-            return;
-          }
-          reject(new Error('头像上传未返回云文件 ID'));
+        encoding: 'base64',
+        success: (file) => {
+          cloud.callFunction({
+            name: 'sxUploadAvatar',
+            data: { base64: file.data, ext: imageExtension(tempFilePath), removeBackground: true }
+          }).then((response) => {
+            const result = response && response.result ? response.result : response;
+            if (!result || result.ok !== true || !result.fileID) {
+              reject(new Error(result && result.error || '人像抠图未返回透明头像'));
+              return;
+            }
+            resolve(result.fileID);
+          }).catch(reject);
         },
         fail: reject
       });
@@ -646,6 +704,7 @@ Page({
   },
 
   finishCropWithAvatar(tempFilePath, toastTitle) {
+    wx.showLoading({ title: '智能抠图中' });
     this.persistAvatarFile(tempFilePath)
       .then((avatarPath) => {
         this.avatarChanged = true;
@@ -655,11 +714,11 @@ Page({
           showCropper: false,
           cropSrc: ''
         });
-        wx.showToast({ title: toastTitle || '头像已上传', icon: 'success' });
+        wx.showToast({ title: toastTitle || '透明头像已生成', icon: 'success' });
       })
       .catch((error) => {
         console.warn('[player-add] upload avatar failed', error);
-        wx.showToast({ title: '头像上传失败，请检查网络后重试', icon: 'none' });
+        wx.showToast({ title: error.message || '人像抠图失败，请重试', icon: 'none' });
       })
       .finally(() => wx.hideLoading());
   },
@@ -668,10 +727,6 @@ Page({
     if (!this.data.cropSrc) return;
     wx.showLoading({ title: '保存头像' });
     this.finishCropWithAvatar(this.data.cropSrc, '已使用原图');
-  },
-
-  openInsurance() {
-    wx.showToast({ title: '保险上传能力即将开放', icon: 'none' });
   },
 
   validateForm() {
@@ -685,11 +740,12 @@ Page({
     if (!name) return '请输入球员姓名';
     if (!number) return '请输入球衣号码';
     if (Number(number) < 1 || Number(number) > 99) return '球衣号码为 1-99';
-    const numberUsedInSameTeam = !!team && storedPlayers.some((player) => {
+    const selectedTeams = (this.data.teams || []).filter((item) => (this.data.selectedTeamIds || []).includes(String(item.key)));
+    const numberUsedInSameTeam = selectedTeams.length > 0 && storedPlayers.some((player) => {
       if (String(player.id) === String(this.data.editId)) return false;
-      return normalizeNumber(player.number) === number && normalizeText(player.team) === team;
+      return normalizeNumber(player.number) === number && selectedTeams.some((item) => belongsToTeam(player, item));
     });
-    if (numberUsedInSameTeam) return `${team}${number}号已被占用`;
+    if (numberUsedInSameTeam) return `所选球队中${number}号已被占用`;
     if (!age) return '请输入年龄';
     if (!phone) return '请输入联系电话';
     return '';
@@ -701,17 +757,27 @@ Page({
       return;
     }
 
-    const teamKey = makeKey(this.data.team);
+    const selectedTeams = (this.data.teams || []).filter((item) => (this.data.selectedTeamIds || []).includes(String(item.key)));
+    const membership = membershipFields(selectedTeams);
+    const teamKey = membership.filter;
     wx.showLoading({ title: '保存球员' });
-    this.persistAvatarFile(this.data.avatar || '')
+    let avatarUploaded = true;
+    Promise.resolve(this.persistAvatarFile(this.data.avatar || ''))
+      .catch((uploadError) => {
+        avatarUploaded = false;
+        console.warn('[player-add] save avatar sync failed, fallback local avatar', uploadError);
+        return this.data.avatar || this.data.assets.avatarPlaceholder;
+      })
       .then(async (avatarPath) => {
         const storedPlayers = wx.getStorageSync('players') || [];
         const player = {
           id: this.data.editId || `player-${Date.now()}`,
           name: normalizeText(this.data.name),
           number: normalizeNumber(this.data.number),
-          team: normalizeText(this.data.team),
-          filter: teamKey,
+          team: membership.team,
+          filter: membership.filter,
+          teamIds: membership.teamIds,
+          teamNames: membership.teamNames,
           avatarFileID: avatarPath || this.data.assets.avatarPlaceholder,
           avatar: avatarPath || this.data.assets.avatarPlaceholder,
           teamLogoFileID: getTeamLogo(teamKey),
@@ -723,9 +789,6 @@ Page({
           age: normalizeNumber(this.data.age),
           guardian: normalizeText(this.data.guardian),
           phone: normalizeText(this.data.phone),
-          identityStatus: this.data.identityStatus,
-          insuranceStatus: this.data.insuranceStatus,
-          remark: normalizeText(this.data.remark),
           createdAt: Date.now()
         };
 
@@ -738,17 +801,32 @@ Page({
             updatedAt: Date.now()
           } : item)));
         } else {
-          wx.setStorageSync('players', storedPlayers.concat(player));
+          wx.setStorageSync('players', [player].concat(storedPlayers));
         }
-        await pushRoster();
-        wx.showToast({ title: this.data.mode === 'edit' ? '已更新' : '已保存', icon: 'success' });
+        let synced = true;
+        try {
+          await pushRoster();
+        } catch (syncError) {
+          synced = false;
+          console.warn('[player-add] push roster failed, schedule retry', syncError);
+          scheduleRosterPush(3000);
+        }
+        wx.showToast({
+          title: this.data.mode === 'edit'
+            ? (synced ? '已更新' : '已更新，云端稍后同步')
+            : (synced ? '已保存' : '已保存，云端稍后同步'),
+          icon: 'success'
+        });
+        if (!avatarUploaded) {
+          wx.showToast({ title: '头像同步失败，已保存本地', icon: 'none' });
+        }
         setTimeout(() => {
           wx.navigateBack({ fail: () => wx.redirectTo({ url: '/pages/team/index' }) });
         }, 500);
       })
       .catch((uploadError) => {
-        console.warn('[player-add] save avatar sync failed', uploadError);
-        wx.showToast({ title: '头像同步失败，请重试', icon: 'none' });
+        console.warn('[player-add] save failed', uploadError);
+        wx.showToast({ title: '保存失败，请重试', icon: 'none' });
       })
       .finally(() => wx.hideLoading());
   }

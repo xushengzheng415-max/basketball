@@ -42,7 +42,7 @@
     </scroll-view>
 
     <view class="summary-card">
-      <view class="summary-item">
+      <view class="summary-item clickable" data-filter="all" bindtap="onSummaryTap">
         <image class="summary-icon total" src="{{assets.summaryTotal}}" mode="aspectFit" />
         <view class="summary-copy">
           <text class="summary-label">球员总数</text>
@@ -50,7 +50,7 @@
         </view>
       </view>
       <view class="summary-divider"></view>
-      <view class="summary-item">
+      <view class="summary-item clickable" data-filter="assigned" bindtap="onSummaryTap">
         <image class="summary-icon assigned" src="{{assets.summaryAssigned}}" mode="aspectFit" />
         <view class="summary-copy">
           <text class="summary-label">已分队</text>
@@ -58,7 +58,7 @@
         </view>
       </view>
       <view class="summary-divider"></view>
-      <view class="summary-item compact">
+      <view class="summary-item compact clickable" data-filter="unassigned" bindtap="onSummaryTap">
         <image class="summary-icon unassigned" src="{{assets.summaryUnassigned}}" mode="aspectFit" />
         <view class="summary-copy">
           <text class="summary-label">未分队</text>
@@ -76,7 +76,7 @@
             <text class="jersey">#{{item.number}}</text>
             <text class="player-name">{{item.name}}</text>
           </view>
-          <view class="team-row">
+          <view class="team-row clickable" data-id="{{item.id}}" bindtap="onEditPlayer">
             <image class="team-logo" src="{{item.teamLogo}}" mode="aspectFit" />
             <text class="team-name">{{item.team}}</text>
           </view>

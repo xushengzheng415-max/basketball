@@ -181,7 +181,7 @@ function undoLastAction() {
 
 篮球计分板不是单纯的数字面板。把时间当作独立状态，把暂停当作完整业务动作，把撤销设计成关联状态恢复，后续增加节次、犯规、球员统计和赛果保存时会更容易控制。
 
-完整的现场操作顺序可参考：[篮球比赛现场计分指南](https://54football.top/guides/basketball-scoring.html)。
+完整的现场操作顺序可参考：[篮球比赛现场计分指南](https://www.sxfbasketball.cn/guides/basketball-scoring.html)。
 
 ---
 

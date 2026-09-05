@@ -1,9 +1,6 @@
-# 蜂家日记：自动写作到公众号草稿箱
+# 麦步赛事公众号草稿工具
 
-这套工具完成两件事：
-
-1. 根据同一个选题自动生成“一篇篮球培训行业主文 + 一篇《蜂家日记》”；
-2. 通过微信公众平台官方接口把文章放进“蜂狂篮球”草稿箱。
+这套工具将篮球培训行业文章通过微信公众平台官方接口放入「麦步赛事」草稿箱。
 
 它**不会自动群发或发布**。每篇文章仍应在公众号后台完成事实核对、排版预览和人工确认。
 
@@ -22,17 +19,17 @@
 node tools/wechat-official/wechat-draft.js doctor
 ```
 
-成功时会返回当前草稿数量。若返回「api unauthorized」，请在公众号后台的「接口权限」中确认账号是否拥有草稿箱接口。个人主体、未认证账号的接口能力以后台实际显示为准。
+成功时会返回当前草稿数量。若返回「api unauthorized」，请在公众号后台的「接口权限」中确认账号是否拥有草稿箱接口。
 
 ## 自动生成并写入草稿箱
 
 先准备一份 UTF-8 文本资料，例如赛事实录、采访整理、人物资料或活动复盘。资料里的事实越完整，文章越可靠。
 
 ```powershell
-node tools/wechat-official/wechat-draft.js run --topic "输掉比赛以后，孩子真正学到的东西" --briefing .\采访整理.txt --cover .\封面.jpg
+node tools/wechat-official/wechat-draft.js run --topic "本周选题" --briefing .\资料.txt --cover .\封面.jpg
 ```
 
-生成的双篇文章 JSON 会先保存在 `tools/wechat-official/output/`，随后作为同一组图文写入公众号草稿箱。主文提供行业判断和方法，《蜂家日记》延续现场叙事；默认不宣传赛小蜂篮球产品。
+生成的文章 JSON 会先保存在 `tools/wechat-official/output/`，随后写入公众号草稿箱。
 
 ## 分两步操作
 
@@ -49,8 +46,6 @@ node tools/wechat-official/wechat-draft.js draft --input .\tools\wechat-official
 ```
 
 如果公众号素材库已有固定封面，可把其永久素材 ID 填入 `WECHAT_THUMB_MEDIA_ID`，之后无需每次传 `--cover`。
-
-双篇 JSON 也可以分别设置 `cover_path`，工具会为每篇上传独立封面。正文中的图片使用占位符，并在 `content_images` 中记录本地路径、图注和来源；写入草稿时工具会先把图片转存到微信，再替换正文占位符。
 
 ## 常见错误
 

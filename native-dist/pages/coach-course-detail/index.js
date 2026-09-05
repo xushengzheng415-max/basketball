@@ -1,2 +1,106 @@
-const ROOT='cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
-Page({data:{modules:[{order:1,title:'动态热身',minutes:10},{order:2,title:'球感与原地控球',minutes:20},{order:3,title:'行进间变向',minutes:25},{order:4,title:'小组攻防对抗',minutes:25},{order:5,title:'拉伸与总结',minutes:10}],students:[{id:'s1',name:'林浩',number:'23',state:'正常',avatar:ROOT+'pages/team/avatar-linhao.png'},{id:'s2',name:'刘宇辰',number:'8',state:'请假',avatar:ROOT+'pages/team/avatar-liuyuchen.png'},{id:'s3',name:'张子轩',number:'11',state:'补课',avatar:ROOT+'pages/team/avatar-zhangzixuan.png'},{id:'s4',name:'赵子墨',number:'5',state:'正常',avatar:ROOT+'pages/team/avatar-zhaozimo.png'}]},goBack(){const pages=getCurrentPages();if(pages.length>1){wx.navigateBack({delta:1});return}wx.redirectTo({url:'/pages/coach-courses/index'})},openPlan(){wx.navigateTo({url:'/pages/coach-course-plan/index?id=course-2'})},openAttendance(){wx.navigateTo({url:'/pages/coach-attendance/index?id=course-2'})},openStudent(e){wx.navigateTo({url:'/pages/coach-student-detail/index?id='+e.currentTarget.dataset.id})}});
+const { callCloud } = require("../../utils/cloud");
+Page({
+  data: {
+    navTop: 20,
+    navHeight: 44,
+    navSpacer: 80,
+    loading: true,
+    error: "",
+    lessonId: "",
+    lesson: null,
+    classInfo: null,
+    students: [],
+    studentsEmpty: true,
+    lessonTitle: "",
+    venueText: "未设置",
+    reviewStatus: "未提交",
+    submissionStatus: "未提交",
+    versionNumber: 0,
+    submission: null,
+  },
+  onLoad(options) {
+    let navTop = 20,
+      navHeight = 44;
+    try {
+      const menu =
+        wx.getMenuButtonBoundingClientRect &&
+        wx.getMenuButtonBoundingClientRect();
+      if (menu && menu.top) {
+        navTop = menu.top;
+        navHeight = menu.height || 32;
+      }
+    } catch (_) {}
+    const lessonId = options && String(options.lessonId || options.id || "");
+    this.setData({
+      navTop,
+      navHeight,
+      navSpacer: navTop + navHeight + 16,
+      lessonId,
+    });
+    this.load();
+  },
+  load() {
+    if (!this.data.lessonId) {
+      this.setData({ loading: false, error: "课堂编号缺失" });
+      return;
+    }
+    this.setData({ loading: true, error: "" });
+    callCloud("sxEducationCore", {
+      domain: "lesson",
+      action: "detail",
+      lessonId: this.data.lessonId,
+    })
+      .then((result) => {
+        if (!result || !result.ok)
+          throw new Error((result && result.message) || "课堂读取失败");
+        this.setData({
+          loading: false,
+          lesson: result.lesson,
+          classInfo: result.classInfo,
+          lessonTitle:
+            result.lesson.className ||
+            (result.classInfo && result.classInfo.name) ||
+            "课堂",
+          venueText: result.lesson.venue || "未设置",
+          reviewStatus:
+            (result.submission && result.submission.reviewStatus) ||
+            result.lesson.status ||
+            "未提交",
+          submissionStatus:
+            (result.submission && result.submission.status) || "未提交",
+          versionNumber: Number(result.lesson.version || 0),
+          students: (result.students || []).map((item) => ({
+            ...item,
+            initial: String(item.name || "学").slice(0, 1),
+            genderText: item.gender || "",
+          })),
+          studentsEmpty: !(result.students || []).length,
+          submission: result.submission || null,
+        });
+      })
+      .catch((error) =>
+        this.setData({ loading: false, error: error.message || "课堂读取失败" })
+      );
+  },
+  goBack() {
+    wx.navigateBack({
+      delta: 1,
+      fail: () => wx.switchTab({ url: "/pages/education/index" }),
+    });
+  },
+  openAttendance() {
+    wx.navigateTo({
+      url:
+        "/pages/coach-attendance/index?lessonId=" +
+        encodeURIComponent(this.data.lessonId),
+    });
+  },
+  openEvaluation() {
+    wx.showModal({
+      title: "请先完成课堂点名",
+      content:
+        "当前页面已清除演示评价数据。完成点名并保存课堂草稿后，再进入真实五维评价流程。",
+      showCancel: false,
+    });
+  },
+});

@@ -15,12 +15,22 @@ function initCloud() {
   if (!wx.cloud || !wx.cloud.Cloud) {
     return Promise.reject(new Error('wx.cloud.Cloud unavailable'));
   }
-  if (!sharedCloud) {
-    sharedCloud = new wx.cloud.Cloud({
+  if (!cloudReady) {
+    const instance = new wx.cloud.Cloud({
       resourceAppid: RESOURCE_APPID,
       resourceEnv: RESOURCE_ENV
     });
-    cloudReady = Promise.resolve(sharedCloud.init()).then(() => sharedCloud);
+    sharedCloud = instance;
+    // 关键：init() 失败时把 cloudReady/sharedCloud 复位为 null，
+    // 下次调用重新创建实例并重试，避免 rejected Promise 被永久缓存导致该设备永远登录失败。
+    cloudReady = instance.init()
+      .then(() => instance)
+      .catch((error) => {
+        sharedCloud = null;
+        cloudReady = null;
+        console.warn('[cloud] shared environment init failed, will retry on next call', error);
+        throw error;
+      });
   }
   return cloudReady;
 }
@@ -78,6 +88,9 @@ function callCloud(name, data) {
     return { ok: false, error };
   });
 }
+
+// 业务小程序自身云环境（曾用于 getPhoneNumber，现已改为在 sxLogin 云函数内
+// 直接用赛小蜂篮球 appid+AppSecret 兑换，不再依赖第二个云环境）
 
 function normalizeCloudFileID(value) {
   if (typeof value !== 'string') return value;

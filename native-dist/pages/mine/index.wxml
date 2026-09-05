@@ -7,28 +7,31 @@
       <view class="back-hit" bindtap="goBack">
         <image class="back-icon" src="{{staticAssets.back}}" mode="aspectFit" />
       </view>
-      <text class="nav-title">个人资料修改</text>
+      <text class="nav-title">我的</text>
     </view>
   </view>
 
   <view class="content-area">
     <view class="profile-card">
-      <button class="avatar-button" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar">
+      <view class="avatar-wrapper">
         <image wx:if="{{draft.avatarUrl}}" class="avatar-img" src="{{draft.avatarUrl}}" mode="aspectFill" />
         <image wx:else class="avatar-img" src="{{staticAssets.defaultAvatar}}" mode="aspectFit" />
-      </button>
+        <button class="avatar-overlay" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar"></button>
+      </view>
       <view class="profile-copy">
-        <input class="profile-name-input" type="nickname" value="{{draft.nickName}}" placeholder="校区管理员" bindinput="onDraftInput" data-field="nickName" />
-        <view class="change-avatar" bindtap="promptAvatar">更换头像</view>
+        <text class="profile-name">{{draft.nickName || '微信用户'}}</text>
+        <view class="change-avatar-wrapper">
+          <view class="change-avatar">更换头像</view>
+          <button class="change-avatar-overlay" open-type="chooseAvatar" bindchooseavatar="onChooseAvatar"></button>
+        </view>
       </view>
     </view>
 
     <view class="form-panel">
-      <view wx:for="{{formRows}}" wx:key="field" class="form-row" data-field="{{item.field}}" data-label="{{item.label}}" data-value="{{item.value}}" bindtap="onFormRowTap">
+      <view wx:for="{{formRows}}" wx:key="field" class="form-row">
         <image class="row-icon" src="{{item.icon}}" mode="aspectFit" />
         <text class="row-label">{{item.label}}</text>
-        <input wx:if="{{item.editable}}" class="row-input" value="{{item.value}}" placeholder="{{item.placeholder}}" data-field="{{item.field}}" bindinput="onDraftInput" />
-        <text wx:else class="row-value {{item.valueClass}}">{{item.value}}</text>
+        <text class="row-value {{item.valueClass}}">{{item.value}}</text>
           <image wx:if="{{item.showChevron}}" class="row-chevron" src="{{staticAssets.chevron}}" mode="aspectFit" />
       </view>
     </view>
@@ -62,10 +65,6 @@
     </view>
 
     <view class="page-actions">
-      <view class="save-button" bindtap="saveProfile">
-      <image class="save-icon" src="{{staticAssets.save}}" mode="aspectFit" />
-        <text>保存资料</text>
-      </view>
       <view class="logout-button" bindtap="logout">
         <text>退出登录</text>
       </view>

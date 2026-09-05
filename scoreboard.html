@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#05080d">
+  <meta name="robots" content="noindex,nofollow">
+  <title>赛小蜂篮球 · 现场大屏</title>
+  <link rel="stylesheet" href="./website-assets/scoreboard.css">
+  <link rel="stylesheet" href="./website-assets/scoreboard-display.css">
+</head>
+<body>
+  <main id="app" class="screen is-pairing">
+    <section id="pairing" class="pairing" aria-labelledby="pairingTitle">
+      <div class="brand-mark"><span></span>赛小蜂篮球</div>
+      <p class="eyebrow">LIVE SCOREBOARD</p>
+      <h1 id="pairingTitle">连接现场计分台</h1>
+      <p class="pairing-copy">输入裁判计分台显示的6位大屏码</p>
+      <form id="pairingForm" class="code-form">
+        <label for="codeInput">大屏码</label>
+        <input id="codeInput" name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autofocus>
+        <button type="submit">进入现场大屏</button>
+      </form>
+      <p id="pairingError" class="pairing-error" role="alert"></p>
+      <p class="pairing-help">建议使用电脑或迷你主机连接电视，并按 F11 进入全屏。</p>
+    </section>
+
+    <section id="board" class="board" aria-live="polite" hidden>
+      <header class="board-header">
+        <div class="brand-mark"><span></span>赛小蜂篮球</div>
+        <div class="match-heading">
+          <p id="matchMeta">现场比赛</p>
+          <h1 id="matchName">篮球比赛</h1>
+        </div>
+        <div id="connection" class="connection is-connecting"><i></i><span>连接中</span></div>
+      </header>
+
+      <div class="score-stage">
+        <article class="team team-home">
+          <div class="logo-wrap"><img id="homeLogo" alt="" hidden><span id="homeInitial">主</span></div>
+          <h2 id="homeName">主队</h2>
+          <strong id="homeScore" class="score digital-score" aria-label="主队 0 分"></strong>
+          <div class="team-stats"><span>犯规 <b id="homeFouls">0</b></span><span>暂停 <b id="homeTimeouts">0</b></span></div>
+        </article>
+
+        <section class="game-clock">
+          <div id="gameStatus" class="game-status">比赛准备中</div>
+          <div id="clock" class="clock digital-clock" aria-label="比赛时间 10分00秒"></div>
+          <div class="period-row" aria-label="节次与球权"><span id="possessionLeft" class="possession-arrow is-active" aria-label="主队球权">←</span><span id="period" class="period-label">第 1 节</span><span id="possessionRight" class="possession-arrow" aria-label="客队无球权">→</span></div>
+          <div id="shotClockPanel" class="shot-clock-panel" hidden><small>进攻时间</small><strong id="shotClock">24</strong></div>
+        </section>
+
+        <article class="team team-away">
+          <div class="logo-wrap"><img id="awayLogo" alt="" hidden><span id="awayInitial">客</span></div>
+          <h2 id="awayName">客队</h2>
+          <strong id="awayScore" class="score digital-score" aria-label="客队 0 分"></strong>
+          <div class="team-stats"><span>犯规 <b id="awayFouls">0</b></span><span>暂停 <b id="awayTimeouts">0</b></span></div>
+        </article>
+      </div>
+
+      <footer class="board-footer">
+        <div><span class="live-dot"></span><span id="footerText">比分由裁判计分台实时同步</span></div>
+        <div class="footer-actions"><button id="changeCode" type="button">更换比赛</button><button id="fullscreen" type="button">全屏显示</button></div>
+      </footer>
+      <div id="offlineMask" class="offline-mask" hidden><strong>正在重新连接计分台</strong><span>画面保留最后一次同步结果</span></div>
+    </section>
+  </main>
+  <script src="./website-assets/scoreboard.js"></script>
+</body>
+</html>

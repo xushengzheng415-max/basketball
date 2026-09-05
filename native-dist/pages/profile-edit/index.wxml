@@ -1,0 +1,30 @@
+<view class="profile-edit-page">
+  <image class="page-bg" src="{{staticAssets.background}}" mode="aspectFill" />
+
+  <view class="top-area">
+    <view class="status-bar"></view>
+    <view class="nav-row">
+      <view class="back-hit" bindtap="goBack">
+        <image class="back-icon" src="{{staticAssets.back}}" mode="aspectFit" />
+      </view>
+      <text class="nav-title">个人资料修改</text>
+    </view>
+  </view>
+
+  <view class="content-area">
+    <view class="form-panel">
+      <view wx:for="{{formRows}}" wx:key="field" class="form-row">
+        <image class="row-icon" src="{{item.icon}}" mode="aspectFit" />
+        <text class="row-label">{{item.label}}</text>
+        <input wx:if="{{item.editable}}" class="row-input" value="{{item.value}}" placeholder="{{item.placeholder}}" data-field="{{item.field}}" bindinput="onDraftInput" />
+        <text wx:else class="row-value {{item.valueClass}}">{{item.value}}</text>
+      </view>
+    </view>
+
+    <view class="save-area">
+      <view class="save-button" bindtap="saveProfile">
+        <text>保存资料</text>
+      </view>
+    </view>
+  </view>
+</view>

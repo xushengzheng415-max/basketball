@@ -25,6 +25,25 @@ function phoneAuthErrorMessage(result) {
   return '手机号验证失败，请检查云函数日志';
 }
 
+// 登录云调用加前端重试：吸收云函数冷启动 / 共享云 init 偶发失败，
+// 避免「首次调用失败、退出重进才行」的问题（与 cloud.js 的 init 重试互补）。
+async function callCloudWithRetry(name, data, attempts = 3, delay = 400) {
+  let lastError = null;
+  for (let index = 0; index < attempts; index++) {
+    try {
+      const result = await callCloud(name, data);
+      if (result && result.ok) return result;
+      lastError = (result && result.error) || null;
+    } catch (error) {
+      lastError = error;
+    }
+    if (index < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delay));
+    }
+  }
+  return { ok: false, error: lastError };
+}
+
 Page({
   data: {
     agreed: false,
@@ -110,12 +129,29 @@ Page({
     wx.showLoading({ title: '登录中' });
 
     try {
-      const result = await callCloud('sxLogin', { profile, phoneCode });
+      // sxLogin 会在云函数内用赛小蜂篮球自己的 appid+AppSecret 兑换手机号（避免共享云跨 appid 取号 40013）
+      const result = await callCloudWithRetry('sxLogin', { profile, phoneCode });
       if (!result || !result.ok) {
-        throw new Error(cloudErrorMessage(result));
+        const code = (result && result.phoneAuthCode) || '';
+        const msg = (result && result.phoneAuthMessage) || cloudErrorMessage(result);
+        wx.showModal({
+          title: '手机号授权未通过',
+          content: (msg + (code ? '\n错误码：' + code : '') + '\n（请截图发给开发排查）'),
+          showCancel: false,
+          confirmText: '我知道了'
+        });
+        return;
       }
       if (result.phoneAuthFailed || !result.phoneNumber) {
-        throw new Error(phoneAuthErrorMessage(result));
+        const code = result.phoneAuthCode || '';
+        const msg = result.phoneAuthMessage || phoneAuthErrorMessage(result);
+        wx.showModal({
+          title: '登录未完成',
+          content: (msg + (code ? '\n错误码：' + code : '') + '\n（请截图发给开发排查）'),
+          showCancel: false,
+          confirmText: '我知道了'
+        });
+        return;
       }
 
       const savedProfile = Object.assign({}, profile, {
@@ -127,11 +163,21 @@ Page({
 
       wx.setStorageSync('loginProfile', savedProfile);
       wx.setStorageSync('userProfile', savedProfile);
+      const showNavError = (err, step) => wx.showModal({
+        title: '跳转失败',
+        content: `${step}：${(err && err.errMsg) || '未知错误'}，请截图联系开发排查`,
+        showCancel: false
+      });
+      const goHome = () => wx.reLaunch({
+        url: '/pages/home/index',
+        fail: (err) => showNavError(err, '回首页失败')
+      });
       if (this.data.redirectPath) {
-        wx.redirectTo({ url: this.data.redirectPath });
+        // redirectTo 失败（如目标页异常）时回退到首页，绝不滞留在登录页
+        wx.redirectTo({ url: this.data.redirectPath, fail: () => goHome() });
         return;
       }
-      wx.reLaunch({ url: '/pages/home/index' });
+      goHome();
     } catch (error) {
       wx.showToast({ title: error.message || '登录失败，请稍后重试', icon: 'none' });
     } finally {

@@ -9,6 +9,9 @@ const FEISHU_BASE = 'https://open.feishu.cn/open-apis';
 const CACHE_FILE = path.join(ROOT, '.feishu-cache.json');
 
 loadEnv(path.join(ROOT, '.env.local'));
+if (process.env.APPDATA) {
+  loadEnv(path.join(process.env.APPDATA, 'Codex', 'feishu-knowledge-base', 'feishu.env'));
+}
 
 function loadEnv(file) {
   if (!fs.existsSync(file)) return;

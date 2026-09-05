@@ -1,0 +1,32 @@
+<view class="page">
+  <view class="nav" style="padding-right: {{capsuleRight}}rpx;"><view class="brand-dot"></view><text>赛小蜂篮球赛事报名</text></view>
+  <view wx:if="{{loading}}" class="state"><view class="spinner"></view><text>正在读取赛事邀请...</text></view>
+  <view wx:elif="{{loadFailed}}" class="state error"><text class="state-title">邀请已失效</text><text>请联系赛事创建者重新发送二维码或邀请码。</text><button bindtap="retry">重新读取</button></view>
+  <view wx:elif="{{showPendingState}}" class="state success"><text class="success-icon">✓</text><text class="state-title">已报名，等待审核</text><text>{{registrationTeamName}} 已提交，赛事创建者审核后会通知你。</text><button bindtap="refreshRegistrationStatus">刷新审核状态</button><button wx:if="{{!followReady}}" class="state-secondary" bindtap="enableServiceNotice">绑定服务号通知</button><view wx:else><text class="service-ready-text">服务号账号已绑定</text><button class="state-secondary" bindtap="openServiceSubscription">授权审核结果和赛事公告</button></view><view wx:if="{{followRequired && !followReady}}" class="state-follow"><text wx:if="{{followLoading}}">正在生成关注二维码...</text><image wx:elif="{{followQr}}" class="follow-qr" src="{{followQr}}" mode="aspectFit" show-menu-by-longpress="true" /><text wx:if="{{followError}}" class="follow-error">{{followError}}</text><button bindtap="checkFollowGate">我已关注，检查状态</button></view><button class="state-secondary" bindtap="goTournament">返回赛事首页</button></view>
+  <view wx:elif="{{showApprovedState}}" class="state success"><text class="success-icon">✓</text><text class="state-title">报名审核已通过</text><text>{{registrationTeamName}} 已成为正式参赛队，请进入赛事查看对阵。</text><button wx:if="{{!followReady}}" class="state-secondary" bindtap="enableServiceNotice">绑定服务号通知</button><view wx:else><text class="service-ready-text">服务号账号已绑定</text><button class="state-secondary" bindtap="openServiceSubscription">授权后续赛程通知</button></view><view wx:if="{{followRequired && !followReady}}" class="state-follow"><text wx:if="{{followLoading}}">正在生成关注二维码...</text><image wx:elif="{{followQr}}" class="follow-qr" src="{{followQr}}" mode="aspectFit" show-menu-by-longpress="true" /><text wx:if="{{followError}}" class="follow-error">{{followError}}</text><button bindtap="checkFollowGate">我已关注，检查状态</button></view><button bindtap="goTournament">进入赛事首页</button></view>
+  <block wx:else>
+    <view class="hero"><text class="eyebrow">{{scenarioLabel}} · 球队报名</text><text class="title">{{eventName}}</text><text class="meta">{{organizationName}}</text><view class="format">{{formatLabel}}</view></view>
+    <view wx:if="{{followRequired && !followReady}}" class="follow-card">
+      <text class="card-title">关注服务号后继续报名</text>
+      <text class="follow-desc">本赛事通过服务号发送审核结果和赛程通知。请长按识别二维码并关注，完成后将自动解锁报名。</text>
+      <view wx:if="{{followLoading}}" class="follow-loading">正在生成关注二维码...</view>
+      <image wx:elif="{{followQr}}" class="follow-qr" src="{{followQr}}" mode="aspectFit" show-menu-by-longpress="true" />
+      <text wx:if="{{followError}}" class="follow-error">{{followError}}</text>
+      <button class="secondary" bindtap="prepareFollowGate">重新生成二维码</button>
+      <button class="primary" bindtap="checkFollowGate">我已关注，检查状态</button>
+    </view>
+    <view wx:if="{{showRejectedNotice}}" class="rejected-note"><text>报名已被驳回</text><text>{{rejectedNoticeText}}</text></view>
+    <view wx:if="{{showRegistrationForm}}" class="card">
+      <text class="card-title">提交参赛球队</text>
+      <view wx:if="{{showClassFields}}" class="class-scope"><text>赛事范围</text><b>{{organizationName}}</b><span>{{classScopeText}}</span></view>
+      <view wx:if="{{showClassFields}}" class="field"><text>参赛班级</text><picker mode="selector" range="{{classOptions}}" value="{{classIndex}}" bindchange="onClassChange"><view class="picker"><text>{{classText}}</text><text>›</text></view></picker></view>
+      <view wx:if="{{showCustomClassInput}}" class="field"><text>自定义班级</text><input value="{{form.className}}" placeholder="例如国际班、体育特长班" data-field="className" bindinput="onInput" /></view>
+      <text wx:if="{{showClassFields}}" class="binding-hint">{{classBindingHint}}</text>
+      <view wx:if="{{!showClassFields}}" class="team-selection"><text class="selection-title">选择参赛球队</text><text class="selection-desc">从我的球队中选择一支参加本次比赛</text><view wx:if="{{teamOptions.length}}" class="team-choice-list"><button wx:for="{{teamOptions}}" wx:key="index" class="team-choice {{item.selectedClass}}" data-index="{{item.index}}" bindtap="selectTeam"><image wx:if="{{item.logo}}" src="{{item.logo}}" mode="aspectFill" /><view wx:else class="team-choice-mark">{{item.mark}}</view><view class="team-choice-copy"><b>{{item.name}}</b><text>{{item.playerCountText}} · {{item.coachText}}</text></view><text class="team-choice-state">{{item.selectedText}}</text></button></view><view wx:else class="team-empty"><b>还没有球队</b><text>先创建球队，返回后即可选择参赛</text></view></view>
+      <view wx:if="{{showClassFields && hasSelectedTeam}}" class="roster"><text>{{selectedTeamText}}</text><text>{{selectedPlayerCount}} 名球员</text></view>
+      <text wx:if="{{createdTeamHint}}" class="binding-hint created-team-hint">{{createdTeamHint}}</text>
+      <button class="primary" disabled="{{confirmDisabled}}" bindtap="submit">{{submitButtonText}}</button><button wx:if="{{!showClassFields}}" class="secondary" bindtap="createTeam">+新建球队</button>
+    </view>
+    <view class="notice">班级身份会与小程序球队建立稳定绑定；赛事保存的是报名时的球队和球员快照。</view>
+  </block>
+</view>

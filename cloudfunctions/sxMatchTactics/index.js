@@ -1,0 +1,1 @@
+const cloud=require('wx-server-sdk');cloud.init({env:cloud.DYNAMIC_CURRENT_ENV});exports.main=async e=>{const c=cloud.getWXContext();return(await cloud.callFunction({name:'sxMatchFlow',data:{...e,domain:'tactics',_callerOpenid:c.FROM_OPENID||c.OPENID||'',_callerUnionid:c.FROM_UNIONID||c.UNIONID||''}})).result};

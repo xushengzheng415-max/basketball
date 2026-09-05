@@ -1,0 +1,96 @@
+{
+  "prototype": "C:\\Users\\15043\\AppData\\Local\\Temp\\codex-clipboard-c83eeab7-8fe3-4c4e-a731-b9bb98131ebe.jpg",
+  "asset_dir": "E:\\Documents\\sxf-basketball\\admin\\prototype-assets\\竞赛日程参考_assets",
+  "generated_at": "2026-08-13",
+  "tool": "yuanxing prototype decomposition",
+  "status": "implemented",
+  "approved_at": "2026-08-13",
+  "screen": {
+    "width": 1080,
+    "height": 1242
+  },
+  "summary": "PC赛事中心竞赛日程表参考：按日期、时间、轮次、组别、比赛队、场地和序号呈现，重复日期与轮次纵向合并。",
+  "entries": [
+    {
+      "id": "source-prototype",
+      "category": "source",
+      "implementation": "crop-reference",
+      "output": "00-source/codex-clipboard-c83eeab7-8fe3-4c4e-a731-b9bb98131ebe.jpg",
+      "source_bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 1080,
+        "height": 1242
+      },
+      "sha256": "861b8ae7ae04e0dee7372f1ce0f2bc98409a63ba0caeb4a44b1ac95d21ed75c0",
+      "notes": "用户本轮明确要求按该格式设计，作为已批准结构参考。"
+    },
+    {
+      "id": "document-header",
+      "category": "layout",
+      "implementation": "crop-reference",
+      "source_bbox": {
+        "x": 120,
+        "y": 35,
+        "width": 850,
+        "height": 60
+      },
+      "output": "08-reference-crops/document-header.png",
+      "notes": "居中标题竞赛日程（组别），左侧显示场馆。生产页面用真实赛事、筛选组别及场馆数据渲染。"
+    },
+    {
+      "id": "schedule-table",
+      "category": "table",
+      "implementation": "crop-reference",
+      "source_bbox": {
+        "x": 120,
+        "y": 94,
+        "width": 850,
+        "height": 1090
+      },
+      "output": "08-reference-crops/schedule-table.png",
+      "notes": "七列表格：日期、时间、轮次、组别、比赛队、场地、序号；重复日期与轮次用 rowspan 合并。"
+    },
+    {
+      "id": "representative-row",
+      "category": "component",
+      "implementation": "crop-reference",
+      "source_bbox": {
+        "x": 194,
+        "y": 130,
+        "width": 776,
+        "height": 31
+      },
+      "output": "08-reference-crops/representative-row.png",
+      "text": "时间、轮次、组别、主队 VS 客队、场地、序号",
+      "notes": "代表行结构；比赛队列将主队与客队以 VS 分隔，全部由真实赛程数据渲染。"
+    },
+    {
+      "id": "table-columns",
+      "category": "text",
+      "implementation": "text-code",
+      "text": "日期 / 时间 / 轮次 / 组别 / 比赛队 / 场地 / 序号",
+      "notes": "字段顺序为用户确认格式。"
+    },
+    {
+      "id": "filters-export-print",
+      "category": "interaction",
+      "implementation": "code",
+      "action": "筛选、导出、打印",
+      "target": "竞赛日程真实数据表",
+      "states": [
+        "默认",
+        "筛选后",
+        "打印"
+      ],
+      "notes": "保留当前PC页面筛选、导出表格和直接打印能力。"
+    },
+    {
+      "id": "annotated-layout-overlay",
+      "category": "overlay",
+      "implementation": "overlay",
+      "output": "06-overlays/annotated-layout.png",
+      "notes": "Generated bounding-box overlay for comparison only."
+    }
+  ]
+}

@@ -1,6 +1,77 @@
-<view class="page"><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}">
-  <view class="title has-back"><text class="back" bindtap="goBack">‹</text>课堂点名</view><view class="subtitle">U10提高班　18:30–20:00</view>
-  <view class="stats"><view><text>♙　应到</text><text class="strong">12<text class="small">人</text></text></view><view><text>✓　到课</text><text class="strong">{{presentCount}}<text class="small">人</text></text></view><view><text>▤　请假</text><text class="strong">{{leaveCount}}<text class="small">人</text></text></view><view><text>!　缺勤</text><text class="strong">{{absentCount}}<text class="small">人</text></text></view></view>
-  <view class="notice">♧　缺勤与异常将同步负责人</view>
-  <view class="student" wx:for="{{students}}" wx:key="id"><text class="index">{{index + 1}}</text><image src="{{item.avatar}}" mode="aspectFill"/><view class="student-main"><text class="name">{{item.name}}</text><text class="number">#{{item.number}}</text></view><view class="actions"><text class="action {{item.presentClass}}" data-id="{{item.id}}" data-status="present" bindtap="onStatus">✓ 到课</text><text class="action {{item.leaveClass}}" data-id="{{item.id}}" data-status="leave" bindtap="onStatus">▤ 请假</text><text class="action {{item.absentClass}}" data-id="{{item.id}}" data-status="absent" bindtap="onStatus">! 缺勤</text></view><text wx:if="{{item.showRecord}}" class="record">记录情况　›</text></view>
-  <view class="safe"></view></scroll-view><view class="footer"><view class="draft">暂存</view><view class="primary" bindtap="confirm">完成点名</view></view></view>
+<view class="page"
+  ><view class="nav" style="padding-top:{{navTop}}px;height:{{navHeight}}px"
+    ><button bindtap="goBack">返回</button><text>课堂点名</text></view
+  ><scroll-view class="scroll" scroll-y enhanced show-scrollbar="{{false}}"
+    ><view style="height:{{navSpacer}}px"></view
+    ><view class="loading" wx:if="{{loading}}">正在读取学员名单…</view
+    ><view class="error" wx:elif="{{error}}">{{error}}</view
+    ><view class="content" wx:else
+      ><view class="summary"
+        ><text>{{lesson.className}}</text
+        ><text
+          >{{lesson.lessonDate}}　{{lesson.startTime}}　{{lesson.venue}}</text
+        ><view
+          ><text>应到 {{students.length}} 人</text
+          ><text>点名结果会保存为课堂草稿</text></view
+        ></view
+      ><view class="student-card" wx:for="{{students}}" wx:key="studentId"
+        ><view class="student-head"
+          ><view>{{item.initial}}</view><text>{{item.name}}</text
+          ><text>{{item.statusName}}</text></view
+        ><view class="status-grid"
+          ><button
+            class="{{item.presentClass}}"
+            data-id="{{item.studentId}}"
+            data-status="present"
+            bindtap="setStatus"
+          >
+            出勤</button
+          ><button
+            class="{{item.leaveClass}}"
+            data-id="{{item.studentId}}"
+            data-status="leave"
+            bindtap="setStatus"
+          >
+            请假</button
+          ><button
+            class="{{item.absentClass}}"
+            data-id="{{item.studentId}}"
+            data-status="absent"
+            bindtap="setStatus"
+          >
+            缺勤</button
+          ><button
+            class="{{item.makeupClass}}"
+            data-id="{{item.studentId}}"
+            data-status="makeup"
+            bindtap="setStatus"
+          >
+            补课</button
+          ><button
+            class="{{item.makeupNoChargeClass}}"
+            data-id="{{item.studentId}}"
+            data-status="makeup_no_charge"
+            bindtap="setStatus"
+          >
+            补课不扣</button
+          ><button
+            class="{{item.trialClass}}"
+            data-id="{{item.studentId}}"
+            data-status="trial"
+            bindtap="setStatus"
+          >
+            试听
+          </button></view
+        ></view
+      ><view class="empty" wx:if="{{!students.length}}"
+        >班级暂无学员，不能进行点名</view
+      ><button
+        class="save"
+        loading="{{saving}}"
+        disabled="{{saveDisabled}}"
+        bindtap="saveDraft"
+      >
+        保存点名草稿
+      </button></view
+    ><view class="safe"></view></scroll-view
+></view>

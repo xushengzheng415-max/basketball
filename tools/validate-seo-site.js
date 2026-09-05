@@ -5,6 +5,8 @@ const path = require('path')
 
 const root = path.resolve(__dirname, '..')
 const officialOrigin = 'https://www.sxfbasketball.cn'
+const publicSecurityNumber = '豫公网安备41010202003962号'
+const publicSecurityBadge = '/website-assets/gongan-beian-icon.png'
 const errors = []
 
 function read(relativePath) {
@@ -13,6 +15,21 @@ function read(relativePath) {
 
 function fail(message) {
   errors.push(message)
+}
+
+function checkPublicSecurityFiling(relativePath, html) {
+  if (!html.includes(publicSecurityNumber)) {
+    fail(`${relativePath}: missing current public security filing number`)
+  }
+  if (!html.includes(`code=41010202003962`)) {
+    fail(`${relativePath}: missing current public security filing link`)
+  }
+  if (!html.includes(`src="${publicSecurityBadge}"`)) {
+    fail(`${relativePath}: missing public security filing badge`)
+  }
+  if (html.includes('41010202003899')) {
+    fail(`${relativePath}: contains superseded public security filing number`)
+  }
 }
 
 const articleDirectory = path.join(root, 'articles', 'posts')
@@ -33,6 +50,7 @@ const homepageJsonLd = [...homepage.matchAll(
 if (!homepageTitle || !homepageTitle[1].includes('赛小蜂篮球官网')) {
   fail('index.html: title must identify the official 赛小蜂篮球 website')
 }
+checkPublicSecurityFiling('index.html', homepage)
 if (!homepageCanonical || homepageCanonical[1] !== `${officialOrigin}/`) {
   fail('index.html: canonical must match the official homepage')
 }
@@ -70,6 +88,7 @@ if (homepageJsonLd.length === 0) {
 for (const fileName of articleFiles) {
   const relativePath = path.join('articles', 'posts', fileName)
   const html = read(relativePath)
+  checkPublicSecurityFiling(relativePath, html)
 
   const title = html.match(/<title>([\s\S]*?)<\/title>/i)
   const description = html.match(/<meta\s+name="description"\s+content="([^"]+)"/i)
@@ -123,6 +142,12 @@ for (const fileName of articleFiles) {
       fail(`${relativePath}: AI-style phrase requires rewrite: ${item.phrase}`)
     }
   }
+}
+
+checkPublicSecurityFiling('articles/index.html', read('articles/index.html'))
+for (const fileName of fs.readdirSync(path.join(root, 'guides')).filter((name) => name.endsWith('.html'))) {
+  const relativePath = path.join('guides', fileName)
+  checkPublicSecurityFiling(relativePath, read(relativePath))
 }
 
 const sitemap = read('sitemap.xml')

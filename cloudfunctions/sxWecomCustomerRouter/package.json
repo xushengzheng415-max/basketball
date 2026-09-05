@@ -1,0 +1,9 @@
+{
+  "name": "sx-wecom-customer-router",
+  "version": "1.0.0",
+  "private": true,
+  "main": "index.js",
+  "engines": {
+    "node": ">=16"
+  }
+}

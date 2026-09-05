@@ -3,6 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <script>
+    if (!new URLSearchParams(location.search).has('legacy')) {
+      location.replace(`./organization-entry.html${location.search}${location.hash}`);
+    }
+  </script>
   <title>赛小蜂篮球机构训赛经营增长平台</title>
   <style>
     :root{--orange:#ff6a00;--orange-soft:#fff3e9;--ink:#18202a;--muted:#77808c;--line:#e9edf2;--bg:#f5f7fa;--green:#17a673;--red:#e5484d;--blue:#3478f6;--shadow:0 8px 28px rgba(22,32,43,.07)}
@@ -12,8 +17,82 @@
 </head>
 <body>
   <section class="login-screen" id="loginScreen">
-    <div class="login-intro"><img class="login-logo" src="./assets/institution/brand-logo.png" alt="赛小蜂篮球"><h1>机构训赛经营<br><em>增长平台</em></h1><p>让训练与比赛，持续转化为家长认可、续费行动与机构增长</p><div class="login-features"><span>篮球教培机构</span><span>训赛一体化</span><span>经营增长</span></div></div>
-    <form class="login-card" id="loginForm"><h2>机构经营主控台</h2><p>账号由赛小蜂平台方统一开通</p><label class="login-field"><span>▦</span><input required value="SXF-PD-001" placeholder="机构编码"></label><label class="login-field"><span>♙</span><input required value="admin" placeholder="登录账号"></label><label class="login-field"><span>▣</span><input required type="password" value="123456" placeholder="登录密码"></label><div class="login-options"><label><input type="checkbox" checked> 记住账号</label><a href="#">忘记密码？</a></div><button class="login-submit">登录</button><div class="login-tip">首次登录需修改初始密码</div></form>
+    <div class="login-intro"><img class="login-logo" src="./assets/institution/brand-logo.png" alt="赛小蜂篮球"><h1>赛训经营<br><em>增长平台</em></h1><p>一个手机号完成机构开户注册。赛事中心默认免费开启，教务经营按需授权。</p><div class="login-features"><span>赛事中心免费</span><span>新用户自动注册</span><span>同设备30天免验证</span></div></div>
+    <form class="login-card" id="loginForm" novalidate>
+      <div class="login-eyebrow">机构用户入口</div>
+      <h2>手机号登录 / 注册</h2>
+      <p>新手机号验证后完成机构开户；已注册机构可直接登录。</p>
+      <label class="login-field" for="authPhone"><span>手机</span><input id="authPhone" name="phone" required inputmode="numeric" autocomplete="tel" maxlength="11" placeholder="请输入11位手机号"></label>
+      <div class="login-code-row">
+        <label class="login-field" for="authCode"><span>验证码</span><input id="authCode" name="code" required inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="请输入6位验证码"></label>
+        <button class="send-code" id="sendCode" type="button">获取验证码</button>
+      </div>
+      <label class="login-agreement"><input id="authAgreement" type="checkbox"> <span>我已阅读并同意<a href="./用户服务协议.html" target="_blank">《用户服务协议》</a>和<a href="./隐私政策.html" target="_blank">《隐私政策》</a></span></label>
+      <button class="login-submit" id="authSubmit" type="submit">登录 / 注册并进入</button>
+      <div class="login-status" id="authStatus" role="status" aria-live="polite"></div>
+      <div class="login-security"><span>可信设备30天免验证</span><i></i><span>30分钟无操作自动锁屏</span></div>
+      <div class="login-tip">交互验收验证码：<strong>123456</strong>（本阶段不产生短信费用）</div>
+    </form>
+  </section>
+  <section class="security-screen" id="securityScreen" hidden aria-hidden="true">
+    <div class="security-card">
+      <div class="security-mark">赛小蜂篮球</div>
+      <div id="unlockView">
+        <span class="security-kicker">后台已锁定</span>
+        <h2>输入4位锁屏密码</h2>
+        <p><span id="lockedAccount">当前机构账号</span><br>解锁后继续停留在当前页面，不发送短信。</p>
+        <form id="unlockForm">
+          <input class="pin-input" id="unlockPin" type="password" inputmode="numeric" maxlength="4" autocomplete="off" aria-label="4位锁屏密码" placeholder="••••">
+          <button class="login-submit" type="submit">解锁并继续</button>
+        </form>
+        <div class="security-message" id="unlockStatus" role="status" aria-live="polite"></div>
+        <button class="security-link" id="reauthButton" type="button">改用手机号验证码重新登录</button>
+      </div>
+      <div id="setupView" hidden>
+        <span class="security-kicker">首次登录安全设置</span>
+        <h2>设置4位锁屏密码</h2>
+        <p>只用于这台设备的后台解锁，不替代手机号登录。</p>
+        <form id="pinSetupForm">
+          <label>设置密码<input class="pin-input" id="setupPin" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" placeholder="输入4位数字"></label>
+          <label>确认密码<input class="pin-input" id="confirmPin" type="password" inputmode="numeric" maxlength="4" autocomplete="new-password" placeholder="再次输入"></label>
+          <button class="login-submit" type="submit">保存并进入赛事工作台</button>
+        </form>
+        <div class="security-message" id="setupStatus" role="status" aria-live="polite"></div>
+      </div>
+      <div id="onboardingView" class="onboarding-view" hidden>
+        <span class="security-kicker">机构开户</span>
+        <h2>完善机构资料</h2>
+        <p class="onboarding-intro">填写机构名称后即可保存资料进入赛小蜂管理后台；机构 Logo 可稍后补充。</p>
+        <form id="onboardingForm" class="onboarding-form">
+          <label class="onboarding-field" for="institutionName"><span class="onboarding-field-label">机构名称 <em>必填</em></span><input id="institutionName" type="text" maxlength="30" autocomplete="organization" placeholder="例如：蜂动体育篮球俱乐部"></label>
+          <div class="onboarding-field">
+            <span class="onboarding-field-label">机构 Logo <em class="optional">选填</em></span>
+            <input id="institutionLogo" type="file" accept="image/png,image/jpeg,image/webp" class="institution-logo-input">
+            <label class="institution-logo-upload" for="institutionLogo"><span class="institution-logo-upload-icon">↑</span><span><b>上传机构 Logo</b><small>支持 PNG、JPG、WEBP，可稍后在机构设置中补充</small></span><i>选择图片</i></label>
+          </div>
+          <div class="institution-logo-preview" id="institutionLogoPreview" hidden><img id="institutionLogoImage" alt="机构 Logo 预览"><span><b>Logo 已准备好</b><small>开户后将显示在管理后台</small></span></div>
+          <button class="login-submit onboarding-submit" type="submit">保存资料，进入赛小蜂管理后台 <span>→</span></button>
+        </form>
+        <div class="security-message onboarding-status" id="onboardingStatus" role="status" aria-live="polite"></div>
+      </div>
+      <div id="workspaceChoiceView" class="workspace-choice-view" hidden>
+        <span class="security-kicker">机构开户完成</span>
+        <h2>请选择你的身份</h2>
+        <p>不同身份进入不同工作台。当前已开放赛事中心功能。</p>
+        <div class="workspace-choice-list">
+          <button class="workspace-choice-card active" id="chooseOrganizer" type="button"><span class="workspace-choice-icon">🏆</span><span><b>我是赛事主办方</b><small>创建赛事、管理报名、编排赛程和安排现场人员</small></span><i>进入赛事中心 →</i></button>
+          <button class="workspace-choice-card" id="chooseManager" type="button"><span class="workspace-choice-icon muted">⌂</span><span><b>我是机构管理方</b><small>管理校区、教练、学员与课程经营</small></span><i>查看校区管理方 →</i></button>
+        </div>
+        <div class="workspace-choice-tip">赛事中心为免费基础模块，完成选择后即可开始测试。</div>
+      </div>
+      <div id="campusManagementView" class="campus-management-view" hidden>
+        <span class="security-kicker">校区管理方</span>
+        <h2>校区管理方正在准备中</h2>
+        <p>你的机构与校区资料已经保存。校区、教练、学员和课程管理将陆续开放；当前可先进入已开放的赛事中心。</p>
+        <button class="login-submit onboarding-submit" id="enterTournamentFromCampus" type="button">进入赛事中心 <span>→</span></button>
+        <button class="security-link" id="backToWorkspaceChoice" type="button">返回身份选择</button>
+      </div>
+    </div>
   </section>
   <div class="app" aria-hidden="true">
     <aside class="sidebar">
@@ -37,10 +116,10 @@
         <button data-page="campuses"><i>⌘</i>多校区对比</button>
         <button data-page="settings"><i>⚙</i>机构设置</button>
       </nav>
-      <div class="side-account"><b>浦东校区 · 陈校长</b><span>机构管理员｜专业版</span></div>
+      <div class="side-account"><b id="sideAccountName">机构名称待补充 · 默认校区</b><span id="sideAccountRole">机构管理员｜免费赛事版</span></div>
     </aside>
     <section class="workspace">
-      <header class="topbar"><div class="crumb"><b id="pageTitle">经营驾驶舱</b>浦东校区</div><div class="top-actions"><button class="pill">生成报表</button><button class="pill">消息 12</button><div class="avatar">赵</div><button class="pill" id="logoutInstitution">退出</button></div></header>
+      <header class="topbar"><div class="crumb"><b id="pageTitle">经营驾驶舱</b><span id="currentCampus">默认校区</span></div><div class="top-actions"><button class="pill">生成报表</button><button class="pill">消息 12</button><div class="avatar" id="accountAvatar">机</div><button class="pill" id="logoutInstitution">退出</button></div></header>
       <main class="content">
         <section class="page active" id="dashboard">
           <div class="hero"><div><h1>机构经营工作台</h1><p>经营、教学与增长任务统一汇总，数据更新于刚刚。</p></div><div class="filters"><select class="select"><option>浦东校区</option><option>全部校区</option></select><select class="select"><option>近7天</option><option>本月</option><option>本季度</option></select></div></div>
@@ -228,5 +307,6 @@
     const initialPath=location.hash.slice(1).split('/'),initial=initialPath[0],initialSubpage=initialPath[1];if(pageNames[initial]){showPage(initial);if(initial==='tournaments'&&initialSubpage)history.replaceState(null,'','#tournaments/'+initialSubpage);}
   </script>
   <script src="./institution-growth.js"></script>
+  <script src="./institution-auth.js"></script>
 </body>
 </html>

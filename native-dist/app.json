@@ -6,7 +6,9 @@
     "pages/education/index",
     "pages/tournament/index",
     "pages/team/index",
-    "pages/mine/index"
+    "pages/mine/index",
+    "pages/profile-edit/index",
+    "pages/pc-auth/index"
   ],
   "subPackages": [
     { "root": "pages/recent-matches", "pages": ["index"] },
@@ -38,8 +40,14 @@
     { "root": "pages/order", "pages": ["index"] },
     { "root": "pages/pay-result", "pages": ["index"] },
     { "root": "pages/tournament-create", "pages": ["index"] },
+    { "root": "pages/tournament-register", "pages": ["index"] },
+    { "root": "pages/service-subscribe", "pages": ["index"] },
     { "root": "pages/tournament-detail", "pages": ["index"] },
     { "root": "pages/game-detail", "pages": ["index"] },
+    { "root": "pages/match-preparation", "pages": ["index"] },
+    { "root": "pages/match-coach-live", "pages": ["index"] },
+    { "root": "pages/match-coach-workspace", "pages": ["index"] },
+    { "root": "pages/match-tactics", "pages": ["index"] },
     { "root": "pages/team-create", "pages": ["index"] },
     { "root": "pages/player-add", "pages": ["index"] },
     { "root": "pages/mc-settings", "pages": ["index"] },
@@ -127,7 +135,7 @@
     },
     "pages/tournament/index": {
       "network": "all",
-      "packages": ["pages/tournament-create", "pages/tournament-detail", "pages/game-detail"]
+      "packages": ["pages/tournament-create", "pages/tournament-detail", "pages/game-detail", "pages/match-preparation", "pages/match-coach-live", "pages/match-coach-workspace", "pages/match-tactics"]
     },
     "pages/team/index": {
       "network": "all",
@@ -152,5 +160,6 @@
     "navigationBarTitleText": "赛小蜂篮球",
     "navigationBarTextStyle": "white",
     "backgroundColor": "#05080b"
-  }
+  },
+  "resizable": true
 }

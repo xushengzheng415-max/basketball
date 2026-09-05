@@ -1,0 +1,145 @@
+/* 赛事空间卡片：在大字工作区中保持稳定分区和按钮形状。 */
+.event-space-page .event-space-grid {
+  grid-template-columns: repeat(auto-fill, minmax(320px, 350px));
+  gap: 24px;
+  align-items: stretch;
+}
+
+.event-space-page .event-card {
+  width: 100%;
+  height: 560px;
+  border-radius: 12px;
+  box-shadow: 0 14px 34px rgba(0, 0, 0, .2);
+}
+
+.event-space-page .event-card.create {
+  min-height: 560px;
+  padding: 40px 28px;
+  align-content: center;
+}
+
+.event-space-page .event-card.create strong {
+  margin-top: 20px;
+  font-size: 24px !important;
+  line-height: 1.35;
+}
+
+.event-space-page .event-card.create p {
+  max-width: 240px;
+  margin: 12px auto 0;
+  font-size: 17px !important;
+  line-height: 1.55;
+}
+
+.event-space-page .event-card-cover {
+  height: 190px;
+  padding: 20px;
+}
+
+.event-space-page .event-logo {
+  width: 126px;
+  height: 126px;
+}
+
+.event-space-page .event-state {
+  top: 16px;
+  left: 16px;
+  padding: 7px 11px;
+  font-size: 15px !important;
+}
+
+.event-space-page .event-card-cover > button {
+  top: 14px;
+  right: 14px;
+  width: 40px;
+  height: 40px;
+  min-height: 40px;
+  padding: 0;
+  font-size: 18px !important;
+  line-height: 1;
+}
+
+.event-space-page .event-card-body {
+  height: 370px;
+  padding: 22px;
+  display: grid;
+  grid-template-rows: auto auto auto 1fr auto;
+  align-content: start;
+}
+
+.event-space-page .event-card-body h3 {
+  display: -webkit-box;
+  height: auto;
+  min-height: 68px;
+  max-height: 68px;
+  margin: 0 0 14px;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  color: #f4f6f7;
+  font-size: 25px !important;
+  line-height: 1.36;
+}
+
+.event-space-page .event-stat-line {
+  min-height: 54px;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 8px 14px;
+  white-space: normal;
+}
+
+.event-space-page .event-stat-line span {
+  font-size: 16px !important;
+  line-height: 1.4;
+}
+
+.event-space-page .event-stat-line .sxf-icon {
+  width: 17px;
+  height: 17px;
+}
+
+.event-space-page .event-date-line {
+  min-height: 50px;
+  margin-top: 12px;
+  font-size: 17px !important;
+  line-height: 1.5;
+}
+
+.event-space-page .event-progress {
+  align-self: end;
+  margin: 14px 0 18px;
+}
+
+.event-space-page .event-progress > span,
+.event-space-page .event-progress > span b {
+  font-size: 17px !important;
+}
+
+.event-space-page .event-card-actions {
+  grid-template-columns: minmax(92px, .8fr) minmax(150px, 1.2fr);
+  gap: 10px;
+}
+
+.event-space-page .event-card-actions .btn {
+  width: 100%;
+  height: 46px;
+  min-height: 46px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: 15px !important;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.event-space-page .event-card-actions .btn .sxf-icon {
+  width: 16px;
+  height: 16px;
+}
+
+@media (max-width: 1280px) {
+  .event-space-page .event-space-grid {
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  }
+}

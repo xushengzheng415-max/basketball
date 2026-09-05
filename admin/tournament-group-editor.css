@@ -1,0 +1,72 @@
+/* 新增/编辑竞赛组别：宽屏工作台，减少纵向滚动。 */
+.modal-card.group-editor-modal {
+  width: min(1120px, calc(100vw - 80px));
+  max-height: calc(100vh - 56px);
+  overflow: auto;
+}
+
+.modal-card.group-editor-modal > header {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background: #151a1e;
+}
+
+.modal-card.group-editor-modal > footer {
+  position: sticky;
+  bottom: 0;
+  z-index: 5;
+  background: #151a1e;
+}
+
+.group-editor-modal .modal-body {
+  padding: 26px 30px;
+}
+
+.group-editor-modal .group-editor-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px 24px;
+}
+
+.group-editor-modal .group-editor-form > .full,
+.group-editor-modal .group-structure-editor {
+  grid-column: 1 / -1;
+}
+
+.group-editor-modal .group-structure-editor {
+  padding: 20px;
+}
+
+.group-editor-modal .group-structure-editor > header {
+  margin-bottom: 16px;
+}
+
+.group-editor-modal .group-structure-fields {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.group-editor-modal .info-banner {
+  margin-top: 20px;
+}
+
+@media (max-width: 960px) {
+  .modal-card.group-editor-modal {
+    width: min(820px, calc(100vw - 40px));
+  }
+
+  .group-editor-modal .group-editor-form {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .modal-card.group-editor-modal {
+    width: calc(100vw - 24px);
+  }
+
+  .group-editor-modal .group-editor-form,
+  .group-editor-modal .group-structure-fields {
+    grid-template-columns: 1fr;
+  }
+}

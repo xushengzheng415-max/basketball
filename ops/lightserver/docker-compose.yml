@@ -1,0 +1,46 @@
+services:
+  wecom-customer-router:
+    build:
+      context: ./apps/wecom-customer-router
+    container_name: sxf-wecom-customer-router
+    restart: unless-stopped
+    env_file:
+      - ./config/wecom-customer-router.env
+    volumes:
+      - ./assets/wecom:/assets/wecom:ro
+    ports:
+      - "127.0.0.1:3100:3100"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3100/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  wecom-doc-assistant:
+    build:
+      context: ./apps/wecom-doc-assistant
+    container_name: sxf-wecom-doc-assistant
+    restart: unless-stopped
+    env_file:
+      - ./config/wecom-doc-assistant.env
+    volumes:
+      - ./data/wecom-doc-assistant:/data
+    ports:
+      - "127.0.0.1:3200:3200"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:3200/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"

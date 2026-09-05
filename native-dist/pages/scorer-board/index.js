@@ -396,6 +396,47 @@ function buildQuickPlayers(side, players) {
   }));
 }
 
+function buildOfficialRoster(side, roster, availablePlayers) {
+  const submitted =
+    roster && roster.mode === "submitted" && Array.isArray(roster.players)
+      ? roster.players
+      : [];
+  const hasBench = submitted.some((player) => player.starter !== true);
+  const used = new Set(
+    submitted.map((player) => String(player.playerId || player.id || ""))
+  );
+  const legacyBench =
+    submitted.length >= 5 && !hasBench
+      ? (Array.isArray(availablePlayers) ? availablePlayers : [])
+          .filter(
+            (player) =>
+              !used.has(String(player.playerId || player.id || ""))
+          )
+          .map((player) => Object.assign({}, player, { starter: false }))
+      : [];
+  const source = submitted.concat(legacyBench);
+  const players = source.map((player, index) => ({
+    id:
+      side +
+      "-official-" +
+      String(player.playerId || player.id || index),
+    sourcePlayerId: String(player.playerId || player.id || ""),
+    number: String(player.number || index + 1),
+    name: player.name || "未命名",
+    position: player.position || "球员",
+    avatar: getPlayerAvatar(player, side),
+    cardClass: "",
+    tagText: "",
+    chipClass: "",
+    stats: cloneStats(player.stats),
+    starter: player.starter === true,
+  }));
+  return {
+    starters: players.filter((player) => player.starter),
+    bench: players.filter((player) => !player.starter),
+  };
+}
+
 function playerTeamGroup(player) {
   return String((player && player.team) || '').trim() || '无球队';
 }
@@ -562,6 +603,10 @@ Page({
     shotClockDigits: buildDigitalItems('24', 'shot'),
     shotClockRunning: false,
     shotClockButtonText: '开始',
+    scoreboardButtonVisible: false,
+    scoreboardPanelVisible: false,
+    scoreboardDisplayCode: '',
+    scoreboardDisplayUrl: '',
     events: [],
     homeEvents: [],
     awayEvents: [],
@@ -624,6 +669,7 @@ Page({
 
   onLoad(options) {
     this.boardOnly = true;
+    this.liveMatchId = options && options.matchId ? decodeURIComponent(String(options.matchId)) : '';
     this.loadPersistentAudioCache();
     if (options && options.mode === 'quick' && !this.boardOnly) {
       wx.redirectTo({ url: '/pages/scorer-board/index?mode=quick&boardOnly=1' });
@@ -640,7 +686,11 @@ Page({
         setTimeout(() => wx.reLaunch({ url: '/pages/home/index' }), 500);
         return;
       }
-      if (!restored) this.applyQuickMatchConfig(options);
+      if (!restored && !this.liveMatchId) this.applyQuickMatchConfig(options);
+      const activeConfig = wx.getStorageSync('quickMatchActiveConfig') || {};
+      if (!this.liveMatchId && activeConfig.source === 'tournament-live') this.liveMatchId = activeConfig.gameId || '';
+      if (this.liveMatchId) this.initOfficialMatchFlow();
+      else if (options && options.mode === 'quick') setTimeout(() => this.initQuickScoreboardSession(), 0);
       this.updateDigital();
       this.detectBoardSize();
       if (wx.onWindowResize) {
@@ -697,6 +747,8 @@ Page({
     this.disconnectShortcutBle(true);
     if (this.shortcutActiveTimer) clearTimeout(this.shortcutActiveTimer);
     if (wx.offWindowResize && this.resizeHandler) wx.offWindowResize(this.resizeHandler);
+    if (this.matchFlowPollTimer) clearInterval(this.matchFlowPollTimer);
+    if (this.quickScoreboardTimer) clearInterval(this.quickScoreboardTimer);
   },
 
   detectBoardSize() {
@@ -1372,6 +1424,7 @@ Page({
   },
   beginTeamTimeout(side, key, team, keepGameClockRunning) {
     this.addCounter(side, key, team, '暂停');
+    if (this.liveMatchId) callCloud('sxMatchReadiness', { domain: 'refereeOps', action: 'linkTimeout', matchId: this.liveMatchId, teamScope: side });
     this.pauseShotClock();
     if (keepGameClockRunning) {
       if (!this.data.clockRunning) this.toggleClock({ skipShotClock: true });
@@ -2303,6 +2356,8 @@ Page({
       source: active.source || 'scoreboard',
       tournamentId: active.tournamentId || '',
       gameId: active.gameId || '',
+      tournamentName: active.tournamentName || '',
+      groupName: active.groupName || '',
       matchName: this.data.matchName || active.matchName || '\u5feb\u6377\u6bd4\u8d5b',
       homeName: this.data.homeName,
       awayName: this.data.awayName,
@@ -2355,7 +2410,243 @@ Page({
     }
     const next = [record].concat(list.filter((item) => String(item.id) !== id)).slice(0, RECENT_MATCHES_LIMIT);
     wx.setStorageSync(RECENT_MATCHES_KEY, next);
+    if (this.liveMatchId) this.syncOfficialLiveState(isEnded);
+    else if (this.quickScoreboardSessionId) this.syncQuickScoreboardState(isEnded);
     return record;
+  },
+  quickScoreboardState() {
+    return {
+      matchName: this.data.matchName,
+      homeName: this.data.homeName,
+      awayName: this.data.awayName,
+      homeLogo: this.data.homeLogo,
+      awayLogo: this.data.awayLogo,
+      homeScore: this.data.homeScore,
+      awayScore: this.data.awayScore,
+      period: this.data.period,
+      totalPeriods: this.data.totalPeriods,
+      periodMinutes: this.data.periodMinutes,
+      clockSeconds: this.data.clockSeconds,
+      clockRunning: this.data.clockRunning,
+      timerMode: this.data.timerMode,
+      homeFouls: this.data.homeFouls,
+      awayFouls: this.data.awayFouls,
+      homeTimeouts: this.data.homeTimeouts,
+      awayTimeouts: this.data.awayTimeouts,
+      possession: this.data.possession,
+      shotClockEnabled: this.data.shotClockEnabled,
+      shotClock: this.data.shotClock,
+      shotClockRunning: this.data.shotClockRunning,
+      restKind: this.data.restKind,
+      restSeconds: this.data.restSeconds,
+      restCountdownVisible: this.data.restCountdownVisible
+    };
+  },
+  initQuickScoreboardSession() {
+    if (this.liveMatchId || this.quickScoreboardCreating || this.quickScoreboardSessionId) return;
+    this.quickScoreboardCreating = true;
+    callCloud('sxQuickScoreboard', { action: 'create', state: this.quickScoreboardState() }).then((result) => {
+      if (!result || result.ok !== true) throw new Error(result && result.message || '快捷比赛大屏创建失败');
+      const displayCode = String(result.displayCode || '');
+      this.quickScoreboardSessionId = String(result.sessionId || '');
+      this.setData({
+        scoreboardButtonVisible: /^\d{6}$/.test(displayCode),
+        scoreboardDisplayCode: displayCode,
+        scoreboardDisplayUrl: /^\d{6}$/.test(displayCode) ? ('https://www.sxfbasketball.cn/scoreboard.html?code=' + displayCode) : ''
+      });
+      this.quickScoreboardTimer = setInterval(() => this.syncQuickScoreboardState(false), 1000);
+    }).catch((error) => {
+      console.warn('[scorer] quick scoreboard unavailable', error);
+      wx.showToast({ title: '电视大屏暂时无法连接', icon: 'none' });
+    }).finally(() => { this.quickScoreboardCreating = false; });
+  },
+  syncQuickScoreboardState(ended) {
+    if (!this.quickScoreboardSessionId) return;
+    if (this.quickScoreboardSyncing) { if (ended) this.quickScoreboardFinishPending = true; else this.quickScoreboardPending = true; return; }
+    if (ended && this.quickScoreboardTimer) { clearInterval(this.quickScoreboardTimer); this.quickScoreboardTimer = null; }
+    this.quickScoreboardSyncing = true;
+    callCloud('sxQuickScoreboard', {
+      action: ended ? 'finish' : 'update',
+      sessionId: this.quickScoreboardSessionId,
+      state: this.quickScoreboardState()
+    }).finally(() => {
+      this.quickScoreboardSyncing = false;
+      if (this.quickScoreboardFinishPending) { this.quickScoreboardFinishPending = false; setTimeout(() => this.syncQuickScoreboardState(true), 60); }
+      else if (this.quickScoreboardPending) { this.quickScoreboardPending = false; setTimeout(() => this.syncQuickScoreboardState(false), 60); }
+    });
+  },
+  initOfficialMatchFlow() {
+    Promise.all([
+      callCloud("sxMatchReadiness", {
+        action: "status",
+        matchId: this.liveMatchId,
+      }),
+      callCloud("sxMatchLive", {
+        action: "get",
+        matchId: this.liveMatchId,
+      }),
+    ]).then(([context, result]) => {
+      if (!result || result.ok !== true || result.role !== "referee") {
+        wx.showModal({
+          title: "无计分权限",
+          content:
+            (result && result.message) ||
+            "只有本场已授权裁判可以操作计分板。",
+          showCancel: false,
+          success: () => this.goBack(),
+        });
+        return;
+      }
+      if (!context || context.ok !== true) {
+        wx.showModal({
+          title: "比赛加载失败",
+          content: (context && context.message) || "无法读取本场比赛信息。",
+          showCancel: false,
+          success: () => this.goBack(),
+        });
+        return;
+      }
+      const state = result.state || {},
+        homeRoster = buildOfficialRoster(
+          "home",
+          context.homeRoster,
+          context.homeAvailablePlayers
+        ),
+        awayRoster = buildOfficialRoster(
+          "away",
+          context.awayRoster,
+          context.awayAvailablePlayers
+        ),
+        periodMinutes = Math.max(
+          1,
+          Number(
+            state.periodMinutes ||
+              (context.tournament && context.tournament.periodMinutes) ||
+              10
+          )
+        ),
+        totalPeriods = Math.max(
+          1,
+          Number(
+            state.totalPeriods ||
+              (context.tournament && context.tournament.periodCount) ||
+              4
+          )
+        ),
+        clockSeconds = Math.max(
+          0,
+          Number(state.clockSeconds === undefined
+            ? periodMinutes * 60
+            : state.clockSeconds)
+        );
+      this.officialLiveVersion = Number(state.version || 1);
+      this.setData(
+        {
+          started: true,
+          matchName:
+            (context.tournament && context.tournament.name) || "正式比赛",
+          homeName: (context.home && context.home.name) || "主队",
+          awayName: (context.away && context.away.name) || "客队",
+          homeLogo: getTeamLogo(
+            { logoUrl: context.home && context.home.logo },
+            "home"
+          ),
+          awayLogo: getTeamLogo(
+            { logoUrl: context.away && context.away.logo },
+            "away"
+          ),
+          period: Math.max(1, Number(state.period || 1)),
+          totalPeriods,
+          periodMinutes,
+          timerMode: state.timerMode === "up" ? "up" : "down",
+          clockSeconds,
+          clockText: formatClock(clockSeconds),
+          clockRunning: !!state.clockRunning,
+          clockButtonText: state.clockRunning ? "暂停" : "开始",
+          homeScore: Math.max(0, Number(state.homeScore || 0)),
+          awayScore: Math.max(0, Number(state.awayScore || 0)),
+          homeFouls: Math.max(0, Number(state.homeFouls || 0)),
+          awayFouls: Math.max(0, Number(state.awayFouls || 0)),
+          homeTimeouts: Math.max(0, Number(state.homeTimeouts || 0)),
+          awayTimeouts: Math.max(0, Number(state.awayTimeouts || 0)),
+          possession: state.possession === "right" ? "right" : "left",
+          leftPossessionClass: state.possession === "right" ? "" : "active",
+          rightPossessionClass: state.possession === "right" ? "active" : "",
+          shotClockEnabled: state.shotClockEnabled === true,
+          shotClock: Math.max(0, Number(state.shotClock || 0)),
+          shotClockDigits: state.shotClockEnabled === true ? buildDigitalItems(String(Math.max(0, Number(state.shotClock || 0))).padStart(2, "0"), "shot") : [],
+          shotClockRunning: state.shotClockRunning === true,
+          shotClockButtonText: state.shotClockRunning === true ? "暂停" : "开始",
+          scoreboardButtonVisible: /^\d{6}$/.test(String(state.displayCode || "")),
+          scoreboardDisplayCode: String(state.displayCode || ""),
+          scoreboardDisplayUrl: /^\d{6}$/.test(String(state.displayCode || "")) ? ("https://www.sxfbasketball.cn/scoreboard.html?code=" + String(state.displayCode)) : "",
+          homeStarters: homeRoster.starters,
+          homeBench: homeRoster.bench,
+          awayStarters: awayRoster.starters,
+          awayBench: awayRoster.bench,
+          homeHasRoster:
+            !!context.homeRoster && context.homeRoster.mode === "submitted",
+          awayHasRoster:
+            !!context.awayRoster && context.awayRoster.mode === "submitted",
+          events: [],
+          homeEvents: [],
+          awayEvents: [],
+        },
+        () => {
+          this.updateDigital();
+          this.detectBoardSize();
+        }
+      );
+      this.loadPendingTimeoutRequests();
+      this.matchFlowPollTimer = setInterval(() => {
+        this.loadPendingTimeoutRequests();
+        this.syncOfficialLiveState(false);
+      }, 1000);
+    }).catch((error) => {
+      wx.showModal({
+        title: "比赛加载失败",
+        content: error.message || "无法读取本场比赛信息。",
+        showCancel: false,
+        success: () => this.goBack(),
+      });
+    });
+  },
+  loadPendingTimeoutRequests() {
+    if (!this.liveMatchId) return;
+    callCloud('sxMatchReadiness', { domain: 'teamOps', action: 'listTimeouts', matchId: this.liveMatchId }).then((result) => {
+      if (!result || result.ok !== true) return;
+      const request = (result.requests || []).find((item) => item.status === 'pending') || null;
+      this.setData({ pendingTimeoutRequest: request, showTimeoutRequest: !!request });
+    });
+  },
+  reviewCoachTimeout(event) {
+    const request = this.data.pendingTimeoutRequest;
+    if (!request) return;
+    const decision = event.currentTarget.dataset.decision;
+    callCloud('sxMatchReadiness', { domain: 'refereeOps', action: 'reviewTimeout', matchId: this.liveMatchId, requestId: request.requestId, decision }).then((result) => {
+      if (result && result.ok) {
+        wx.showToast({ title: decision === 'approve' ? '已同意，请手动执行暂停' : '已驳回暂停', icon: 'none' });
+        this.setData({ showTimeoutRequest: false, pendingTimeoutRequest: null });
+      }
+    });
+  },
+  syncOfficialLiveState(ended) {
+    if (!this.liveMatchId || this.officialSyncing) { this.officialSyncPending = true; return; }
+    this.officialSyncing = true;
+    const action = ended ? 'finish' : 'update';
+    const data = ended ? { action, matchId: this.liveMatchId } : {
+      action, matchId: this.liveMatchId, version: this.officialLiveVersion,
+      patch: { homeScore: this.data.homeScore, awayScore: this.data.awayScore, period: this.data.period, clockSeconds: this.data.clockSeconds, clockRunning: this.data.clockRunning, timerMode: this.data.timerMode, homeFouls: this.data.homeFouls, awayFouls: this.data.awayFouls, homeTimeouts: this.data.homeTimeouts, awayTimeouts: this.data.awayTimeouts, possession: this.data.possession, shotClockEnabled: this.data.shotClockEnabled, shotClock: this.data.shotClock, shotClockRunning: this.data.shotClockRunning, restKind: this.data.restKind, restSeconds: this.data.restSeconds, restCountdownVisible: this.data.restCountdownVisible }
+    };
+    callCloud('sxMatchLive', data).then((result) => {
+      if (result && result.ok && result.state) this.officialLiveVersion = Number(result.state.version || this.officialLiveVersion);
+      if (result && result.ok !== true && String(result.message || '').includes('刷新')) {
+        return callCloud('sxMatchLive', { action: 'get', matchId: this.liveMatchId }).then((fresh) => { if (fresh && fresh.ok) this.officialLiveVersion = Number(fresh.state && fresh.state.version || 1); });
+      }
+    }).finally(() => {
+      this.officialSyncing = false;
+      if (this.officialSyncPending) { this.officialSyncPending = false; setTimeout(() => this.syncOfficialLiveState(false), 60); }
+    });
   },
   scheduleMatchRecordSave() {
     if (!this.data.started) return;
@@ -2989,6 +3280,23 @@ Page({
     this.playAudioSource(source);
   },
   noop() {},
+  openScoreboardPanel() {
+    if (!/^\d{6}$/.test(String(this.data.scoreboardDisplayCode || ''))) {
+      wx.showToast({ title: '大屏码生成中，请稍后重试', icon: 'none' });
+      return;
+    }
+    this.setData({ scoreboardPanelVisible: true });
+  },
+  closeScoreboardPanel() { this.setData({ scoreboardPanelVisible: false }); },
+  copyScoreboardValue(event) {
+    const kind = event.currentTarget.dataset.kind === 'url' ? 'url' : 'code';
+    const value = kind === 'url' ? this.data.scoreboardDisplayUrl : this.data.scoreboardDisplayCode;
+    if (!value) return;
+    wx.setClipboardData({
+      data: String(value),
+      success: () => wx.showToast({ title: kind === 'url' ? '大屏链接已复制' : '大屏码已复制', icon: 'success' })
+    });
+  },
   goSettings() { wx.navigateTo({ url: '/pages/mc-settings/index' }); },
   goBack() {
     if (this.data.started) this.persistMatchRecord(false);

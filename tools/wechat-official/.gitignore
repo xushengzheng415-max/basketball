@@ -1,4 +1,6 @@
 .env.local
+accounts/*.env.local
+accounts/*.cache.json
 .cache.json
 .feishu-cache.json
 output/

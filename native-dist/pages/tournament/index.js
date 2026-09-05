@@ -1,266 +1,140 @@
-const { normalizeCloudFileID } = require('../../utils/cloud');
-
-const mainRoutes = {
-  home: '/pages/home/index',
-  tournament: '/pages/tournament/index',
-  team: '/pages/team/index',
-  education: '/pages/education/index',
-  data: '/pages/data/index',
-  mine: '/pages/mine/index'
-};
-
-const DEMO_TOURNAMENT_IDS = [
-  'seed-elite-u10',
-  'seed-u12-weekend',
-  'seed-training-internal'
-];
-const TOURNAMENT_ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tournament/';
-
-function hasPhoneLogin() {
-  const profile = wx.getStorageSync('loginProfile') || wx.getStorageSync('userProfile') || null;
-  return !!(profile && profile.loggedIn && profile.mode !== 'guest' && profile.phoneNumber);
-}
-
-function getLoginUrl(redirectPath) {
-  const redirect = redirectPath ? '?redirect=' + encodeURIComponent(redirectPath) : '';
-  return '/pages/login/index' + redirect;
-}
+const {
+  callTournament,
+  decorateTournament,
+  hasPhoneLogin,
+  listLocalCreatedTournaments,
+  readTeams,
+  requirePhoneLogin,
+  syncLocalTournaments,
+  withTeamPlayers
+} = require('../../utils/tournament-league');
 
 Page({
   data: {
-    staticAssets: {
-      create: TOURNAMENT_ASSET_BASE + 'button-create-tournament.png',
-      footer: TOURNAMENT_ASSET_BASE + 'list-footer-no-more.png'
-    },
-    name: '',
-    location: '',
-    date: '',
-    dateLabel: '选择赛事日期',
-    activeStatus: 'all',
-    showCreatePanel: false,
-    tabs: [],
-    tournaments: [],
-    visibleTournaments: [],
-    hasVisibleTournaments: false,
-    tabItems: [
-      { key: 'home', text: '工作台', iconClass: 'home', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-home.png', activeClass: '' },
-      { key: 'tournament', text: '赛事', iconClass: 'trophy', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-tournament-selected.png', activeClass: 'active' },
-      { key: 'team', text: '球员', iconClass: 'user', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-team.png', activeClass: '' },
-      { key: 'education', text: '教务', iconClass: 'edu', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-education.png', activeClass: '' },
-      { key: 'data', text: '数据', iconClass: 'data', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-data.png', activeClass: '' },
-      { key: 'mine', text: '我的', iconClass: 'mine', icon: 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/tabbar/tab-mine.png', activeClass: '' }
-    ]
+    capsuleRight: 210,
+    activeRole: 'created',
+    roleTabs: [
+      { key: 'created', label: '我创建的', className: 'role-tab active' },
+      { key: 'joined', label: '我参加的', className: 'role-tab' }
+    ],
+    created: [], joined: [], visibleTournaments: [], pendingReviewCount: 0, loading: true, loadFailed: false,
+    emptyText: '还没有创建赛事', migrationPrompting: false
   },
-
-  onLoad() {
-    this.setData({ tabs: this.buildTabs('all') });
-  },
-
+  onLoad() { this.setCapsuleSafeArea(); },
   onShow() {
-    this.loadTournaments();
-  },
-
-  buildTabs(activeStatus) {
-    const source = [
-      { key: 'all', label: '全部' },
-      { key: 'running', label: '进行中' },
-      { key: 'ended', label: '已结束' },
-      { key: 'draft', label: '草稿' }
-    ];
-    return source.map((item) => Object.assign({}, item, {
-      className: item.key === activeStatus ? 'tab active' : 'tab'
-    }));
-  },
-
-  getStatusMeta(status) {
-    const statusMap = {
-      running: { label: '进行中', className: 'status running' },
-      ended: { label: '已结束', className: 'status ended' },
-      draft: { label: '草稿', className: 'status draft' }
-    };
-    return statusMap[status] || statusMap.draft;
-  },
-
-  normalizeTournament(tournament) {
-    const status = tournament.status || 'draft';
-    const statusMeta = this.getStatusMeta(status);
-    const teamCount = tournament.teams || 0;
-    const gameCount = tournament.games || 0;
-    const name = String(tournament.name || '未命名赛事').trim();
-
-    return Object.assign({}, tournament, {
-      name,
-      status,
-      statusLabel: statusMeta.label,
-      statusClass: statusMeta.className,
-      locationText: tournament.location || '未填写地点',
-      dateText: tournament.date || '未选择日期',
-      teamText: `${teamCount} 支球队`,
-      gameText: `${gameCount} 场比赛`,
-      logoUrl: tournament.logoFileID || tournament.logoUrl || tournament.logo || '',
-      logoText: name.slice(0, 1)
-    });
-  },
-
-  loadTournaments() {
-    const stored = wx.getStorageSync('tournaments') || [];
-    let resourcesRepaired = false;
-    const tournaments = stored
-      .filter((item) => DEMO_TOURNAMENT_IDS.indexOf(String(item.id)) === -1)
-      .map((item) => {
-        const source = item.logoFileID || item.logoUrl || item.logo || '';
-        const logoFileID = normalizeCloudFileID(source);
-        if (!logoFileID || logoFileID === item.logoFileID && logoFileID === item.logoUrl) return item;
-        resourcesRepaired = true;
-        return Object.assign({}, item, { logoFileID, logoUrl: logoFileID });
-      });
-
-    if (tournaments.length !== stored.length || resourcesRepaired) {
-      wx.setStorageSync('tournaments', tournaments);
-      DEMO_TOURNAMENT_IDS.forEach((id) => wx.removeStorageSync(`games:${id}`));
+    if (wx.hideTabBar) wx.hideTabBar({ animation: false, fail: () => {} });
+    if (!hasPhoneLogin()) {
+      this.setData({ loading: false, loadFailed: false, created: [], joined: [] });
+      this.applyRole(); return;
     }
-
-    this.setData({ tournaments }, () => {
-      this.applyFilter();
+    this.migrateLegacyIfNeeded().finally(() => {
+      syncLocalTournaments().finally(() => this.loadTournaments());
     });
   },
-  applyFilter() {
-    const activeStatus = this.data.activeStatus;
-    const filtered = this.data.tournaments
-      .filter((item) => activeStatus === 'all' || (item.status || 'draft') === activeStatus)
-      .map((item, index) => this.normalizeTournament(item, index));
-
-    this.setData({
-      visibleTournaments: filtered,
-      hasVisibleTournaments: filtered.length > 0,
-      tabs: this.buildTabs(activeStatus)
-    });
+  setCapsuleSafeArea() {
+    try {
+      const capsule = wx.getMenuButtonBoundingClientRect();
+      const info = wx.getWindowInfo ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      this.setData({ capsuleRight: Math.max(210, (info.windowWidth - capsule.left + 12) * 2) });
+    } catch (error) {}
   },
-
-  changeStatus(event) {
-    this.setData({ activeStatus: event.currentTarget.dataset.status }, () => {
-      this.applyFilter();
-    });
-  },
-
-  requirePhoneLogin(redirectPath, content) {
-    if (hasPhoneLogin()) return true;
-    wx.showModal({
-      title: '登录后云端保存',
-      content: content || '登录后可保存并同步赛事数据。',
-      confirmText: '去登录',
-      cancelText: '先浏览',
-      confirmColor: '#ff5a00',
-      success: (result) => {
-        if (result.confirm) wx.navigateTo({ url: getLoginUrl(redirectPath) });
+  loadTournaments() {
+    const localCreated = listLocalCreatedTournaments();
+    this.setData({ loading: true, loadFailed: false });
+    return callTournament('listMine').then((result) => {
+      const recentFirst = (items) => (items || []).slice().sort((left, right) => Number(right.updatedAt || 0) - Number(left.updatedAt || 0)).map(decorateTournament);
+      const created = recentFirst(localCreated.concat(result.created || []));
+      const pendingReviewCount = created.reduce((sum, item) => sum + Number(item.pendingTeamCount || 0), 0);
+      wx.setStorageSync('sxfTournamentPendingReviewCount', pendingReviewCount);
+      this.setData({ created, joined: recentFirst(result.joined), pendingReviewCount, loading: false, loadFailed: false });
+      this.applyRole();
+    }).catch((error) => {
+      console.warn('[tournament] load failed', error);
+      if (localCreated.length) {
+        const created = localCreated.map(decorateTournament);
+        this.setData({ created, joined: [], loading: false, loadFailed: false });
+        this.applyRole();
+        return;
       }
+      this.setData({ loading: false, loadFailed: true, visibleTournaments: [] });
     });
-    return false;
   },
-
-  goCreateTournament() {
-    const url = '/pages/tournament-create/index?from=tournament';
-    if (!this.requirePhoneLogin(url, '登录后才能创建赛事并云端保存参赛队伍、赛程和比赛数据。')) return;
+  applyRole() {
+    const activeRole = this.data.activeRole;
+    const visibleTournaments = activeRole === 'joined' ? this.data.joined : this.data.created;
+    this.setData({
+      visibleTournaments,
+      emptyText: activeRole === 'joined' ? '还没有参加赛事，扫码即可报名' : '还没有创建赛事',
+      roleTabs: this.data.roleTabs.map((tab) => Object.assign({}, tab, { className: tab.key === activeRole ? 'role-tab active' : 'role-tab' }))
+    });
+  },
+  switchRole(event) { this.setData({ activeRole: event.currentTarget.dataset.key || 'created' }); this.applyRole(); },
+  createScenario(event) {
+    const scenarioType = event.currentTarget.dataset.scenario || 'other';
+    const url = `/pages/tournament-create/index?scenarioType=${scenarioType}`;
+    if (!requirePhoneLogin(url, '登录后才能创建并邀请其他球队参加赛事。')) return;
     wx.navigateTo({ url });
   },
-
-  hideCreateTournament() {
-    this.setData({ showCreatePanel: false });
+  openOtherMenu() {
+    const url = '/pages/tournament-create/index?scenarioType=other';
+    if (!requirePhoneLogin(url, '登录后才能创建其他赛事。')) return;
+    wx.navigateTo({ url });
   },
-
-  onNameInput(event) {
-    this.setData({ name: event.detail.value });
-  },
-
-  onLocationInput(event) {
-    this.setData({ location: event.detail.value });
-  },
-
-  onDateChange(event) {
-    this.setData({ date: event.detail.value, dateLabel: event.detail.value });
-  },
-
-  saveTournament() {
-    if (!this.requirePhoneLogin('', '登录后才能保存赛事资料。')) return;
-    const name = this.data.name.trim();
-    if (!name) {
-      wx.showToast({ title: '请填写赛事名称', icon: 'none' });
-      return;
-    }
-
-    const tournament = {
-      id: Date.now(),
-      name,
-      location: this.data.location.trim(),
-      date: this.data.date,
-      status: 'draft',
-      teams: 0,
-      games: 0
-    };
-    const tournaments = [tournament].concat(this.data.tournaments);
-    wx.setStorageSync('tournaments', tournaments);
-    this.setData({
-      name: '',
-      location: '',
-      date: '',
-      dateLabel: '选择赛事日期',
-      activeStatus: 'all',
-      showCreatePanel: false,
-      tournaments
-    }, () => {
-      this.applyFilter();
-    });
-    wx.showToast({ title: '赛事已保存', icon: 'success' });
-  },
-
-  noop() {},
-
-  onTabTap(event) {
-    const key = event.currentTarget.dataset.key;
-    const url = mainRoutes[key];
-    if (!url || key === 'tournament') return;
-    wx.redirectTo({ url });
-  },
-
-  openTournament(event) {
-    if (this.suppressOpenUntil && Date.now() < this.suppressOpenUntil) return;
-    const id = event.currentTarget.dataset.id || event.target.dataset.id;
-    if (!id) {
-      wx.showToast({ title: '赛事信息缺失', icon: 'none' });
-      return;
-    }
-    wx.navigateTo({
-      url: '/pages/tournament-detail/index?id=' + encodeURIComponent(String(id)),
-      fail: () => wx.showToast({ title: '赛事详情打开失败', icon: 'none' })
-    });
-  },
-
-  deleteTournament(event) {
-    const id = String(event.currentTarget.dataset.id || event.target.dataset.id || '');
-    if (!id) {
-      wx.showToast({ title: '赛事信息缺失', icon: 'none' });
-      return;
-    }
-    const tournament = this.data.tournaments.find((item) => String(item.id) === id);
-    if (!tournament) {
-      wx.showToast({ title: '未找到该赛事', icon: 'none' });
-      return;
-    }
-
-    this.suppressOpenUntil = Date.now() + 1000;
+  openInviteCode() {
     wx.showModal({
-      title: '删除赛事',
-      content: `确认删除“${tournament.name || '未命名赛事'}”吗？赛事和赛程删除后不可恢复，已完成的比赛记录仍会保留。`,
-      confirmText: '删除',
-      confirmColor: '#d93025',
+      title: '输入赛事邀请码',
+      editable: true,
+      placeholderText: '请输入邀请海报或群消息中的邀请码',
+      confirmText: '进入报名',
+      confirmColor: '#ff6500',
       success: (result) => {
         if (!result.confirm) return;
-        const tournaments = this.data.tournaments.filter((item) => String(item.id) !== id);
-        wx.setStorageSync('tournaments', tournaments);
-        wx.removeStorageSync(`games:${id}`);
-        this.setData({ tournaments }, () => this.applyFilter());
-        wx.showToast({ title: '赛事已删除', icon: 'success' });
+        const inviteKey = String(result.content || '').trim();
+        if (!inviteKey) { wx.showToast({ title: '请输入邀请码', icon: 'none' }); return; }
+        wx.showLoading({ title: '正在验证' });
+        callTournament('getInvitation', { inviteKey }).then((response) => {
+          wx.navigateTo({ url: `/pages/tournament-register/index?eventId=${encodeURIComponent(response.tournament.eventId)}&inviteKey=${encodeURIComponent(inviteKey)}` });
+        }).catch((error) => wx.showToast({ title: error.message || '邀请码无效', icon: 'none' })).finally(() => wx.hideLoading());
       }
+    });
+  },
+  openTournament(event) {
+    const eventId = event.currentTarget.dataset.id;
+    if (eventId) wx.navigateTo({ url: `/pages/tournament-detail/index?id=${encodeURIComponent(eventId)}` });
+  },
+  retryLoad() { if (requirePhoneLogin('/pages/tournament/index')) this.loadTournaments(); },
+  migrateLegacyIfNeeded() {
+    const migrationState = wx.getStorageSync('tournamentLeagueMigrationV1');
+    const legacy = wx.getStorageSync('tournaments');
+    if (migrationState || !Array.isArray(legacy) || !legacy.length || this.data.migrationPrompting) return Promise.resolve();
+    this.setData({ migrationPrompting: true });
+    return new Promise((resolve) => {
+      wx.showModal({
+        title: '发现旧版赛事', content: `检测到 ${legacy.length} 个本机赛事，是否导入新版云端赛事？原记录会继续保留。`,
+        confirmText: '立即导入', cancelText: '稍后', confirmColor: '#ff6a00',
+        success: (result) => {
+          if (!result.confirm) { this.setData({ migrationPrompting: false }); resolve(); return; }
+          wx.showLoading({ title: '正在导入' });
+          const localTeams = readTeams();
+          const tournaments = legacy.map((item) => {
+            const games = wx.getStorageSync(`games:${item.id}`);
+            const teamKeys = Array.isArray(item.teamKeys) ? item.teamKeys.map(String) : [];
+            const selectedTeams = teamKeys.length
+              ? localTeams.filter((team) => teamKeys.includes(String(team.sourceTeamId))).map(withTeamPlayers)
+              : [];
+            return Object.assign({}, item, {
+              legacyGames: Array.isArray(games) ? games : [],
+              legacyTeams: selectedTeams
+            });
+          });
+          callTournament('migrateLegacy', { tournaments }).then((response) => {
+            wx.setStorageSync('tournamentLeagueMigrationV1', { migratedAt: Date.now(), imported: response.imported || 0 });
+            wx.showToast({ title: `已导入 ${response.imported || 0} 个`, icon: 'success' });
+          }).catch((error) => wx.showToast({ title: error.message || '导入失败', icon: 'none' })).finally(() => {
+            wx.hideLoading(); this.setData({ migrationPrompting: false }); resolve();
+          });
+        }, fail: resolve
+      });
     });
   }
 });

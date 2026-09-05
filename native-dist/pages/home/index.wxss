@@ -375,6 +375,186 @@ page {
   margin: 0;
 }
 
+.match-task-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 420rpx;
+  flex: 1;
+  flex-direction: column;
+  padding: 28rpx 24rpx 22rpx;
+  overflow: hidden;
+  border: 2rpx solid rgba(255, 117, 28, 0.94);
+  border-radius: 24rpx;
+  color: #fff;
+  background: radial-gradient(circle at 88% 14%, rgba(255, 94, 0, 0.34), transparent 28%), linear-gradient(145deg, #08131c 0%, #0d1922 56%, #2b1208 100%);
+  box-shadow: 0 18rpx 42rpx rgba(255, 91, 0, 0.18);
+  box-sizing: border-box;
+}
+
+.tournament-task-panel { box-sizing: border-box; width: 100%; flex: none; margin-bottom: 20rpx; padding: 18rpx; border: 1rpx solid rgba(255, 129, 42, 0.58); border-radius: 22rpx; background: radial-gradient(circle at 92% 5%, rgba(255, 87, 0, 0.18), transparent 38%), linear-gradient(180deg, #071017 0%, #05090c 100%); box-shadow: 0 14rpx 32rpx rgba(0, 0, 0, 0.28); }
+.tournament-task-panel-head { display: flex; align-items: center; justify-content: space-between; margin: 0 6rpx 14rpx; color: #aab4ba; font-size: 20rpx; }
+.tournament-task-panel-head > view { display: flex; align-items: center; gap: 12rpx; }.tournament-task-panel-head > view text:first-child { padding: 7rpx 13rpx; border: 1rpx solid rgba(255, 129, 42, 0.5); border-radius: 99rpx; color: #ff9a48; background: rgba(255, 91, 0, 0.12); font-size: 21rpx; font-weight: 900; }
+.tournament-task-row { display: flex; min-height: 126rpx; align-items: center; justify-content: space-between; margin-top: 10rpx; padding: 18rpx 18rpx 18rpx 20rpx; border: 1rpx solid rgba(255, 130, 44, 0.72); border-radius: 15rpx; background: linear-gradient(105deg, rgba(15, 29, 36, 0.98), rgba(18, 18, 20, 0.94)); box-shadow: inset 0 1rpx 0 rgba(255, 205, 156, 0.16), 0 8rpx 20rpx rgba(0, 0, 0, 0.35), 0 0 16rpx rgba(255, 96, 0, 0.14); }
+.tournament-task-row:active { opacity: .72; }.tournament-task-row-main { display: flex; min-width: 0; flex: 1; flex-direction: column; gap: 7rpx; }.tournament-task-row-title { color: #fff; font-size: 27rpx; font-weight: 900; }.tournament-task-row-meta { overflow: hidden; color: #d4d9dc; font-size: 21rpx; text-overflow: ellipsis; white-space: nowrap; }.tournament-task-row-detail { overflow: hidden; color: #8f9aa1; font-size: 19rpx; text-overflow: ellipsis; white-space: nowrap; }.tournament-task-row-action { display: flex; width: 136rpx; height: 56rpx; flex: none; align-items: center; justify-content: center; gap: 6rpx; margin-left: 12rpx; padding: 0 12rpx; border-radius: 28rpx; color: #fff; background: linear-gradient(90deg, #ff7a10, #ff5900); box-sizing: border-box; font-size: 20rpx; font-weight: 900; white-space: nowrap; }
+
+.match-task-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.18;
+  background-image: linear-gradient(30deg, rgba(255, 255, 255, 0.06) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.06) 87.5%);
+  background-size: 72rpx 124rpx;
+}
+
+.task-card-head,
+.task-title,
+.task-meta,
+.task-progress,
+.task-card-action,
+.task-note {
+  position: relative;
+  z-index: 1;
+}
+
+.task-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.task-role,
+.task-status {
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 21rpx;
+  font-weight: 900;
+}
+
+.task-role {
+  color: #ff9a48;
+  border: 1rpx solid rgba(255, 129, 42, 0.55);
+  background: rgba(255, 91, 0, 0.12);
+}
+
+.task-status {
+  color: #bdf5d5;
+  background: rgba(24, 180, 96, 0.14);
+}
+
+.task-title {
+  display: block;
+  margin-top: 26rpx;
+  color: #fff;
+  font-size: 43rpx;
+  font-weight: 900;
+  line-height: 1.18;
+}
+
+.task-meta,
+.task-note {
+  display: block;
+  margin-top: 14rpx;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+
+.task-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10rpx;
+  margin-top: 24rpx;
+}
+
+.task-progress view {
+  padding: 16rpx 8rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  border-radius: 13rpx;
+  background: rgba(4, 10, 15, 0.66);
+  text-align: center;
+}
+
+.task-progress text {
+  display: block;
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 18rpx;
+}
+
+.task-progress text:last-child {
+  margin-top: 6rpx;
+  color: #ff8328;
+  font-size: 25rpx;
+  font-weight: 900;
+}
+
+.task-card-action {
+  display: flex;
+  min-height: 74rpx;
+  margin-top: auto;
+  padding: 0 20rpx;
+  align-items: center;
+  justify-content: space-between;
+  border: 1rpx solid rgba(255, 129, 38, 0.5);
+  border-radius: 14rpx;
+  color: #fff;
+  background: linear-gradient(90deg, rgba(255, 87, 0, 0.9), rgba(255, 148, 28, 0.88));
+  font-size: 25rpx;
+  font-weight: 900;
+}
+
+.task-loading-card,
+.task-error-card {
+  justify-content: center;
+}
+
+.task-loading-line {
+  width: 72%;
+  height: 24rpx;
+  margin-top: 20rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.task-loading-line.wide { width: 92%; height: 38rpx; }
+.task-loading-line.short { width: 48%; }
+
+.task-empty-card {
+  min-height: 420rpx;
+  text-align: center;
+}
+
+.task-empty-symbol {
+  display: flex;
+  width: 190rpx;
+  margin: 48rpx auto 4rpx;
+  flex-direction: column;
+  gap: 14rpx;
+}
+
+.task-empty-symbol view {
+  height: 16rpx;
+  border-radius: 99rpx;
+  background: linear-gradient(90deg, #ff5a00, #ff9b30);
+  box-shadow: 0 8rpx 20rpx rgba(255, 91, 0, 0.22);
+}
+
+.task-empty-symbol view:nth-child(2) { width: 74%; }
+.task-empty-symbol view:nth-child(3) { width: 48%; }
+
+.task-empty-title {
+  margin-top: 26rpx;
+  font-size: 42rpx;
+  text-align: center;
+}
+
+.task-empty-note {
+  margin-top: 12rpx;
+  text-align: center;
+}
+
 .version-panel:active {
   transform: scale(0.992);
 }
@@ -966,4 +1146,363 @@ page {
 .home-page .tab-icon {
   width: 34rpx;
   height: 34rpx;
+}
+
+/* 首页比赛任务中心：裁判、球队与机构任务统一在工作台处理。 */
+.task-center-mask,
+.roster-editor-mask {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  display: flex;
+  align-items: flex-end;
+  background: rgba(0, 0, 0, 0.72);
+}
+
+.roster-editor-mask { z-index: 90; }
+
+.task-center-sheet,
+.roster-editor-sheet {
+  width: 100%;
+  height: 78vh;
+  min-height: 900rpx;
+  padding: 16rpx 24rpx calc(30rpx + env(safe-area-inset-bottom));
+  overflow: hidden;
+  border-radius: 34rpx 34rpx 0 0;
+  color: #fff;
+  background: #09121c;
+  box-shadow: 0 -20rpx 60rpx rgba(0, 0, 0, 0.44);
+  box-sizing: border-box;
+}
+
+.roster-editor-sheet {
+  height: 86vh;
+  min-height: 980rpx;
+}
+
+.task-center-handle {
+  width: 90rpx;
+  height: 8rpx;
+  margin: 0 auto 16rpx;
+  border-radius: 99rpx;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.task-center-head,
+.roster-editor-head {
+  display: flex;
+  min-height: 92rpx;
+  align-items: center;
+  gap: 14rpx;
+}
+
+.task-center-title-wrap,
+.roster-editor-head > view {
+  flex: 1;
+  min-width: 0;
+}
+
+.task-center-title,
+.roster-editor-title {
+  display: block;
+  color: #fff;
+  font-size: 38rpx;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.task-center-subtitle,
+.roster-editor-subtitle {
+  display: block;
+  margin-top: 6rpx;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 23rpx;
+}
+
+.task-center-back,
+.task-center-close {
+  display: flex;
+  width: 76rpx;
+  height: 76rpx;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 76rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 22rpx;
+  color: #fff;
+  background: #152131;
+  font-size: 44rpx;
+  font-weight: 600;
+  line-height: 76rpx;
+}
+
+.task-center-back::after,
+.task-center-close::after,
+.task-primary-action::after,
+.task-reject-action::after,
+.starter-button::after,
+.roster-submit::after { border: 0; }
+
+.task-center-list,
+.task-detail-scroll {
+  height: calc(100% - 112rpx);
+}
+
+.task-center-empty {
+  display: flex;
+  min-height: 420rpx;
+  padding: 40rpx 24rpx;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.task-center-empty text:first-child {
+  color: #fff;
+  font-size: 38rpx;
+  font-weight: 900;
+}
+
+.task-center-empty text:last-child {
+  margin-top: 14rpx;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 25rpx;
+}
+
+.task-list-item,
+.task-detail-card,
+.task-team-progress {
+  margin-top: 18rpx;
+  padding: 26rpx 24rpx;
+  border: 2rpx solid rgba(255, 126, 35, 0.3);
+  border-radius: 24rpx;
+  background: linear-gradient(145deg, #101d29, #0b151f);
+  box-sizing: border-box;
+}
+
+.task-list-top,
+.task-detail-tags {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14rpx;
+}
+
+.task-list-role,
+.task-detail-tags text {
+  color: #ff913c;
+  font-size: 25rpx;
+  font-weight: 900;
+}
+
+.task-list-status,
+.task-detail-tags text:last-child {
+  padding: 7rpx 12rpx;
+  border-radius: 999rpx;
+  color: #b8f5d0;
+  background: rgba(31, 190, 102, 0.13);
+}
+
+.task-list-match,
+.task-detail-match {
+  display: block;
+  margin-top: 18rpx;
+  color: #fff;
+  font-size: 34rpx;
+  font-weight: 900;
+  line-height: 1.25;
+}
+
+.task-list-meta {
+  display: block;
+  margin-top: 12rpx;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 24rpx;
+  line-height: 1.45;
+}
+
+.task-list-action {
+  display: flex;
+  min-height: 68rpx;
+  margin-top: 22rpx;
+  padding: 0 18rpx;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 15rpx;
+  color: #fff;
+  background: linear-gradient(90deg, #f2530a, #ff921f);
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.task-detail-card { margin-top: 10rpx; }
+
+.task-detail-row {
+  display: flex;
+  min-height: 76rpx;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+  border-bottom: 1rpx solid rgba(255, 255, 255, 0.08);
+}
+
+.task-detail-row:last-child { border-bottom: 0; }
+.task-detail-row text { color: rgba(255, 255, 255, 0.5); font-size: 25rpx; }
+.task-detail-value { color: #fff; font-size: 27rpx; font-weight: 800; text-align: right; }
+
+.task-block-title {
+  display: block;
+  color: #fff;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.task-team-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14rpx;
+  margin-top: 18rpx;
+}
+
+.task-team-grid view {
+  padding: 20rpx 16rpx;
+  border-radius: 18rpx;
+  background: #142333;
+}
+
+.task-team-grid text { display: block; }
+.task-team-grid text { color: rgba(255, 255, 255, 0.5); font-size: 22rpx; }
+.task-team-grid .task-team-value { margin-top: 8rpx; color: #ff9139; font-size: 30rpx; font-weight: 900; }
+
+.task-block-note,
+.task-wait-note {
+  display: block;
+  margin-top: 18rpx;
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 23rpx;
+  line-height: 1.5;
+}
+
+.task-detail-actions { margin-top: 24rpx; }
+
+.task-primary-action,
+.roster-submit {
+  display: flex;
+  width: 100%;
+  min-height: 92rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 20rpx;
+  color: #fff;
+  background: linear-gradient(90deg, #f34d08, #ff951d);
+  font-size: 31rpx;
+  font-weight: 900;
+}
+
+.task-reject-action {
+  width: 100%;
+  min-height: 82rpx;
+  margin-top: 14rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.14);
+  border-radius: 20rpx;
+  color: #ff9b88;
+  background: transparent;
+  font-size: 28rpx;
+  font-weight: 800;
+}
+
+.roster-locked-tip,
+.roster-empty {
+  margin-top: 14rpx;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  color: #ffc399;
+  background: rgba(255, 103, 23, 0.12);
+  font-size: 25rpx;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.roster-player-list {
+  height: calc(100% - 226rpx);
+  margin-top: 12rpx;
+}
+
+.roster-player {
+  display: flex;
+  min-height: 94rpx;
+  margin-bottom: 12rpx;
+  padding: 10rpx 14rpx;
+  align-items: center;
+  gap: 16rpx;
+  border: 2rpx solid #223143;
+  border-radius: 20rpx;
+  background: #101b27;
+  box-sizing: border-box;
+}
+
+.roster-player.selected {
+  border-color: #ff7b27;
+  background: rgba(255, 106, 20, 0.1);
+}
+
+.roster-number {
+  display: flex;
+  width: 62rpx;
+  height: 62rpx;
+  flex: 0 0 62rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: #ff8d37;
+  background: #1d2a38;
+  font-size: 27rpx;
+  font-weight: 900;
+}
+
+.roster-name {
+  flex: 1;
+  color: #fff;
+  font-size: 29rpx;
+  font-weight: 800;
+}
+
+.starter-button {
+  min-width: 104rpx;
+  min-height: 58rpx;
+  margin: 0;
+  padding: 0 14rpx;
+  border: 2rpx solid #34475b;
+  border-radius: 15rpx;
+  color: rgba(255, 255, 255, 0.5);
+  background: transparent;
+  font-size: 24rpx;
+  line-height: 58rpx;
+}
+
+.starter-button.active {
+  border-color: #ff7b27;
+  color: #fff;
+  background: #e95a0c;
+}
+
+.roster-check {
+  width: 36rpx;
+  color: transparent;
+  font-size: 30rpx;
+  font-weight: 900;
+}
+
+.roster-player.selected .roster-check { color: #54d68a; }
+.roster-submit { min-height: 86rpx; margin-top: 12rpx; }
+
+@media (min-width: 700px) {
+  .task-center-sheet,
+  .roster-editor-sheet {
+    width: 680rpx;
+    margin: 0 auto;
+    border-radius: 34rpx 34rpx 0 0;
+  }
 }

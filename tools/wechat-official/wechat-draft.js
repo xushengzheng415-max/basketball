@@ -5,7 +5,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = __dirname;
-loadEnv(path.join(ROOT, '.env.local'));
+const ENV_FILE = process.env.WECHAT_ENV_FILE
+  ? path.resolve(ROOT, process.env.WECHAT_ENV_FILE)
+  : path.join(ROOT, '.env.local');
+loadEnv(ENV_FILE);
 
 const WECHAT_BASE = 'https://api.weixin.qq.com';
 const OPENAI_BASE = process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1';
@@ -58,7 +61,11 @@ async function requestJson(url, options = {}) {
   return data;
 }
 
-function cachePath() { return path.join(ROOT, '.cache.json'); }
+function cachePath() {
+  return process.env.WECHAT_CACHE_FILE
+    ? path.resolve(ROOT, process.env.WECHAT_CACHE_FILE)
+    : path.join(ROOT, '.cache.json');
+}
 
 async function getAccessToken(forceRefresh = false) {
   requireEnv(['WECHAT_APP_ID', 'WECHAT_APP_SECRET']);
@@ -120,10 +127,28 @@ async function prepareArticleImages(article, token) {
     if (!content.includes(image.placeholder)) throw new Error(`正文中找不到图片占位符 ${image.placeholder}：${article.title}`);
     const url = image.wechat_url || await uploadContentImage(image.file_path, token);
     const alt = String(image.alt || image.caption || '').replace(/["<>]/g, '');
+    const cleanedCredit = image.credit ? String(image.credit).replace(/[<>]/g, '') : '';
+    const creditText = cleanedCredit ? (cleanedCredit.startsWith('来源') ? `｜${cleanedCredit}` : `｜来源：${cleanedCredit}`) : '';
     const caption = image.caption
-      ? `<p style="text-align:center;color:#888;font-size:12px;">${String(image.caption).replace(/[<>]/g, '')}${image.credit ? `｜来源：${String(image.credit).replace(/[<>]/g, '')}` : ''}</p>`
+      ? `<span style="display:block;margin:6px 0 0;text-align:center;color:#888;font-size:12px;line-height:1.6;">${String(image.caption).replace(/[<>]/g, '')}${creditText}</span>`
       : '';
-    content = content.replace(image.placeholder, `<p style="text-align:center;"><img src="${url}" alt="${alt}" style="max-width:100%;height:auto;" /></p>${caption}`);
+    // FIX: replace the entire <img> tag whose src is the placeholder, not just the placeholder string.
+    // The placeholder sits inside src="...", so a naive string.replace() injects HTML with quotes into
+    // an attribute and breaks the tag (visible raw HTML leaking below the image).
+    const escapedPlaceholder = image.placeholder.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const imgTagRegex = new RegExp(`<img[^>]*src=["']${escapedPlaceholder}["'][^>]*/?>`, 'gi');
+    const matches = content.match(imgTagRegex);
+    if (!matches || matches.length === 0) {
+      throw new Error(`找不到 src 为 ${image.placeholder} 图片标签：${article.title}`);
+    }
+    // A separator or other shared asset may be deliberately reused in several
+    // places. Upload it once, then replace every matching tag while preserving
+    // each tag's own inline sizing.
+    content = content.replace(imgTagRegex, (tag) => {
+      const originalStyle = (tag.match(/style=["']([^"']*)["']/i) || [])[1];
+      const imgStyle = originalStyle || 'max-width:100%;height:auto;';
+      return `<span style="display:block;margin:0;text-align:center;line-height:0;"><img src="${url}" alt="${alt}" style="${imgStyle}" /></span>${caption}`;
+    });
   }
   return content;
 }
@@ -187,7 +212,7 @@ async function addDraft(articlePackage, { cover, thumbMediaId, sourceUrl, commen
   const payload = {
     articles: preparedArticles.map(({ article, articleThumb, content }) => ({
       title: article.title,
-      author: process.env.ARTICLE_AUTHOR || '蜂家日记编辑部',
+      author: process.env.ARTICLE_AUTHOR || '麦步赛事',
       digest: article.digest,
       content,
       content_source_url: sourceUrl || '',
@@ -197,6 +222,35 @@ async function addDraft(articlePackage, { cover, thumbMediaId, sourceUrl, commen
     }))
   };
   return requestJson(`${WECHAT_BASE}/cgi-bin/draft/add?access_token=${encodeURIComponent(token)}`, {
+    method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body: JSON.stringify(payload)
+  });
+}
+
+async function updateDraft(mediaId, articlePackage, { cover, thumbMediaId, sourceUrl, comments, index = 0 }) {
+  if (!mediaId) throw new Error('请提供 --media-id 草稿 media_id。');
+  if (articlePackage.articles.length !== 1) throw new Error('update 命令一次只更新一篇文章。');
+  const token = await getAccessToken();
+  const article = articlePackage.articles[0];
+  let articleThumb = article.thumb_media_id || thumbMediaId || process.env.WECHAT_THUMB_MEDIA_ID || '';
+  if (!articleThumb && article.cover_path) articleThumb = await uploadThumb(article.cover_path, token);
+  if (!articleThumb && cover) articleThumb = await uploadThumb(cover, token);
+  if (!articleThumb) throw new Error(`文章缺少封面：${article.title}。`);
+  const content = await prepareArticleImages(article, token);
+  const payload = {
+    media_id: mediaId,
+    index: Number(index),
+    articles: {
+      title: article.title,
+      author: process.env.ARTICLE_AUTHOR || '麦步赛事',
+      digest: article.digest,
+      content,
+      content_source_url: sourceUrl || '',
+      thumb_media_id: articleThumb,
+      need_open_comment: comments ? 1 : 0,
+      only_fans_can_comment: comments === 'fans' ? 1 : 0
+    }
+  };
+  return requestJson(`${WECHAT_BASE}/cgi-bin/draft/update?access_token=${encodeURIComponent(token)}`, {
     method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body: JSON.stringify(payload)
   });
 }
@@ -226,6 +280,15 @@ async function listPublished({ offset = 0, count = 20 } = {}) {
   });
 }
 
+async function listDrafts({ offset = 0, count = 20 } = {}) {
+  const token = await getAccessToken();
+  return requestJson(`${WECHAT_BASE}/cgi-bin/draft/batchget?access_token=${encodeURIComponent(token)}`, {
+    method: 'POST',
+    headers: { 'content-type': 'application/json; charset=utf-8' },
+    body: JSON.stringify({ offset: Number(offset), count: Math.min(Number(count), 20), no_content: 0 })
+  });
+}
+
 async function listMaterials({ type = 'image', offset = 0, count = 20 } = {}) {
   const allowed = new Set(['image', 'video', 'voice', 'news']);
   if (!allowed.has(type)) throw new Error(`不支持的素材类型：${type}`);
@@ -238,7 +301,7 @@ async function listMaterials({ type = 'image', offset = 0, count = 20 } = {}) {
 }
 
 function usage() {
-  console.log(`蜂家日记公众号草稿工具\n\n用法：\n  node wechat-draft.js doctor\n  node wechat-draft.js published [--offset 0] [--count 20]\n  node wechat-draft.js materials [--type image] [--offset 0] [--count 20]\n  node wechat-draft.js generate --topic "选题" [--briefing 资料.txt]\n  node wechat-draft.js draft --input output/文章.json [--cover 封面.jpg]\n  node wechat-draft.js run --topic "选题" --briefing 资料.txt --cover 封面.jpg\n\n说明：run 会先保存生成结果，再写入草稿箱；不会自动群发。`);
+  console.log(`麦步赛事公众号草稿工具\n\n用法：\n  node wechat-draft.js doctor\n  node wechat-draft.js drafts [--offset 0] [--count 20]\n  node wechat-draft.js published [--offset 0] [--count 20]\n  node wechat-draft.js materials [--type image] [--offset 0] [--count 20]\n  node wechat-draft.js generate --topic "选题" [--briefing 资料.txt]\n  node wechat-draft.js draft --input output/文章.json [--cover 封面.jpg]\n  node wechat-draft.js update --media-id <草稿ID> --input output/文章.json [--index 0]\n  node wechat-draft.js run --topic "选题" --briefing 资料.txt --cover 封面.jpg\n\n说明：run 会先保存生成结果，再写入草稿箱；不会自动群发。`);
 }
 
 async function main() {
@@ -246,6 +309,11 @@ async function main() {
   const command = args._[0];
   if (!command || command === 'help' || args.help) return usage();
   if (command === 'doctor') return doctor();
+  if (command === 'drafts') {
+    const result = await listDrafts({ offset: args.offset || 0, count: args.count || 20 });
+    console.log(JSON.stringify(result, null, 2));
+    return;
+  }
   if (command === 'published') {
     const result = await listPublished({ offset: args.offset || 0, count: args.count || 20 });
     console.log(JSON.stringify(result, null, 2));
@@ -267,6 +335,18 @@ async function main() {
     if (!args.input) throw new Error('请提供 --input 文章 JSON 文件。');
     const result = await addDraft(readArticle(args.input), { cover: args.cover, thumbMediaId: args['thumb-media-id'], sourceUrl: args['source-url'], comments: args.comments });
     console.log(JSON.stringify({ ok: true, media_id: result.media_id }, null, 2));
+    return;
+  }
+  if (command === 'update') {
+    if (!args.input) throw new Error('请提供 --input 文章 JSON 文件。');
+    const result = await updateDraft(args['media-id'], readArticle(args.input), {
+      cover: args.cover,
+      thumbMediaId: args['thumb-media-id'],
+      sourceUrl: args['source-url'],
+      comments: args.comments,
+      index: args.index || 0
+    });
+    console.log(JSON.stringify({ ok: true, media_id: args['media-id'], index: Number(args.index || 0), result }, null, 2));
     return;
   }
   if (command === 'run') {

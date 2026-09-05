@@ -1,0 +1,143 @@
+{
+  "prototype": "E:\\Documents\\sxf-basketball\\docs\\原型-裁判教练协同\\首页任务通知广告位.png",
+  "asset_dir": "E:\\Documents\\sxf-basketball\\docs\\原型-裁判教练协同\\首页任务通知广告位_assets",
+  "generated_at": "2026-08-19",
+  "tool": "yuanxing prototype decomposition",
+  "status": "approved",
+  "approved_at": "2026-08-19T19:45:00+08:00",
+  "screen": {
+    "width": 1250,
+    "height": 1000
+  },
+  "summary": "首页现有广告位永久替换为比赛任务区；有任务显示任务卡，无任务显示任务空态，不再展示原经营广告。截图仅作几何参考，生产卡片全部使用WXML/WXSS动态渲染。",
+  "entries": [
+    {
+      "id": "source-prototype",
+      "category": "source",
+      "implementation": "crop-reference",
+      "output": "00-source/首页任务通知广告位.png",
+      "source_bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 1250,
+        "height": 1000
+      },
+      "sha256": "eaae669a271e6443a7877c9cf3a5df31a4b1b4603d9fc48523444cae7ba5ffff",
+      "notes": "用户提供的开发者工具截图，仅作页面区域定位。"
+    },
+    {
+      "id": "phone-viewport",
+      "category": "layout",
+      "implementation": "crop-reference",
+      "output": "08-reference-crops/手机首页视口.png",
+      "source_bbox": {
+        "x": 866,
+        "y": 89,
+        "width": 365,
+        "height": 788
+      },
+      "notes": "手机首页整体结构与任务卡所在滚动区域。"
+    },
+    {
+      "id": "quick-match-card",
+      "category": "layout",
+      "implementation": "crop-reference",
+      "output": "08-reference-crops/快捷比赛卡参考.png",
+      "source_bbox": {
+        "x": 879,
+        "y": 249,
+        "width": 337,
+        "height": 193
+      },
+      "notes": "现有快捷比赛卡保持不变。"
+    },
+    {
+      "id": "task-slot",
+      "category": "layout",
+      "implementation": "crop-reference",
+      "output": "08-reference-crops/任务通知广告位.png",
+      "source_bbox": {
+        "x": 868,
+        "y": 450,
+        "width": 365,
+        "height": 345
+      },
+      "notes": "现有广告位作为任务卡优先展示区；任务卡高度允许按状态自适应。"
+    },
+    {
+      "id": "bottom-tabbar",
+      "category": "layout",
+      "implementation": "crop-reference",
+      "output": "08-reference-crops/底部菜单参考.png",
+      "source_bbox": {
+        "x": 868,
+        "y": 797,
+        "width": 362,
+        "height": 80
+      },
+      "notes": "继续复用sxf-tabbar，不创建页面级tabbar。"
+    },
+    {
+      "id": "task-card-structure",
+      "category": "card",
+      "implementation": "panel-structure",
+      "source_bbox": {
+        "x": 868,
+        "y": 450,
+        "width": 365,
+        "height": 345
+      },
+      "action": "tap",
+      "target": "按任务角色进入裁判场次、球队名单或助教任务页面",
+      "states": [
+        "loading",
+        "unread",
+        "pending_confirmation",
+        "confirmed",
+        "schedule_changed",
+        "multiple_tasks",
+        "empty_task",
+        "error"
+      ],
+      "notes": "卡片由代码渲染，显示角色、比赛日期时间、场地、对阵、确认状态和主要按钮。"
+    },
+    {
+      "id": "task-priority-rule",
+      "category": "behavior",
+      "implementation": "code",
+      "action": "resolve-home-slot",
+      "target": "首页比赛任务区",
+      "states": [
+        "task_available",
+        "no_task"
+      ],
+      "notes": "首页中间区域始终显示比赛任务区；有任务显示任务卡，无任务或任务过期时显示任务空态，禁止回退原经营广告。"
+    },
+    {
+      "id": "canonical-home-assets",
+      "category": "asset-reuse",
+      "implementation": "code",
+      "notes": "复用native-dist/assets/home下现有品牌Logo、背景与快捷比赛素材；不从截图裁切生产图片。"
+    },
+    {
+      "id": "layout-overlay",
+      "category": "overlay",
+      "implementation": "overlay",
+      "output": "06-overlays/annotated-layout.png",
+      "source_bbox": {
+        "x": 0,
+        "y": 0,
+        "width": 1250,
+        "height": 1000
+      },
+      "notes": "仅用于视觉验收，不进入生产包。"
+    },
+    {
+      "id": "annotated-layout-overlay",
+      "category": "overlay",
+      "implementation": "overlay",
+      "output": "06-overlays/annotated-layout.png",
+      "notes": "Generated bounding-box overlay for comparison only."
+    }
+  ]
+}

@@ -93,7 +93,7 @@
     <view class="top-icon back" bindtap="goBack">‹</view>
     <text class="header-console-title">赛小蜂比赛控制台</text>
     <view class="match-block"><text class="match-caption">比赛名称 / 场次</text><text class="match-name">{{matchName}}</text></view>
-    <view class="top-actions"><text class="period-pill">第 {{period}} 节</text><view wx:if="{{rosterDrawerToggleVisible}}" class="top-pill top-action-large roster-drawer-toggle {{rosterDrawerButtonClass}}" bindtap="toggleRosterDrawer">{{rosterDrawerButtonText}}</view><view class="top-pill top-action-large" bindtap="confirmReset">重置</view><view class="top-pill top-action-large mc-settings-top" bindtap="goSettings">MC设置</view></view>
+    <view class="top-actions"><text class="period-pill">第 {{period}} 节</text><view wx:if="{{rosterDrawerToggleVisible}}" class="top-pill top-action-large roster-drawer-toggle {{rosterDrawerButtonClass}}" bindtap="toggleRosterDrawer">{{rosterDrawerButtonText}}</view><view class="top-pill top-action-large" bindtap="confirmReset">重置</view><view wx:if="{{scoreboardButtonVisible}}" class="top-pill top-action-large scoreboard-entry" bindtap="openScoreboardPanel">电视大屏</view><view class="top-pill top-action-large mc-settings-top" bindtap="goSettings">MC设置</view></view>
   </view>
 
   <view class="board-grid {{rosterDrawerClass}}">
@@ -268,5 +268,21 @@
       <view class="sound-groups"><view class="sound-group common-sound-group"><text class="mc-subtitle">常用音效</text><view class="sound-grid common-sound-grid"><view wx:for="{{commonSounds}}" wx:key="type" class="sound-btn {{item.activeClass}}" data-type="{{item.type}}" bindtap="playSound"><view class="sound-icon sound-glyph">{{item.glyph}}</view><text>{{item.name}}</text></view></view></view><view class="sound-group custom-sound-group"><view class="custom-sound-head"><text class="mc-subtitle">自定义音效</text><text>后台可替换</text></view><view class="sound-grid custom-sound-grid"><view wx:for="{{customSounds}}" wx:key="type" class="sound-btn {{item.activeClass}}" data-type="{{item.type}}" bindtap="playSound"><view class="sound-icon sound-glyph">{{item.glyph}}</view><text>{{item.name}}</text></view></view></view></view>
       <view class="rest-audio-controls"><view wx:if="{{showRestAudioControls}}" class="rest-audio-toggle" catchtap="toggleRestAudio">{{restAudioButtonText}}</view><view wx:else class="rest-audio-label">音效读秒</view><view id="restAudioTrack" class="rest-audio-track" catchtouchstart="startRestAudioSeek" catchtouchmove="moveRestAudioSeek" catchtouchend="endRestAudioSeek" catchtouchcancel="endRestAudioSeek"><view class="rest-audio-progress" style="width: {{restAudioProgress}}%;"></view><view class="rest-audio-thumb" style="left: {{restAudioProgress}}%;"></view></view><text class="rest-audio-time">{{restAudioCurrentText}} / {{restAudioDurationText}}</text></view>
     </view>
+  </view>
+
+  <view wx:if="{{showTimeoutRequest}}" class="coach-timeout-request">
+    <view><b>{{pendingTimeoutRequest.teamScope}}队申请暂停</b><text>同意后请使用原计分板暂停按钮手动执行</text></view>
+    <button data-decision="reject" bindtap="reviewCoachTimeout">驳回</button>
+    <button class="approve" data-decision="approve" bindtap="reviewCoachTimeout">同意</button>
+  </view>
+
+  <view wx:if="{{scoreboardPanelVisible}}" class="scoreboard-panel-mask" bindtap="closeScoreboardPanel"></view>
+  <view wx:if="{{scoreboardPanelVisible}}" class="scoreboard-panel" catchtap="noop">
+    <view class="scoreboard-panel-head"><view><text>电视大屏</text><text>只读同步本场官方比分</text></view><text bindtap="closeScoreboardPanel">×</text></view>
+    <view class="scoreboard-code-label">6位大屏码</view>
+    <view class="scoreboard-code">{{scoreboardDisplayCode}}</view>
+    <view class="scoreboard-url">{{scoreboardDisplayUrl}}</view>
+    <view class="scoreboard-steps"><text>1、电视或电脑打开上方网址</text><text>2、输入大屏码进入本场比赛</text><text>3、连接电视后使用浏览器全屏显示</text></view>
+    <view class="scoreboard-panel-actions"><view data-kind="code" bindtap="copyScoreboardValue">复制大屏码</view><view class="primary" data-kind="url" bindtap="copyScoreboardValue">复制完整链接</view></view>
   </view>
 </view>

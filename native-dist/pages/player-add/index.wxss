@@ -235,6 +235,46 @@ page {
   min-height: 69rpx;
 }
 
+.team-membership-row {
+  align-items: flex-start;
+  padding: 10rpx 0 14rpx;
+}
+
+.team-membership-field {
+  flex: 1;
+  min-width: 0;
+}
+
+.team-chip-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.team-option-chip {
+  padding: 12rpx 20rpx;
+  border: 1rpx solid #dfe3e8;
+  border-radius: 999rpx;
+  color: #4b5563;
+  background: #f5f6f7;
+  font-size: 22rpx;
+}
+
+.team-option-chip.active {
+  border-color: #ff5a00;
+  color: #ffffff;
+  background: linear-gradient(90deg, #ff6a00 0%, #ff4e00 100%);
+}
+
+.team-selection-tip,
+.team-empty-tip {
+  display: block;
+  margin-top: 10rpx;
+  color: #8a9099;
+  font-size: 20rpx;
+  line-height: 1.4;
+}
+
 .field-label {
   position: relative;
   flex: 0 0 170rpx;

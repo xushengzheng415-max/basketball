@@ -1,101 +1,170 @@
-<view class="coach-page">
-  <image class="page-bg" src="{{assets.background}}" mode="aspectFill" />
-  <view class="page-shade"></view>
-
-  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}">
-    <view class="hero">
-      <view class="brand-row">
-        <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange" disabled="{{rolePickerDisabled}}">
-          <view class="role-pill" aria-role="button" aria-label="预览身份切换">
-            <text>教练端</text>
-            <text class="role-switch-mark" wx:if="{{showRoleTester}}">⌄</text>
-          </view>
-        </picker>
-      </view>
-      <view class="education-mode {{educationModeClass}}" bindtap="openEducationAccount">
-        <view class="education-mode-dot"></view>
-        <view class="education-mode-copy"><text>{{educationModeTitle}}</text><text>{{educationModeCopy}}</text></view>
-        <text class="education-mode-arrow" wx:if="{{!educationAccessActive}}">›</text>
-      </view>
-      <view class="welcome-row">
-        <view>
-          <text class="eyebrow">陈教练，晚上好</text>
-          <text class="page-title">今日教学工作台</text>
-          <text class="hero-copy">浦东校区 · 备课、点名、评价一处完成</text>
-        </view>
-        <view class="weekly-progress"><view class="weekly-ring"><text>76%</text></view><text class="weekly-label">12/16 节课</text></view>
-      </view>
-    </view>
-
-    <view class="content">
-      <view class="next-card" bindtap="openCourseDetail">
-        <view class="card-head">
-          <view><text class="section-kicker">下一节课</text><text class="course-title">U10 提高班 · 控球强化</text></view>
-          <view class="countdown"><text class="countdown-value">42</text><text>分钟后</text></view>
-        </view>
-        <view class="course-meta"><text>18:30–20:00</text><text>2号馆</text><text>15名学员</text></view>
-        <view class="progress-track"><view class="progress-value"></view></view>
-        <view class="next-actions">
-          <view class="outline-btn" catchtap="openPlan">查看计划</view>
-          <view class="primary-btn" catchtap="openAttendance">进入点名</view>
-          <view class="outline-btn" catchtap="openCourseStudents">学员名单</view>
-        </view>
-      </view>
-
-      <view class="metric-grid">
-        <view class="metric-card" wx:for="{{metrics}}" wx:key="label">
-          <image class="metric-icon" src="{{item.icon}}" mode="aspectFit" />
-          <text class="metric-label">{{item.label}}</text>
-          <view><text class="metric-value">{{item.value}}</text><text class="metric-unit">{{item.unit}}</text></view>
-          <text class="metric-note">{{item.note}}</text>
-        </view>
-      </view>
-
-      <view class="class-entry" bindtap="openClasses">
-        <view class="class-entry-icon"><image src="{{assets.classIcon}}" mode="aspectFit" /></view>
-        <view class="class-entry-main"><view><text class="class-entry-title">我的班级</text><text class="role-tag">教练管理</text></view><text class="class-entry-desc">3个负责班级 · 37名学员 · 本周8节课</text><view class="class-entry-tags"><text>课程安排</text><text>班级学员</text><text>教学进度</text></view></view>
-        <text class="class-entry-arrow">›</text>
-      </view>
-
-      <view class="section-card">
-        <view class="section-head"><view><text class="section-title">今日课程</text><text class="section-sub">3节 · 已完成1节</text></view><text class="link" bindtap="openCourses">全部课程 ›</text></view>
-        <view class="timeline-item" wx:for="{{courses}}" wx:key="id" data-id="{{item.id}}" bindtap="openCourseDetail">
-          <view class="time-column"><text class="time">{{item.time}}</text><text class="time-state">{{item.state}}</text></view>
-          <view class="timeline-line"><view class="timeline-dot {{item.dotClass}}"></view></view>
-          <view class="course-info"><view><text class="list-title">{{item.title}}</text><text class="tag">{{item.tag}}</text></view><text class="list-sub">{{item.venue}} · {{item.students}}名学员</text></view>
-          <text class="chevron">›</text>
-        </view>
-      </view>
-
-      <view class="section-card">
-        <view class="section-head"><view><text class="section-title">教学待办</text><text class="section-sub">按课堂流程自动生成</text></view><text class="link">4项待处理</text></view>
-        <view class="task-grid">
-          <view class="task-card" wx:for="{{tasks}}" wx:key="title" data-action="{{item.action}}" bindtap="handleTask">
-            <view class="task-icon-wrap"><image class="task-icon" src="{{item.icon}}" mode="aspectFit" /><text class="task-badge">{{item.count}}</text></view>
-            <text class="task-title">{{item.title}}</text><text class="task-desc">{{item.desc}}</text>
-          </view>
-        </view>
-      </view>
-
-      <view class="section-card period-report-card">
-        <view class="section-head"><view><text class="section-title">周期报告提醒</text><text class="section-sub">只在本周或本月课程完成后触发</text></view><text class="report-rule">自动提醒</text></view>
-        <view class="period-report-row {{item.stateClass}}" wx:for="{{periodReports}}" wx:key="type" data-type="{{item.type}}" bindtap="openPeriodReports">
-          <view class="period-report-icon"><view class="report-sheet"><text></text><text></text><text></text></view></view>
-          <view class="period-report-main"><text class="period-eyebrow">{{item.eyebrow}}</text><text class="period-title">{{item.title}}</text><text class="period-desc">{{item.desc}}</text></view>
-          <view class="period-report-side"><text class="period-value">{{item.value}}</text><text class="period-action">{{item.actionLabel}} ›</text></view>
-        </view>
-      </view>
-
-      <view class="section-card student-card">
-        <view class="section-head"><view><text class="section-title">学员动态</text><text class="section-sub">关注近期训练变化</text></view><text class="link">查看全部 ›</text></view>
-        <view class="student-row" wx:for="{{students}}" wx:key="id" data-id="{{item.id}}" bindtap="openStudent">
-          <image class="student-avatar" src="{{item.avatar}}" mode="aspectFill" />
-          <view class="student-copy"><view><text class="list-title">{{item.name}}</text><text class="positive-tag">{{item.tag}}</text></view><text class="list-sub">{{item.message}}</text></view>
-          <text class="chevron">›</text>
-        </view>
-      </view>
-    </view>
-    <view class="bottom-space"></view>
-  </scroll-view>
-  <sxf-tabbar active="education" />
+<view class="education-page">
+  <image class="page-bg" src="{{assets.background}}" mode="aspectFill" /><view
+    class="page-shade"
+  ></view>
+  <scroll-view class="page-scroll" scroll-y enhanced show-scrollbar="{{false}}"
+    ><view style="height:{{navSpacer}}px"></view>
+    <view class="loading-state" wx:if="{{showLoading}}"
+      ><view class="loading-ring"></view><text>正在确认机构身份…</text></view
+    >
+    <view class="invite-wrap" wx:elif="{{showInvite}}"
+      ><view class="invite-card"
+        ><view class="identity-mark">教</view><view class="invite-verified">微信身份已确认</view
+        ><text class="state-kicker">机构教练邀请</text
+        ><text class="state-title">填写教练资料</text
+        ><text class="state-copy"
+          >请填写本人真实资料。提交后将绑定邀请机构，并进入教练工作台。</text
+        ><view class="invite-form"
+          ><text>教练姓名 <text class="required-mark">*</text></text
+          ><input
+            value="{{inviteName}}"
+            bindinput="onInviteName"
+            maxlength="20"
+            placeholder="请输入本人真实姓名"
+            placeholder-class="input-placeholder"
+            confirm-type="next"
+            cursor-spacing="150"
+            adjust-position="{{true}}" /><text>手机号 <text class="required-mark">*</text></text
+          ><input
+            value="{{invitePhone}}"
+            bindinput="onInvitePhone"
+            type="number"
+            maxlength="11"
+            placeholder="请输入本人手机号"
+            placeholder-class="input-placeholder"
+            confirm-type="done"
+            cursor-spacing="150"
+            adjust-position="{{true}}" /></view
+        ><button
+          class="primary-button"
+          loading="{{inviteSubmitting}}"
+          disabled="{{inviteSubmitting}}"
+          bindtap="acceptCoachInvite"
+        >
+          确认资料并加入机构
+        </button></view
+      ></view
+    >
+    <view class="unbound-wrap" wx:elif="{{showUnbound}}"
+      ><image class="brand-logo" src="{{assets.logo}}" mode="widthFix" /><view
+        class="unbound-card"
+        ><view class="identity-mark">未</view
+        ><text class="state-kicker">教务身份</text
+        ><text class="state-title">尚未加入机构</text
+        ><text class="state-copy"
+          >请让机构负责人在PC教务中心生成“添加教练”二维码，再使用微信扫码。扫码后会先确认您的姓名和手机号，完成后自动进入教练端。</text
+        ><view class="unbound-steps"
+          ><view><b>1</b><text>机构PC生成邀请</text></view
+          ><view><b>2</b><text>微信扫描小程序码</text></view
+          ><view><b>3</b><text>确认资料并绑定</text></view></view
+        ><text class="error-copy" wx:if="{{errorMessage}}"
+          >{{errorMessage}}</text
+        ><button class="primary-button" bindtap="refreshIdentity">
+          我已扫码，重新检查
+        </button></view
+      ></view
+    >
+    <view wx:elif="{{showCoach}}"
+      ><view class="hero"
+        ><text class="state-kicker">{{organizationName}} · 教练端</text
+        ><text class="page-title">{{displayName}}，今日教学</text
+        ><text class="hero-copy"
+          >只显示您本人负责的真实课堂与学员任务</text
+        ></view
+      ><view class="content"
+        ><view
+          class="next-card"
+          wx:if="{{nextLesson}}"
+          data-id="{{nextLesson.lessonId}}"
+          bindtap="openLesson"
+          ><text class="section-kicker">下一节课</text
+          ><text class="course-title">{{nextLesson.className}}</text
+          ><text class="course-sub"
+            >{{nextLesson.lessonDate}}　{{nextLesson.startTime}}　{{nextLesson.venue}}</text
+          ><text class="course-sub"
+            >{{nextLesson.courseName}} · {{nextLesson.studentCount}}名学员</text
+          ><view class="action-row"
+            ><button
+              class="outline-button"
+              data-id="{{nextLesson.lessonId}}"
+              catchtap="openLesson"
+            >
+              查看课堂</button
+            ><button
+              class="primary-small"
+              data-id="{{nextLesson.lessonId}}"
+              catchtap="openAttendance"
+            >
+              进入点名
+            </button></view
+          ></view
+        ><view class="empty-card" wx:else
+          ><text>近期没有待执行课堂</text
+          ><text>校区完成排课后会自动出现在这里</text></view
+        ><view class="metric-grid"
+          ><view class="metric-card" wx:for="{{metrics}}" wx:key="label"
+            ><image src="{{item.icon}}" mode="aspectFit" /><text
+              >{{item.label}}</text
+            ><view><b>{{item.value}}</b><text>{{item.unit}}</text></view></view
+          ></view
+        ><view class="section-card"
+          ><view class="section-head"
+            ><text>我的课堂</text><text>{{lessons.length}}节</text></view
+          ><view
+            class="lesson-row"
+            wx:for="{{lessons}}"
+            wx:key="lessonId"
+            data-id="{{item.lessonId}}"
+            bindtap="openLesson"
+            ><view
+              ><text>{{item.lessonDate}} {{item.startTime}}</text
+              ><text>{{item.className}} · {{item.courseName}}</text
+              ><text>{{item.venue}} · {{item.studentCount}}名学员</text></view
+            ><text>{{item.status}}</text></view
+          ><view class="empty-line" wx:if="{{lessonsEmpty}}"
+            >暂无课堂数据</view
+          ></view
+        ><button class="secondary-wide" bindtap="openClasses">
+          查看我的班级</button
+        ><text class="error-copy" wx:if="{{errorMessage}}"
+          >{{errorMessage}}</text
+        ></view
+      ></view
+    >
+    <view wx:elif="{{showManager}}"
+      ><view class="hero"
+        ><text class="state-kicker">{{organizationName}} · 校区管理端</text
+        ><text class="page-title">{{displayName}}，教务概览</text
+        ><text class="hero-copy"
+          >小程序查看状态与待办，课程、课包和复杂排课在PC完成</text
+        ></view
+      ><view class="content"
+        ><view class="manager-grid"
+          ><view><text>课程</text><b>{{managerSummary.courseCount}}</b></view
+          ><view><text>班级</text><b>{{managerSummary.classCount}}</b></view
+          ><view
+            ><text>在读学员</text
+            ><b>{{managerSummary.studentCount}}</b></view
+          ><view
+            ><text>待确认学员</text
+            ><b>{{managerSummary.pendingStudentCount}}</b></view
+          ></view
+        ><view class="section-card"
+          ><view class="section-head"
+            ><text>当前待办</text
+            ><text>{{managerSummary.pendingReviewCount}}项审核</text></view
+          ><button class="manager-entry" bindtap="openPcNotice">
+            PC端处理教务任务</button
+          ><button class="manager-entry" bindtap="openPcNotice">
+            PC端管理学员</button
+          ><button class="manager-entry" bindtap="openPcNotice">
+            PC端管理排课
+          </button></view
+        ><text class="error-copy" wx:if="{{errorMessage}}"
+          >{{errorMessage}}</text
+        ></view
+      ></view
+    >
+    <view class="bottom-space"></view> </scroll-view
+  ><sxf-tabbar active="education" wx:if="{{showTabbar}}" />
 </view>

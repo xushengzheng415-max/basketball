@@ -45,14 +45,15 @@
         <text class="field-label">球衣号码</text>
         <input class="field-input" value="{{number}}" type="number" placeholder="请输入球衣号码（1-99）" placeholder-class="input-placeholder" data-field="number" bindinput="onInput" />
       </view>
-      <view class="form-row">
+      <view class="form-row team-membership-row">
         <text class="field-label">所属球队</text>
-        <picker class="field-picker" mode="selector" range="{{teams}}" range-key="label" value="{{teamIndex}}" bindchange="onTeamChange">
-          <view class="picker-inner">
-            <text class="picker-text {{teamPlaceholderClass}}">{{teamText}}</text>
-            <image class="chevron-icon" src="{{assets.chevronIcon}}" mode="aspectFit" />
+        <view class="team-membership-field">
+          <view class="team-chip-list">
+            <view wx:for="{{teamOptions}}" wx:key="key" class="team-option-chip {{item.selectedClass}}" data-key="{{item.key}}" bindtap="onTeamToggle">{{item.label}}</view>
           </view>
-        </picker>
+          <text wx:if="{{!teamOptions.length}}" class="team-empty-tip">请先创建球队；球员可同时加入多支球队</text>
+          <text wx:else class="team-selection-tip">可多选，已选：{{teamText}}</text>
+        </view>
       </view>
       <view class="form-row required chip-row">
         <text class="field-label">场上位置</text>
@@ -89,31 +90,6 @@
       <view class="form-row required">
         <text class="field-label">联系电话</text>
         <input class="field-input" value="{{phone}}" type="number" placeholder="请输入联系电话" placeholder-class="input-placeholder" data-field="phone" bindinput="onInput" />
-      </view>
-    </view>
-
-    <view class="form-card competition-card">
-      <view class="section-title">
-        <view class="section-mark"></view>
-        <text>参赛信息</text>
-      </view>
-      <view class="info-row required">
-        <text class="field-label">身份状态</text>
-        <text class="status-pill">{{identityStatus}}</text>
-      </view>
-      <view class="info-row required" bindtap="openInsurance">
-        <text class="field-label">保险信息</text>
-        <view class="insurance-side">
-          <text class="upload-state">{{insuranceStatus}}</text>
-          <image class="chevron-icon" src="{{assets.chevronIcon}}" mode="aspectFit" />
-        </view>
-      </view>
-      <view class="remark-row">
-        <text class="field-label">备注</text>
-        <view class="remark-box">
-          <textarea class="remark-input" value="{{remark}}" maxlength="200" placeholder="请输入备注信息（选填）" placeholder-class="input-placeholder" data-field="remark" bindinput="onInput" />
-          <text class="remark-count">{{remarkCountText}}</text>
-        </view>
       </view>
     </view>
 
@@ -159,10 +135,10 @@
         <text class="zoom-value">{{cropScaleText}}</text>
         <view class="zoom-btn" data-step="0.2" bindtap="changeCropZoom">放大</view>
       </view>
-      <text class="cropper-tip">拖动照片调整位置，也可双指或按钮缩放</text>
+      <text class="cropper-tip">拖动照片调整位置；确认后自动进行百度云人像分割并生成透明背景</text>
       <view class="cropper-actions">
         <view class="cropper-cancel" bindtap="cancelCrop">取消</view>
-        <view class="cropper-confirm" bindtap="confirmCrop">使用头像</view>
+        <view class="cropper-confirm" bindtap="confirmCrop">裁剪并智能抠图</view>
       </view>
     </view>
   </view>

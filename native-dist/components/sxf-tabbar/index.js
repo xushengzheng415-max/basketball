@@ -14,6 +14,10 @@ Component({
     active: {
       type: String,
       value: 'home'
+    },
+    tournamentBadgeCount: {
+      type: Number,
+      value: -1
     }
   },
 
@@ -24,6 +28,9 @@ Component({
 
   observers: {
     active() {
+      this.syncItems();
+    },
+    tournamentBadgeCount() {
       this.syncItems();
     }
   },
@@ -36,12 +43,16 @@ Component({
 
   methods: {
     buildItems(active) {
+      const storedCount = Number(wx.getStorageSync('sxfTournamentPendingReviewCount') || 0);
+      const pendingCount = this.properties.tournamentBadgeCount >= 0 ? this.properties.tournamentBadgeCount : storedCount;
       return TAB_ITEMS.map((item) => {
         const isActive = item.key === active;
         return {
           ...item,
           iconSrc: isActive ? item.activeIcon : item.icon,
-          activeClass: isActive ? 'active' : ''
+          activeClass: isActive ? 'active' : '',
+          showBadge: item.key === 'tournament' && pendingCount > 0,
+          badgeText: pendingCount > 9 ? '9+' : String(pendingCount)
         };
       });
     },

@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "教练工作台",
+  "navigationBarTitleText": "教务中心",
   "navigationStyle": "custom",
   "usingComponents": {
     "sxf-tabbar": "/components/sxf-tabbar/index"

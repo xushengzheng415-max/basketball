@@ -43,14 +43,17 @@
   transform: translateY(2rpx) scale(0.96);
 }
 
+.tab-icon-wrap { position: relative; width: 46rpx; height: 46rpx; flex: 0 0 46rpx; margin-bottom: 1rpx; }
+
 .tab-icon {
   display: block;
   width: 46rpx;
   height: 46rpx;
   flex: 0 0 46rpx;
-  margin-bottom: 1rpx;
 }
 
 .tab-item.active .tab-icon {
   transform: translateY(-2rpx) scale(1.04);
 }
+
+.tab-badge { position: absolute; top: -8rpx; right: -14rpx; min-width: 26rpx; height: 26rpx; padding: 0 5rpx; border: 2rpx solid #071017; border-radius: 16rpx; color: #fff; background: #ef3e2d; font-size: 16rpx; font-weight: 900; line-height: 26rpx; text-align: center; }

@@ -1,115 +1,293 @@
-const ASSET_ROOT = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/';
-const { refreshEducationAccess, openEducationAccountPage } = require('../../utils/education-access');
-
-function isRolePreviewEnabled() {
-  return true;
+const ASSET_ROOT =
+  "cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/";
+const { callCloud } = require("../../utils/cloud");
+const MANAGER_ROLES = [
+  "owner",
+  "campus_manager",
+  "manager",
+  "education_manager",
+];
+const todayText = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
+    2,
+    "0"
+  )}-${String(d.getDate()).padStart(2, "0")}`;
+};
+function invitationTokenOf(options) {
+  if (options && options.invitationToken) return options.invitationToken;
+  if (options && options.scene) {
+    try {
+      const scene = decodeURIComponent(options.scene),
+        match = scene.match(/(?:^|&)e=([^&]+)/);
+      return match ? match[1] : "";
+    } catch (_) {}
+  }
+  return "";
 }
-
+function modeState(mode) {
+  return {
+    mode,
+    showLoading: mode === "loading",
+    showInvite: mode === "invite",
+    showUnbound: mode === "unbound",
+    showCoach: mode === "coach",
+    showManager: mode === "manager",
+    showTabbar: mode !== "invite",
+  };
+}
 Page({
   data: {
-    showRoleTester: false,
-    rolePickerDisabled: true,
-    roleOptions: ['校长端', '教练端'],
-    roleIndex: 1,
-    educationAccessActive: false,
-    educationModeClass: '',
-    educationModeTitle: '\u6f14\u793a\u6a21\u5f0f',
-    educationModeCopy: '\u4ec5\u4f9b\u9884\u89c8\uff0cPC \u7aef\u4e0b\u53d1\u8d26\u6237\u5e76\u5f00\u6237\u540e\u53ef\u6b63\u5f0f\u4f7f\u7528',
-    assets: {
-      background: ASSET_ROOT + 'pages/education/education-top-bg-clean.png',
-      logo: ASSET_ROOT + 'home/brand-horizontal-logo.png',
-      avatar: ASSET_ROOT + 'pages/team/avatar-linhao.png',
-      classIcon: ASSET_ROOT + 'pages/education/icon-student-checkin.png'
+    navSpacer: 110,
+    mode: "loading",
+    showLoading: true,
+    showInvite: false,
+    showUnbound: false,
+    showCoach: false,
+    showManager: false,
+    showTabbar: true,
+    lessonsEmpty: true,
+    errorMessage: "",
+    organizationName: "",
+    displayName: "",
+    role: "",
+    invitationToken: "",
+    inviteName: "",
+    invitePhone: "",
+    inviteSubmitting: false,
+    lessons: [],
+    todayLessons: [],
+    nextLesson: null,
+    metrics: [],
+    managerSummary: {
+      courseCount: 0,
+      classCount: 0,
+      studentCount: 0,
+      pendingStudentCount: 0,
+      pendingReviewCount: 0,
     },
-    metrics: [
-      { label: '今日课程', value: '3', unit: '节', note: '1节已完成', icon: ASSET_ROOT + 'pages/education/icon-course-schedule.png' },
-      { label: '应到学员', value: '32', unit: '人', note: '2人已请假', icon: ASSET_ROOT + 'pages/education/icon-student-checkin.png' },
-      { label: '待写评价', value: '12', unit: '份', note: '课后及时完成', icon: ASSET_ROOT + 'pages/education/icon-after-class-review.png' },
-      { label: '本周课时', value: '16', unit: 'h', note: '较上周 +2h', icon: ASSET_ROOT + 'pages/education/icon-lesson-consume-stats.png' }
-    ],
-    courses: [
-      { id: 'course-1', time: '09:30', state: '已完成', title: 'U8 启蒙班', tag: '已评价', venue: '1号馆', students: 10, dotClass: 'done' },
-      { id: 'course-2', time: '18:30', state: '待上课', title: 'U10 提高班', tag: '已备课', venue: '2号馆', students: 15, dotClass: 'next' },
-      { id: 'course-3', time: '20:10', state: '待备课', title: 'U12 精英班', tag: '未计划', venue: '1号馆', students: 12, dotClass: '' }
-    ],
-    tasks: [
-      { title: '课程计划', desc: '1节课待搭建', count: 1, action: 'plan', icon: ASSET_ROOT + 'pages/education/icon-course-schedule.png' },
-      { title: '课堂点名', desc: '下一节课可点名', count: 1, action: 'attendance', icon: ASSET_ROOT + 'pages/education/icon-student-checkin.png' },
-      { title: '课后评价', desc: '12名学员待评价', count: 12, action: 'evaluation', icon: ASSET_ROOT + 'pages/education/icon-after-class-review.png' },
-      { title: '课堂记录', desc: '1节记录待确认', count: 1, action: 'detail', icon: ASSET_ROOT + 'pages/education/icon-lesson-consume-stats.png' }
-    ],
-    periodReports: [
-      {
-        type: 'weekly',
-        eyebrow: '本周课程已完成',
-        title: '第21周球员周报',
-        desc: '本周最后一节课已确认，系统正在分批扫描日报',
-        value: '12份待生成',
-        actionLabel: '去审核',
-        stateClass: 'ready'
-      },
-      {
-        type: 'monthly',
-        eyebrow: '月底自动开启',
-        title: '5月球员月报',
-        desc: '完成5月最后一节课后，系统自动生成月报草稿',
-        value: '5月31日触发',
-        actionLabel: '查看规则',
-        stateClass: 'scheduled'
-      }
-    ],
-    students: [
-      { id: 'student-1', name: '林浩', tag: '进步明显', message: '控球稳定性连续3周提升', avatar: ASSET_ROOT + 'pages/team/avatar-linhao.png' },
-      { id: 'student-2', name: '刘宇辰', tag: '需关注', message: '本月出勤率低于80%', avatar: ASSET_ROOT + 'pages/team/avatar-liuyuchen.png' },
-      { id: 'student-3', name: '张子轩', tag: '评价待写', message: '上一节课评价尚未完成', avatar: ASSET_ROOT + 'pages/team/avatar-zhangzixuan.png' }
-    ]
+    assets: {
+      background: ASSET_ROOT + "pages/education/education-top-bg-clean.png",
+      logo: ASSET_ROOT + "home/brand-horizontal-logo.png",
+      courseIcon: ASSET_ROOT + "pages/education/icon-course-schedule.png",
+      studentIcon: ASSET_ROOT + "pages/education/icon-student-checkin.png",
+      reviewIcon: ASSET_ROOT + "pages/education/icon-after-class-review.png",
+      consumeIcon: ASSET_ROOT + "pages/education/icon-lesson-consume-stats.png",
+    },
   },
   onLoad(options) {
-    const isCoachPreview = options && options.rolePreview === '1';
-    if (!isCoachPreview) {
-      wx.redirectTo({ url: '/pages/campus-manager/home/index' });
+    let navTop = 20,
+      navHeight = 44;
+    try {
+      const menu =
+        wx.getMenuButtonBoundingClientRect &&
+        wx.getMenuButtonBoundingClientRect();
+      if (menu && menu.top) {
+        navTop = menu.top;
+        navHeight = menu.height || 32;
+      } else navTop = wx.getSystemInfoSync().statusBarHeight || 20;
+    } catch (_) {}
+    const token = invitationTokenOf(options);
+    this.setData({
+      navSpacer: navTop + navHeight + 18,
+      invitationToken: token,
+      ...modeState(token ? "invite" : "loading"),
+    });
+    if (!token) this.loadIdentity();
+  },
+  onShow() {
+    if (this.data.mode === "unbound") this.loadIdentity();
+  },
+  loadIdentity() {
+    this.setData({ ...modeState("loading"), errorMessage: "" });
+    callCloud("sxEducationCore", { domain: "access", action: "get" })
+      .then((result) => {
+        if (!result || !result.ok) {
+          this.setData({
+            ...modeState("unbound"),
+            errorMessage:
+              (result && result.message) || "当前微信尚未加入任何机构",
+          });
+          return;
+        }
+        const common = {
+          organizationName: result.organizationName || "已加入机构",
+          displayName: result.displayName || "微信用户",
+          role: result.role || "",
+        };
+        if (MANAGER_ROLES.includes(result.role)) {
+          this.setData({ ...common, ...modeState("manager") });
+          this.loadManagerSummary();
+          return;
+        }
+        this.setData({ ...common, ...modeState("coach") });
+        this.loadCoachLessons();
+      })
+      .catch((error) =>
+        this.setData({
+          ...modeState("unbound"),
+          errorMessage: error.message || "读取机构身份失败",
+        })
+      );
+  },
+  loadCoachLessons() {
+    callCloud("sxEducationCore", { domain: "lesson", action: "mine" })
+      .then((result) => {
+        if (!result || !result.ok)
+          throw new Error((result && result.message) || "课堂读取失败");
+        const lessons = (result.lessons || []).sort((a, b) =>
+            `${a.lessonDate} ${a.startTime}`.localeCompare(
+              `${b.lessonDate} ${b.startTime}`
+            )
+          ),
+          today = todayText(),
+          todayLessons = lessons.filter((item) => item.lessonDate === today),
+          nextLesson =
+            lessons.find(
+              (item) =>
+                `${item.lessonDate} ${item.startTime}` >= `${today} 00:00`
+            ) || null,
+          studentCount = todayLessons.reduce(
+            (sum, item) => sum + Number(item.studentCount || 0),
+            0
+          ),
+          classes = new Set(lessons.map((item) => item.classId).filter(Boolean))
+            .size;
+        this.setData({
+          lessons,
+          todayLessons,
+          nextLesson,
+          lessonsEmpty: lessons.length === 0,
+          metrics: [
+            {
+              label: "今日课堂",
+              value: todayLessons.length,
+              unit: "节",
+              icon: this.data.assets.courseIcon,
+            },
+            {
+              label: "今日学员",
+              value: studentCount,
+              unit: "人",
+              icon: this.data.assets.studentIcon,
+            },
+            {
+              label: "待完成课堂",
+              value: lessons.filter((item) =>
+                ["scheduled", "live", "draft", "returned"].includes(item.status)
+              ).length,
+              unit: "节",
+              icon: this.data.assets.reviewIcon,
+            },
+            {
+              label: "负责班级",
+              value: classes,
+              unit: "个",
+              icon: this.data.assets.consumeIcon,
+            },
+          ],
+        });
+      })
+      .catch((error) =>
+        this.setData({
+          errorMessage: error.message || "课堂读取失败",
+          lessons: [],
+          todayLessons: [],
+          nextLesson: null,
+          lessonsEmpty: true,
+          metrics: [],
+        })
+      );
+  },
+  loadManagerSummary() {
+    callCloud("sxEducationCore", { domain: "mobile", action: "summary" })
+      .then((result) => {
+        if (!result || !result.ok)
+          throw new Error((result && result.message) || "管理数据读取失败");
+        this.setData({ managerSummary: result.summary });
+      })
+      .catch((error) =>
+        this.setData({
+          errorMessage: error.message || "管理数据读取失败",
+          managerSummary: {
+            courseCount: 0,
+            classCount: 0,
+            studentCount: 0,
+            pendingStudentCount: 0,
+            pendingReviewCount: 0,
+          },
+        })
+      );
+  },
+  onInviteName(event) {
+    this.setData({ inviteName: event.detail.value });
+  },
+  onInvitePhone(event) {
+    this.setData({ invitePhone: event.detail.value });
+  },
+  acceptCoachInvite() {
+    if (this.data.inviteSubmitting) return;
+    const name = String(this.data.inviteName || "").trim(),
+      phone = String(this.data.invitePhone || "").trim();
+    if (!name || !phone) {
+      wx.showToast({ title: "请填写姓名和手机号", icon: "none" });
       return;
     }
-    const showRoleTester = isRolePreviewEnabled();
-    this.setData({ showRoleTester, rolePickerDisabled: !showRoleTester });
-    refreshEducationAccess().then((access) => {
-      const active = !!(access && access.active);
-      this.setData({
-        educationAccessActive: active,
-        educationModeClass: active ? 'active' : '',
-        educationModeTitle: active ? '\u5df2\u5f00\u6237' : '\u6f14\u793a\u6a21\u5f0f',
-        educationModeCopy: active
-          ? '\u6559\u52a1\u8d26\u6237\u5df2\u6fc0\u6d3b\uff0c\u771f\u5b9e\u4e1a\u52a1\u64cd\u4f5c\u5df2\u5f00\u653e'
-          : '\u4ec5\u4f9b\u9884\u89c8\uff0cPC \u7aef\u4e0b\u53d1\u8d26\u6237\u5e76\u5f00\u6237\u540e\u53ef\u6b63\u5f0f\u4f7f\u7528'
+    this.setData({ inviteSubmitting: true });
+    callCloud("sxEducationCore", {
+      domain: "coach",
+      action: "inviteAccept",
+      invitationToken: this.data.invitationToken,
+      profile: {
+        name,
+        phone,
+        specialties: [],
+      },
+    })
+      .then((result) => {
+        if (!result || !result.ok)
+          throw new Error((result && result.message) || "绑定机构失败");
+        wx.showToast({ title: "机构绑定成功", icon: "success" });
+        setTimeout(() => {
+          this.setData({ invitationToken: "", ...modeState("loading") });
+          this.loadIdentity();
+        }, 700);
+      })
+      .catch((error) =>
+        wx.showToast({ title: error.message || "绑定机构失败", icon: "none" })
+      )
+      .finally(() => this.setData({ inviteSubmitting: false }));
+  },
+  refreshIdentity() {
+    this.loadIdentity();
+  },
+  openLesson(event) {
+    const lessonId = event.currentTarget.dataset.id;
+    if (lessonId)
+      wx.navigateTo({
+        url:
+          "/pages/coach-course-detail/index?lessonId=" +
+          encodeURIComponent(lessonId),
       });
+  },
+  openAttendance(event) {
+    const lessonId = event.currentTarget.dataset.id;
+    if (lessonId)
+      wx.navigateTo({
+        url:
+          "/pages/coach-attendance/index?lessonId=" +
+          encodeURIComponent(lessonId),
+      });
+  },
+  openClasses() {
+    wx.navigateTo({ url: "/pages/coach-classes/index" });
+  },
+  openPcNotice() {
+    wx.showModal({
+      title: "请前往PC教务中心",
+      content:
+        "当前小程序仅展示机构真实教务概览。课程、课包、学员确认和复杂排课请在PC端操作。",
+      showCancel: false,
     });
   },
-  openEducationAccount() {
-    if (this.data.educationAccessActive) {
-      wx.showToast({ title: '\u6559\u52a1\u8d26\u6237\u5df2\u5f00\u901a', icon: 'success' });
-      return;
-    }
-    openEducationAccountPage();
-  },
-  onRoleChange(event) {
-    if (!this.data.showRoleTester) return;
-    const roleIndex = Number(event.detail.value);
-    this.setData({ roleIndex });
-    if (roleIndex === 0) wx.redirectTo({ url: '/pages/campus-manager/home/index?rolePreview=1' });
-  },
-  openClasses() { wx.navigateTo({ url: '/pages/coach-classes/index' }); },
-  openCourses() { wx.navigateTo({ url: '/pages/coach-courses/index' }); },
-  openCourseDetail() { wx.navigateTo({ url: '/pages/coach-course-detail/index?id=course-2' }); },
-  openCourseStudents() { wx.navigateTo({ url: '/pages/coach-course-students/index?id=course-2' }); },
-  openPlan() { wx.navigateTo({ url: '/pages/coach-course-plan/index?id=course-2' }); },
-  openAttendance() { wx.navigateTo({ url: '/pages/coach-attendance/index?id=course-2' }); },
-  openStudent(event) { wx.navigateTo({ url: '/pages/coach-student-detail/index?id=' + event.currentTarget.dataset.id }); },
-  openPeriodReports(event) {
-    wx.navigateTo({ url: '/pages/coach-period-reports/index?type=' + event.currentTarget.dataset.type });
-  },
-  handleTask(event) {
-    const routes = { plan: '/pages/coach-course-plan/index', attendance: '/pages/coach-attendance/index', evaluation: '/pages/coach-evaluation-list/index?id=course-2', detail: '/pages/coach-course-detail/index' };
-    const url = routes[event.currentTarget.dataset.action];
-    if (url) wx.navigateTo({ url });
-  }
 });

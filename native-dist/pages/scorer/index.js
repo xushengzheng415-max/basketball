@@ -1665,6 +1665,8 @@ Page({
       source: active.source || 'scoreboard',
       tournamentId: active.tournamentId || '',
       gameId: active.gameId || '',
+      tournamentName: active.tournamentName || '',
+      groupName: active.groupName || '',
       matchName: this.data.matchName || active.matchName || '\u5feb\u6377\u6bd4\u8d5b',
       homeName: this.data.homeName,
       awayName: this.data.awayName,

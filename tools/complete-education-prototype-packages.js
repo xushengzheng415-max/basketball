@@ -1,0 +1,5 @@
+'use strict';
+const fs=require('fs'),path=require('path');
+const root='E:\\Documents\\saixoafeng_basketball\\赛小蜂篮球UI\\3.0版本\\01-机构PC后台\\01-机构经营后台';
+const manifests=[`${root}\\02-教务中心\\01-课程管理\\01-确认稿\\课程管理-v3_assets\\manifest.json`,`${root}\\02-教务中心\\02-班级管理\\01-确认稿\\班级管理-v2_assets\\manifest.json`,`${root}\\02-教务中心\\03-排课管理\\01-确认稿\\排课管理-v3_assets\\manifest.json`,`${root}\\03-学员管理\\01-确认稿\\学员管理-v1_assets\\manifest.json`,`${root}\\07-员工与权限\\01-确认稿\\员工与权限-v2_assets\\manifest.json`];
+for(const manifestPath of manifests){const manifest=JSON.parse(fs.readFileSync(manifestPath,'utf8'));if(manifest.status!=='approved')throw new Error(`Package not approved: ${manifestPath}`);manifest.status='implemented';manifest.implemented_at='2026-08-30';manifest.formal_route='admin/education-center.html';manifest.visual_validation={source_viewport:'1672x941',fallback_viewport:'1440x900',capture_dir:'E:\\Documents\\sxf-basketball\\output\\education-v3-validation',result:'blocking_and_major_differences_resolved'};fs.writeFileSync(manifestPath,`${JSON.stringify(manifest,null,2)}\n`,'utf8');process.stdout.write(`Implemented ${path.basename(path.dirname(manifestPath))}\n`)}

@@ -208,6 +208,11 @@ page {
   gap: 22rpx;
 }
 
+.summary-item.clickable:active,
+.team-row.clickable:active {
+  opacity: 0.68;
+}
+
 .summary-item.compact {
   gap: 16rpx;
 }

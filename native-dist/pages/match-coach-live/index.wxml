@@ -1,0 +1,50 @@
+<view class="page">
+  <view class="top">
+    <text class="back" bindtap="goBack">‹ 返回</text>
+    <view class="scoreline">
+      <b>{{ctx.home.name}}</b>
+      <strong>{{state.homeScore}} : {{state.awayScore}}</strong>
+      <b>{{ctx.away.name}}</b>
+    </view>
+    <view class="match-state">
+      <text>第{{state.period}}节 {{clockText}}</text>
+      <span wx:if="{{online}}">● 已同步</span>
+      <span class="offline" wx:else>● 连接中断</span>
+    </view>
+  </view>
+  <scroll-view class="body-scroll" scroll-y enhanced show-scrollbar="{{false}}">
+    <view class="body">
+      <view class="panel action-panel">
+        <text class="eyebrow">教练席</text>
+        <b>本队比赛操作</b>
+        <button bindtap="requestTimeout">{{timeoutText}}</button>
+        <button class="tactics" bindtap="openTactics">打开战术板</button><button class="workspace" bindtap="openWorkspace">数据与教练协作</button>
+        <view class="requests" wx:for="{{ownRequests}}" wx:key="requestId"><text>暂停：{{item.status}}</text></view>
+      </view>
+      <view class="panel lineup-panel" wx:if="{{showSub}}">
+        <view class="panel-heading">
+          <view><text class="eyebrow">本队阵容</text><b>批量换人</b></view>
+          <text class="hint">先选下场，再选同人数上场</text>
+        </view>
+        <view class="cols">
+          <view>
+            <text class="column-title">当前场上</text>
+            <view class="player-list">
+              <view wx:for="{{onCourtItems}}" wx:key="id" class="player {{item.selectedClass}}" data-id="{{item.id}}" bindtap="toggleOut"><text>{{item.label}}</text><i wx:if="{{item.selected}}">✓</i></view>
+            </view>
+          </view>
+          <view>
+            <text class="column-title">替补席</text>
+            <view class="player-list">
+              <view wx:for="{{benchItems}}" wx:key="id" class="player {{item.selectedClass}}" data-id="{{item.id}}" bindtap="toggleIn"><text>{{item.label}}</text><i wx:if="{{item.selected}}">✓</i></view>
+            </view>
+          </view>
+        </view>
+        <button class="confirm-sub" bindtap="submitSub">确认换人</button>
+      </view>
+      <view class="panel empty-panel" wx:else>
+        <text class="eyebrow">本场模式</text><b>本场不记录球员</b><text>比分与时间正常同步，战术板使用1—5号标记。</text>
+      </view>
+    </view>
+  </scroll-view>
+</view>

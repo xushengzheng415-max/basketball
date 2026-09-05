@@ -1,0 +1,124 @@
+{
+  "form_info": {
+    "form_title": "客户赛事需求登记表",
+    "form_desc": "请填写赛事基本需求。赛小蜂团队收到后将通过企业微信与您对接后续方案。",
+    "form_question": {
+      "items": [
+        { "question_id": 9, "title": "机构/主办方名称", "pos": 1, "status": 1, "reply_type": 1, "must_reply": true, "placeholder": "请输入机构、俱乐部或赛事主办方名称" },
+        { "question_id": 10, "title": "所在城市", "pos": 2, "status": 1, "reply_type": 1, "must_reply": true, "placeholder": "请输入赛事所在城市" },
+        { "question_id": 1, "title": "赛事名称", "pos": 3, "status": 1, "reply_type": 1, "must_reply": true, "placeholder": "请输入赛事名称" },
+        {
+          "question_id": 2,
+          "title": "赛事周期单位",
+          "pos": 4,
+          "status": 1,
+          "reply_type": 15,
+          "must_reply": true,
+          "note": "请选择赛事周期按天或按月计算",
+          "option_item": [
+            { "key": 1, "value": "天", "status": 1 },
+            { "key": 2, "value": "月", "status": 1 }
+          ],
+          "placeholder": "请选择天或月"
+        },
+        {
+          "question_id": 3,
+          "title": "赛事周期数量",
+          "pos": 5,
+          "status": 1,
+          "reply_type": 15,
+          "must_reply": true,
+          "note": "请根据上一题选择的单位，选择对应天数或月数",
+          "option_item": [
+            { "key": 1, "value": "1", "status": 1 },
+            { "key": 2, "value": "2", "status": 1 },
+            { "key": 3, "value": "3", "status": 1 },
+            { "key": 4, "value": "4", "status": 1 },
+            { "key": 5, "value": "5", "status": 1 },
+            { "key": 6, "value": "6", "status": 1 },
+            { "key": 7, "value": "7", "status": 1 },
+            { "key": 8, "value": "8", "status": 1 },
+            { "key": 9, "value": "9", "status": 1 },
+            { "key": 10, "value": "10", "status": 1 },
+            { "key": 11, "value": "11", "status": 1 },
+            { "key": 12, "value": "12", "status": 1 },
+            { "key": 13, "value": "13", "status": 1 },
+            { "key": 14, "value": "14", "status": 1 },
+            { "key": 15, "value": "15", "status": 1 },
+            { "key": 16, "value": "16", "status": 1 },
+            { "key": 17, "value": "17", "status": 1 },
+            { "key": 18, "value": "18", "status": 1 },
+            { "key": 19, "value": "19", "status": 1 },
+            { "key": 20, "value": "20", "status": 1 },
+            { "key": 21, "value": "21", "status": 1 },
+            { "key": 22, "value": "22", "status": 1 },
+            { "key": 23, "value": "23", "status": 1 },
+            { "key": 24, "value": "24", "status": 1 },
+            { "key": 25, "value": "25", "status": 1 },
+            { "key": 26, "value": "26", "status": 1 },
+            { "key": 27, "value": "27", "status": 1 },
+            { "key": 28, "value": "28", "status": 1 },
+            { "key": 29, "value": "29", "status": 1 },
+            { "key": 30, "value": "30", "status": 1 },
+            { "key": 31, "value": "31", "status": 1 },
+            { "key": 32, "value": "32", "status": 1 },
+            { "key": 33, "value": "33", "status": 1 },
+            { "key": 34, "value": "34", "status": 1 },
+            { "key": 35, "value": "35", "status": 1 },
+            { "key": 36, "value": "36", "status": 1 }
+          ],
+          "placeholder": "请选择周期数量"
+        },
+        { "question_id": 11, "title": "计划开赛时间", "pos": 6, "status": 1, "reply_type": 11, "must_reply": true, "note": "请选择预计开始比赛的日期", "placeholder": "请选择计划开赛日期" },
+        { "question_id": 4, "title": "参赛队伍数量", "pos": 7, "status": 1, "reply_type": 1, "must_reply": true, "placeholder": "请输入预计参赛队伍数量" },
+        {
+          "question_id": 5,
+          "title": "赛制",
+          "pos": 8,
+          "status": 1,
+          "reply_type": 15,
+          "must_reply": true,
+          "note": "小组循环赛：分组后组内单循环，按积分排名，不进入淘汰赛。\n小组循环 + 晋级组单循环：小组晋级队进入第二阶段，再进行一次单循环排名。\n小组循环 + 单败淘汰：先小组赛，再按名次晋级单败淘汰，可选三四名决赛；目前 U8 启蒙组使用。\n小组循环 + 双败淘汰：小组赛后进入胜者组、败者组，必要时设重置决赛。\n全部球队单循环：所有球队彼此交手一次，按积分排名。\n全部球队双循环：所有球队彼此主客各交手一次，按积分排名。\n单败淘汰：直接淘汰，失败即出局，可选三四名决赛。\n双败淘汰：直接进入胜者组、败者组，通常包含总决赛和必要时的重置决赛。",
+          "option_item": [
+            { "key": 1, "value": "小组循环赛", "status": 1 },
+            { "key": 2, "value": "小组循环 + 晋级组单循环", "status": 1 },
+            { "key": 3, "value": "小组循环 + 单败淘汰", "status": 1 },
+            { "key": 4, "value": "小组循环 + 双败淘汰", "status": 1 },
+            { "key": 5, "value": "全部球队单循环", "status": 1 },
+            { "key": 6, "value": "全部球队双循环", "status": 1 },
+            { "key": 7, "value": "单败淘汰", "status": 1 },
+            { "key": 8, "value": "双败淘汰", "status": 1 }
+          ],
+          "placeholder": "请选择赛制"
+        },
+        {
+          "question_id": 6,
+          "title": "参赛组别（可多选）",
+          "pos": 9,
+          "status": 1,
+          "reply_type": 3,
+          "must_reply": true,
+          "option_item": [
+            { "key": 1, "value": "U6", "status": 1 },
+            { "key": 2, "value": "U7", "status": 1 },
+            { "key": 3, "value": "U8", "status": 1 },
+            { "key": 4, "value": "U9", "status": 1 },
+            { "key": 5, "value": "U10", "status": 1 },
+            { "key": 6, "value": "U11", "status": 1 },
+            { "key": 7, "value": "U12", "status": 1 }
+          ],
+          "placeholder": "请选择一个或多个组别"
+        },
+        { "question_id": 7, "title": "联系人", "pos": 10, "status": 1, "reply_type": 1, "must_reply": true, "placeholder": "请输入联系人姓名" },
+        { "question_id": 8, "title": "联系电话", "pos": 11, "status": 1, "reply_type": 1, "must_reply": true, "placeholder": "请输入联系电话" }
+      ]
+    },
+    "form_setting": {
+      "fill_out_auth": 0,
+      "allow_multi_fill": true,
+      "timed_finish": 0,
+      "can_anonymous": false,
+      "can_notify_submit": true
+    }
+  }
+}

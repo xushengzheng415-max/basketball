@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>赛小蜂篮球｜机构教务中心</title>
+    <link rel="stylesheet" href="./education-center-v3.css?v=20260901-1" />
+  </head>
+  <body>
+    <div class="edu-shell" id="eduShell">
+      <aside class="edu-sidebar">
+        <a class="edu-brand" href="./organization-entry.html"
+          ><img
+            src="./assets/institution/brand-logo.png"
+            alt="赛小蜂篮球"
+          /><span
+            ><b id="brandName">赛小蜂篮球</b><small>机构教务中心</small></span
+          ></a
+        >
+        <span class="sidebar-label">业务管理</span>
+        <nav id="educationNav">
+          <button data-route="overview">
+            <img
+              class="nav-icon"
+              src="./assets/icons/pc-common/svg/layout-dashboard.svg"
+              alt=""
+            /><span>工作台</span>
+          </button>
+          <div class="nav-group">
+            <button data-group="education">
+              <img
+                class="nav-icon"
+                src="./assets/icons/pc-common/svg/clipboard-list.svg"
+                alt=""
+              /><span>教务中心</span><i></i>
+            </button>
+            <div>
+              <button data-route="courses"><span>课程管理</span></button
+              ><button data-route="packages"><span>课包管理</span></button
+              ><button data-route="classes"><span>班级管理</span></button
+              ><button data-route="schedules"><span>排课管理</span></button>
+            </div>
+          </div>
+          <button data-route="students">
+            <img
+              class="nav-icon"
+              src="./assets/icons/pc-common/svg/user-round.svg"
+              alt=""
+            /><span>学员管理</span></button
+          ><button data-route="coaches">
+            <img
+              class="nav-icon"
+              src="./assets/icons/pc-common/svg/users-round.svg"
+              alt=""
+            /><span>教练管理</span></button
+          ><button data-route="reviews">
+            <img
+              class="nav-icon"
+              src="./assets/icons/pc-common/svg/clipboard-check.svg"
+              alt=""
+            /><span>课堂审核</span></button
+          ><button data-route="ledger">
+            <img
+              class="nav-icon"
+              src="./assets/icons/pc-common/svg/database.svg"
+              alt=""
+            /><span>课消流水</span>
+          </button>
+        </nav>
+        <button class="collapse-button" id="collapseSidebar">收起菜单</button>
+        <footer>由赛小蜂篮球提供技术服务</footer>
+      </aside>
+      <main class="edu-main">
+        <header class="edu-topbar">
+          <div>
+            <h1 id="pageTitle">教务工作台</h1>
+            <p id="pageSubtitle">课程、学员、班级和课消统一管理</p>
+          </div>
+          <div class="top-actions">
+            <button class="top-select" id="campusSelect">全部校区</button
+            ><button class="top-select" id="dateRange">本周</button
+            ><button class="outline-button" id="refreshPage">刷新</button
+            ><button class="tournament-switch" id="switchTournament">
+              <img
+                src="./assets/icons/pc-common/svg/trophy.svg"
+                alt=""
+              />赛事中心</button
+            ><span class="top-account" id="accountName">机构负责人</span>
+          </div>
+        </header>
+        <div class="edu-content" id="educationContent">
+          <div class="page-loading">正在读取正式教务数据…</div>
+        </div>
+      </main>
+    </div>
+    <div class="modal-layer" id="modalLayer" hidden>
+      <section class="modal-card">
+        <header>
+          <div>
+            <span id="modalEyebrow">教务中心</span>
+            <h2 id="modalTitle">新建</h2>
+          </div>
+          <button id="modalClose">×</button>
+        </header>
+        <div class="modal-body" id="modalBody"></div>
+        <footer id="modalFooter"></footer>
+      </section>
+    </div>
+    <div class="toast" id="toast" hidden></div>
+    <script src="./assets/vendor/qrcode-1.5.4.min.js"></script>
+    <script src="./education-center-v3.js?v=20260901-1"></script>
+  </body>
+</html>

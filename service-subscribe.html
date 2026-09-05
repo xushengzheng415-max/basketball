@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>赛小蜂赛事通知授权</title>
+  <style>
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;padding:20px 16px calc(24px + env(safe-area-inset-bottom));color:#f6f7f8;background:radial-gradient(circle at 100% 0,rgba(255,94,0,.25),transparent 32%),#071017;font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif}.page{max-width:560px;margin:0 auto}.brand{color:#ff8128;font-size:13px;font-weight:800;letter-spacing:1px}.title{margin:8px 0 0;font-size:26px;line-height:1.2}.desc{margin:10px 0 0;color:#9aa5ac;font-size:13px;line-height:1.55}.status{margin:14px 0 10px;padding:11px 13px;border:1px solid #3b454b;border-radius:12px;color:#aab4ba;background:#10181e;font-size:12px;line-height:1.45}.status.ok{border-color:#286b58;color:#5bd7b5;background:#10251f}.status.error{border-color:#6f3732;color:#efa49a;background:#291b1a}.notice-card{display:grid;grid-template-columns:minmax(0,1fr) 144px;grid-template-areas:"title action" "desc action" "guide action";column-gap:12px;align-items:center;margin-top:10px;padding:13px 14px;border:1px solid #374149;border-radius:14px;background:#10171c;box-shadow:0 8px 20px rgba(0,0,0,.2)}.notice-card h2{grid-area:title;margin:0;font-size:17px}.notice-card p{grid-area:desc;margin:5px 0 4px;color:#89959c;font-size:12px;line-height:1.45}.auth-guide{grid-area:guide;display:block;color:#ffad70;font-size:11px;line-height:1.35}.subscribe-wrap{grid-area:action;position:relative;display:block;width:144px;height:44px;overflow:hidden;border-radius:22px}.auth-visual{position:absolute;inset:0;z-index:1;display:flex;padding:0 8px;align-items:center;justify-content:center;border-radius:22px;color:#fff;background:linear-gradient(90deg,#ff7414,#ff5200);font-size:13px;font-weight:800;text-align:center;pointer-events:none}.auth-visual.green{background:linear-gradient(90deg,#168b6f,#20ad89)}.subscribe-wrap wx-open-subscribe{position:absolute!important;z-index:2!important;inset:0!important;display:block!important;width:144px!important;height:44px!important;min-height:44px!important;opacity:.01!important}.subscribe-wrap.authorized .auth-visual{background:#168b6f}.subscribe-wrap.authorized wx-open-subscribe{pointer-events:none}.done{width:100%;height:46px;margin-top:14px;border:0;border-radius:23px;color:#fff;background:linear-gradient(90deg,#ff7414,#ff5200);font-size:15px;font-weight:800}.done:disabled{color:#778188;background:#222b31}.foot{margin-top:12px;color:#6f7b82;font-size:11px;line-height:1.5;text-align:center}.hidden{display:none}
+    .notice-card{grid-template-columns:minmax(0,1fr) 112px}.subscribe-wrap{width:112px}.auth-visual{display:none}.subscribe-wrap wx-open-subscribe{width:112px!important;opacity:1!important}.subscribe-wrap.authorized::after{content:"✓ 已授权";position:absolute;z-index:3;inset:0;display:flex;align-items:center;justify-content:center;border-radius:22px;color:#fff;background:#168b6f;font-size:12px;font-weight:800;pointer-events:none}
+  </style>
+  <script src="https://res.wx.qq.com/open/js/jweixin-1.6.0.js"></script>
+</head>
+<body>
+  <main class="page">
+    <div class="brand">赛小蜂篮球 · 赛事通知</div>
+    <h1 class="title">开启服务号赛事提醒</h1>
+    <p class="desc">关注服务号并完成对应通知授权后，才能继续赛事邀请或报名。请依次点击页面中的全部授权按钮。</p>
+    <div id="status" class="status">正在连接微信服务号...</div>
+
+    <section id="registration-card" class="notice-card hidden">
+      <h2>球队报名提醒</h2><p>有球队提交赛事报名时，第一时间提醒赛事创建者审核。</p><span class="auth-guide">点击下方按钮，微信会弹出授权确认</span>
+      <div id="registration-wrap" class="subscribe-wrap"><wx-open-subscribe style="display:block;width:112px;height:44px" id="registration-subscribe" template="Tk3n4bd-ErmHd4SXP8llZClWRSsjB_uem_CAvfQSe5U"><script type="text/wxtag-template"><style>.btn{display:block;width:112px;height:44px;border:0;border-radius:22px;color:#fff;background:#ff6500;font-size:13px;font-weight:800}</style><button class="btn">点击授权</button></script></wx-open-subscribe></div>
+    </section>
+
+    <section id="review-card" class="notice-card hidden">
+      <h2>报名审核结果</h2><p>报名通过或被驳回时，及时通知参赛球队负责人。</p><span class="auth-guide">点击下方按钮，微信会弹出授权确认</span>
+      <div id="review-wrap" class="subscribe-wrap"><wx-open-subscribe style="display:block;width:112px;height:44px" id="review-subscribe" template="99MNTTBVx9S4UQt6XZkQ4-O4hMG926S1eBJLxAfXZ0w"><script type="text/wxtag-template"><style>.btn{display:block;width:112px;height:44px;border:0;border-radius:22px;color:#fff;background:#ff6500;font-size:13px;font-weight:800}</style><button class="btn">点击授权</button></script></wx-open-subscribe></div>
+    </section>
+
+    <section id="announcement-card" class="notice-card">
+      <h2>赛事公告提醒</h2><p>对阵发布、赛程变化和赛事公告发布后，通过服务号及时提醒。</p><span class="auth-guide">点击下方按钮，微信会弹出授权确认</span>
+      <div id="announcement-wrap" class="subscribe-wrap"><wx-open-subscribe style="display:block;width:112px;height:44px" id="announcement-subscribe" template="bi50KZvRjUSTpAhyf9Hc_B-vlnX8_dXdf0zd2C2XRvA"><script type="text/wxtag-template"><style>.btn{display:block;width:112px;height:44px;border:0;border-radius:22px;color:#fff;background:#ff6500;font-size:13px;font-weight:800}</style><button class="btn">点击授权</button></script></wx-open-subscribe></div>
+    </section>
+
+    <button id="done-button" class="done" type="button" disabled onclick="finishPage()">请先完成全部授权</button>
+    <p class="foot">微信要求每类通知由用户主动授权。赛事所需按钮全部授权后再返回小程序；授权只用于赛事报名、审核和公告，不发送营销信息。</p>
+  </main>
+  <script>
+    (function(){
+      var params=new URLSearchParams(location.search);var role=params.get('role')||'participant';
+      var required=role==='all'?['registration','review','announcement']:(role==='creator'?['registration','announcement']:['review','announcement']);var accepted={};
+      var labels={registration:'球队报名提醒',review:'审核结果提醒',announcement:'赛事公告提醒'};
+      var templateIds={registration:'Tk3n4bd-ErmHd4SXP8llZClWRSsjB_uem_CAvfQSe5U',review:'99MNTTBVx9S4UQt6XZkQ4-O4hMG926S1eBJLxAfXZ0w',announcement:'bi50KZvRjUSTpAhyf9Hc_B-vlnX8_dXdf0zd2C2XRvA'};
+      if(role==='all'){document.getElementById('registration-card').classList.remove('hidden');document.getElementById('review-card').classList.remove('hidden')}else document.getElementById(role==='creator'?'registration-card':'review-card').classList.remove('hidden');
+      var status=document.getElementById('status');var done=document.getElementById('done-button');
+      fetch('https://api.saixiaofeng.com/wechat/service-account/js-signature',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:location.href.split('#')[0]})})
+        .then(function(response){return response.json()}).then(function(result){if(!result.ok||!result.config)throw new Error(result.message||'初始化失败');var c=result.config;wx.config({debug:false,appId:c.appId,timestamp:c.timestamp,nonceStr:c.nonceStr,signature:c.signature,jsApiList:[],openTagList:['wx-open-subscribe']});wx.ready(function(){status.className='status ok';status.textContent='连接成功。请点击每张卡片下方的授权按钮，微信会弹出确认。';bindEvents()});wx.error(function(){status.className='status error';status.textContent='微信授权初始化失败，请确认在微信中打开后重试。'})})
+        .catch(function(){status.className='status error';status.textContent='暂时无法连接服务号，请稍后重试。'});
+      function eventAccepted(event,name){try{var details=event&&event.detail&&event.detail.subscribeDetails;if(typeof details==='string')details=JSON.parse(details);var item=details&&details[templateIds[name]];if(typeof item==='string')item=JSON.parse(item);if(item&&item.status)return item.status==='accept'}catch(error){}return !!(event&&event.type==='success')}
+      var openedInMiniProgram=false;
+      function detectOpenEnvironment(){if(!(wx&&wx.miniProgram&&wx.miniProgram.getEnv))return;wx.miniProgram.getEnv(function(result){openedInMiniProgram=!!(result&&result.miniprogram);refreshDone()})}
+      function refreshDone(){var complete=required.every(function(name){return accepted[name]===true});done.disabled=!complete;done.textContent=complete?(openedInMiniProgram?'完成，返回小程序':'完成，关闭页面'):'请先完成全部授权'}
+      function reportGrants(){if(wx&&wx.miniProgram&&wx.miniProgram.postMessage)wx.miniProgram.postMessage({data:{type:'service-notification-grants',grants:accepted}})}
+      function markAccepted(name){accepted[name]=true;var wrap=document.getElementById(name+'-wrap');var visual=document.getElementById(name+'-visual');if(wrap)wrap.classList.add('authorized');if(visual)visual.textContent='✓ '+labels[name]+'已授权';status.className='status ok';status.textContent='“'+labels[name]+'”已授权，请继续完成剩余授权。';reportGrants();refreshDone()}
+      function bindEvents(){required.forEach(function(name){var node=document.getElementById(name+'-subscribe');if(!node)return;node.addEventListener('success',function(event){if(eventAccepted(event,name))markAccepted(name);else{status.className='status error';status.textContent='未允许“'+labels[name]+'”，请再次点击授权。'}});node.addEventListener('error',function(){status.className='status error';status.textContent='“'+labels[name]+'”未完成授权，请再次点击按钮。'})})}
+      function closeAuthorizationPage(){if(openedInMiniProgram&&wx&&wx.miniProgram&&wx.miniProgram.navigateBack){wx.miniProgram.navigateBack();return}if(window.WeixinJSBridge){WeixinJSBridge.call('closeWindow');return}history.back()}
+      window.finishPage=function(){if(!required.every(function(name){return accepted[name]===true})){status.className='status error';status.textContent='请先点击并允许页面中的全部通知权限。';return}reportGrants();closeAuthorizationPage()};
+      detectOpenEnvironment();
+      refreshDone();
+    })();
+  </script>
+</body>
+</html>
