@@ -3,12 +3,32 @@ const { callCloud, cloud } = require('../../utils/cloud');
 const ASSET_BASE = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/ui-assets/assets/pages/mine-profile/';
 const PROFILE_SYNCED_AT_KEY = 'mineProfileCloudSyncedAt';
 const PROFILE_SYNC_CACHE_MS = 60 * 1000;
-const CURRENT_VERSION = '2.1.5';
+const CURRENT_VERSION = '2.1.6';
 const VERSION_HISTORY = [
+  {
+    version: '2.1.6',
+    date: '2026-09-12',
+    current: true,
+    highlights: [
+      '音效切换增加柔和叠化，减少突然中断',
+      '得分、蜂鸣器、倒计时和比分播报保持即时响应',
+      'MC页面新增13首默认暖场音乐',
+      '暖场音乐默认随机连续播放，每次从不同歌曲开始',
+      '暖场音乐可持续播放，其他音效响起时自动降低音量',
+      '暖场、进攻和防守音乐支持进度显示和渐弱停止',
+      '拖动音乐进度条时静音定位，松手后柔和继播',
+      '自定义音效播放时可选择停止背景音乐或降低背景音量',
+      '全局、常用和自定义音效可分别调节，拖动时实时试听',
+      '进攻和防守音效默认随机播放',
+      '支持添加、试听、改名和删除本机音效',
+      '本机音效只保存在当前设备，不上传云端',
+      '修复MC设置部分图标不显示的问题'
+    ]
+  },
   {
     version: '2.1.5',
     date: '2026-09-01',
-    current: true,
+    current: false,
     highlights: [
       '正式赛事和快速比赛的计分板新增电视大屏入口',
       '支持复制6位大屏码或完整链接，在电视和电脑浏览器中查看',

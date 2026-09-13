@@ -4,7 +4,7 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
 const db = cloud.database();
 const _ = db.command;
 
-const CHANNELS = ['buzzer', 'three', 'two', 'miss', 'cheer', 'applause', 'attack', 'defense', 'rest', 'start', 'voice', 'ambience'];
+const CHANNELS = ['buzzer', 'three', 'two', 'miss', 'cheer', 'applause', 'attack', 'defense', 'rest', 'start', 'voice', 'ambience', 'warmup'];
 const DEFAULT_BUCKET_PREFIX = 'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3';
 const DEFAULT_AUDIO_ITEMS = [
   { channel: 'buzzer', name: '\u8702\u9e23\u5668', fileID: `${DEFAULT_BUCKET_PREFIX}/\u6bd4\u8d5b\u97f3\u6548/\u8702\u9e23\u5668.mp3`, sort: 10 },

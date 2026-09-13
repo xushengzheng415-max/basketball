@@ -30,6 +30,23 @@ function groupItems(items) {
   }, {});
 }
 
+async function buildUrlMap(items) {
+  const fileList = Array.from(new Set((items || [])
+    .map((item) => item && (item.fileID || item.fileId || ''))
+    .filter((fileID) => String(fileID).startsWith('cloud://'))));
+  if (!fileList.length) return {};
+  try {
+    const result = await cloud.getTempFileURL({ fileList });
+    return (result.fileList || []).reduce((map, item) => {
+      if (item && item.fileID && item.tempFileURL) map[item.fileID] = item.tempFileURL;
+      return map;
+    }, {});
+  } catch (error) {
+    console.warn('[sxGetAudioLibrary] audio URL signing skipped', error);
+    return {};
+  }
+}
+
 exports.main = async (event) => {
   if (event && event.httpMethod === 'OPTIONS') {
     return httpResponse(event, { ok: true });
@@ -47,9 +64,11 @@ exports.main = async (event) => {
   }
 
   const items = result.data || [];
+  const urlMap = await buildUrlMap(items);
   return httpResponse(event, {
     ok: true,
     items,
-    audioMap: groupItems(items)
+    audioMap: groupItems(items),
+    urlMap
   });
 };

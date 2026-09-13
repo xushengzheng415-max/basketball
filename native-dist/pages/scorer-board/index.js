@@ -1,6 +1,8 @@
 const { callCloud, cloud } = require('../../utils/cloud');
 const { buildScoreVoice } = require('../../utils/scoreVoice');
 const { pullRoster, resolveImageUrl } = require('../../utils/roster-sync');
+const { disposeAudioContext, fadeAudioVolume, fadeOutAudioTransition, isCurrentAudio, startAudioTransition } = require('../../utils/audio-crossfade');
+const defaultWarmupAudio = require('../../utils/default-warmup-audio');
 
 const BG = '/assets/pages/scorer-v2/background/scoreboard-court.png';
 const SETUP_BG = '/pages/scorer/setup-court.png';
@@ -9,6 +11,7 @@ const ICON_ASSET = '/assets/pages/scorer-v2/icons/';
 const AUDIO_SETTINGS_KEY = 'sx_mc_audio_settings';
 const CLOUD_AUDIO_MAP_KEY = 'sx_mc_audio_map';
 const CLOUD_AUDIO_ITEMS_KEY = 'sx_mc_audio_items';
+const CLOUD_AUDIO_URL_MAP_KEY = 'sx_mc_audio_url_map';
 const CUSTOM_SLOTS_KEY = 'sx_mc_custom_slots';
 const CUSTOM_SLOT_DETAILS_KEY = 'sx_mc_custom_slot_details';
 const VOICE_STYLE_KEY = 'sx_score_voice_style';
@@ -17,6 +20,7 @@ const AUDIO_CACHE_STORAGE_KEY = 'sx_local_audio_cache_v1';
 const AUDIO_CACHE_ORDER_KEY = 'sx_local_audio_cache_order_v1';
 const AUDIO_CACHE_CONSENT_KEY = 'sx_local_audio_cache_consent_v1';
 const AUDIO_CACHE_LIMIT = 48;
+const LOCAL_AUDIO_LIBRARY_KEY = 'sx_mc_local_audio_library_v1';
 const RECENT_MATCHES_KEY = 'sx_recent_matches';
 const RECENT_MATCHES_LIMIT = 30;
 const HID_SERVICE_UUID = '00001812-0000-1000-8000-00805F9B34FB';
@@ -31,17 +35,22 @@ function isHidService(uuid) { return String(uuid || '').replace(/-/g, '').toUppe
 function isHidReport(uuid) { return String(uuid || '').replace(/-/g, '').toUpperCase().includes('2A4D'); }
 function bleDeviceName(device) { return (device && (device.localName || device.name)) || '\u672a\u547d\u540d\u84dd\u7259\u8bbe\u5907'; }
 const DEFAULT_AUDIO_SETTINGS = {
+  modeDefaultsVersion: 4,
   masterEnabled: true,
   volume: 70,
+  commonVolume: 100,
+  customVolume: 100,
   twoEnabled: true,
   threeEnabled: true,
   buzzerEnabled: true,
   pauseAutoEnabled: true,
-  categoryEnabled: { attack: true, defense: true, pause: true, buzzer: true, countdown: true },
-  modes: { attack: 'fixed', defense: 'fixed', pause: 'random', buzzer: 'fixed', countdown: 'fixed' },
+  customMixMode: 'duck',
+  categoryEnabled: { warmup: true, attack: true, defense: true, pause: true, buzzer: true, countdown: true },
+  modes: { warmup: 'random', attack: 'random', defense: 'random', pause: 'random', buzzer: 'fixed', countdown: 'fixed' },
   selectedAudio: {}
 };
 const AUDIO_FILE_IDS = {
+  warmup: defaultWarmupAudio.map((item) => item.fileID),
   attack: [
     'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/进攻音效1.mp3',
     'cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/进攻防守音乐/进攻音效2.mp3',
@@ -70,6 +79,7 @@ const AUDIO_FILE_IDS = {
   three: ['cloud://sxf-basketball-d9gp6yt0rd1f7be4d.7378-sxf-basketball-d9gp6yt0rd1f7be4d-1419431905/mc-mp3/比赛音效/三分球.mp3']
 };
 const AUDIO_SOURCE_KEYS = {
+  warmup: ['warmup'],
   attack: ['attack'],
   defense: ['defense'],
   rest: ['rest', 'pause'],
@@ -86,7 +96,8 @@ const AUDIO_SOURCE_KEYS = {
   two: ['two', 'score-two'],
   three: ['three', 'score-three']
 };
-const AUDIO_CATEGORY_BY_TYPE = { attack: 'attack', defense: 'defense', rest: 'pause', buzzer: 'buzzer', countdown: 'countdown' };
+const AUDIO_CATEGORY_BY_TYPE = { warmup: 'warmup', attack: 'attack', defense: 'defense', rest: 'pause', buzzer: 'buzzer', countdown: 'countdown' };
+const BACKGROUND_MUSIC_TYPES = new Set(['warmup', 'attack', 'defense']);
 const SOUND_GLYPHS = {
   attack: '\u27a4',
   defense: '\u25c6',
@@ -129,6 +140,13 @@ function formatAudioTime(totalSeconds) {
   const minutes = String(Math.floor(safe / 60)).padStart(2, '0');
   const seconds = String(safe % 60).padStart(2, '0');
   return minutes + ':' + seconds;
+}
+
+function effectiveAudioVolume(settings, volumeGroup) {
+  const globalVolume = Math.max(0, Math.min(100, Number(settings.volume == null ? 70 : settings.volume)));
+  const key = volumeGroup === 'custom' ? 'customVolume' : 'commonVolume';
+  const groupVolume = Math.max(0, Math.min(100, Number(settings[key] == null ? 100 : settings[key])));
+  return globalVolume / 100 * groupVolume / 100;
 }
 
 function nowText() {
@@ -228,9 +246,19 @@ function readStorageList(key) {
 
 function normalizeAudioSettings(saved) {
   const value = saved && typeof saved === 'object' ? saved : {};
+  const modes = Object.assign({}, DEFAULT_AUDIO_SETTINGS.modes, value.modes || {});
+  if (Number(value.modeDefaultsVersion || 0) < 2) {
+    modes.attack = 'random';
+    modes.defense = 'random';
+  }
+  if (Number(value.modeDefaultsVersion || 0) < 4) modes.warmup = 'random';
   return Object.assign({}, DEFAULT_AUDIO_SETTINGS, value, {
+    modeDefaultsVersion: 4,
+    customMixMode: value.customMixMode === 'stop' ? 'stop' : 'duck',
+    commonVolume: Math.max(0, Math.min(100, Number(value.commonVolume == null ? 100 : value.commonVolume))),
+    customVolume: Math.max(0, Math.min(100, Number(value.customVolume == null ? 100 : value.customVolume))),
     categoryEnabled: Object.assign({}, DEFAULT_AUDIO_SETTINGS.categoryEnabled, value.categoryEnabled || {}),
-    modes: Object.assign({}, DEFAULT_AUDIO_SETTINGS.modes, value.modes || {}),
+    modes,
     selectedAudio: Object.assign({}, value.selectedAudio || {})
   });
 }
@@ -252,6 +280,12 @@ function collectStoredAudioSources(type) {
       if (source && sources.indexOf(source) < 0) sources.push(source);
     });
   });
+  if (type === 'warmup') {
+    const localAudio = wx.getStorageSync(LOCAL_AUDIO_LIBRARY_KEY);
+    (Array.isArray(localAudio) ? localAudio : []).filter((item) => item && item.channel === 'warmup').forEach((item) => {
+      if (item.source && sources.indexOf(item.source) < 0) sources.push(item.source);
+    });
+  }
   return sources;
 }
 
@@ -396,6 +430,19 @@ function buildQuickPlayers(side, players) {
   }));
 }
 
+function shuffledAudioSources(values, avoidFirst) {
+  const items = (Array.isArray(values) ? values : []).slice();
+  for (let index = items.length - 1; index > 0; index -= 1) {
+    const target = Math.floor(Math.random() * (index + 1));
+    [items[index], items[target]] = [items[target], items[index]];
+  }
+  if (items.length > 1 && items[0] === avoidFirst) {
+    const replacement = 1 + Math.floor(Math.random() * (items.length - 1));
+    [items[0], items[replacement]] = [items[replacement], items[0]];
+  }
+  return items;
+}
+
 function buildOfficialRoster(side, roster, availablePlayers) {
   const submitted =
     roster && roster.mode === "submitted" && Array.isArray(roster.players)
@@ -475,6 +522,17 @@ Page({
   shortcutPressedUsages: {},
   countdownLastPlayedAt: 0,
   audioContext: null,
+  audioRetiringContexts: null,
+  audioFadeTimer: null,
+  audioPlaybackToken: 0,
+  warmupPlaylist: null,
+  warmupIndex: 0,
+  warmupMode: 'current',
+  warmupFailureCount: 0,
+  warmupPlaybackToken: 0,
+  warmupAudioHost: null,
+  warmupDuckTimer: null,
+  warmupAudioName: '暖场音乐',
   restAudioContext: null,
   restAudioProgressTimer: null,
   restAudioSeeking: false,
@@ -611,6 +669,7 @@ Page({
     homeEvents: [],
     awayEvents: [],
     currentAudioName: '无',
+    warmupPlaying: false,
     mcVoiceIcon: ICON_ASSET + 'icon-mc-attack-clean.png',
     mcSoundIcon: ICON_ASSET + 'icon-mc-attack-clean.png',
     playingType: '',
@@ -636,6 +695,7 @@ Page({
       { id: 'kids', name: '赛小萌', icon: ICON_ASSET + 'icon-mc-score-voice-clean.png', activeClass: '' }
     ],
     commonSounds: [
+      { type: 'warmup', name: '暖场音乐', icon: ICON_ASSET + 'icon-mc-mvp-clean.png', glyph: '♪', audioIds: AUDIO_FILE_IDS.warmup, activeClass: '' },
       { type: 'attack', name: '进攻音效', icon: ICON_ASSET + 'icon-tech-score-clean.png', glyph: SOUND_GLYPHS.attack, audioIds: AUDIO_FILE_IDS.attack, activeClass: '' },
       { type: 'defense', name: '防守音效', icon: ICON_ASSET + 'icon-mc-defense-clean.png', glyph: SOUND_GLYPHS.defense, audioIds: AUDIO_FILE_IDS.defense, activeClass: '' }
     ],
@@ -744,6 +804,7 @@ Page({
     this.periodEndPromptTimer = null;
     this.clearLongPress();
     this.stopNativeAudio();
+    this.stopWarmupAudio();
     this.disconnectShortcutBle(true);
     if (this.shortcutActiveTimer) clearTimeout(this.shortcutActiveTimer);
     if (wx.offWindowResize && this.resizeHandler) wx.offWindowResize(this.resizeHandler);
@@ -2667,6 +2728,7 @@ Page({
         if (result && result.ok) {
           if (result.audioMap && typeof result.audioMap === 'object') wx.setStorageSync(CLOUD_AUDIO_MAP_KEY, result.audioMap);
           if (Array.isArray(result.items)) wx.setStorageSync(CLOUD_AUDIO_ITEMS_KEY, result.items);
+          if (result.urlMap && typeof result.urlMap === 'object') wx.setStorageSync(CLOUD_AUDIO_URL_MAP_KEY, result.urlMap);
         }
       })
       .catch((error) => console.warn('[scorer] refresh cloud audio library failed', error))
@@ -2790,41 +2852,115 @@ Page({
 
   playSound(event) {
     const type = event.currentTarget.dataset.type;
+    const volumeGroup = event.currentTarget.dataset.volumeGroup === 'custom' ? 'custom' : 'common';
     const sounds = this.data.commonSounds.concat(this.data.scoringSounds || [], this.data.customSounds);
     const item = sounds.find((sound) => sound.type === type);
     if (!item) return;
+    if (BACKGROUND_MUSIC_TYPES.has(type) && this.data.warmupPlaying && this.backgroundMusicType === type) return this.stopWarmupAudio();
     if (this.data.playingType === type) return this.stopAudio();
-    this.playMcAudio(type, item.name, item.source);
+    this.playMcAudio(type, item.name, item.source, volumeGroup);
   },
-  playMcAudio(type, name, preferredSource) {
+  playMcAudio(type, name, preferredSource, volumeGroup) {
     this.setVoiceButtonActive(false);
-    const commonSounds = this.data.commonSounds.map((item) => Object.assign({}, item, { activeClass: item.type === type ? 'active' : '' }));
+    const isBackgroundMusic = BACKGROUND_MUSIC_TYPES.has(type);
+    const resolvedVolumeGroup = volumeGroup === 'custom' ? 'custom' : 'common';
+    const isCustomEffect = resolvedVolumeGroup === 'custom';
+    const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
+    if (!isBackgroundMusic && isCustomEffect && this.data.warmupPlaying && settings.customMixMode === 'stop') this.stopWarmupAudio();
+    const activeBackgroundType = isBackgroundMusic ? type : this.backgroundMusicType;
+    const commonSounds = this.data.commonSounds.map((item) => Object.assign({}, item, { activeClass: BACKGROUND_MUSIC_TYPES.has(item.type) ? (item.type === activeBackgroundType ? 'active' : '') : (item.type === type ? 'active' : '') }));
     const scoringSounds = this.data.scoringSounds.map((item) => Object.assign({}, item, { activeClass: item.type === type ? 'active' : '' }));
     const customSounds = this.data.customSounds.map((item) => Object.assign({}, item, { activeClass: item.type === type ? 'active' : '' }));
-    this.setData({ playingType: type, currentAudioName: name, commonSounds, scoringSounds, customSounds, showRestAudioControls: false, restAudioPaused: false, restAudioButtonText: '暂停', restAudioProgress: 0, restAudioCurrentText: '00:00', restAudioDurationText: '00:00' });
-    this.playNativeAudio(type, preferredSource);
+    if (isBackgroundMusic) {
+      this.warmupAudioName = name;
+      this.backgroundMusicType = type;
+      this.setData({ warmupPlaying: true, currentAudioName: this.data.playingType ? this.data.currentAudioName : name, commonSounds });
+    } else {
+      const audioPatch = { playingType: type, currentAudioName: name, commonSounds, scoringSounds, customSounds, showRestAudioControls: this.data.warmupPlaying };
+      if (!this.data.warmupPlaying) Object.assign(audioPatch, { restAudioPaused: false, restAudioButtonText: '暂停', restAudioProgress: 0, restAudioCurrentText: '00:00', restAudioDurationText: '00:00' });
+      this.setData(audioPatch);
+    }
+    this.playNativeAudio(type, preferredSource, resolvedVolumeGroup);
   },
   stopAudio() {
     this.setVoiceButtonActive(false);
-    const commonSounds = this.data.commonSounds.map((item) => Object.assign({}, item, { activeClass: '' }));
+    const commonSounds = this.data.commonSounds.map((item) => Object.assign({}, item, { activeClass: this.data.warmupPlaying && item.type === this.backgroundMusicType ? 'active' : '' }));
     const scoringSounds = this.data.scoringSounds.map((item) => Object.assign({}, item, { activeClass: '' }));
     const customSounds = this.data.customSounds.map((item) => Object.assign({}, item, { activeClass: '' }));
     this.stopNativeAudio();
-    this.setData({ playingType: '', currentAudioName: '无', commonSounds, scoringSounds, customSounds, showRestAudioControls: false, restAudioPaused: false, restAudioButtonText: '暂停', restAudioProgress: 0, restAudioCurrentText: '00:00', restAudioDurationText: '00:00' });
+    const audioPatch = { playingType: '', currentAudioName: this.data.warmupPlaying ? this.warmupAudioName : '无', commonSounds, scoringSounds, customSounds, showRestAudioControls: this.data.warmupPlaying };
+    if (!this.data.warmupPlaying) Object.assign(audioPatch, { restAudioPaused: false, restAudioButtonText: '暂停', restAudioProgress: 0, restAudioCurrentText: '00:00', restAudioDurationText: '00:00' });
+    this.setData(audioPatch);
+  },
+  getWarmupAudioHost() {
+    if (!this.warmupAudioHost) this.warmupAudioHost = { audioContext: null, audioRetiringContexts: [], audioFadeTimer: null };
+    return this.warmupAudioHost;
+  },
+  audioTokenMatches(type, token) {
+    return BACKGROUND_MUSIC_TYPES.has(type) ? token === this.warmupPlaybackToken : token === this.audioPlaybackToken;
+  },
+  setWarmupDucked(ducked) {
+    const host = this.getWarmupAudioHost();
+    const context = host.audioContext;
+    if (!context) return;
+    if (this.warmupDuckTimer) clearInterval(this.warmupDuckTimer);
+    const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
+    const fullVolume = effectiveAudioVolume(settings, 'common');
+    const target = ducked ? fullVolume * 0.18 : fullVolume;
+    const start = Math.max(0, Math.min(1, Number(context.volume) || 0));
+    const duration = ducked ? 220 : 520;
+    const startedAt = Date.now();
+    this.warmupDuckTimer = setInterval(() => {
+      if (host.audioContext !== context) {
+        clearInterval(this.warmupDuckTimer);
+        this.warmupDuckTimer = null;
+        return;
+      }
+      const progress = Math.min(1, (Date.now() - startedAt) / duration);
+      try { context.volume = start + (target - start) * progress; } catch (_) {}
+      if (progress >= 1) {
+        clearInterval(this.warmupDuckTimer);
+        this.warmupDuckTimer = null;
+      }
+    }, 30);
+  },
+  stopWarmupAudio() {
+    this.warmupPlaybackToken += 1;
+    if (this.warmupDuckTimer) clearInterval(this.warmupDuckTimer);
+    this.warmupDuckTimer = null;
+    fadeOutAudioTransition(this.getWarmupAudioHost());
+    this.warmupPlaylist = null;
+    this.backgroundMusicType = '';
+    this.warmupIndex = 0;
+    this.warmupFailureCount = 0;
+    const commonSounds = this.data.commonSounds.map((item) => Object.assign({}, item, { activeClass: item.type === this.data.playingType ? 'active' : '' }));
+    this.stopRestAudioProgressTimer();
+    this.restAudioContext = this.data.playingType === 'rest' ? this.audioContext : null;
+    const patch = { warmupPlaying: false, commonSounds, currentAudioName: this.data.playingType ? this.data.currentAudioName : '无', showRestAudioControls: this.data.playingType === 'rest' };
+    if (this.data.playingType !== 'rest') Object.assign(patch, { restAudioPaused: false, restAudioButtonText: '暂停', restAudioProgress: 0, restAudioCurrentText: '00:00', restAudioDurationText: '00:00' });
+    this.setData(patch);
   },
   toggleRestAudio() {
     const context = this.getRestAudioContext();
     if (!context) return;
     const paused = typeof context.paused === 'boolean' ? context.paused : this.data.restAudioPaused;
+    const warmupContext = this.data.warmupPlaying && context === this.getWarmupAudioHost().audioContext;
+    const host = warmupContext ? this.getWarmupAudioHost() : this;
+    const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
+    const targetVolume = effectiveAudioVolume(settings, 'common');
     if (paused) {
       context.play();
+      fadeAudioVolume(host, context, targetVolume, 420);
       this.setData({ restAudioPaused: false, restAudioButtonText: '\u6682\u505c' });
     } else {
-      context.pause();
       this.setData({ restAudioPaused: true, restAudioButtonText: '\u7ee7\u7eed' });
+      fadeAudioVolume(host, context, 0, 520, () => {
+        try { context.pause(); } catch (_) {}
+      });
     }
   },
   getRestAudioContext() {
+    if (this.data.warmupPlaying) return this.getWarmupAudioHost().audioContext;
     return this.restAudioContext || (this.data.playingType === 'rest' ? this.audioContext : null);
   },
   startRestAudioProgressTimer() {
@@ -2854,6 +2990,17 @@ Page({
   startRestAudioSeek(event) {
     const touch = event.touches && event.touches[0];
     if (!touch) return;
+    const context = this.getRestAudioContext();
+    if (!context) return;
+    const paused = typeof context.paused === 'boolean' ? context.paused : this.data.restAudioPaused;
+    const warmupContext = this.data.warmupPlaying && context === this.getWarmupAudioHost().audioContext;
+    const host = warmupContext ? this.getWarmupAudioHost() : this;
+    this.restAudioSeekContext = context;
+    this.restAudioSeekWasPlaying = !paused;
+    this.restAudioSeekRestoreVolume = Math.max(0, Math.min(1, Number(context.volume) || 0));
+    if (!paused) fadeAudioVolume(host, context, 0, 0, () => {
+      try { context.pause(); } catch (_) {}
+    });
     this.restAudioSeeking = true;
     const applyTouch = (rect) => {
       if (!rect || !rect.width) return;
@@ -2874,8 +3021,23 @@ Page({
   endRestAudioSeek(event) {
     const touch = event.changedTouches && event.changedTouches[0];
     if (touch) this.seekRestAudioByClientX(touch.clientX);
+    const context = this.restAudioSeekContext;
+    const shouldResume = this.restAudioSeekWasPlaying;
+    const restoreVolume = this.restAudioSeekRestoreVolume;
     this.restAudioSeeking = false;
     this.restAudioTrackRect = null;
+    this.restAudioSeekContext = null;
+    this.restAudioSeekWasPlaying = false;
+    this.restAudioSeekRestoreVolume = 0;
+    if (context && shouldResume) {
+      const warmupContext = this.data.warmupPlaying && context === this.getWarmupAudioHost().audioContext;
+      const host = warmupContext ? this.getWarmupAudioHost() : this;
+      try { context.volume = 0; context.play(); } catch (_) {}
+      fadeAudioVolume(host, context, restoreVolume, 260);
+      this.setData({ restAudioPaused: false, restAudioButtonText: '暂停' });
+    } else if (context) {
+      try { context.volume = restoreVolume; } catch (_) {}
+    }
     this.syncRestAudioProgress();
   },
   syncRestAudioProgress() {
@@ -2978,17 +3140,41 @@ Page({
   downloadAudioToTemp(source, onProgress) {
     return new Promise((resolve) => {
       const isCloudFile = source.indexOf('cloud://') === 0;
-    const download = isCloudFile && cloud && cloud.downloadFile
-      ? (options) => cloud.downloadFile(Object.assign({ fileID: source }, options))
-        : !isCloudFile && wx.downloadFile
-          ? (options) => wx.downloadFile(Object.assign({ url: source }, options))
-          : null;
-      if (!download) return resolve('');
-      const task = download({
+      const downloadHttp = (url) => {
+        if (!url || !wx.downloadFile) return resolve('');
+        const task = wx.downloadFile({
+          url,
+          success: (result) => resolve((result && result.tempFilePath) || ''),
+          fail: (error) => {
+            console.warn('[scorer] signed audio download failed', source, error);
+            resolve('');
+          }
+        });
+        if (task && task.onProgressUpdate && typeof onProgress === 'function') {
+          task.onProgressUpdate((event) => onProgress(Math.max(0, Math.min(100, Number(event && event.progress) || 0))));
+        }
+      };
+      const resolveSignedUrl = () => {
+        const cachedMap = wx.getStorageSync(CLOUD_AUDIO_URL_MAP_KEY) || {};
+        if (cachedMap[source]) return downloadHttp(cachedMap[source]);
+        callCloud('sxGetAudioUrl', { fileID: source }).then((result) => {
+          const tempUrl = result && result.ok && result.tempFileURL;
+          if (tempUrl) {
+            wx.setStorageSync(CLOUD_AUDIO_URL_MAP_KEY, Object.assign({}, cachedMap, { [source]: tempUrl }));
+            downloadHttp(tempUrl);
+            return;
+          }
+          resolve('');
+        }).catch(() => resolve(''));
+      };
+      if (!isCloudFile) return downloadHttp(source);
+      if (!cloud || !cloud.downloadFile) return resolveSignedUrl();
+      const task = cloud.downloadFile({
+        fileID: source,
         success: (result) => resolve((result && result.tempFilePath) || ''),
         fail: (error) => {
-          console.warn('[scorer] background audio download failed', source, error);
-          resolve('');
+          console.warn('[scorer] direct cloud audio download failed, using signed URL', source, error);
+          resolveSignedUrl();
         }
       });
       if (task && task.onProgressUpdate && typeof onProgress === 'function') {
@@ -3085,75 +3271,180 @@ Page({
     if (this.audioPreloadStarted) return;
     this.audioPreloadStarted = true;
     this.audioPreloadStopped = false;
-    const cacheSounds = (this.data.scoringSounds || []).concat(this.data.customSounds || []);
-    const extraTypes = ['rest', 'buzzer', 'countdown'];
-    const configuredSources = cacheSounds.reduce((list, item) => {
-      const storedSources = collectStoredAudioSources(item.type);
-      return list.concat(storedSources.length ? storedSources : [item.source || ''].concat(item.audioIds || []));
-    }, []);
-    const sources = extraTypes
-      .reduce((list, type) => {
-        const storedSources = collectStoredAudioSources(type);
-        return list.concat(storedSources.length ? storedSources : (AUDIO_FILE_IDS[type] || []));
-      }, configuredSources)
+    const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
+    const sourcesForType = (type) => collectStoredAudioSources(type)
+      .concat(AUDIO_FILE_IDS[type] || [])
+      .filter((source, index, list) => source && list.indexOf(source) === index);
+    const warmupSources = sourcesForType('warmup');
+    const selectedWarmup = settings.selectedAudio && settings.selectedAudio.warmup;
+    const warmupSource = selectedWarmup && warmupSources.includes(selectedWarmup)
+      ? selectedWarmup
+      : warmupSources[0];
+    const sources = [warmupSource]
+      .concat(sourcesForType('attack'))
+      .concat(sourcesForType('defense'))
+      .concat(sourcesForType('rest'))
+      .concat(sourcesForType('buzzer'))
+      .concat(sourcesForType('countdown'))
       .filter((source, index, list) => source && /^(cloud|https?):\/\//.test(source) && list.indexOf(source) === index);
     if (!sources.length) {
       this.audioPreloadStarted = false;
       return;
     }
+    const pending = [];
     for (let index = 0; index < sources.length; index += 1) {
+      if (!await this.getPersistentAudioPath(sources[index])) pending.push(sources[index]);
+    }
+    if (!pending.length) {
+      this.audioPreloadStarted = false;
+      return;
+    }
+    wx.showLoading({ title: '加载比赛音乐', mask: true });
+    let loaded = 0;
+    for (let index = 0; index < pending.length; index += 1) {
       if (this.audioPreloadStopped) break;
-      const source = sources[index];
-      await this.ensureAudioCached(source);
+      if (await this.ensureAudioCached(pending[index])) loaded += 1;
       if (this.audioPreloadStopped) break;
     }
+    wx.hideLoading();
     this.audioPreloadStarted = false;
+    if (this.audioPreloadStopped) return;
+    if (loaded === pending.length) {
+      wx.showModal({
+        title: '音效加载完成',
+        content: '暖场、进攻、防守音乐已准备好',
+        showCancel: false,
+        confirmText: '开始使用',
+        confirmColor: '#ff5b08'
+      });
+      return;
+    }
+    wx.showModal({
+      title: '音效未加载完整',
+      content: '请检查网络后重新进入计分板',
+      showCancel: false,
+      confirmText: '知道了',
+      confirmColor: '#ff5b08'
+    });
   },
-  playNativeAudio(type, preferredSource) {
+  playNativeAudio(type, preferredSource, volumeGroup) {
     const fallbackIds = this.getAudioIds(type);
     const ids = preferredSource ? [preferredSource].concat(fallbackIds.filter((source) => source !== preferredSource)) : fallbackIds;
     if (!ids.length || !wx.createInnerAudioContext) return;
-    this.playAudioQueue(ids, 0, type);
+    if (BACKGROUND_MUSIC_TYPES.has(type)) {
+      const playbackToken = this.warmupPlaybackToken + 1;
+      this.warmupPlaybackToken = playbackToken;
+      const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
+      this.warmupMode = type === 'warmup' ? (settings.modes.warmup || 'random') : (settings.modes[type] || 'random');
+      this.warmupPlaylist = type === 'warmup' && this.warmupMode === 'random'
+        ? shuffledAudioSources(ids, this.lastWarmupSource)
+        : (type === 'warmup' && this.warmupMode === 'sequence' ? ids : ids.slice(0, 1));
+      this.warmupIndex = 0;
+      if (type === 'warmup') this.lastWarmupSource = this.warmupPlaylist[0] || '';
+      this.warmupFailureCount = 0;
+      this.playAudioSource(this.warmupPlaylist[0], type === 'warmup' ? () => this.advanceWarmupAudio(playbackToken, true) : () => this.stopWarmupAudio(), type, playbackToken, 'common');
+      return;
+    }
+    const playbackToken = this.audioPlaybackToken + 1;
+    this.audioPlaybackToken = playbackToken;
+    this.playAudioQueue(ids, 0, type, playbackToken, volumeGroup);
   },
-  playAudioQueue(ids, index, type) {
+  advanceWarmupAudio(playbackToken, fromFailure) {
+    if (playbackToken !== this.warmupPlaybackToken || !this.warmupPlaylist || !this.warmupPlaylist.length) return;
+    if (fromFailure) {
+      this.warmupFailureCount += 1;
+      if (this.warmupFailureCount >= this.warmupPlaylist.length) {
+        this.stopWarmupAudio();
+        wx.showToast({ title: '暖场音乐加载失败', icon: 'none' });
+        return;
+      }
+    } else {
+      this.warmupFailureCount = 0;
+    }
+    let nextIndex = this.warmupIndex + 1;
+    if (nextIndex >= this.warmupPlaylist.length) {
+      if (this.warmupMode === 'random') this.warmupPlaylist = shuffledAudioSources(this.warmupPlaylist, this.warmupPlaylist[this.warmupIndex]);
+      nextIndex = 0;
+    }
+    this.warmupIndex = nextIndex;
+    this.lastWarmupSource = this.warmupPlaylist[this.warmupIndex] || this.lastWarmupSource;
+    this.playAudioSource(this.warmupPlaylist[this.warmupIndex], () => this.advanceWarmupAudio(playbackToken, true), 'warmup', playbackToken, 'common');
+  },
+  preloadNextWarmupAudio(playbackToken) {
+    if (playbackToken !== this.warmupPlaybackToken || !this.warmupPlaylist || this.warmupPlaylist.length < 2) return;
+    const nextIndex = (this.warmupIndex + 1) % this.warmupPlaylist.length;
+    const nextSource = this.warmupPlaylist[nextIndex];
+    if (!nextSource) return;
+    this.ensureAudioCached(nextSource).catch((error) => console.warn('[scorer] next warmup preload failed', error));
+  },
+  playAudioQueue(ids, index, type, playbackToken, volumeGroup) {
+    if (playbackToken !== this.audioPlaybackToken) return;
     if (!ids || index >= ids.length) {
       this.stopAudio();
       wx.showToast({ title: '音效加载失败，请检查网络', icon: 'none' });
       return;
     }
-    this.playAudioSource(ids[index], () => this.playAudioQueue(ids, index + 1, type), type);
+    this.playAudioSource(ids[index], () => this.playAudioQueue(ids, index + 1, type, playbackToken, volumeGroup), type, playbackToken, volumeGroup);
   },
-  playAudioSource(fileId, onFailure, type) {
+  playAudioSource(fileId, onFailure, type, playbackToken, volumeGroup) {
     if (!fileId || !wx.createInnerAudioContext) return;
+    const warmupChannel = BACKGROUND_MUSIC_TYPES.has(type);
+    const requestToken = playbackToken || (warmupChannel ? this.warmupPlaybackToken + 1 : this.audioPlaybackToken + 1);
+    if (!playbackToken) {
+      if (warmupChannel) this.warmupPlaybackToken = requestToken;
+      else this.audioPlaybackToken = requestToken;
+    }
     const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
     if (settings.masterEnabled === false) return;
     const playSrc = (src) => {
-      this.stopNativeAudio();
+      if (!this.audioTokenMatches(type, requestToken)) return;
       const context = wx.createInnerAudioContext();
-      this.audioContext = context;
-      context.volume = Math.max(0, Math.min(1, Number(settings.volume || 70) / 100));
+      const audioHost = warmupChannel ? this.getWarmupAudioHost() : this;
+      const resolvedVolumeGroup = warmupChannel ? 'common' : (volumeGroup === 'custom' ? 'custom' : 'common');
+      const targetVolume = effectiveAudioVolume(settings, resolvedVolumeGroup);
       context.src = src;
-      if (type === 'rest') {
+      context.loop = warmupChannel && (this.warmupMode === 'single' || (type !== 'warmup' && this.warmupMode === 'fixed'));
+      if (!warmupChannel && type !== 'rest' && !this.data.warmupPlaying) {
+        this.stopRestAudioProgressTimer();
+        this.restAudioContext = null;
+        this.restAudioSeeking = false;
+        this.restAudioTrackRect = null;
+      }
+      if (type === 'rest' || warmupChannel) {
         this.restAudioContext = context;
         this.startRestAudioProgressTimer();
         this.setData({ showRestAudioControls: true, restAudioPaused: false, restAudioButtonText: '暂停' });
-        if (this.audioContext.onCanplay) this.audioContext.onCanplay(() => this.syncRestAudioProgress());
-        if (this.audioContext.onTimeUpdate) this.audioContext.onTimeUpdate(() => this.syncRestAudioProgress());
-        if (this.audioContext.onPlay) this.audioContext.onPlay(() => this.setData({ restAudioPaused: false, restAudioButtonText: '暂停' }));
-        if (this.audioContext.onPause) this.audioContext.onPause(() => this.setData({ restAudioPaused: true, restAudioButtonText: '继续' }));
+        if (context.onCanplay) context.onCanplay(() => this.syncRestAudioProgress());
+        if (context.onTimeUpdate) context.onTimeUpdate(() => this.syncRestAudioProgress());
+        if (context.onPlay) context.onPlay(() => this.setData({ restAudioPaused: false, restAudioButtonText: '暂停' }));
+        if (context.onPause) context.onPause(() => this.setData({ restAudioPaused: true, restAudioButtonText: '继续' }));
       }
-      if (this.audioContext.onEnded) this.audioContext.onEnded(() => this.stopAudio());
-      if (this.audioContext.onError) this.audioContext.onError((error) => {
+      if (context.onEnded) context.onEnded(() => {
+        if (isCurrentAudio(audioHost, context) && type === 'warmup' && (this.warmupMode === 'sequence' || this.warmupMode === 'random')) return this.advanceWarmupAudio(requestToken, false);
+        if (isCurrentAudio(audioHost, context) && warmupChannel) this.stopWarmupAudio();
+        else if (isCurrentAudio(audioHost, context)) this.stopAudio();
+        else disposeAudioContext(context);
+      });
+      if (context.onError) context.onError((error) => {
         console.warn('[scorer] audio playback failed', fileId, error);
-        this.stopNativeAudio();
+        if (!isCurrentAudio(audioHost, context)) return disposeAudioContext(context);
+        disposeAudioContext(context);
+        if (audioHost.audioContext === context) audioHost.audioContext = null;
+        if (!this.audioTokenMatches(type, requestToken)) return;
         if (onFailure) onFailure();
         else this.stopAudio();
       });
-      this.audioContext.play();
+      startAudioTransition(audioHost, context, type || 'voice', targetVolume);
+      if (type === 'warmup') this.preloadNextWarmupAudio(requestToken);
+      if (!warmupChannel && this.data.warmupPlaying) {
+        const customEffect = resolvedVolumeGroup === 'custom';
+        if (!customEffect || settings.customMixMode === 'duck') this.setWarmupDucked(true);
+      }
       this.cacheAudioAfterPlaybackStarts(fileId, type);
     };
     const resolveWithCloudFunction = () => {
       callCloud('sxGetAudioUrl', { fileID: fileId }).then((result) => {
+        if (!this.audioTokenMatches(type, requestToken)) return;
         const tempUrl = result && result.ok && result.tempFileURL;
         if (tempUrl) {
           this.audioUrlCache[fileId] = tempUrl;
@@ -3189,8 +3480,8 @@ Page({
     };
     if (!this.audioUrlCache[fileId] && this.persistentAudioCache[fileId]) {
       this.getPersistentAudioPath(fileId).then((savedPath) => {
-        if (savedPath) playSrc(savedPath);
-        else this.playAudioSource(fileId, onFailure, type);
+          if (savedPath) playSrc(savedPath);
+          else this.playAudioSource(fileId, onFailure, type, requestToken, volumeGroup);
       });
       return;
     }
@@ -3230,15 +3521,15 @@ Page({
     });
   },
   stopNativeAudio() {
-    const context = this.audioContext;
-    this.stopRestAudioProgressTimer();
-    this.restAudioContext = null;
-    this.restAudioSeeking = false;
-    this.restAudioTrackRect = null;
-    if (!context) return;
-    try { context.stop(); } catch (error) {}
-    try { context.destroy(); } catch (error) {}
-    if (this.audioContext === context) this.audioContext = null;
+    this.audioPlaybackToken += 1;
+    if (!this.data.warmupPlaying) {
+      this.stopRestAudioProgressTimer();
+      this.restAudioContext = null;
+      this.restAudioSeeking = false;
+      this.restAudioTrackRect = null;
+    }
+    fadeOutAudioTransition(this);
+    this.setWarmupDucked(false);
   },
   async announceScore() {
     const settings = normalizeAudioSettings(wx.getStorageSync(AUDIO_SETTINGS_KEY));
@@ -3277,7 +3568,7 @@ Page({
       this.setData({ playingType: '', currentAudioName: '无' });
       return;
     }
-    this.playAudioSource(source);
+    this.playAudioSource(source, null, 'voice');
   },
   noop() {},
   openScoreboardPanel() {

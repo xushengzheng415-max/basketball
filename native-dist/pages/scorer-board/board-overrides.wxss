@@ -603,6 +603,10 @@
 .score-page.landscape-board .custom-sound-grid {
   height: 14.8vh;
 }
+.score-page.landscape-board .common-sound-grid,
+.score-page.phone-board .common-sound-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
 
 /* Put scoring actions at the bottom and dedicate the freed center area to the score. */
 .score-page.landscape-board .team-panel {

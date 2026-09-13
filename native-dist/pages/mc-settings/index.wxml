@@ -1,9 +1,9 @@
 <view class="page">
-  <image class="page-bg" src="{{assetBase}}background-mc-settings-clean.png" mode="aspectFill" />
+  <image class="page-bg" src="{{assetUrls.background}}" mode="aspectFill" />
 
   <view class="nav">
     <view class="back-button" bindtap="goBack">
-      <image src="{{assetBase}}icon-back-common.png" mode="aspectFit" />
+      <image src="{{assetUrls.back}}" mode="aspectFit" />
     </view>
     <text class="nav-title">MC音效设置</text>
     <view class="nav-space"></view>
@@ -17,29 +17,46 @@
       </view>
 
       <view class="master-row volume-row">
-        <image class="master-icon" src="{{assetBase}}icon-volume-common.png" mode="aspectFit" />
+        <image class="master-icon" src="{{assetUrls.volume}}" mode="aspectFit" />
         <text class="master-label">全局音量</text>
-        <slider class="volume-slider" min="0" max="100" value="{{settings.volume}}" activeColor="#ff4b0b" backgroundColor="#e6e6e6" block-color="#ffffff" block-size="22" bindchange="updateVolume" />
+        <slider class="volume-slider" min="0" max="100" value="{{settings.volume}}" activeColor="#ff4b0b" backgroundColor="#e6e6e6" block-color="#ffffff" block-size="22" data-key="volume" bindchanging="previewVolumeChanging" bindchange="updateVolume" />
         <text class="volume-value">{{settings.volume}}%</text>
       </view>
 
+      <view class="master-row volume-row category-volume-row">
+        <image class="master-icon" src="{{assetUrls.music}}" mode="aspectFit" />
+        <text class="master-label">常用音效</text>
+        <slider class="volume-slider" min="0" max="100" value="{{settings.commonVolume}}" activeColor="#ff4b0b" backgroundColor="#e6e6e6" block-color="#ffffff" block-size="22" data-key="commonVolume" bindchanging="previewVolumeChanging" bindchange="updateCategoryVolume" />
+        <text class="volume-value">{{settings.commonVolume}}%</text>
+        <view class="volume-preview" data-group="common" bindtap="previewCategoryVolume">试听</view>
+      </view>
+
+      <view class="master-row volume-row category-volume-row">
+        <image class="master-icon" src="{{assetUrls.volume}}" mode="aspectFit" />
+        <text class="master-label">自定义音效</text>
+        <slider class="volume-slider" min="0" max="100" value="{{settings.customVolume}}" activeColor="#ff4b0b" backgroundColor="#e6e6e6" block-color="#ffffff" block-size="22" data-key="customVolume" bindchanging="previewVolumeChanging" bindchange="updateCategoryVolume" />
+        <text class="volume-value">{{settings.customVolume}}%</text>
+        <view class="volume-preview" data-group="custom" bindtap="previewCategoryVolume">试听</view>
+      </view>
+
       <view class="master-row package-row" bindtap="openPackageModal">
-        <image class="master-icon" src="{{assetBase}}icon-package-common.png" mode="aspectFit" />
+        <image class="master-icon" src="{{assetUrls.package}}" mode="aspectFit" />
         <text class="master-label">当前音效包</text>
         <text class="package-value">{{packageName}}</text>
-        <image class="chevron" src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+        <image class="chevron" src="{{assetUrls.chevron}}" mode="aspectFit" />
       </view>
     </view>
 
     <view class="dark-panel voice-panel">
       <view class="section-title"><view class="title-mark"></view><text>播报设置</text></view>
       <view class="voice-setting-head">
-        <view class="icon-tile"><image src="{{assetBase}}icon-music-common.png" mode="aspectFit" /></view>
+        <view class="icon-tile"><image src="{{assetUrls.music}}" mode="aspectFit" /></view>
         <view class="voice-setting-copy">
           <text class="sound-name">得分播报音色</text>
           <text class="voice-setting-hint">点击音色即可选中并试听</text>
         </view>
       </view>
+
       <view class="voice-choice-row">
         <view wx:for="{{voiceOptions}}" wx:key="id" class="voice-choice {{item.activeClass}}" data-id="{{item.id}}" bindtap="selectVoice">
           <view class="voice-radio"><view class="voice-radio-dot"></view></view>
@@ -64,14 +81,14 @@
           <text class="sound-name">{{item.name}}</text>
           <view class="select-trigger" data-key="{{item.key}}" bindtap="openAudioModal">
             <text>{{item.selectedName}}</text>
-            <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+            <image src="{{assetUrls.chevron}}" mode="aspectFit" />
           </view>
         </view>
         <view class="play-button" data-key="{{item.key}}" bindtap="playCategory">
-          <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+          <image src="{{assetUrls.play}}" mode="aspectFit" />
         </view>
         <view class="mode-button" data-key="{{item.key}}" bindtap="changeMode">
-          <image src="{{assetBase}}icon-replace-common.png" mode="aspectFit" />
+          <image src="{{assetUrls.replace}}" mode="aspectFit" />
           <text>{{item.modeText}}</text>
         </view>
         <switch class="row-switch" color="#ff4b0b" checked="{{item.enabled}}" data-key="{{item.key}}" bindchange="toggleCategory" />
@@ -80,13 +97,21 @@
 
     <view class="dark-panel rules-panel">
       <view class="section-title"><view class="title-mark"></view><text>播放规则</text></view>
+      <view class="rule-row" bindtap="changeCustomMixMode">
+        <view class="icon-tile small"><image src="{{assetUrls.music}}" mode="aspectFit" /></view>
+        <view class="rule-copy">
+          <text class="rule-name">自定义音效播放时</text>
+          <text class="rule-hint">暖场、进攻、防守音乐的处理方式</text>
+        </view>
+        <view class="rule-select">{{customMixModeText}}</view>
+      </view>
       <view class="rule-row">
-        <view class="icon-tile small"><image src="{{assetBase}}icon-whistle-common.png" mode="aspectFit" /></view>
+        <view class="icon-tile small"><image src="{{assetUrls.whistle}}" mode="aspectFit" /></view>
         <text class="rule-name">蜂鸣器开关</text>
         <switch class="row-switch" color="#ff4b0b" checked="{{settings.buzzerEnabled}}" data-key="buzzerEnabled" bindchange="updateSetting" />
       </view>
       <view class="rule-row">
-        <view class="icon-tile small"><image src="{{assetBase}}icon-pause-common.png" mode="aspectFit" /></view>
+        <view class="icon-tile small"><image src="{{assetUrls.pause}}" mode="aspectFit" /></view>
         <view class="rule-copy">
           <text class="rule-name">暂停音乐自动播放</text>
           <text class="rule-hint">关闭后，节间不提示也不播放暂停音乐</text>
@@ -99,14 +124,14 @@
       <view class="section-title">
         <view class="title-mark"></view>
         <text>自定义音效设置</text>
-        <text class="section-badge">9选6</text>
+        <text class="section-badge">6个快捷位</text>
       </view>
       <view class="custom-grid">
         <view wx:for="{{customSlots}}" wx:key="position" class="custom-slot">
           <view class="slot-topline">
             <text class="slot-number">{{item.displayIcon}}</text>
             <view class="slot-play" data-index="{{index}}" bindtap="playCustomSlot">
-              <image src="{{assetBase}}icon-play-common.png" mode="aspectFit" />
+              <image src="{{assetUrls.play}}" mode="aspectFit" />
             </view>
           </view>
           <text class="custom-name">{{item.name}}</text>
@@ -137,7 +162,8 @@
           </view>
           <view class="modal-option-side">
             <text wx:if="{{item.slotPositionText}}" class="modal-slot-position {{item.slotPositionClass}}">{{item.slotPositionText}}</text>
-            <image src="{{assetBase}}icon-chevron-right-common.png" mode="aspectFit" />
+            <view wx:if="{{item.localOnly}}" class="local-audio-actions"><text data-id="{{item.id}}" catchtap="renameLocalAudio">改名</text><text data-id="{{item.id}}" catchtap="deleteLocalAudio">删除</text></view>
+            <image src="{{assetUrls.chevron}}" mode="aspectFit" />
           </view>
         </view>
       </scroll-view>

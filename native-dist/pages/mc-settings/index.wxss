@@ -309,6 +309,29 @@ page {
   line-height: 1.45;
 }
 
+.category-volume-row .master-label {
+  width: 150rpx;
+}
+
+.category-volume-row .volume-slider {
+  margin-left: 10rpx;
+}
+
+.volume-preview {
+  display: flex;
+  flex: 0 0 auto;
+  height: 48rpx;
+  align-items: center;
+  justify-content: center;
+  margin-left: 10rpx;
+  padding: 0 14rpx;
+  border: 1rpx solid #ff650f;
+  border-radius: 8rpx;
+  color: #e65100;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
 .voice-setting-head {
   display: flex;
   min-height: 76rpx;
@@ -634,6 +657,31 @@ page {
   align-items: center;
   gap: 14rpx;
   margin-left: 16rpx;
+}
+
+.rule-select {
+  flex: 0 0 auto;
+  margin-left: 12rpx;
+  padding: 9rpx 12rpx;
+  border: 1rpx solid rgba(255, 101, 15, 0.55);
+  border-radius: 8rpx;
+  color: #ff7b31;
+  font-size: 18rpx;
+  font-weight: 700;
+}
+.local-audio-actions {
+  display: flex;
+  gap: 8rpx;
+}
+.local-audio-actions text {
+  padding: 7rpx 10rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.16);
+  border-radius: 6rpx;
+  color: #c7cbd0;
+  font-size: 17rpx;
+}
+.local-audio-actions text:last-child {
+  color: #ff6d67;
 }
 
 .modal-slot-position {
