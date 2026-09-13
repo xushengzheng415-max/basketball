@@ -3058,15 +3058,17 @@ Page({
     const storedSources = collectStoredAudioSources(type);
     const fallbackSources = AUDIO_FILE_IDS[type] || [];
     const allSources = storedSources.concat(fallbackSources).filter((source, index, list) => source && list.indexOf(source) === index);
+    const readySources = allSources.filter((source) => (this.audioUrlCache && this.audioUrlCache[source]) || (this.persistentAudioCache && this.persistentAudioCache[source]));
     if (categoryKey && settings.selectedAudio[categoryKey] && String(settings.selectedAudio[categoryKey]).indexOf('placeholder-') !== 0) {
       const selected = settings.selectedAudio[categoryKey];
       return [selected].concat(allSources.filter((source) => source !== selected));
     }
     if (categoryKey && settings.modes && settings.modes[categoryKey] === 'random' && allSources.length > 1) {
-      const randomIndex = Math.floor(Math.random() * allSources.length);
-      return [allSources[randomIndex]].concat(allSources.filter((source, index) => index !== randomIndex));
+      const candidates = readySources.length ? readySources : allSources;
+      const selected = candidates[Math.floor(Math.random() * candidates.length)];
+      return [selected].concat(allSources.filter((source) => source !== selected));
     }
-    return allSources;
+    return readySources.concat(allSources.filter((source) => !readySources.includes(source)));
   },
   audioEnabledForType(type, settings) {
     if (settings.masterEnabled === false) return false;
@@ -3140,13 +3142,19 @@ Page({
   downloadAudioToTemp(source, onProgress) {
     return new Promise((resolve) => {
       const isCloudFile = source.indexOf('cloud://') === 0;
-      const downloadHttp = (url) => {
+      let signedUrlRefreshed = false;
+      const downloadHttp = (url, refreshOnFailure) => {
         if (!url || !wx.downloadFile) return resolve('');
         const task = wx.downloadFile({
           url,
           success: (result) => resolve((result && result.tempFilePath) || ''),
           fail: (error) => {
             console.warn('[scorer] signed audio download failed', source, error);
+            if (refreshOnFailure && !signedUrlRefreshed) {
+              signedUrlRefreshed = true;
+              requestFreshSignedUrl();
+              return;
+            }
             resolve('');
           }
         });
@@ -3154,20 +3162,24 @@ Page({
           task.onProgressUpdate((event) => onProgress(Math.max(0, Math.min(100, Number(event && event.progress) || 0))));
         }
       };
-      const resolveSignedUrl = () => {
+      const requestFreshSignedUrl = () => {
         const cachedMap = wx.getStorageSync(CLOUD_AUDIO_URL_MAP_KEY) || {};
-        if (cachedMap[source]) return downloadHttp(cachedMap[source]);
         callCloud('sxGetAudioUrl', { fileID: source }).then((result) => {
           const tempUrl = result && result.ok && result.tempFileURL;
           if (tempUrl) {
             wx.setStorageSync(CLOUD_AUDIO_URL_MAP_KEY, Object.assign({}, cachedMap, { [source]: tempUrl }));
-            downloadHttp(tempUrl);
+            downloadHttp(tempUrl, false);
             return;
           }
           resolve('');
         }).catch(() => resolve(''));
       };
-      if (!isCloudFile) return downloadHttp(source);
+      const resolveSignedUrl = () => {
+        const cachedMap = wx.getStorageSync(CLOUD_AUDIO_URL_MAP_KEY) || {};
+        if (cachedMap[source]) return downloadHttp(cachedMap[source], true);
+        requestFreshSignedUrl();
+      };
+      if (!isCloudFile) return downloadHttp(source, false);
       if (!cloud || !cloud.downloadFile) return resolveSignedUrl();
       const task = cloud.downloadFile({
         fileID: source,
@@ -3275,41 +3287,51 @@ Page({
     const sourcesForType = (type) => collectStoredAudioSources(type)
       .concat(AUDIO_FILE_IDS[type] || [])
       .filter((source, index, list) => source && list.indexOf(source) === index);
-    const warmupSources = sourcesForType('warmup');
-    const selectedWarmup = settings.selectedAudio && settings.selectedAudio.warmup;
-    const warmupSource = selectedWarmup && warmupSources.includes(selectedWarmup)
-      ? selectedWarmup
-      : warmupSources[0];
-    const sources = [warmupSource]
-      .concat(sourcesForType('attack'))
-      .concat(sourcesForType('defense'))
+    const sourceLists = {
+      warmup: sourcesForType('warmup'),
+      attack: sourcesForType('attack'),
+      defense: sourcesForType('defense')
+    };
+    const preferredSource = (type) => {
+      const selected = settings.selectedAudio && settings.selectedAudio[type];
+      return selected && sourceLists[type].includes(selected) ? selected : sourceLists[type][0];
+    };
+    const essentialSources = ['warmup', 'attack', 'defense']
+      .map(preferredSource)
+      .filter((source) => source && /^(cloud|https?):\/\//.test(source));
+    if (essentialSources.length !== 3) {
+      this.audioPreloadStarted = false;
+      wx.showModal({
+        title: '音效未准备好',
+        content: '音效库缺少暖场、进攻或防守音乐',
+        showCancel: false,
+        confirmText: '知道了',
+        confirmColor: '#ff5b08'
+      });
+      return;
+    }
+    const remainingSources = sourceLists.attack
+      .concat(sourceLists.defense)
       .concat(sourcesForType('rest'))
       .concat(sourcesForType('buzzer'))
       .concat(sourcesForType('countdown'))
-      .filter((source, index, list) => source && /^(cloud|https?):\/\//.test(source) && list.indexOf(source) === index);
-    if (!sources.length) {
-      this.audioPreloadStarted = false;
-      return;
+      .filter((source, index, list) => source && /^(cloud|https?):\/\//.test(source) && !essentialSources.includes(source) && list.indexOf(source) === index);
+    const pendingEssential = [];
+    for (let index = 0; index < essentialSources.length; index += 1) {
+      if (!await this.getPersistentAudioPath(essentialSources[index])) pendingEssential.push(essentialSources[index]);
     }
-    const pending = [];
-    for (let index = 0; index < sources.length; index += 1) {
-      if (!await this.getPersistentAudioPath(sources[index])) pending.push(sources[index]);
-    }
-    if (!pending.length) {
+    if (!pendingEssential.length) {
       this.audioPreloadStarted = false;
+      this.preloadRemainingAudio(remainingSources);
       return;
     }
     wx.showLoading({ title: '加载比赛音乐', mask: true });
-    let loaded = 0;
-    for (let index = 0; index < pending.length; index += 1) {
-      if (this.audioPreloadStopped) break;
-      if (await this.ensureAudioCached(pending[index])) loaded += 1;
-      if (this.audioPreloadStopped) break;
-    }
+    const results = await Promise.all(pendingEssential.map((source) => this.ensureAudioCached(source).catch(() => '')));
     wx.hideLoading();
     this.audioPreloadStarted = false;
     if (this.audioPreloadStopped) return;
-    if (loaded === pending.length) {
+    if (results.every(Boolean)) {
+      this.preloadRemainingAudio(remainingSources);
       wx.showModal({
         title: '音效加载完成',
         content: '暖场、进攻、防守音乐已准备好',
@@ -3321,11 +3343,24 @@ Page({
     }
     wx.showModal({
       title: '音效未加载完整',
-      content: '请检查网络后重新进入计分板',
-      showCancel: false,
-      confirmText: '知道了',
-      confirmColor: '#ff5b08'
+      content: '暖场、进攻或防守音乐仍有未就绪',
+      showCancel: true,
+      cancelText: '稍后',
+      confirmText: '重新加载',
+      confirmColor: '#ff5b08',
+      success: (result) => {
+        if (result.confirm) setTimeout(() => this.preloadCommonAudio(), 120);
+      }
     });
+  },
+  async preloadRemainingAudio(sources) {
+    if (this.audioBackgroundPreloadStarted || !Array.isArray(sources) || !sources.length) return;
+    this.audioBackgroundPreloadStarted = true;
+    for (let index = 0; index < sources.length; index += 1) {
+      if (this.audioPreloadStopped) break;
+      if (!await this.getPersistentAudioPath(sources[index])) await this.ensureAudioCached(sources[index]);
+    }
+    this.audioBackgroundPreloadStarted = false;
   },
   playNativeAudio(type, preferredSource, volumeGroup) {
     const fallbackIds = this.getAudioIds(type);
