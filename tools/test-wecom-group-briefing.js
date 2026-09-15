@@ -12,8 +12,11 @@ const {
   buildResponsesRequest,
   contentFingerprint,
   createWecomClient,
+  discoverNewsCandidates,
   extractResponseJson,
+  fetchTencentFeedCandidates,
   formatWecomMessage,
+  generateBriefing,
   isAllowedSourceUrl,
   newsTitleSimilarity,
   safeEqual,
@@ -21,6 +24,7 @@ const {
   truncateUtf8,
   utf8Length,
   validateBriefing,
+  validateContentSafety,
   validateNewsAgainstHistory
 } = require('../cloudfunctions/sxWecomGroupBriefing/core');
 const { BriefingService, loadConfig } = require('../cloudfunctions/sxWecomGroupBriefing');
@@ -32,7 +36,8 @@ const sourceDomainAllowlist = [
   'cba.net.cn',
   'fiba.basketball',
   'sport.gov.cn',
-  'xinhuanet.com'
+  'xinhuanet.com',
+  'news.cn'
 ];
 
 function source(name, url, hour = '2026-08-24T22:00:00+08:00') {
@@ -104,6 +109,8 @@ function testSourceAllowlist() {
   assert.equal(isAllowedSourceUrl('https://user:pass@nba.com/news/1', ['nba.com']), false);
   assert.equal(isAllowedSourceUrl('https://nba.com:8443/news/1', ['nba.com']), false);
   assert.equal(isAllowedSourceUrl('https://127.0.0.1/news/1', ['127.0.0.1']), false);
+  assert.equal(isAllowedSourceUrl('https://i.news.qq.com/web_feed/getPCList', ['news.qq.com']), true);
+  assert.equal(isAllowedSourceUrl('https://new.qq.com/rain/a/test', ['news.qq.com']), false);
   assert.equal(isAllowedSourceUrl('not-a-url', ['nba.com']), false);
 }
 
@@ -247,6 +254,7 @@ function testDeepSeekResponsesCompatibility() {
   assert.equal(request.tool_choice, 'required');
   assert.equal(request.include, undefined);
   assert.equal(request.text.format.type, 'json_schema');
+  assert.equal(request.max_output_tokens, 6000);
 
   const parsed = extractResponseJson({
     output: [
@@ -261,6 +269,172 @@ function testDeepSeekResponsesCompatibility() {
       content: [{ type: 'output_text', text: '```json\n{"ok":true}\n```' }]
     }]
   }), { ok: true });
+
+  const candidates = validBriefing().news.slice(0, 2).map((item) => ({
+    scope: item.scope,
+    category: item.category,
+    title: item.title,
+    summary_seed: item.summary,
+    source: item.source
+  }));
+  const verifiedRequest = buildResponsesRequest({
+    openaiBaseUrl: 'https://api.deepseek.com',
+    openaiModel: 'deepseek-v4-flash',
+    sourceDomainAllowlist,
+    verifiedNewsCandidates: candidates
+  }, validationNow);
+  assert.equal(verifiedRequest.tools, undefined);
+  assert.equal(verifiedRequest.tool_choice, undefined);
+  assert.ok(verifiedRequest.input.includes('已核验候选来源'));
+}
+
+async function testVerifiedSourceDiscoveryAndGenerationRetry() {
+  const domesticUrl = 'https://www.news.cn/sports/20260825/domestic/c.html';
+  const internationalUrl = 'https://www.fiba.basketball/en/news/world-cup-final-set';
+  const pages = new Map([
+    ['https://www.news.cn/sports', `<a href="${domesticUrl}">中国男篮公布亚洲杯备战名单 2026-08-25 08:00:00</a>`],
+    [domesticUrl, '<meta property="article:published_time" content="2026-08-25T08:00:00+08:00"><meta name="description" content="中国男篮公布新一期名单，球队将按公开赛程完成集训。"><title>中国男篮公布亚洲杯备战名单</title>'],
+    ['https://www.fiba.basketball/en/news', `<a href="${internationalUrl}">World Cup final set after semi-finals</a>`],
+    [internationalUrl, '<meta property="article:published_time" content="2026-08-25T07:30:00+08:00"><meta name="description" content="The FIBA Basketball World Cup final pairing and schedule are confirmed."><title>World Cup final set</title>']
+  ]);
+  const htmlFetch = async (url) => {
+    assert.ok(pages.has(url), `unexpected source URL: ${url}`);
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: (name) => name === 'content-type' ? 'text/html; charset=utf-8' : '' },
+      text: async () => pages.get(url)
+    };
+  };
+  const candidates = await discoverNewsCandidates({
+    sourceDomainAllowlist,
+    lookbackHours: 24,
+    discoverySources: [
+      { scope: 'domestic', name: '新华网体育', url: 'https://www.news.cn/sports/' },
+      { scope: 'international', name: 'FIBA', url: 'https://www.fiba.basketball/en/news' }
+    ]
+  }, { fetch: htmlFetch }, validationNow);
+  assert.equal(candidates.length, 2, JSON.stringify(candidates));
+  assert.deepEqual(candidates.map((item) => item.scope), ['domestic', 'international']);
+
+  const generated = validBriefing();
+  generated.news = candidates.map((item) => ({
+    scope: item.scope,
+    category: item.category,
+    title: item.title,
+    summary: item.scope === 'domestic'
+      ? '中国男篮公布新一期备战名单，球队将根据公开赛程安排后续集训与比赛准备。'
+      : '国际篮联公布世界杯决赛对阵和比赛时间，两支晋级球队进入最后备战阶段。',
+    evidence_boundary: '公开页面只支持名单、赛程和对阵信息，不延伸判断球队最终表现。',
+    source: item.source
+  }));
+  let responseCalls = 0;
+  const responseFetch = async () => {
+    responseCalls += 1;
+    return {
+      ok: true,
+      status: 200,
+      json: async () => responseCalls === 1
+        ? { status: 'completed', output: [{ type: 'message', content: [] }] }
+        : { status: 'completed', output: [{ type: 'message', content: [{ type: 'output_text', text: JSON.stringify(generated) }] }] }
+    };
+  };
+  const result = await generateBriefing({
+    openaiApiKey: 'test-key',
+    openaiBaseUrl: 'https://api.deepseek.com',
+    openaiModel: 'deepseek-v4-flash',
+    sourceDomainAllowlist,
+    lookbackHours: 24,
+    generationAttempts: 2
+  }, {
+    fetch: responseFetch,
+    discoverNewsCandidates: async () => candidates,
+    sleep: async () => {}
+  }, validationNow);
+  assert.equal(responseCalls, 2);
+  assert.deepEqual(result._search_source_urls.sort(), [domesticUrl, internationalUrl].sort());
+}
+
+async function testTencentFeedTrustBoundary() {
+  const articleId = '20260825A0123456';
+  const articleTitle = '中国男篮公布新一期亚洲杯备战名单';
+  const articleUrl = `https://news.qq.com/rain/a/${articleId}`;
+  const feedPayload = {
+    data: [{
+      articletype: '525',
+      sub_item: [
+        {
+          id: articleId,
+          articletype: '0',
+          title: articleTitle,
+          publish_time: '2026-08-25 08:00:00',
+          long_summary: '中国男篮公布新一期备战名单，并同步公开后续集训和比赛安排。',
+          media_info: { chl_name: '腾讯体育', vip_desc: '' }
+        },
+        {
+          id: '20260825A0654321',
+          articletype: '0',
+          title: '中国男篮大胜对手稳获冠军',
+          publish_time: '2026-08-25 08:10:00',
+          long_summary: '个人体育创作者对比赛结果进行评论，来源未经晨报可信名单确认。',
+          media_info: { chl_name: '个人篮球号', vip_desc: '体育领域创作者' }
+        }
+      ]
+    }]
+  };
+  const feedSource = {
+    type: 'tencent_feed',
+    scope: 'domestic',
+    name: '腾讯新闻',
+    url: 'https://news.qq.com/ch/sports/',
+    channels: ['news_news_sports']
+  };
+  const config = {
+    sourceDomainAllowlist: ['news.qq.com'],
+    lookbackHours: 24,
+    sourceFetchTimeoutMs: 1000,
+    tencentFeedPages: 1,
+    tencentTrustedSources: ['腾讯体育'],
+    discoverySources: [feedSource]
+  };
+  const feedFetch = async (url, options) => {
+    assert.equal(url, 'https://i.news.qq.com/web_feed/getPCList');
+    assert.equal(options.method, 'POST');
+    const request = JSON.parse(options.body);
+    assert.equal(request.channel_id, 'news_news_sports');
+    return { ok: true, status: 200, json: async () => feedPayload };
+  };
+  const feedCandidates = await fetchTencentFeedCandidates(
+    feedSource,
+    config,
+    { fetch: feedFetch },
+    validationNow
+  );
+  assert.equal(feedCandidates.length, 1);
+  assert.equal(feedCandidates[0].tencent_media_name, '腾讯体育');
+  assert.equal(feedCandidates[0].url, articleUrl);
+
+  const combinedFetch = async (url, options = {}) => {
+    if (url === 'https://i.news.qq.com/web_feed/getPCList') return feedFetch(url, options);
+    assert.equal(url, articleUrl);
+    return {
+      ok: true,
+      status: 200,
+      headers: { get: (name) => name === 'content-type' ? 'text/html; charset=utf-8' : '' },
+      text: async () => [
+        `<meta property="article:author" content="腾讯体育">`,
+        `<meta property="article:published_time" content="2026-08-25 08:00:00">`,
+        `<meta property="og:title" content="${articleTitle}_腾讯新闻">`,
+        '<meta name="description" content="中国男篮公布新一期备战名单，并同步公开后续集训和比赛安排。">',
+        `<main>${articleTitle} 中国男篮完成集训和比赛准备。</main>`
+      ].join('')
+    };
+  };
+  const candidates = await discoverNewsCandidates(config, { fetch: combinedFetch }, validationNow);
+  assert.equal(candidates.length, 1);
+  assert.equal(candidates[0].source.name, '腾讯新闻·腾讯体育');
+  assert.equal(candidates[0].source.url, articleUrl);
+  assert.equal(candidates[0].source.published_at, '2026-08-25T00:00:00.000Z');
 }
 
 function testStateRecovery() {
@@ -781,6 +955,8 @@ function testProductionDefaults() {
   assert.equal(config.reminderMinIntervalMinutes, 60);
   assert.equal(config.autoCreateEnabled, false);
   assert.equal(config.autoRemindEnabled, false);
+  assert.equal(config.tencentFeedPages, 2);
+  assert.ok(config.tencentTrustedSources.includes('腾讯体育'));
 }
 
 function testCrossDayNewsDeduplication() {
@@ -804,6 +980,15 @@ function testInstitutionReminderUsesOperatingCalendar() {
   assert.ok(/开学|暑期班|课表|续费/.test(`${reminder.title}${reminder.analysis}`));
   assert.deepEqual(reminder.sources, []);
   assert.equal(/卡塔尔|浙BA|村BA/.test(`${reminder.title}${reminder.analysis}`), false);
+  ['2026-09-10T01:00:00.000Z', '2026-09-11T01:00:00.000Z', '2026-09-12T01:00:00.000Z', '2026-09-13T01:00:00.000Z']
+    .forEach((date) => {
+      const briefing = validBriefing();
+      briefing.institution_observation = buildInstitutionReminder(new Date(date), []);
+      assert.equal(
+        validateContentSafety(briefing).includes('content_semantics:observation_not_for_training_organization'),
+        false
+      );
+    });
 }
 
 function testDomesticInternationalSectionRules() {
@@ -841,6 +1026,8 @@ async function run() {
   testContentValidation();
   testFingerprintAndFormatting();
   testDeepSeekResponsesCompatibility();
+  await testVerifiedSourceDiscoveryAndGenerationRetry();
+  await testTencentFeedTrustBoundary();
   testStateRecovery();
   await testWecomTaskApiAndNoBlindRetry();
   await testServiceTaskLifecycleAndIdempotency();
