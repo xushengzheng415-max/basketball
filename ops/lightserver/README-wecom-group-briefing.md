@@ -83,12 +83,19 @@ cd /opt/sxf-platform
 
 ### 内容与来源
 
-- `OPENAI_API_KEY`、`OPENAI_BASE_URL`、`OPENAI_MODEL`：OpenAI Responses 兼容接口配置；所选模型必须支持网页搜索和结构化输出。
+- `OPENAI_API_KEY`、`OPENAI_BASE_URL`、`OPENAI_MODEL`：OpenAI Responses 兼容接口配置；所选模型必须支持结构化输出。
 - 可以使用 DeepSeek API。配置助手选择 `1` 时会写入 `OPENAI_BASE_URL=https://api.deepseek.com` 和 `OPENAI_MODEL=deepseek-v4-flash`；环境变量沿用 `OPENAI_*` 名称只是为了共用同一套 Responses 客户端。
-- `OPENAI_WEB_SEARCH_TOOL=web_search`：启用网页搜索工具。
-- `REQUIRE_SEARCH_PROVENANCE=true`：要求模型响应带搜索来源证据，生产环境保持开启。
+- 服务优先从新华网、中国新闻网、中国篮协、腾讯新闻、FIBA 与 NBA 发现候选文章，确认文章可访问且发布时间在回看窗口内，再交给模型改写。模型必须原样返回候选 URL 和发布时间。
+- 腾讯新闻通过公开 PC 文章流读取体育与 NBA 频道，只接受 `TENCENT_TRUSTED_SOURCES` 中的精确来源名，并回读 `news.qq.com/rain/a/...` 正式页核对作者、标题、发布时间和正文。默认拒绝“体育领域创作者”等个人号，也不会把 `author=腾讯网` 当成腾讯自有编辑证明。
+- `TENCENT_FEED_PAGES=2`：体育与 NBA 频道各读取两页，可配置范围为 1—3。
+- `TENCENT_TRUSTED_SOURCES`：逗号分隔的腾讯文章流可信来源名。新增来源前必须人工检查其账号主体和历史内容。
+- `OPENAI_WEB_SEARCH_TOOL=web_search`：当独立来源发现不足时使用的兼容回退；DeepSeek 未返回可审计搜索记录时，模型自报 URL 不会通过来源校验。
+- `REQUIRE_SEARCH_PROVENANCE=true`：要求每条新闻匹配已核验候选 URL 或模型响应中的可审计搜索来源，生产环境保持开启。
 - `OPENAI_TIMEOUT_MS=120000`：单次内容生成最长等待 120 秒。
-- `SOURCE_DOMAIN_ALLOWLIST`：允许进入晨报的来源域名，使用英文逗号分隔，例如 `nba.com,cba.net.cn,sport.gov.cn`。
+- `OPENAI_MAX_OUTPUT_TOKENS=6000`：给结构化 JSON 留足输出空间，避免截断。
+- `OPENAI_GENERATION_ATTEMPTS=2`：空正文、非法 JSON 和瞬时接口错误在单轮调度内最多尝试两次。
+- `SOURCE_FETCH_TIMEOUT_MS=12000`：白名单页面单次读取超时。
+- `SOURCE_DOMAIN_ALLOWLIST`：允许进入晨报的来源域名，使用英文逗号分隔；启用腾讯源时精确加入 `news.qq.com`，不要加入整个 `qq.com`。
 - `BRIEF_LOOKBACK_HOURS=72`：优先最近24小时；当天不足3条时，最多回看72小时。
 - `NEWS_DEDUP_DAYS=7`：最近7天已生成过的同一链接或高度相似事件不得再次进入晨报。
 

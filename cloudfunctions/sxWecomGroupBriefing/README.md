@@ -28,6 +28,11 @@
 | `OPENAI_MODEL` | `gpt-5.5` | 支持 Responses 与网页搜索的模型 |
 | `OPENAI_WEB_SEARCH_TOOL` | `web_search` | 兼容旧接口时可显式改为 `web_search_preview` |
 | `OPENAI_TIMEOUT_MS` | `120000` | 生成请求超时，范围 1—300 秒 |
+| `OPENAI_MAX_OUTPUT_TOKENS` | `6000` | 结构化正文最大输出；避免 JSON 被截断 |
+| `OPENAI_GENERATION_ATTEMPTS` | `2` | 单次调度遇到空正文、非法 JSON 或瞬时错误时的内部尝试次数 |
+| `SOURCE_FETCH_TIMEOUT_MS` | `12000` | 白名单来源列表页和文章页的单次读取超时 |
+| `TENCENT_FEED_PAGES` | `2` | 腾讯体育与 NBA 频道各读取页数，范围 1—3 |
+| `TENCENT_TRUSTED_SOURCES` | 内置权威名单 | 腾讯文章流允许进入候选的精确来源名；个人创作者默认全部拒绝 |
 | `SOURCE_DOMAIN_ALLOWLIST` | 无 | 逗号分隔的来源域名；根域名同时允许其子域，`*.example.com` 只允许子域 |
 | `REQUIRE_SEARCH_PROVENANCE` | `true` | 要求每个引用 URL 出现在本次网页搜索返回的来源集合中；生产环境不要关闭 |
 | `BRIEF_LOOKBACK_HOURS` | `72` | 优先24小时，不足3条时最多回看72小时 |
@@ -61,7 +66,9 @@
 | `REMINDER_MINUTE` | `0` | 提醒分钟 |
 | `REMINDER_MIN_INTERVAL_MINUTES` | `60` | 同一任务两次人工提醒的最小间隔，范围 1—1440 分钟 |
 
-瞬时生成错误最多退避重试三次；生成出 `review_required` 后不重试。创建任务发生任何不确定结果时都不自动重试。
+服务先从新华网、中国新闻网、中国篮协、腾讯新闻、FIBA 和 NBA 发现候选文章，逐页确认可访问性与发布时间，再把已核验候选交给模型改写；模型返回的 URL 必须与候选 URL 完全匹配。腾讯新闻使用其公开 PC 文章流发现 ID，最终只接受 `news.qq.com/rain/a/...` 正式页，并要求文章页作者与文章流来源一致。腾讯频道中的“体育领域创作者”等个人号不在可信名单时直接丢弃。启用腾讯源需要在 `SOURCE_DOMAIN_ALLOWLIST` 中精确加入 `news.qq.com`，不要加入宽泛的 `qq.com`。
+
+单次调度内的空正文、非法 JSON 和瞬时错误默认内部尝试两次；每日调度仍最多退避三轮。生成出 `review_required` 后会保留通过单条校验的候选，供下一轮补齐国内/国外条目。创建任务发生任何不确定结果时都不自动重试。
 
 ## 启动与操作
 

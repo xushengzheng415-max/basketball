@@ -2,6 +2,7 @@
 
 const path = require('node:path');
 const {
+  DEFAULT_TENCENT_TRUSTED_SOURCES,
   StateStore,
   buildInstitutionReminder,
   contentFingerprint,
@@ -44,6 +45,11 @@ function loadConfig(environment = process.env) {
     openaiModel: String(environment.OPENAI_MODEL || 'gpt-5.5'),
     openaiWebSearchTool: String(environment.OPENAI_WEB_SEARCH_TOOL || 'web_search'),
     openaiTimeoutMs: readInteger(environment.OPENAI_TIMEOUT_MS, 120000, 1000, 300000),
+    maxOutputTokens: readInteger(environment.OPENAI_MAX_OUTPUT_TOKENS, 6000, 2000, 16000),
+    generationAttempts: readInteger(environment.OPENAI_GENERATION_ATTEMPTS, 2, 1, 3),
+    sourceFetchTimeoutMs: readInteger(environment.SOURCE_FETCH_TIMEOUT_MS, 12000, 1000, 60000),
+    tencentFeedPages: readInteger(environment.TENCENT_FEED_PAGES, 2, 1, 3),
+    tencentTrustedSources: parseCsv(environment.TENCENT_TRUSTED_SOURCES || DEFAULT_TENCENT_TRUSTED_SOURCES),
     sourceDomainAllowlist: parseCsv(environment.SOURCE_DOMAIN_ALLOWLIST),
     requireSearchProvenance: readBoolean(environment.REQUIRE_SEARCH_PROVENANCE, true),
     lookbackHours: readInteger(environment.BRIEF_LOOKBACK_HOURS, 72, 1, 168),
